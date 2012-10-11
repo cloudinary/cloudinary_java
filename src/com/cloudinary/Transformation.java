@@ -1,0 +1,183 @@
+package com.cloudinary;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
+
+@SuppressWarnings({"rawtypes","unchecked"})
+public class Transformation {
+	protected Map transformation;
+	protected List<Map> transformations;
+	private String htmlWidth;
+	protected String htmlHeight;	
+	
+	// Warning: options will destructively updated!
+	public Transformation(List<Map> transformations) {
+		this.transformations = transformations;
+		if (transformations.isEmpty()) {
+			chain();
+		} else {
+			this.transformation = transformations.get(transformations.size() - 1);
+		}
+	}
+	
+	public Transformation() {
+		this.transformations = new ArrayList<Map>();
+		chain();
+	}
+
+	public Transformation width(Object value) { return param("width", value); }
+	public Transformation height(Object value) { return param("height", value); }
+	public Transformation named(String...value) { return param("transformation", value); }
+	public Transformation crop(String value) { return param("crop", value); }
+	public Transformation background(String value) { return param("background", value); }
+	public Transformation effect(String value) { return param("effect", value); }
+	public Transformation effect(String effect, Object param) { return param("effect", effect + ":" + param); }
+	public Transformation angle(int value) { return param("angle", value); }
+	public Transformation angle(String...value) { return param("angle", value); }
+	public Transformation border(String value) { return param("border", value); }
+	public Transformation border(int width, String color) { return param("border", "" + width + "px_solid_" + color.replaceFirst("^#", "rgb:")); }
+	public Transformation x(Object value) { return param("x", value); }
+	public Transformation y(Object value) { return param("y", value); }
+	public Transformation radius(Object value) { return param("radius", value); }
+	public Transformation quality(Object value) { return param("quality", value); }
+	public Transformation default_image(String value) { return param("default_image", value); }
+	public Transformation gravity(String value) { return param("gravity", value); }
+	public Transformation color_space(String value) { return param("color_space", value); }
+	public Transformation prefix(String value) { return param("prefix", value); }
+	public Transformation overlay(String value) { return param("overlay", value); }
+	public Transformation underlay(String value) { return param("underlay", value); }
+	public Transformation fetch_format(String value) { return param("fetch_format", value); }
+	public Transformation density(Object value) { return param("density", value); }
+	public Transformation page(Object value) { return param("page", value); }
+	public Transformation delay(Object value) { return param("delay", value); }
+	public Transformation raw_transformation(String value) { return param("raw_transformation", value); }
+	
+	// Warning: options will destructively updated!
+	public Transformation params(Map transformation) {
+		this.transformation = transformation;
+		transformations.add(transformation);
+		return this;
+	}
+	
+	public Transformation chain() {
+		return params(new HashMap());
+	}
+	
+	public Transformation param(String key, Object value) {
+		transformation.put(key, value);
+		return this;
+	}
+
+	public String generate() {
+		return generate(transformations);
+	}
+
+	public String generate(Iterable<Map> options_list) {
+		List<String> components = new ArrayList<String>();
+		for (Map options : options_list) {
+			components.add(generate(options));
+		}
+		return StringUtils.join(components, "/");
+	}
+
+	public String generate(Map options) {
+		String size = (String) options.get("size");
+		if (size != null) {
+			String[] size_components = size.split("x");
+			options.put("width", size_components[0]);
+			options.put("height", size_components[1]);
+		}
+		String width = this.htmlWidth = Cloudinary.as_string(options.get("width"));
+		String height = this.htmlHeight = Cloudinary.as_string(options.get("height"));
+		boolean has_layer = StringUtils.isNotBlank((String) options.get("overlay")) || 
+				            StringUtils.isNotBlank((String) options.get("underlay"));
+		     
+		String crop = (String) options.get("crop");
+		String angle = StringUtils.join(Cloudinary.as_array(options.get("angle")), ".");
+		
+		boolean no_html_sizes = has_layer || StringUtils.isNotBlank(angle) || "fit".equals(crop) || "limit".equals("crop");
+		if (width != null && (Float.parseFloat(width) < 1 || no_html_sizes)) {
+			this.htmlWidth = null;
+		}
+		if (height != null && (Float.parseFloat(height) < 1 || no_html_sizes)) {
+			this.htmlHeight = null;
+		}
+
+		String background = (String) options.get("background");
+		if (background != null) {
+			background = background.replaceFirst("^#", "rgb:");
+		}
+		    
+		List transformations = Cloudinary.as_array(options.get("transformation"));
+		Predicate is_a_map = new Predicate() {			
+			public boolean evaluate(Object value) {
+				return value instanceof Map;
+			}
+		};
+		String named_transformation = null; 
+		if (CollectionUtils.exists(transformations, is_a_map)) {
+			CollectionUtils.transform(transformations, new Transformer() {
+				public Object transform(Object base_transformation) {
+					if (base_transformation instanceof Map) {
+						return generate((Map) base_transformation); 
+					} else {
+						Map map = new HashMap();
+						map.put("transformation", base_transformation);
+						return generate(map);
+					}
+				}
+			});
+		} else {
+			named_transformation = StringUtils.join(transformations, ".");
+			transformations = new ArrayList();
+		}
+		
+		SortedMap<String, String> params = new TreeMap<String, String>();
+		params.put("w", width);
+		params.put("h", height);
+		params.put("t", named_transformation);
+		params.put("c", crop);
+		params.put("b", background);
+		params.put("a", angle);
+		String[] simple_params = new String[]{
+			"x", "x", "y", "y", "r", "radius", "d", "default_image", "g", "gravity", "cs", "color_space",
+			"p", "prefix", "l", "overlay", "u", "underlay", "f", "fetch_format", "dn", "density",
+			"pg", "page", "dl", "delay", "e", "effect", "bo", "border", "q", "quality"
+		};
+		for (int i = 0; i < simple_params.length; i+=2) {
+			params.put(simple_params[i], Cloudinary.as_string(options.get(simple_params[i+1])));
+		}
+		List<String> components = new ArrayList<String>();
+		for (Map.Entry<String, String> param : params.entrySet()) {
+			if (StringUtils.isNotBlank(param.getValue())) {
+				components.add(param.getKey() + "_" + param.getValue());
+			}
+		}
+		String raw_transformation = (String) options.get("raw_transformation");
+		if (raw_transformation != null) {
+			components.add(raw_transformation);
+		}
+		if (!components.isEmpty()) {
+			transformations.add(StringUtils.join(components, ","));
+		}		
+		return StringUtils.join(transformations, "/");
+	}
+
+	public String getHtmlWidth() {
+		return htmlWidth;
+	}
+
+	public String getHtmlHeight() {
+		return htmlHeight;
+	}
+
+}

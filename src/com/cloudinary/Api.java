@@ -99,129 +99,121 @@ public class Api {
 		this.cloudinary = cloudinary;
 	}
 
-	public Map resource_types(Map options) throws Exception {
-		return call_api(HttpMethod.GET, Arrays.asList("resources"), new HashMap(), options);
+	public Map resourceTypes(Map options) throws Exception {
+		return callApi(HttpMethod.GET, Arrays.asList("resources"), Cloudinary.emptyMap(), options);
 	}
 
 	public Map resources(Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		String type = Cloudinary.as_string(options.get("type"));
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		String type = Cloudinary.asString(options.get("type"));
 		List<String> uri = new ArrayList<String>();
 		uri.add("resources");
-		uri.add(resource_type);
+		uri.add(resourceType);
 		if (type != null)
 			uri.add(type);
-		return call_api(HttpMethod.GET, uri, only(options, "next_cursor", "max_results", "prefix"), options);
+		return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "max_results", "prefix"), options);
 	}
 
-	public Map resources_by_tag(String tag, Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		return call_api(HttpMethod.GET, Arrays.asList("resources", resource_type, "tags", tag), only(options, "next_cursor", "max_results"), options);
+	public Map resourcesByTag(String tag, Map options) throws Exception {
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "max_results"), options);
 	}
 
 	public Map resource(String public_id, Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		String type = Cloudinary.as_string(options.get("type"), "upload");
-		return call_api(HttpMethod.GET, Arrays.asList("resources", resource_type, type, public_id),
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		String type = Cloudinary.asString(options.get("type"), "upload");
+		return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
 				only(options, "exif", "colors", "faces", "max_results"), options);
 	}
 
-	public Map delete_resources(Iterable<String> public_ids, Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		String type = Cloudinary.as_string(options.get("type"), "upload");
-		Map params = new HashMap();
-		params.put("public_ids", public_ids);
-		return call_api(HttpMethod.DELETE, Arrays.asList("resources", resource_type, type), params, options);
+	public Map deleteResources(Iterable<String> publicIds, Map options) throws Exception {
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		String type = Cloudinary.asString(options.get("type"), "upload");
+		return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), Cloudinary.asMap("public_ids", publicIds), options);
 	}
 
-	public Map delete_resources_by_prefix(String prefix, Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		String type = Cloudinary.as_string(options.get("type"), "upload");
-		Map params = new HashMap();
-		params.put("prefix", prefix);
-		return call_api(HttpMethod.DELETE, Arrays.asList("resources", resource_type, type), params, options);
+	public Map deleteResourcesByPrefix(String prefix, Map options) throws Exception {
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		String type = Cloudinary.asString(options.get("type"), "upload");
+		return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), Cloudinary.asMap("prefix", prefix), options);
 	}
 
-	public Map delete_derived_resources(Iterable<String> derived_resource_ids, Map options) throws Exception {
-		Map params = new HashMap();
-		params.put("derived_resource_ids", derived_resource_ids);
-		return call_api(HttpMethod.DELETE, Arrays.asList("derived_resources"), params, options);
+	public Map deleteDerivedResources(Iterable<String> derivedResourceIds, Map options) throws Exception {
+		return callApi(HttpMethod.DELETE, Arrays.asList("derived_resources"), Cloudinary.asMap("derived_resource_ids", derivedResourceIds), options);
 	}
 
 	public Map tags(Map options) throws Exception {
-		String resource_type = Cloudinary.as_string(options.get("resource_type"), "image");
-		return call_api(HttpMethod.GET, Arrays.asList("tags", resource_type), only(options, "next_cursor", "max_results", "prefix"), options);
+		String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+		return callApi(HttpMethod.GET, Arrays.asList("tags", resourceType), only(options, "next_cursor", "max_results", "prefix"), options);
 	}
 
 	public Map transformations(Map options) throws Exception {
-		return call_api(HttpMethod.GET, Arrays.asList("transformations"), only(options, "next_cursor", "max_results"), options);
+		return callApi(HttpMethod.GET, Arrays.asList("transformations"), only(options, "next_cursor", "max_results"), options);
 	}
 
 	public Map transformation(String transformation, Map options) throws Exception {
-		return call_api(HttpMethod.GET, Arrays.asList("transformations", transformation), only(options, "max_results"), options);
+		return callApi(HttpMethod.GET, Arrays.asList("transformations", transformation), only(options, "max_results"), options);
 	}
 
-	public Map delete_transformation(String transformation, Map options) throws Exception {
-		return call_api(HttpMethod.DELETE, Arrays.asList("transformations", transformation), new HashMap(), options);
+	public Map deleteTransformation(String transformation, Map options) throws Exception {
+		return callApi(HttpMethod.DELETE, Arrays.asList("transformations", transformation), Cloudinary.emptyMap(), options);
 	}
 
 	// updates - currently only supported update is the "allowed_for_strict"
 	// boolean flag
-	public Map update_transformation(String transformation, Map updates, Map options) throws Exception {
-		return call_api(HttpMethod.PUT, Arrays.asList("transformations", transformation), updates, options);
+	public Map updateTransformation(String transformation, Map updates, Map options) throws Exception {
+		return callApi(HttpMethod.PUT, Arrays.asList("transformations", transformation), updates, options);
 	}
 
-	public Map create_transformation(String name, String definition, Map options) throws Exception {
-		Map params = new HashMap();
-		params.put("transformation", definition);
-		return call_api(HttpMethod.POST, Arrays.asList("transformations", name), params, options);
+	public Map createTransformation(String name, String definition, Map options) throws Exception {
+		return callApi(HttpMethod.POST, Arrays.asList("transformations", name), Cloudinary.asMap("transformation", definition), options);
 	}
 
-	protected Map call_api(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
-		String prefix = Cloudinary.as_string(options.get("upload_prefix"),
+	protected Map callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
+		String prefix = Cloudinary.asString(options.get("upload_prefix"),
 				this.cloudinary.getStringConfig("upload_prefix", "https://api.cloudinary.com"));
-		String cloud_name = Cloudinary.as_string(options.get("cloud_name"), this.cloudinary.getStringConfig("cloud_name"));
-		if (cloud_name == null)
+		String cloudName = Cloudinary.asString(options.get("cloud_name"), this.cloudinary.getStringConfig("cloud_name"));
+		if (cloudName == null)
 			throw new IllegalArgumentException("Must supply cloud_name");
-		String api_key = Cloudinary.as_string(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (api_key == null)
+		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String api_secret = Cloudinary.as_string(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (api_secret == null)
+		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 
-		String api_url = StringUtils.join(Arrays.asList(prefix, "v1_1", cloud_name), "/");
+		String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
 		for (String component : uri) {
-			api_url = api_url + "/" + component;
+			apiUrl = apiUrl + "/" + component;
 		}
-		URIBuilder api_url_builder = new URIBuilder(api_url);
+		URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
 		for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
 			if (param.getValue() instanceof Iterable) {
 				for (String single : (Iterable<String>) param.getValue()) {
-					api_url_builder.addParameter(param.getKey() + "[]", single);
+					apiUrlBuilder.addParameter(param.getKey() + "[]", single);
 				}
 			} else {
-				api_url_builder.addParameter(param.getKey(), Cloudinary.as_string(param.getValue()));
+				apiUrlBuilder.addParameter(param.getKey(), Cloudinary.asString(param.getValue()));
 			}  
 		}
 		DefaultHttpClient client = new DefaultHttpClient();
-		URI api_uri = api_url_builder.build();
+		URI apiUri = apiUrlBuilder.build();
 		HttpUriRequest request = null;
 		switch (method) {
-		case GET: request = new HttpGet(api_uri); break;
-		case PUT: request = new HttpPut(api_uri); break;
-		case POST: request = new HttpPost(api_uri); break;
-		case DELETE: request = new HttpDelete(api_uri); break;
+		case GET: request = new HttpGet(apiUri); break;
+		case PUT: request = new HttpPut(apiUri); break;
+		case POST: request = new HttpPost(apiUri); break;
+		case DELETE: request = new HttpDelete(apiUri); break;
 		}
-		request.setHeader("Authorization", "Basic " + Base64.encodeBase64String((api_key + ":" + api_secret).getBytes()));
+		request.setHeader("Authorization", "Basic " + Base64.encodeBase64String((apiKey + ":" + apiSecret).getBytes()));
 		HttpResponse response = client.execute(request);
 
 		int code = response.getStatusLine().getStatusCode();
 		InputStream responseStream = response.getEntity().getContent();
 		String responseData = Uploader.readFully(responseStream);
 
-		Class<? extends Exception> exception_class = CLOUDINARY_API_ERROR_CLASSES.get(code);
-		if (code != 200 && exception_class == null) {
+		Class<? extends Exception> exceptionClass = CLOUDINARY_API_ERROR_CLASSES.get(code);
+		if (code != 200 && exceptionClass == null) {
 			throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
 		}
 		Map result;
@@ -235,7 +227,7 @@ public class Api {
 			return new Response(response, result);
 		} else {
 			String message = (String) ((Map) result.get("error")).get("message");
-			Constructor<? extends Exception> exceptionConstructor = exception_class.getConstructor(String.class);
+			Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
 			throw exceptionConstructor.newInstance(message);
 		}
 	}

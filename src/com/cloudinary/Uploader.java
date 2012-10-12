@@ -29,7 +29,7 @@ public class Uploader {
 		this.cloudinary = cloudinary;
 	}
 
-	public Map<String, String> build_upload_params(Map options) {
+	public Map<String, String> buildUploadParams(Map options) {
 		Map<String, String> params = new HashMap<String, String>();
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
@@ -42,61 +42,61 @@ public class Uploader {
 		params.put("callback", (String) options.get("callback"));
 		params.put("format", (String) options.get("format"));
 		params.put("type", (String) options.get("type"));
-		Boolean backup = Cloudinary.as_bool(options.get("backup"), null);
+		Boolean backup = Cloudinary.asBoolean(options.get("backup"), null);
 		if (backup != null)
 			options.put("backup", backup.toString());
-		params.put("eager", build_eager((List<Transformation>) options.get("eager")));
-		params.put("headers", build_custom_headers(options.get("headers")));
-		params.put("tags", StringUtils.join(Cloudinary.as_array(options.get("tags")), ","));
+		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+		params.put("headers", buildCustomHeaders(options.get("headers")));
+		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
 		return params;
 	}
 
 	public Map upload(Object file, Map options) throws IOException {
-		Map<String, String> params = build_upload_params(options);
-		return call_api("upload", params, options, file);
+		Map<String, String> params = buildUploadParams(options);
+		return callApi("upload", params, options, file);
 	}
 
-	public Map destroy(String public_id, Map options) throws IOException {
+	public Map destroy(String publicId, Map options) throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("type", (String) options.get("type"));
-		params.put("public_id", public_id);
-		return call_api("destroy", params, options, null);
+		params.put("public_id", publicId);
+		return callApi("destroy", params, options, null);
 	}
 
-	public Map explicit(String public_id, Map options) throws IOException {
+	public Map explicit(String publicId, Map options) throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("public_id", public_id);
+		params.put("public_id", publicId);
 		params.put("callback", (String) options.get("callback"));
 		params.put("type", (String) options.get("type"));
-		params.put("eager", build_eager((List<Transformation>) options.get("eager")));
-		params.put("headers", build_custom_headers(options.get("headers")));
-		params.put("tags", StringUtils.join(Cloudinary.as_array(options.get("tags")), ","));
-		return call_api("explicit", params, options, null);
+		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+		params.put("headers", buildCustomHeaders(options.get("headers")));
+		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
+		return callApi("explicit", params, options, null);
 	}
 
 	// options may include 'exclusive' (boolean) which causes clearing this tag
 	// from all other resources
-	public Map add_tag(String tag, String[] public_ids, Map options) throws IOException {
-		boolean exclusive = Cloudinary.as_bool(options.get("exclusive"), false);
+	public Map addTag(String tag, String[] publicIds, Map options) throws IOException {
+		boolean exclusive = Cloudinary.asBoolean(options.get("exclusive"), false);
 		String command = exclusive ? "set_exclusive" : "add";
-		return call_tags_api(tag, command, public_ids, options);
+		return callTagsApi(tag, command, publicIds, options);
 	}
 
-	public Map remove_tag(String tag, String[] public_ids, Map options) throws IOException {
-		return call_tags_api(tag, "remove", public_ids, options);
+	public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
+		return callTagsApi(tag, "remove", publicIds, options);
 	}
 
-	public Map replace_tag(String tag, String[] public_ids, Map options) throws IOException {
-		return call_tags_api(tag, "replace", public_ids, options);
+	public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
+		return callTagsApi(tag, "replace", publicIds, options);
 	}
 
-	public Map call_tags_api(String tag, String command, String[] public_ids, Map options) throws IOException {
+	public Map callTagsApi(String tag, String command, String[] publicIds, Map options) throws IOException {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("tag", tag);
 		params.put("command", command);
 		params.put("type", (String) options.get("type"));
-		params.put("public_ids", StringUtils.join(public_ids, ","));
-		return call_api("tags", params, options, null);
+		params.put("public_ids", StringUtils.join(publicIds, ","));
+		return callApi("tags", params, options, null);
 	}
 
 	private final static String[] TEXT_PARAMS = { "public_id", "font_family", "font_size", "font_color", "text_align", "font_weight",
@@ -106,28 +106,28 @@ public class Uploader {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("text", text);
 		for (String param : TEXT_PARAMS) {
-			params.put(param, Cloudinary.as_string(options.get(param)));
+			params.put(param, Cloudinary.asString(options.get(param)));
 		}
-		return call_api("text", params, options, null);
+		return callApi("text", params, options, null);
 	}
 
-	public Map call_api(String action, Map<String, String> params, Map options, Object file) throws IOException {
-		boolean return_error = Cloudinary.as_bool(options.get("return_error"), false);
-		String api_key = Cloudinary.as_string(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (api_key == null)
+	public Map callApi(String action, Map<String, String> params, Map options, Object file) throws IOException {
+		boolean returnError = Cloudinary.asBoolean(options.get("return_error"), false);
+		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String api_secret = Cloudinary.as_string(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (api_secret == null)
+		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
-		params.put("signature", this.cloudinary.api_sign_request(params, api_secret));
-		params.put("api_key", api_key);
+		params.put("signature", this.cloudinary.apiSignRequest(params, apiSecret));
+		params.put("api_key", apiKey);
 
-		String api_url = cloudinary.cloudinary_api_url(action, options);
+		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
 
 		HttpClient client = new DefaultHttpClient();
 
-		HttpPost postMethod = new HttpPost(api_url);
+		HttpPost postMethod = new HttpPost(apiUrl);
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		// Remove blank parameters
 		for (Map.Entry<String, String> param : params.entrySet()) {
@@ -163,7 +163,7 @@ public class Uploader {
 		}
 		if (result.containsKey("error")) {
 			Map error = (Map) result.get("error");
-			if (return_error) {
+			if (returnError) {
 				error.put("http_code", code);
 			} else {
 				throw new RuntimeException((String) error.get("message"));
@@ -182,7 +182,7 @@ public class Uploader {
 		return new String(baos.toByteArray());
 	}
 
-	protected String build_eager(List<? extends Transformation> transformations) {
+	protected String buildEager(List<? extends Transformation> transformations) {
 		if (transformations == null) {
 			return null;
 		}
@@ -204,7 +204,7 @@ public class Uploader {
 		return StringUtils.join(eager, "|");
 	}
 
-	protected String build_custom_headers(Object headers) {
+	protected String buildCustomHeaders(Object headers) {
 		if (headers == null) {
 			return null;
 		} else if (headers instanceof String) {
@@ -212,9 +212,9 @@ public class Uploader {
 		} else if (headers instanceof Object[]) {
 			return StringUtils.join((Object[]) headers, "\n") + "\n";
 		} else {
-			Map<String, String> headers_map = (Map<String, String>) headers;
+			Map<String, String> headersMap = (Map<String, String>) headers;
 			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<String, String> header : headers_map.entrySet()) {
+			for (Map.Entry<String, String> header : headersMap.entrySet()) {
 				builder.append(header.getKey()).append(": ").append(header.getValue()).append("\n");
 			}
 			return builder.toString();

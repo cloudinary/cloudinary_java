@@ -6,9 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -18,6 +20,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
@@ -30,6 +33,7 @@ public class Uploader {
 	}
 
 	public Map<String, String> buildUploadParams(Map options) {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = new HashMap<String, String>();
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
@@ -52,11 +56,13 @@ public class Uploader {
 	}
 
 	public Map upload(Object file, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = buildUploadParams(options);
 		return callApi("upload", params, options, file);
 	}
 
 	public Map destroy(String publicId, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("type", (String) options.get("type"));
 		params.put("public_id", publicId);
@@ -64,6 +70,7 @@ public class Uploader {
 	}
 
 	public Map explicit(String publicId, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("public_id", publicId);
 		params.put("callback", (String) options.get("callback"));
@@ -77,20 +84,24 @@ public class Uploader {
 	// options may include 'exclusive' (boolean) which causes clearing this tag
 	// from all other resources
 	public Map addTag(String tag, String[] publicIds, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		boolean exclusive = Cloudinary.asBoolean(options.get("exclusive"), false);
 		String command = exclusive ? "set_exclusive" : "add";
 		return callTagsApi(tag, command, publicIds, options);
 	}
 
 	public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		return callTagsApi(tag, "remove", publicIds, options);
 	}
 
 	public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		return callTagsApi(tag, "replace", publicIds, options);
 	}
 
 	public Map callTagsApi(String tag, String command, String[] publicIds, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("tag", tag);
 		params.put("command", command);
@@ -103,6 +114,7 @@ public class Uploader {
 			"font_style", "background", "opacity", "text_decoration" };
 
 	public Map text(String text, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("text", text);
 		for (String param : TEXT_PARAMS) {
@@ -112,6 +124,7 @@ public class Uploader {
 	}
 
 	public Map callApi(String action, Map<String, String> params, Map options, Object file) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
 		boolean returnError = Cloudinary.asBoolean(options.get("return_error"), false);
 		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
 		if (apiKey == null)
@@ -172,6 +185,53 @@ public class Uploader {
 		return result;
 	}
 
+	public String imageUploadTag(String field, Map options, Map<String, Object> htmlOptions) {
+        if (htmlOptions == null) htmlOptions = Cloudinary.emptyMap();
+        if (options == null) options = new HashMap();
+        if (options.get("resource_type") == null) { 
+        	options = new HashMap(options);
+        	options.put("resource_type", "auto");
+        }
+        String cloudinaryUploadUrl = this.cloudinary.cloudinaryApiUrl("upload", options);
+
+		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+		if (apiKey == null)
+			throw new IllegalArgumentException("Must supply api_key");
+		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+		if (apiSecret == null)
+			throw new IllegalArgumentException("Must supply api_secret");
+
+		Map<String, String> params = this.buildUploadParams(options);
+        params.put("signature", cloudinary.apiSignRequest(params, apiSecret));
+        params.put("api_key", apiKey);
+
+		// Remove blank parameters
+		for (Iterator<String> iterator = params.values().iterator(); iterator.hasNext(); ) {
+			String value = iterator.next();
+			if (StringUtils.isBlank(value)) {
+				iterator.remove();
+			}
+		}
+        
+		StringBuilder builder = new StringBuilder();
+		builder.append("<input type='file' name='file' data-url='").append(cloudinaryUploadUrl).
+				append("' data-form-data='").append(StringEscapeUtils.escapeHtml(JSONObject.toJSONString(params))).
+				append("' data-cloudinary-field='").append(field).
+				append("' class='cloudinary-fileupload");
+		if (htmlOptions.containsKey("class")) {
+			builder.append(" ").append(htmlOptions.get("class"));
+		}
+		for (Map.Entry<String, Object> htmlOption : htmlOptions.entrySet()) {
+			if (htmlOption.getKey().equals("class")) continue;
+			builder.append("' ").
+			        append(htmlOption.getKey()).
+			        append("='").
+			        append(StringEscapeUtils.escapeHtml(Cloudinary.asString(htmlOption.getValue())));
+		}
+		builder.append("'/>");
+		return builder.toString();
+    }
+	
 	protected static String readFully(InputStream in) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024];

@@ -72,4 +72,15 @@ public class UploaderTest {
         assertTrue(((Long) result.get("width")) > 1);
         assertTrue(((Long) result.get("height")) > 1);
     }
+    
+    @Test
+    public void testImageUploadTag() {
+    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
+    	assertTrue(tag.contains("type='file'"));
+    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
+    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
+    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
+    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
+    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+    }
 }

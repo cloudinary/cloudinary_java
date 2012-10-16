@@ -170,7 +170,7 @@ public class Cloudinary {
 	
 	public static Map asMap(Object...values) {
 		if (values.length % 2 != 0) throw new RuntimeException("Usage - (key, value, key, value, ...)");
-		Map result = new HashMap();
+		Map result = new HashMap(values.length / 2);
 		for (int i = 0; i < values.length; i+=2) {
 			result.put(values[i], values[i+1]);
 		}

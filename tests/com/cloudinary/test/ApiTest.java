@@ -169,6 +169,26 @@ public class ApiTest {
 		api.resource("api_test3", Cloudinary.emptyMap());
 	}
 
+	@Test(expected = Api.NotFound.class)
+	public void test09aDeleteResourcesByPrefix() throws Exception {
+		// should allow deleting resources
+		cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("public_id", "api_test_by_prefix"));
+		Map resource = api.resource("api_test_by_prefix", Cloudinary.emptyMap());
+		assertNotNull(resource);
+		api.deleteResourcesByPrefix("api_test_by", Cloudinary.emptyMap());
+		api.resource("api_test_by_prefix", Cloudinary.emptyMap());
+	}
+	
+	@Test(expected = Api.NotFound.class)
+	public void test09aDeleteResourcesByTags() throws Exception {
+		// should allow deleting resources
+		cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
+		Map resource = api.resource("api_test4", Cloudinary.emptyMap());
+		assertNotNull(resource);
+		api.deleteResourcesByTag("api_test_tag_for_delete", Cloudinary.emptyMap());
+		api.resource("api_test4", Cloudinary.emptyMap());
+	}
+
 	@Test
 	public void test10Tags() throws Exception {
 		// should allow listing tags

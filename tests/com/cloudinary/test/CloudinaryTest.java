@@ -296,6 +296,17 @@ public class CloudinaryTest {
 	}
 
 	@Test
+	public void testFlags() {
+		// should support flags
+		Transformation transformation = new Transformation().flags("abc");
+		String result = cloudinary.url().transformation(transformation).generate("test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc/test", result);
+		transformation = new Transformation().flags("abc", "def");
+		result = cloudinary.url().transformation(transformation).generate("test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc.def/test", result);
+	}
+	
+	@Test
 	public void testImageTag() {
 		Transformation transformation = new Transformation().width(100).height(101).crop("crop");
 		String result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image"));

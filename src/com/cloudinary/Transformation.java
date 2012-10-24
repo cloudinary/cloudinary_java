@@ -60,6 +60,7 @@ public class Transformation {
 	public Transformation page(Object value) { return param("page", value); }
 	public Transformation delay(Object value) { return param("delay", value); }
 	public Transformation rawTransformation(String value) { return param("raw_transformation", value); }
+	public Transformation flags(String...value) { return param("flags", value); }
 	
 	// Warning: options will destructively updated!
 	public Transformation params(Map transformation) {
@@ -140,6 +141,8 @@ public class Transformation {
 			namedTransformation = StringUtils.join(transformations, ".");
 			transformations = new ArrayList();
 		}
+
+		String flags = StringUtils.join(Cloudinary.asArray(options.get("flags")), ".");
 		
 		SortedMap<String, String> params = new TreeMap<String, String>();
 		params.put("w", width);
@@ -148,6 +151,7 @@ public class Transformation {
 		params.put("c", crop);
 		params.put("b", background);
 		params.put("a", angle);
+		params.put("fl", flags);
 		String[] simple_params = new String[]{
 			"x", "x", "y", "y", "r", "radius", "d", "default_image", "g", "gravity", "cs", "color_space",
 			"p", "prefix", "l", "overlay", "u", "underlay", "f", "fetch_format", "dn", "density",

@@ -31,6 +31,7 @@ public class Uploader {
 	public Uploader(Cloudinary cloudinary) {
 		this.cloudinary = cloudinary;
 	}
+	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors"};
 
 	public Map<String, String> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();
@@ -46,9 +47,11 @@ public class Uploader {
 		params.put("callback", (String) options.get("callback"));
 		params.put("format", (String) options.get("format"));
 		params.put("type", (String) options.get("type"));
-		Boolean backup = Cloudinary.asBoolean(options.get("backup"), null);
-		if (backup != null)
-			options.put("backup", backup.toString());
+		for (String attr : BOOLEAN_UPLOAD_OPTIONS) {
+			Boolean value = Cloudinary.asBoolean(options.get(attr), null);
+			if (value != null)
+				options.put(attr, value.toString());			
+		}
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
 		params.put("headers", buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));

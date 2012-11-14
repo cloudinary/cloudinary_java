@@ -16,7 +16,7 @@ import org.apache.commons.lang.StringUtils;
 public class Transformation {
 	protected Map transformation;
 	protected List<Map> transformations;
-	private String htmlWidth;
+	protected String htmlWidth;
 	protected String htmlHeight;	
 	
 	// Warning: options will destructively updated!
@@ -105,7 +105,7 @@ public class Transformation {
 		String crop = (String) options.get("crop");
 		String angle = StringUtils.join(Cloudinary.asArray(options.get("angle")), ".");
 		
-		boolean no_html_sizes = has_layer || StringUtils.isNotBlank(angle) || "fit".equals(crop) || "limit".equals("crop");
+		boolean no_html_sizes = has_layer || StringUtils.isNotBlank(angle) || "fit".equals(crop) || "limit".equals(crop);
 		if (width != null && (Float.parseFloat(width) < 1 || no_html_sizes)) {
 			this.htmlWidth = null;
 		}

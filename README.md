@@ -67,7 +67,19 @@ by when initializing the Cloudinary object, or by using the CLOUDINARY_URL envir
 
 The entry point of the library is the Cloudinary object. 
 
-    cloudinary = new Cloudinary();
+    Cloudinary cloudinary = new Cloudinary();
+
+Here's an example of setting the configuration parameters programatically:
+
+    Map config = new HashMap();
+    config.put("cloud_name", "n07t21i7");
+    config.put("api_key", "123456789012345");
+    config.put("api_secret", "abcdeghijklmnopqrstuvwxyz12");
+    Cloudinary cloudinary = new Cloudinary(config);
+
+Another example of setting the configuration parameters by providing the CLOUDINARY_URL value to the constructor:
+
+    Cloudinary cloudinary = new Cloudinary("cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7");
 
 ### Embedding and transforming images
 

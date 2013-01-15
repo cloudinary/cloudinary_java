@@ -12,8 +12,6 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -212,9 +210,8 @@ public class Api {
 		URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
 		for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
 			if (param.getValue() instanceof Iterable) {
-				for (String single : (Iterable<String>) param.getValue()) {
-					apiUrlBuilder.addParameter(param.getKey() + "[]", single);
-				}
+			    String joinedValues = StringUtils.join(((Iterable<String>) param.getValue()).iterator(), ",");
+			    apiUrlBuilder.addParameter(param.getKey(), joinedValues);
 			} else {
 				apiUrlBuilder.addParameter(param.getKey(), Cloudinary.asString(param.getValue()));
 			}  

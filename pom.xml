@@ -4,6 +4,9 @@
   <artifactId>cloudinary_java</artifactId>
   <version>0.1-SNAPSHOT</version>
   <name>Cloudinary Java Client Library</name>
+  <properties>
+    <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
+  </properties>
   <dependencies>
   	<dependency>
   		<groupId>commons-lang</groupId>
@@ -51,4 +54,8 @@
   		<version>4.10</version>
   	</dependency>
   </dependencies>
+  <build>
+    <sourceDirectory>src</sourceDirectory>
+    <testSourceDirectory>tests</testSourceDirectory>
+  </build>
 </project>

@@ -152,7 +152,7 @@ public class Uploader {
 			}
 		}
 
-		if (file instanceof String && !((String) file).matches("^https?:")) {
+		if (file instanceof String && !((String) file).matches("^https?:.*")) {
 			file = new File((String) file);
 		}
 		if (file instanceof File) {

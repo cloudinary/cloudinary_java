@@ -75,12 +75,37 @@ public class UploaderTest {
     
     @Test
     public void testImageUploadTag() {
-    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
-    	assertTrue(tag.contains("type='file'"));
-    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
-    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
-    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
-    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
-    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+	    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
+	    	assertTrue(tag.contains("type='file'"));
+	    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
+	    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
+	    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
+	    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
+	    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+    }
+
+    @Test
+    public void testSprite() throws IOException {
+        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_1"));
+        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_2"));
+        Map result = cloudinary.uploader().generate_sprite("sprite_test_tag", Cloudinary.emptyMap());
+        assertEquals(2, ((Map) result.get("image_infos")).size()); 
+        result = cloudinary.uploader().generate_sprite("sprite_test_tag", Cloudinary.asMap("transformation", "w_100"));
+        assertTrue(((String) result.get("css_url")).contains("w_100"));
+        result = cloudinary.uploader().generate_sprite("sprite_test_tag", Cloudinary.asMap("transformation", new Transformation().width(100), "format", "jpg"));
+        assertTrue(((String) result.get("css_url")).contains("f_jpg,w_100"));
+    }
+
+    @Test
+    public void testMulti() throws IOException {
+        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_1"));
+        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_2"));
+        Map result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.emptyMap());
+        assertTrue(((String) result.get("url")).endsWith(".gif"));
+        result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.asMap("transformation", "w_100"));
+        assertTrue(((String) result.get("url")).contains("w_100"));
+        result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.asMap("transformation", new Transformation().width(111), "format", "pdf"));
+        assertTrue(((String) result.get("url")).contains("w_111"));
+        assertTrue(((String) result.get("url")).endsWith(".pdf"));
     }
 }

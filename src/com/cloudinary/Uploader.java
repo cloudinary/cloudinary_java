@@ -31,7 +31,7 @@ public class Uploader {
 	public Uploader(Cloudinary cloudinary) {
 		this.cloudinary = cloudinary;
 	}
-	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata"};
+	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "eager_async"};
 
 	public Map<String, String> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();
@@ -54,6 +54,8 @@ public class Uploader {
 		}
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
 		params.put("headers", buildCustomHeaders(options.get("headers")));
+		params.put("notification_url", (String) options.get("notification_url"));
+		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
 		return params;
 	}
@@ -84,6 +86,62 @@ public class Uploader {
 		return callApi("explicit", params, options, null);
 	}
 
+	public Map generate_sprite(String tag, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
+		Map<String, String> params = new HashMap<String, String>();
+		Object transParam = options.get("transformation");
+		Transformation transformation = null;
+		if (transParam instanceof Transformation) {
+			transformation = new Transformation((Transformation) transParam);
+		} else if (transParam instanceof String) {
+			transformation = new Transformation().rawTransformation((String) transParam);
+		} else {
+			transformation = new Transformation();
+		}
+		String format = (String) options.get("format");
+		if (format != null) {
+			transformation.fetchFormat(format);
+		}
+		params.put("transformation", transformation.generate());
+		params.put("tag", tag);
+		params.put("notification_url", (String) options.get("notification_url"));
+		params.put("async", Cloudinary.asBoolean(options.get("async"), false).toString());			
+		return callApi("sprite", params, options, null);
+	}
+
+	public Map multi(String tag, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
+		Map<String, String> params = new HashMap<String, String>();
+		Object transformation = options.get("transformation");
+		if (transformation != null) {
+			if (transformation instanceof Transformation) {
+				transformation = ((Transformation) transformation).generate();
+			}
+			params.put("transformation", transformation.toString());
+		}
+		params.put("tag", tag);
+		params.put("notification_url", (String) options.get("notification_url"));
+		params.put("format", (String) options.get("format"));
+		params.put("async", Cloudinary.asBoolean(options.get("async"), false).toString());			
+		return callApi("multi", params, options, null);
+	}
+
+	public Map explode(String public_id, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
+		Map<String, String> params = new HashMap<String, String>();
+		Object transformation = options.get("transformation");
+		if (transformation != null) {
+			if (transformation instanceof Transformation) {
+				transformation = ((Transformation) transformation).generate();
+			}
+			params.put("transformation", transformation.toString());
+		}
+		params.put("public_id", public_id);
+		params.put("notification_url", (String) options.get("notification_url"));
+		params.put("format", (String) options.get("format"));
+		return callApi("explode", params, options, null);
+	}
+	
 	// options may include 'exclusive' (boolean) which causes clearing this tag
 	// from all other resources
 	public Map addTag(String tag, String[] publicIds, Map options) throws IOException {

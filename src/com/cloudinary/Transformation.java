@@ -18,6 +18,10 @@ public class Transformation {
 	protected List<Map> transformations;
 	protected String htmlWidth;
 	protected String htmlHeight;	
+
+	public Transformation(Transformation transformation) {		
+		this(dup(transformation.transformations));
+	}
 	
 	// Warning: options will destructively updated!
 	public Transformation(List<Map> transformations) {
@@ -184,4 +188,11 @@ public class Transformation {
 		return htmlHeight;
 	}
 
+	private static List<Map> dup(List<Map> transformations) {
+		List<Map> result = new ArrayList<Map>(); 
+		for (Map params : transformations) {
+			result.add(new HashMap(params));
+		}
+		return result;
+	}
 }

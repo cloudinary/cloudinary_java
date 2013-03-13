@@ -36,7 +36,7 @@ public class CloudinaryTest {
 	public void testSecureDistribution() {
 		// should use default secure distribution if secure=TRUE
 		String result = cloudinary.url().secure(true).generate("test");
-		assertEquals("https://d3jpl91pxevbkh.cloudfront.net/test123/image/upload/test", result);
+		assertEquals("https://cloudinary-a.akamaihd.net/test123/image/upload/test", result);
 	}
 
 	@Test
@@ -54,12 +54,31 @@ public class CloudinaryTest {
 		assertEquals("https://config.secure.distribution.com/test123/image/upload/test", result);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void testMissingSecureDistribution() {
-		// should raise exception if secure is given with private_cdn and no
-		// secure_distribution
+	@Test
+	public void testSecureAkamai() {
+		// should default to akamai if secure is given with private_cdn and no secure_distribution
+		cloudinary.setConfig("secure", true);
 		cloudinary.setConfig("private_cdn", true);
-		cloudinary.url().secure(true).generate("test");
+		String result = cloudinary.url().generate("test");
+		assertEquals("https://cloudinary-a.akamaihd.net/test123/image/upload/test", result);
+	}
+
+	@Test
+	public void testSecureNonAkamai() {
+		// should not add cloud_name if private_cdn and secure non akamai secure_distribution
+		cloudinary.setConfig("secure", true);
+		cloudinary.setConfig("private_cdn", true);
+		cloudinary.setConfig("secure_distribution", "something.cloudfront.net");
+		String result = cloudinary.url().generate("test");
+		assertEquals("https://something.cloudfront.net/image/upload/test", result);
+	}
+
+	@Test
+	public void testHttpPrivateCdn() {
+		// should not add cloud_name if private_cdn and not secure
+		cloudinary.setConfig("private_cdn", true);
+		String result = cloudinary.url().generate("test");
+		assertEquals("http://test123-res.cloudinary.com/image/upload/test", result);
 	}
 
 	@Test

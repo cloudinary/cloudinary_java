@@ -111,11 +111,7 @@ public class Url {
           source = source + "." + format;
         }            
         if (secure && StringUtils.isBlank(secureDistribution)) {
-            if (privateCdn) {
-                throw new IllegalArgumentException("secure_distribution not defined");
-            } else {
-                secureDistribution = Cloudinary.SHARED_CDN;
-            }
+            secureDistribution = Cloudinary.SHARED_CDN;
         } 
         String prefix;
         if (secure) {
@@ -127,7 +123,7 @@ public class Url {
             String host = cname != null ? cname : (privateCdn ? cloudName + "-" : "") + "res.cloudinary.com";
             prefix = "http://" + subdomain + host;
         }
-        if (!privateCdn) prefix = prefix + "/" + cloudName;
+        if (!privateCdn || (secure && Cloudinary.AKAMAI_SHARED_CDN.equals(secureDistribution))) prefix = prefix + "/" + cloudName;
         if (version != null) version = "v" + version;
         
         return StringUtils.join(new String[]{prefix, resourceType, type, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");

@@ -20,8 +20,10 @@ import org.apache.commons.lang.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
-	public final static String SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
-
+	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+	public final static String AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
+	
 	private final Map config = new HashMap();
 	
 	public Cloudinary(Map config) {

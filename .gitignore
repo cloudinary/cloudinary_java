@@ -1,6 +1,13 @@
-bin
-lib
-target
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+.*
+target/
+test-output/
+.settings
 .classpath
 .project
-.settings

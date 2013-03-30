@@ -75,11 +75,16 @@ public class Cloudinary {
                (result.containsKey("format") ? "." + result.get("format") : "") + "#" + result.get("signature");
     }
 
-    public String apiSignRequest(Map<String, String> paramsToSign, String apiSecret) {
+    public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
     	Collection<String> params = new ArrayList<String>();
-        for (Map.Entry<String, String> param : new TreeMap<String, String>(paramsToSign).entrySet()) {
-            if (StringUtils.isNotBlank(param.getValue())) {
-                params.add(param.getKey() + "=" + param.getValue());
+        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
+            if (param.getValue() instanceof Collection) {
+                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
+            } else if (param.getValue() instanceof String) {
+            	String value = (String) param.getValue(); 
+            	if (StringUtils.isNotBlank(value)) {
+            		params.add(param.getKey() + "=" + value);
+            	}
             }
         }
         String to_sign = StringUtils.join(params, "&");

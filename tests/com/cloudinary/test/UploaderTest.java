@@ -41,7 +41,7 @@ public class UploaderTest {
         Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
         assertEquals(result.get("width"), 241L);
         assertEquals(result.get("height"), 51L);
-        Map<String, String> to_sign = new HashMap<String, String>();
+        Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", (String) result.get("public_id"));
         to_sign.put("version", Cloudinary.asString(result.get("version")));
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.getStringConfig("api_secret"));
@@ -75,13 +75,13 @@ public class UploaderTest {
     
     @Test
     public void testImageUploadTag() {
-	    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
-	    	assertTrue(tag.contains("type='file'"));
-	    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
-	    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
-	    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
-	    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
-	    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
+    	assertTrue(tag.contains("type='file'"));
+    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
+    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
+    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
+    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
+    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
     }
 
     @Test
@@ -107,5 +107,25 @@ public class UploaderTest {
         result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.asMap("transformation", new Transformation().width(111), "format", "pdf"));
         assertTrue(((String) result.get("url")).contains("w_111"));
         assertTrue(((String) result.get("url")).endsWith(".pdf"));
+    }
+
+    @Test
+    public void testTags() throws Exception {
+        Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        String public_id = (String)result.get("public_id");
+        Map result2 = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        String public_id2 = (String)result2.get("public_id");
+        cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, Cloudinary.emptyMap());
+        cloudinary.uploader().addTag("tag2", new String[]{public_id}, Cloudinary.emptyMap());
+        List<String> tags = (List<String>) cloudinary.api().resource(public_id, Cloudinary.emptyMap()).get("tags"); 
+        assertEquals(tags, Cloudinary.asArray(new String[]{"tag1", "tag2"}));
+        tags = (List<String>) cloudinary.api().resource(public_id2, Cloudinary.emptyMap()).get("tags"); 
+        assertEquals(tags, Cloudinary.asArray(new String[]{"tag1"}));
+        cloudinary.uploader().removeTag("tag1", new String[]{public_id}, Cloudinary.emptyMap());
+        tags = (List<String>) cloudinary.api().resource(public_id, Cloudinary.emptyMap()).get("tags"); 
+        assertEquals(tags, Cloudinary.asArray(new String[]{"tag2"}));
+        cloudinary.uploader().replaceTag("tag3", new String[]{public_id}, Cloudinary.emptyMap());
+        tags = (List<String>) cloudinary.api().resource(public_id, Cloudinary.emptyMap()).get("tags"); 
+        assertEquals(tags, Cloudinary.asArray(new String[]{"tag3"}));
     }
 }

@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,9 +35,9 @@ public class Uploader {
 	}
 	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "eager_async"};
 
-	public Map<String, String> buildUploadParams(Map options) {
+	public Map<String, Object> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
 			if (transformation instanceof Transformation) {
@@ -62,13 +64,13 @@ public class Uploader {
 
 	public Map upload(Object file, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = buildUploadParams(options);
+		Map<String, Object> params = buildUploadParams(options);
 		return callApi("upload", params, options, file);
 	}
 
 	public Map destroy(String publicId, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("type", (String) options.get("type"));
 		params.put("public_id", publicId);
 		return callApi("destroy", params, options, null);
@@ -76,7 +78,7 @@ public class Uploader {
 
 	public Map explicit(String publicId, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("public_id", publicId);
 		params.put("callback", (String) options.get("callback"));
 		params.put("type", (String) options.get("type"));
@@ -88,7 +90,7 @@ public class Uploader {
 
 	public Map generate_sprite(String tag, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		Object transParam = options.get("transformation");
 		Transformation transformation = null;
 		if (transParam instanceof Transformation) {
@@ -111,7 +113,7 @@ public class Uploader {
 
 	public Map multi(String tag, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
 			if (transformation instanceof Transformation) {
@@ -128,7 +130,7 @@ public class Uploader {
 
 	public Map explode(String public_id, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
 			if (transformation instanceof Transformation) {
@@ -163,11 +165,11 @@ public class Uploader {
 
 	public Map callTagsApi(String tag, String command, String[] publicIds, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("tag", tag);
 		params.put("command", command);
 		params.put("type", (String) options.get("type"));
-		params.put("public_ids", StringUtils.join(publicIds, ","));
+		params.put("public_ids", Arrays.asList(publicIds));
 		return callApi("tags", params, options, null);
 	}
 
@@ -176,7 +178,7 @@ public class Uploader {
 
 	public Map text(String text, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
-		Map<String, String> params = new HashMap<String, String>();
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("text", text);
 		for (String param : TEXT_PARAMS) {
 			params.put(param, Cloudinary.asString(options.get(param)));
@@ -184,7 +186,7 @@ public class Uploader {
 		return callApi("text", params, options, null);
 	}
 
-	public Map callApi(String action, Map<String, String> params, Map options, Object file) throws IOException {
+	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
 		boolean returnError = Cloudinary.asBoolean(options.get("return_error"), false);
 		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
@@ -204,9 +206,16 @@ public class Uploader {
 		HttpPost postMethod = new HttpPost(apiUrl);
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		// Remove blank parameters
-		for (Map.Entry<String, String> param : params.entrySet()) {
-			if (StringUtils.isNotBlank(param.getValue())) {
-				multipart.addPart(param.getKey(), new StringBody(param.getValue()));
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			if (param.getValue() instanceof String) { 
+				String value = (String) param.getValue();
+				if (StringUtils.isNotBlank(value)) {
+					multipart.addPart(param.getKey(), new StringBody(value));
+				}
+			} else if (param.getValue() instanceof Collection) {
+				for (Object value : (Collection) param.getValue()) {
+					multipart.addPart(param.getKey()+"[]", new StringBody(Cloudinary.asString(value)));					
+				}
 			}
 		}
 
@@ -262,13 +271,13 @@ public class Uploader {
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 
-		Map<String, String> params = this.buildUploadParams(options);
+		Map<String, Object> params = this.buildUploadParams(options);
         params.put("signature", cloudinary.apiSignRequest(params, apiSecret));
         params.put("api_key", apiKey);
 
 		// Remove blank parameters
-		for (Iterator<String> iterator = params.values().iterator(); iterator.hasNext(); ) {
-			String value = iterator.next();
+		for (Iterator<Object> iterator = params.values().iterator(); iterator.hasNext(); ) {
+			String value = (String) iterator.next();
 			if (StringUtils.isBlank(value)) {
 				iterator.remove();
 			}

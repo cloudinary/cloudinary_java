@@ -46,6 +46,10 @@ public class ApiTest {
             api.deleteTransformation("api_test_transformation2", Cloudinary.emptyMap());
         } catch (Exception e) {
         }
+        try {
+            api.deleteTransformation("api_test_transformation3", Cloudinary.emptyMap());
+        } catch (Exception e) {
+        }
         Map options = Cloudinary.asMap(
                 "public_id", "api_test", 
                 "tags", "api_test_tag",
@@ -248,6 +252,18 @@ public class ApiTest {
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(102)
+                .generate());
+        assertEquals(transformation.get("used"), false);
+    }
+
+    @Test
+    public void test15aTransformationUnsafeUpdate() throws Exception {
+        // should allow unsafe update of named transformation
+        api.createTransformation("api_test_transformation3", new Transformation().crop("scale").width(102).generate(), Cloudinary.emptyMap());
+        api.updateTransformation("api_test_transformation3", Cloudinary.asMap("unsafe_update", new Transformation().crop("scale").width(103).generate()), Cloudinary.emptyMap());
+        Map transformation = api.transformation("api_test_transformation3", Cloudinary.emptyMap());
+        assertNotNull(transformation);
+        assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(103)
                 .generate());
         assertEquals(transformation.get("used"), false);
     }

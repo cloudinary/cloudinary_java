@@ -185,8 +185,9 @@ public class Api {
         return callApi(HttpMethod.DELETE, Arrays.asList("transformations", transformation), Cloudinary.emptyMap(), options);
     }
 
-    // updates - currently only supported update is the "allowed_for_strict"
-    // boolean flag
+    // updates - currently only supported update are:
+    // "allowed_for_strict": boolean flag
+    // "unsafe_update": transformation string
     public Map updateTransformation(String transformation, Map updates, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.PUT, Arrays.asList("transformations", transformation), updates, options);

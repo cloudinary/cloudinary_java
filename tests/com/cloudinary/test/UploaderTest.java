@@ -1,6 +1,7 @@
 package com.cloudinary.test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
@@ -46,6 +47,25 @@ public class UploaderTest {
         to_sign.put("version", Cloudinary.asString(result.get("version")));
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.getStringConfig("api_secret"));
         assertEquals(result.get("signature"), expected_signature);
+    }
+
+    @Test
+	public void testRename() throws Exception {
+        Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+
+        cloudinary.uploader().rename((String) result.get("public_id"), result.get("public_id")+"2", Cloudinary.emptyMap());
+        assertNotNull(cloudinary.api().resource(result.get("public_id")+"2", Cloudinary.emptyMap()));
+
+        Map result2 = cloudinary.uploader().upload("tests/favicon.ico", Cloudinary.emptyMap());
+        boolean error_found=false;
+        try {
+        	cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id")+"2", Cloudinary.emptyMap());
+        } catch(Exception e) {
+        	error_found=true;
+        }
+        assertTrue(error_found);
+        cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id")+"2", Cloudinary.asMap("overwrite", Boolean.TRUE));
+        assertEquals(cloudinary.api().resource(result.get("public_id")+"2", Cloudinary.emptyMap()).get("format"), "ico");
     }
 
     @Test

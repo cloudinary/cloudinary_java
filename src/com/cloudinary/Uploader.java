@@ -76,6 +76,16 @@ public class Uploader {
 		return callApi("destroy", params, options, null);
 	}
 
+	public Map rename(String fromPublicId, String toPublicId, Map options) throws IOException {
+        if (options == null) options = Cloudinary.emptyMap();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("type", (String) options.get("type"));
+		params.put("overwrite", Cloudinary.asBoolean(options.get("overwrite"), false).toString());			
+		params.put("from_public_id", fromPublicId);
+		params.put("to_public_id", toPublicId);
+		return callApi("rename", params, options, null);
+	}
+
 	public Map explicit(String publicId, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
 		Map<String, Object> params = new HashMap<String, Object>();

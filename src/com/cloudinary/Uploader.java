@@ -33,7 +33,7 @@ public class Uploader {
 	public Uploader(Cloudinary cloudinary) {
 		this.cloudinary = cloudinary;
 	}
-	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "eager_async"};
+	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "eager_async", "invalidate"};
 
 	public Map<String, Object> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();
@@ -73,6 +73,7 @@ public class Uploader {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("type", (String) options.get("type"));
 		params.put("public_id", publicId);
+		params.put("invalidate", Cloudinary.asBoolean(options.get("invalidate"), false).toString());			
 		return callApi("destroy", params, options, null);
 	}
 

@@ -37,6 +37,10 @@ public class Url {
 	}
 
 	public Url resourcType(String resourceType) {
+		return resourceType(resourceType);
+	}
+	
+	public Url resourceType(String resourceType) {
 		this.resourceType = resourceType;
 		return this;
 	}
@@ -150,7 +154,7 @@ public class Url {
 		return StringUtils.join(new String[] { prefix, resourceType, type, transformationStr, version, source }, "/").replaceAll(
 				"([^:])\\/+", "$1/");
 	}
-
+	
 	public String imageTag(String source) {
 		return imageTag(source, Cloudinary.emptyMap());
 	}

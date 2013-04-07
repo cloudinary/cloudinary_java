@@ -3,6 +3,10 @@ package com.cloudinary.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.net.URISyntaxException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -332,6 +336,7 @@ public class CloudinaryTest {
 		assertEquals("<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>", result);
 	}
 
+	@Test
 	public void testFolders() {
 		// should add version if public_id contains /
 		String result = cloudinary.url().generate("folder/test");
@@ -340,15 +345,17 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/upload/v123/folder/test", result);
 	}
 
+	@Test
 	public void testFoldersWithVersion() {
 		// should not add version if public_id contains version already
 		String result = cloudinary.url().generate("v1234/test");
 		assertEquals("http://res.cloudinary.com/test123/image/upload/v1234/test", result);
 	}
 
+	@Test
 	public void testShorten() {
 		// should allow to shorted image/upload urls
 		String result = cloudinary.url().shorten(true).generate("test");
 		assertEquals("http://res.cloudinary.com/test123/iu/test", result);
-	}
+	}	
 }

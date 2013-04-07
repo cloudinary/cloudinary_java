@@ -2,6 +2,7 @@ package com.cloudinary;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -11,12 +12,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.client.utils.URLEncodedUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
@@ -98,7 +102,35 @@ public class Cloudinary {
         byte[] digest = md.digest((to_sign + apiSecret).getBytes());
         return Hex.encodeHexString(digest);
     }
-	
+
+	public String privateDownload(String publicId, String format, Map<String, Object> options) throws URISyntaxException {
+		String apiKey = Cloudinary.asString(options.get("api_key"), this.getStringConfig("api_key"));
+		if (apiKey == null)
+			throw new IllegalArgumentException("Must supply api_key");
+		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.getStringConfig("api_secret"));
+		if (apiSecret == null)
+			throw new IllegalArgumentException("Must supply api_secret");
+		Map<String, Object> params = new HashMap<String, Object>(); 
+		params.put("public_id", publicId);
+		params.put("format", format);
+		params.put("attachment", options.get("attachment"));
+		params.put("type", options.get("type"));
+		for (Iterator iterator = params.values().iterator(); iterator.hasNext();) {
+			Object value = iterator.next();
+			if (value == null || "".equals(value)) {
+				iterator.remove();
+			}
+		}
+		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		params.put("signature", this.apiSignRequest(params, apiSecret));
+		params.put("api_key", apiKey);
+		URIBuilder builder = new URIBuilder(cloudinaryApiUrl("download", options));
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			builder.addParameter(param.getKey(), param.getValue().toString());
+		}
+		return builder.toString();
+	}
+    
 	protected void initFromUrl(String cloudinaryUrl) {
 		URI cloudinaryUri = URI.create(cloudinaryUrl);
 		setConfig("cloud_name", cloudinaryUri.getHost());

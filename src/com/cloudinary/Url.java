@@ -124,6 +124,11 @@ public class Url {
             prefix = "http://" + subdomain + host;
         }
         if (!privateCdn || (secure && Cloudinary.AKAMAI_SHARED_CDN.equals(secureDistribution))) prefix = prefix + "/" + cloudName;
+
+        if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isBlank(version)) {
+        		version = "1";
+        }
+
         if (version != null) version = "v" + version;
         
         return StringUtils.join(new String[]{prefix, resourceType, type, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");

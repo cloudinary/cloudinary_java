@@ -331,4 +331,18 @@ public class CloudinaryTest {
 		String result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image"));
 		assertEquals("<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>", result);
 	}
+
+	public void testFolders() {
+		// should add version if public_id contains /
+		String result = cloudinary.url().generate("folder/test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/v1/folder/test", result);
+		result = cloudinary.url().version(123).generate("folder/test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/v123/folder/test", result);
+	}
+
+	public void testFoldersWithVersion() {
+		// should not add version if public_id contains version already
+		String result = cloudinary.url().generate("v1234/test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/v1234/test", result);
+	}
 }

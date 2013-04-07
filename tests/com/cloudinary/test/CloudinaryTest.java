@@ -345,4 +345,10 @@ public class CloudinaryTest {
 		String result = cloudinary.url().generate("v1234/test");
 		assertEquals("http://res.cloudinary.com/test123/image/upload/v1234/test", result);
 	}
+
+	public void testShorten() {
+		// should allow to shorted image/upload urls
+		String result = cloudinary.url().shorten(true).generate("test");
+		assertEquals("http://res.cloudinary.com/test123/iu/test", result);
+	}
 }

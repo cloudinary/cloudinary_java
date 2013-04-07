@@ -13,11 +13,12 @@ public class Url {
 	boolean privateCdn;
 	String secureDistribution;
 	boolean cdnSubdomain;
+	boolean shorten;
 	String cname;
-	String type = "upload"; 
+	String type = "upload";
 	String resourceType = "image";
 	String format = null;
-	String version = null;	
+	String version = null;
 	Transformation transformation = null;
 
 	public Url(Cloudinary cloudinary) {
@@ -27,8 +28,9 @@ public class Url {
 		this.secure = cloudinary.getBooleanConfig("secure", false);
 		this.privateCdn = cloudinary.getBooleanConfig("private_cdn", false);
 		this.cdnSubdomain = cloudinary.getBooleanConfig("cdn_subdomain", false);
+		this.shorten = cloudinary.getBooleanConfig("shorten", false);
 	}
-	
+
 	public Url type(String type) {
 		this.type = type;
 		return this;
@@ -63,7 +65,7 @@ public class Url {
 		this.version = Cloudinary.asString(version);
 		return this;
 	}
-	
+
 	public Url transformation(Transformation transformation) {
 		this.transformation = transformation;
 		return this;
@@ -84,8 +86,14 @@ public class Url {
 		return this;
 	}
 
+	public Url shorten(boolean shorten) {
+		this.shorten = shorten;
+		return this;
+	}
+
 	public Transformation transformation() {
-		if (this.transformation == null) this.transformation = new Transformation();
+		if (this.transformation == null)
+			this.transformation = new Transformation();
 		return this.transformation;
 	}
 
@@ -99,39 +107,48 @@ public class Url {
 			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
 		}
 
-        if (source == null) return null;
-        String original_source = source;
+		if (source == null)
+			return null;
+		String original_source = source;
 
-        if (source.toLowerCase().matches("^https?:/.*")) {
-          if ("upload".equals(type) || "asset".equals(type)) {
-        	  return original_source;
-          }
-          source = SmartUrlEncoder.encode(source);
-        } else if (format != null) {
-          source = source + "." + format;
-        }            
-        if (secure && StringUtils.isBlank(secureDistribution)) {
-            secureDistribution = Cloudinary.SHARED_CDN;
-        } 
-        String prefix;
-        if (secure) {
-            prefix = "https://" + secureDistribution;
-        } else {
-        	CRC32 crc32 = new CRC32();
-        	crc32.update(source.getBytes());
-            String subdomain = cdnSubdomain ? "a" + ((crc32.getValue() % 5 + 5) % 5 + 1) + "." : "";
-            String host = cname != null ? cname : (privateCdn ? cloudName + "-" : "") + "res.cloudinary.com";
-            prefix = "http://" + subdomain + host;
-        }
-        if (!privateCdn || (secure && Cloudinary.AKAMAI_SHARED_CDN.equals(secureDistribution))) prefix = prefix + "/" + cloudName;
+		if (source.toLowerCase().matches("^https?:/.*")) {
+			if ("upload".equals(type) || "asset".equals(type)) {
+				return original_source;
+			}
+			source = SmartUrlEncoder.encode(source);
+		} else if (format != null) {
+			source = source + "." + format;
+		}
+		if (secure && StringUtils.isBlank(secureDistribution)) {
+			secureDistribution = Cloudinary.SHARED_CDN;
+		}
+		String prefix;
+		if (secure) {
+			prefix = "https://" + secureDistribution;
+		} else {
+			CRC32 crc32 = new CRC32();
+			crc32.update(source.getBytes());
+			String subdomain = cdnSubdomain ? "a" + ((crc32.getValue() % 5 + 5) % 5 + 1) + "." : "";
+			String host = cname != null ? cname : (privateCdn ? cloudName + "-" : "") + "res.cloudinary.com";
+			prefix = "http://" + subdomain + host;
+		}
+		if (!privateCdn || (secure && Cloudinary.AKAMAI_SHARED_CDN.equals(secureDistribution)))
+			prefix = prefix + "/" + cloudName;
 
-        if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isBlank(version)) {
-        		version = "1";
-        }
+		if (shorten && resourceType.equals("image") && type.equals("upload")) {
+			resourceType = "iu";
+			type = "";
+		}
 
-        if (version != null) version = "v" + version;
-        
-        return StringUtils.join(new String[]{prefix, resourceType, type, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+		if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isBlank(version)) {
+			version = "1";
+		}
+
+		if (version != null)
+			version = "v" + version;
+
+		return StringUtils.join(new String[] { prefix, resourceType, type, transformationStr, version, source }, "/").replaceAll(
+				"([^:])\\/+", "$1/");
 	}
 
 	public String imageTag(String source) {
@@ -141,8 +158,10 @@ public class Url {
 	public String imageTag(String source, Map<String, String> attributes) {
 		String url = generate(source);
 		attributes = new TreeMap<String, String>(attributes); // Make sure they are ordered.
-		if (transformation().getHtmlHeight() != null) attributes.put("height", transformation().getHtmlHeight());
-		if (transformation().getHtmlWidth() != null) attributes.put("width", transformation().getHtmlWidth());
+		if (transformation().getHtmlHeight() != null)
+			attributes.put("height", transformation().getHtmlHeight());
+		if (transformation().getHtmlWidth() != null)
+			attributes.put("width", transformation().getHtmlWidth());
 		StringBuilder builder = new StringBuilder();
 		builder.append("<img src='").append(url).append("'");
 		for (Map.Entry<String, String> attr : attributes.entrySet()) {

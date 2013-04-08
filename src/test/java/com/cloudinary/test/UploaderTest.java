@@ -39,7 +39,7 @@ public class UploaderTest {
 
     @Test
 	public void testUpload() throws IOException {
-        Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
         assertEquals(result.get("width"), 241L);
         assertEquals(result.get("height"), 51L);
         Map<String, Object> to_sign = new HashMap<String, Object>();
@@ -51,12 +51,12 @@ public class UploaderTest {
 
     @Test
 	public void testRename() throws Exception {
-        Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
 
         cloudinary.uploader().rename((String) result.get("public_id"), result.get("public_id")+"2", Cloudinary.emptyMap());
         assertNotNull(cloudinary.api().resource(result.get("public_id")+"2", Cloudinary.emptyMap()));
 
-        Map result2 = cloudinary.uploader().upload("tests/favicon.ico", Cloudinary.emptyMap());
+        Map result2 = cloudinary.uploader().upload("src/test/resources/favicon.ico", Cloudinary.emptyMap());
         boolean error_found=false;
         try {
         	cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id")+"2", Cloudinary.emptyMap());
@@ -77,13 +77,13 @@ public class UploaderTest {
 
     @Test
 	public void testEager() throws IOException {
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
     }
 
     @Test
 	public void testHeaders() throws IOException {
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("headers", new String[]{"Link: 1"}));
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("headers", Cloudinary.asMap("Link", "1")));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("headers", new String[]{"Link: 1"}));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("headers", Cloudinary.asMap("Link", "1")));
     }
 
     @Test
@@ -106,8 +106,8 @@ public class UploaderTest {
 
     @Test
     public void testSprite() throws IOException {
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_1"));
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_2"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_1"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_2"));
         Map result = cloudinary.uploader().generate_sprite("sprite_test_tag", Cloudinary.emptyMap());
         assertEquals(2, ((Map) result.get("image_infos")).size()); 
         result = cloudinary.uploader().generate_sprite("sprite_test_tag", Cloudinary.asMap("transformation", "w_100"));
@@ -118,8 +118,8 @@ public class UploaderTest {
 
     @Test
     public void testMulti() throws IOException {
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_1"));
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_2"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_1"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("tags", "multi_test_tag", "public_id", "multi_test_tag_2"));
         Map result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.emptyMap());
         assertTrue(((String) result.get("url")).endsWith(".gif"));
         result = cloudinary.uploader().multi("multi_test_tag", Cloudinary.asMap("transformation", "w_100"));
@@ -131,9 +131,9 @@ public class UploaderTest {
 
     @Test
     public void testTags() throws Exception {
-        Map result = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
         String public_id = (String)result.get("public_id");
-        Map result2 = cloudinary.uploader().upload("tests/logo.png", Cloudinary.emptyMap());
+        Map result2 = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
         String public_id2 = (String)result2.get("public_id");
         cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, Cloudinary.emptyMap());
         cloudinary.uploader().addTag("tag2", new String[]{public_id}, Cloudinary.emptyMap());

@@ -20,7 +20,6 @@ import java.util.TreeMap;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.client.utils.URLEncodedUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {

@@ -54,9 +54,9 @@ public class ApiTest {
                 "public_id", "api_test", 
                 "tags", "api_test_tag",
                 "eager", Collections.singletonList(new Transformation().width(100).crop("scale"))); 
-        cloudinary.uploader().upload("tests/logo.png", options);
+        cloudinary.uploader().upload("src/test/resources/logo.png", options);
         options.put("public_id", "api_test1");
-        cloudinary.uploader().upload("tests/logo.png", options);
+        cloudinary.uploader().upload("src/test/resources/logo.png", options);
     }
 
     @Before
@@ -147,7 +147,7 @@ public class ApiTest {
     @Test
     public void test08DeleteDerived() throws Exception {
         // should allow deleting derived resource
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap(
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap(
                 "public_id", "api_test3",
                 "eager", Collections.singletonList(new Transformation().width(101).crop("scale"))
                 ));
@@ -166,7 +166,7 @@ public class ApiTest {
     @Test(expected = Api.NotFound.class)
     public void test09DeleteResources() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("public_id", "api_test3"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test3"));
         Map resource = api.resource("api_test3", Cloudinary.emptyMap());
         assertNotNull(resource);
         api.deleteResources(Arrays.asList("apit_test", "api_test2", "api_test3"), Cloudinary.emptyMap());
@@ -176,7 +176,7 @@ public class ApiTest {
     @Test(expected = Api.NotFound.class)
     public void test09aDeleteResourcesByPrefix() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("public_id", "api_test_by_prefix"));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test_by_prefix"));
         Map resource = api.resource("api_test_by_prefix", Cloudinary.emptyMap());
         assertNotNull(resource);
         api.deleteResourcesByPrefix("api_test_by", Cloudinary.emptyMap());
@@ -186,7 +186,7 @@ public class ApiTest {
     @Test(expected = Api.NotFound.class)
     public void test09aDeleteResourcesByTags() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("tests/logo.png", Cloudinary.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
         Map resource = api.resource("api_test4", Cloudinary.emptyMap());
         assertNotNull(resource);
         api.deleteResourcesByTag("api_test_tag_for_delete", Cloudinary.emptyMap());

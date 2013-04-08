@@ -33,6 +33,7 @@ public class ApiTest {
         Cloudinary cloudinary = new Cloudinary();
         if (cloudinary.getStringConfig("api_secret") == null) {
             System.err.println("Please setup environment for Upload test to run");
+            return;
         }
         Api api = cloudinary.api();
         try {

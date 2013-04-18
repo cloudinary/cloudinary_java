@@ -13,6 +13,8 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 For Java, Cloudinary provides a library for simplifying the integration even further.
 
+**Note:** This Java library is intended mainly for Web applications. For **Android** integration, there is a dedicated library with a similar interface: https://github.com/cloudinary/cloudinary_android
+
 ## Setup ######################################################################
 
 Download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)
@@ -91,13 +93,13 @@ The following example generates the url for accessing an uploaded `sample` image
 
 Another example, emedding a smaller version of an uploaded image while generating a 90x90 face detection based thumbnail: 
 
-    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face").generate("woman.jpg")
+    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg")
 
 You can provide either a Facebook name or a numeric ID of a Facebook profile or a fan page.  
              
 Embedding a Facebook profile to match your graphic design is very simple:
 
-    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west").generate("billclinton.jpg")
+    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg")
                            
 Same goes for Twitter:
 

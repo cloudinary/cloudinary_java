@@ -6,7 +6,7 @@
     <jsp-version>2.0</jsp-version>
     <short-name>Cloudinary Taglib</short-name>
     <tag>
-        <name>cloudinaryInput</name>
+        <name>upload</name>
         <tag-class>com.cloudinary.taglib.CloudinaryFileInputTag</tag-class>
         <body-content>scriptless</body-content>
         <attribute>

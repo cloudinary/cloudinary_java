@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import com.cloudinary.*;
 
-public class CloudinaryFileInputTag extends SimpleTagSupport {
+public class CloudinaryUploadTag extends SimpleTagSupport {
 
     private String resourceType = "auto";
     private String fieldName;

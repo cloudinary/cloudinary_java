@@ -196,19 +196,24 @@ public class Uploader {
 		}
 		return callApi("text", params, options, null);
 	}
+	
+	public void signRequestParams(Map<String, Object> params, Map options) {
+        String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+        if (apiKey == null)
+            throw new IllegalArgumentException("Must supply api_key");
+        String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+        if (apiSecret == null)
+            throw new IllegalArgumentException("Must supply api_secret");
+        params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+        params.put("signature", this.cloudinary.apiSignRequest(params, apiSecret));
+        params.put("api_key", apiKey);
+    }
+
 
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
 		boolean returnError = Cloudinary.asBoolean(options.get("return_error"), false);
-		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (apiSecret == null)
-			throw new IllegalArgumentException("Must supply api_secret");
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
-		params.put("signature", this.cloudinary.apiSignRequest(params, apiSecret));
-		params.put("api_key", apiKey);
+		signRequestParams(params, options);
 
 		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
 

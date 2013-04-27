@@ -13,9 +13,15 @@ import com.cloudinary.*;
 
 public class CloudinaryUploadTag extends SimpleTagSupport {
 
-    private String resourceType = "auto";
+    // HTML basics
+    private String id = null;
+    private String name = "file";
+    private String extraClasses = null;
+    
+    // Cloudinary Specific
+    private String tags = null;
     private String fieldName;
-    private String extraClasses;
+    private String resourceType = "auto";
     
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -29,10 +35,16 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         
         Map<String, String> attributes = new HashMap<String, String>();
         attributes.put("type", "file");
-        attributes.put("name", "file");
+        attributes.put("name", name);
+        if (id != null) {
+            attributes.put("id", id);
+        }
         
         Map<String, String> options = new HashMap<String, String>();
         options.put("resource_type", resourceType);
+        if (tags != null) {
+            options.put("tags", tags);
+        }
         
         String cloudinaryUrl = cloudinary.cloudinaryApiUrl("upload", options);
         
@@ -65,12 +77,36 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         getJspContext().getOut().println(renderedHtml.toString());
     }
 
-    public void setResourceType(String resourceType) {
-        this.resourceType = resourceType;
+    public void setId(String id) {
+        this.id = id;
     }
     
-    public String GetResourceType() {
-        return resourceType;
+    public String getId() {
+        return id;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public void setExtraClasses(String extraClasses) {
+        this.extraClasses = extraClasses;
+    }
+    
+    public String getExtraClasses() {
+        return extraClasses;
+    }
+    
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+    
+    public String getTags() {
+        return tags;
     }
     
     public void setFieldName(String fieldName) {
@@ -80,13 +116,13 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     public String getFieldName() {
         return fieldName;
     }
-    
-    public void setExtraClasses(String extraClasses) {
-        this.extraClasses = extraClasses;
+
+    public void setResourceType(String resourceType) {
+        this.resourceType = resourceType;
     }
     
-    public String getExtraClasses() {
-        return extraClasses;
+    public String GetResourceType() {
+        return resourceType;
     }
     
 }

@@ -16,6 +16,21 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>id</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>name</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>tags</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>extraClasses</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>

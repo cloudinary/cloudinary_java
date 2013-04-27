@@ -45,17 +45,19 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         StringBuilder jsonParams = new StringBuilder();
         jsonParams.append("{");
         for (Map.Entry<String, Object> entry : params.entrySet()) {
-            renderedHtml.append("'" + entry.getKey() + "':'" + entry.getValue() + "',");
+            if (entry.getValue() != null) {
+                jsonParams.append("'" + entry.getKey() + "':'" + entry.getValue() + "',");
+            }
         }
         jsonParams.append("}");
         String escapedJsonParams = StringEscapeUtils.escapeHtml4(jsonParams.toString());
         
         attributes.put("data-form-data", escapedJsonParams);
         attributes.put("data-cloudinary-field", fieldName);
-        attributes.put("class", extraClasses + " cloudinary-fileupload");
+        attributes.put("class", "cloudinary-fileupload" + ((extraClasses != null) ? " " + extraClasses : ""));
         
         for (Map.Entry<String, String> entry : attributes.entrySet()) {
-            renderedHtml.append(" " + entry.getKey() + "='" + entry.getValue() + "'");
+            renderedHtml.append(" " + entry.getKey() + "=\"" + entry.getValue() + "\"");
         }
 
         renderedHtml.append("/>");

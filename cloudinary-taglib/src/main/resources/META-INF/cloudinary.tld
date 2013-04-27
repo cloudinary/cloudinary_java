@@ -5,9 +5,10 @@
     <tlib-version>1.1</tlib-version>
     <jsp-version>2.0</jsp-version>
     <short-name>Cloudinary Taglib</short-name>
+    <uri>http://cloudinary.com/jsp/taglib</uri>
     <tag>
         <name>upload</name>
-        <tag-class>com.cloudinary.taglib.CloudinaryFileInputTag</tag-class>
+        <tag-class>com.cloudinary.taglib.CloudinaryUploadTag</tag-class>
         <body-content>scriptless</body-content>
         <attribute>
             <name>fieldName</name>

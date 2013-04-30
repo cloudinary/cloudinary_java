@@ -284,17 +284,15 @@ public class Uploader {
         	options.put("resource_type", "auto");
         }
         String cloudinaryUploadUrl = this.cloudinary.cloudinaryApiUrl("upload", options);
-
-		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (apiSecret == null)
-			throw new IllegalArgumentException("Must supply api_secret");
+		
+		String callback = Cloudinary.asString(options.get("callback"), this.cloudinary.getStringConfig("callback"));
+		if (callback == null) {
+		    throw new IllegalArgumentException("Must supply callback");
+		}
+		options.put("callback", callback);
 
 		Map<String, Object> params = this.buildUploadParams(options);
-        params.put("signature", cloudinary.apiSignRequest(params, apiSecret));
-        params.put("api_key", apiKey);
+		signRequestParams(params, options);
 
 		// Remove blank parameters
 		for (Iterator<Object> iterator = params.values().iterator(); iterator.hasNext(); ) {

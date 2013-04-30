@@ -19,8 +19,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.entity.mime.content.*;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -242,6 +241,12 @@ public class Uploader {
 			multipart.addPart("file", new FileBody((File) file));
 		} else if (file instanceof String) {
 			multipart.addPart("file", new StringBody((String) file));
+        } else if (file instanceof byte[]) {
+            multipart.addPart("file", new ByteArrayBody((byte[]) file, "file"));
+		} else if (file == null) {
+		    // no-problem
+		} else {
+		    throw new IOException("Uprecognized file parameter " + file);
 		}
 		postMethod.setEntity(multipart);
 

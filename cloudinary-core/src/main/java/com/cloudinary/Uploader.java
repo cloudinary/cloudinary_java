@@ -19,8 +19,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.entity.mime.content.*;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -196,19 +195,24 @@ public class Uploader {
 		}
 		return callApi("text", params, options, null);
 	}
+	
+	public void signRequestParams(Map<String, Object> params, Map options) {
+        String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+        if (apiKey == null)
+            throw new IllegalArgumentException("Must supply api_key");
+        String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+        if (apiSecret == null)
+            throw new IllegalArgumentException("Must supply api_secret");
+        params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+        params.put("signature", this.cloudinary.apiSignRequest(params, apiSecret));
+        params.put("api_key", apiKey);
+    }
+
 
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
 		boolean returnError = Cloudinary.asBoolean(options.get("return_error"), false);
-		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (apiSecret == null)
-			throw new IllegalArgumentException("Must supply api_secret");
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
-		params.put("signature", this.cloudinary.apiSignRequest(params, apiSecret));
-		params.put("api_key", apiKey);
+		signRequestParams(params, options);
 
 		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
 
@@ -237,6 +241,12 @@ public class Uploader {
 			multipart.addPart("file", new FileBody((File) file));
 		} else if (file instanceof String) {
 			multipart.addPart("file", new StringBody((String) file));
+        } else if (file instanceof byte[]) {
+            multipart.addPart("file", new ByteArrayBody((byte[]) file, "file"));
+		} else if (file == null) {
+		    // no-problem
+		} else {
+		    throw new IOException("Uprecognized file parameter " + file);
 		}
 		postMethod.setEntity(multipart);
 
@@ -274,17 +284,15 @@ public class Uploader {
         	options.put("resource_type", "auto");
         }
         String cloudinaryUploadUrl = this.cloudinary.cloudinaryApiUrl("upload", options);
-
-		String apiKey = Cloudinary.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
-		if (apiSecret == null)
-			throw new IllegalArgumentException("Must supply api_secret");
+		
+		String callback = Cloudinary.asString(options.get("callback"), this.cloudinary.getStringConfig("callback"));
+		if (callback == null) {
+		    throw new IllegalArgumentException("Must supply callback");
+		}
+		options.put("callback", callback);
 
 		Map<String, Object> params = this.buildUploadParams(options);
-        params.put("signature", cloudinary.apiSignRequest(params, apiSecret));
-        params.put("api_key", apiKey);
+		signRequestParams(params, options);
 
 		// Remove blank parameters
 		for (Iterator<Object> iterator = params.values().iterator(); iterator.hasNext(); ) {

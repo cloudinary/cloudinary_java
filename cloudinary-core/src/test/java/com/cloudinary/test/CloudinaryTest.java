@@ -189,14 +189,14 @@ public class CloudinaryTest {
 
 	@Test
 	public void testCname() {
-		// should support extenal cname
+		// should support external cname
 		String result = cloudinary.url().cname("hello.com").generate("test");
 		assertEquals("http://hello.com/test123/image/upload/test", result);
 	}
 
 	@Test
 	public void testCnameSubdomain() {
-		// should support extenal cname with cdn_subdomain on
+		// should support external cname with cdn_subdomain on
 		String result = cloudinary.url().cname("hello.com").cdnSubdomain(true).generate("test");
 		assertEquals("http://a2.hello.com/test123/image/upload/test", result);
 	}

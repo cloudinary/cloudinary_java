@@ -8,10 +8,16 @@
     </parent>
 
     <groupId>com.cloudinary</groupId>
-    <artifactId>cloudinary</artifactId>
+    <artifactId>cloudinary-parent</artifactId>
     <version>1.0.3-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>Cloudinary Java Client Library</name>
+    <packaging>pom</packaging>
+    <name>Cloudinary Java Client Library Parent Project</name>
+
+    <modules>
+        <module>cloudinary-core</module>
+        <module>cloudinary-taglib</module>
+    </modules>
+
     <description>
         Cloudinary is a cloud service that offers a solution to a web application's entire image management pipeline. 
 				Easily upload images to the cloud. Automatically perform smart image resizing, cropping and conversion without installing any complex software. 
@@ -85,6 +91,13 @@
                 </executions>
             </plugin>
         </plugins>
+        <extensions>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-webdav</artifactId>
+                <version>1.0-beta-2</version>
+            </extension>
+        </extensions>
     </build>
 
     <dependencies>
@@ -174,6 +187,21 @@
                     <id>releases</id>
                     <url>http://localhost:8081/nexus/content/repositories/releases</url>
                 </repository>
+            </distributionManagement>
+        </profile>
+        <profile>
+            <id>aldeploy</id>
+            <distributionManagement>
+                <repository>
+                    <id>cloudbees-releases</id>
+                    <name>Assured Labor Release Repo</name>
+                    <url>dav:https://repository-assured-labor.forge.cloudbees.com/release/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>cloudbees-snapshots</id>
+                    <name>Assured Labor Snapshot Repo</name>
+                    <url>dav:https://repository-assured-labor.forge.cloudbees.com/snapshot/</url>
+                </snapshotRepository>
             </distributionManagement>
         </profile>
     </profiles>

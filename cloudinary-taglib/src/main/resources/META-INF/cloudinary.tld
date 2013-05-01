@@ -31,7 +31,7 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>extraClasses</name>
+            <name>class</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -40,5 +40,31 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+    </tag>
+    <tag>
+        <name>image</name>
+        <tag-class>com.cloudinary.taglib.CloudinaryImageTag</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>id</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>extraClasses</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>publicId</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>format</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <dynamic-attributes>true</dynamic-attributes>
     </tag>
 </taglib>

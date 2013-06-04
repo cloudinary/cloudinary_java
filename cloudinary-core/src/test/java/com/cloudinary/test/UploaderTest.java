@@ -95,12 +95,12 @@ public class UploaderTest {
     
     @Test
     public void testImageUploadTag() {
-    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("htmlattr", "htmlvalue"));
+    	String tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.asMap("callback", "http://localhost/cloudinary_cors.html"), Cloudinary.asMap("htmlattr", "htmlvalue"));
     	assertTrue(tag.contains("type='file'"));
     	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
     	assertTrue(tag.contains("class='cloudinary-fileupload'"));
     	assertTrue(tag.contains("htmlattr='htmlvalue'"));
-    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.emptyMap(), Cloudinary.asMap("class", "myclass"));
+    	tag = cloudinary.uploader().imageUploadTag("test-field", Cloudinary.asMap("callback", "http://localhost/cloudinary_cors.html"), Cloudinary.asMap("class", "myclass"));
     	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
     }
 

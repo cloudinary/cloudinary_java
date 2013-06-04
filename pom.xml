@@ -91,13 +91,6 @@
                 </executions>
             </plugin>
         </plugins>
-        <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-webdav</artifactId>
-                <version>1.0-beta-2</version>
-            </extension>
-        </extensions>
     </build>
 
     <dependencies>
@@ -189,21 +182,5 @@
                 </repository>
             </distributionManagement>
         </profile>
-        <profile>
-            <id>aldeploy</id>
-            <distributionManagement>
-                <repository>
-                    <id>cloudbees-releases</id>
-                    <name>Assured Labor Release Repo</name>
-                    <url>dav:https://repository-assured-labor.forge.cloudbees.com/release/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>cloudbees-snapshots</id>
-                    <name>Assured Labor Snapshot Repo</name>
-                    <url>dav:https://repository-assured-labor.forge.cloudbees.com/snapshot/</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
     </profiles>
-
 </project>

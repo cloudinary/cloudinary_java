@@ -102,28 +102,52 @@ public class Cloudinary {
         return Hex.encodeHexString(digest);
     }
 
-	public String privateDownload(String publicId, String format, Map<String, Object> options) throws URISyntaxException {
+    public void signRequest(Map<String, Object> params, Map<String, Object> options) {
 		String apiKey = Cloudinary.asString(options.get("api_key"), this.getStringConfig("api_key"));
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
 		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.getStringConfig("api_secret"));
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
-		Map<String, Object> params = new HashMap<String, Object>(); 
-		params.put("public_id", publicId);
-		params.put("format", format);
-		params.put("attachment", options.get("attachment"));
-		params.put("type", options.get("type"));
 		for (Iterator iterator = params.values().iterator(); iterator.hasNext();) {
 			Object value = iterator.next();
 			if (value == null || "".equals(value)) {
 				iterator.remove();
 			}
 		}
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		params.put("signature", this.apiSignRequest(params, apiSecret));
-		params.put("api_key", apiKey);
+		params.put("api_key", apiKey);    	
+    }
+
+	public String privateDownload(String publicId, String format, Map<String, Object> options) throws URISyntaxException {
+		Map<String, Object> params = new HashMap<String, Object>(); 
+		params.put("public_id", publicId);
+		params.put("format", format);
+		params.put("attachment", options.get("attachment"));
+		params.put("type", options.get("type"));
+		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		signRequest(params, options);
 		URIBuilder builder = new URIBuilder(cloudinaryApiUrl("download", options));
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			builder.addParameter(param.getKey(), param.getValue().toString());
+		}
+		return builder.toString();
+	}
+    
+	public String zipDownload(String tag, Map<String, Object> options) throws URISyntaxException {
+		Map<String, Object> params = new HashMap<String, Object>(); 
+		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		params.put("tag", tag);
+		Object transformation = options.get("transformation");
+		if (transformation != null) {
+			if (transformation instanceof Transformation) {
+				transformation = ((Transformation) transformation).generate();
+			}
+			params.put("transformation", transformation.toString());
+		}
+		params.put("transformation", transformation);
+		signRequest(params, options);
+		URIBuilder builder = new URIBuilder(cloudinaryApiUrl("download_tag.zip", options));
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			builder.addParameter(param.getKey(), param.getValue().toString());
 		}

@@ -3,7 +3,10 @@ package com.cloudinary.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,7 +63,8 @@ public class CloudinaryTest {
 
 	@Test
 	public void testSecureAkamai() {
-		// should default to akamai if secure is given with private_cdn and no secure_distribution
+		// should default to akamai if secure is given with private_cdn and no
+		// secure_distribution
 		cloudinary.setConfig("secure", true);
 		cloudinary.setConfig("private_cdn", true);
 		String result = cloudinary.url().generate("test");
@@ -69,7 +73,8 @@ public class CloudinaryTest {
 
 	@Test
 	public void testSecureNonAkamai() {
-		// should not add cloud_name if private_cdn and secure non akamai secure_distribution
+		// should not add cloud_name if private_cdn and secure non akamai
+		// secure_distribution
 		cloudinary.setConfig("secure", true);
 		cloudinary.setConfig("private_cdn", true);
 		cloudinary.setConfig("secure_distribution", "something.cloudfront.net");
@@ -328,12 +333,14 @@ public class CloudinaryTest {
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc.def/test", result);
 	}
-	
+
 	@Test
 	public void testImageTag() {
 		Transformation transformation = new Transformation().width(100).height(101).crop("crop");
 		String result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image"));
-		assertEquals("<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>", result);
+		assertEquals(
+				"<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>",
+				result);
 	}
 
 	@Test
@@ -357,5 +364,40 @@ public class CloudinaryTest {
 		// should allow to shorted image/upload urls
 		String result = cloudinary.url().shorten(true).generate("test");
 		assertEquals("http://res.cloudinary.com/test123/iu/test", result);
-	}	
+	}
+
+	@Test
+	public void testPrivateDownload() throws Exception {
+		String url = cloudinary.privateDownload("img", "jpg", Cloudinary.emptyMap());
+		URI uri = new URI(url);
+		Map<String, String> parameters = getUrlParameters(uri);
+		assertEquals("img", parameters.get("public_id"));
+		assertEquals("jpg", parameters.get("format"));
+		assertEquals("a", parameters.get("api_key"));
+		assertEquals("/v1_1/test123/image/download", uri.getPath());
+	}
+
+	@Test
+	public void testZipDownload() throws Exception {
+		String url = cloudinary.zipDownload("ttag", Cloudinary.emptyMap());
+		URI uri = new URI(url);
+		Map<String, String> parameters = getUrlParameters(uri);
+		assertEquals("ttag", parameters.get("tag"));
+		assertEquals("a", parameters.get("api_key"));
+		assertEquals("/v1_1/test123/image/download_tag.zip", uri.getPath());
+	}
+	
+	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
+		Map<String, String> params = new HashMap<String, String>();
+		for (String param : uri.getQuery().split("&")) {
+			String pair[] = param.split("=");
+			String key = URLDecoder.decode(pair[0], "UTF-8");
+			String value = "";
+			if (pair.length > 1) {
+				value = URLDecoder.decode(pair[1], "UTF-8");
+			}
+			params.put(new String(key), new String(value));
+		}
+		return params;
+	}
 }

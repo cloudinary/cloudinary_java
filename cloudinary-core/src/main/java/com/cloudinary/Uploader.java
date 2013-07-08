@@ -229,7 +229,7 @@ public class Uploader {
 			}
 		}
 
-		if (file instanceof String && !((String) file).matches("https?:.*|s3:.*|data:image/\\w*;base64,([a-zA-Z0-9/+\n=]+)")) {
+		if (file instanceof String && !((String) file).matches("https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
 		if (file instanceof File) {

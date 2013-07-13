@@ -17,9 +17,16 @@ For Java, Cloudinary provides a library for simplifying the integration even fur
 
 ## Setup ######################################################################
 
-Download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)
+The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml:
 
-See [pom.xml](https://github.com/cloudinary/cloudinary_java/blob/master/pom.xml) for library dependencies.
+    <dependency>
+        <groupId>com.cloudinary</groupId>
+        <artifactId>cloudinary</artifactId>
+        <version>1.0.4</version>
+    </dependency>
+
+Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)
+and see [pom.xml](https://github.com/cloudinary/cloudinary_java/blob/master/pom.xml) for library dependencies.
 
 ## Try it right away
 

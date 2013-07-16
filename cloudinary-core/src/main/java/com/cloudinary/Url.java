@@ -154,6 +154,12 @@ public class Url {
 				"([^:])\\/+", "$1/");
 	}
 	
+	public String generateSpriteCss(String source) {
+		this.type = "sprite";
+		if (!source.endsWith(".css")) this.format = "css";
+		return generate(source);		
+	}
+	
 	public String imageTag(String source) {
 		return imageTag(source, Cloudinary.emptyMap());
 	}

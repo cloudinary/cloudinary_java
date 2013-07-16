@@ -386,7 +386,15 @@ public class CloudinaryTest {
 		assertEquals("a", parameters.get("api_key"));
 		assertEquals("/v1_1/test123/image/download_tag.zip", uri.getPath());
 	}
-	
+
+	@Test
+	public void testSpriteCss() {
+		String result = cloudinary.url().generateSpriteCss("test");
+		assertEquals("http://res.cloudinary.com/test123/image/sprite/test.css", result);
+		result = cloudinary.url().generateSpriteCss("test.css");
+		assertEquals("http://res.cloudinary.com/test123/image/sprite/test.css", result);
+	}
+
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();
 		for (String param : uri.getQuery().split("&")) {

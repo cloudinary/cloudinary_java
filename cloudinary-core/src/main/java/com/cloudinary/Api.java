@@ -97,6 +97,11 @@ public class Api {
         this.cloudinary = cloudinary;
     }
 
+    public Map ping(Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        return callApi(HttpMethod.GET, Arrays.asList("ping"), Cloudinary.emptyMap(), options);
+    }
+
     public Map usage(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("usage"), Cloudinary.emptyMap(), options);

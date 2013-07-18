@@ -307,6 +307,13 @@ public class ApiTest {
         assertNotNull(result.get("last_updated"));
     }
 
+    @Test
+    public void test19Ping() throws Exception {
+        // should support ping API call
+        Map result = api.ping(Cloudinary.emptyMap());
+        assertEquals(result.get("status"), "ok");
+    }
+
     private void assertContains(Object object, Collection list) {
         assertTrue(list.contains(object));
     }

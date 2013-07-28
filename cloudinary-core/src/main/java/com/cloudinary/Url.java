@@ -128,7 +128,7 @@ public class Url {
             if (StringUtils.isBlank(secureDistribution) || Cloudinary.OLD_AKAMAI_SHARED_CDN.equals(secureDistribution)) {
                 secureDistribution = privateCdn ? cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
             }
-            sharedDomain = sharedDomain || secureDistribution == Cloudinary.SHARED_CDN;
+            sharedDomain = sharedDomain || Cloudinary.SHARED_CDN.equals(secureDistribution);
             prefix = "https://" + secureDistribution;
         } else {
 			CRC32 crc32 = new CRC32();

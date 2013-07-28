@@ -24,7 +24,8 @@ import org.apache.http.client.utils.URIBuilder;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
-	public final static String AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 	
 	private final Map config = new HashMap();

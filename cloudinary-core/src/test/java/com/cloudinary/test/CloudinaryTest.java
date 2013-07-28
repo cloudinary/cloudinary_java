@@ -43,7 +43,7 @@ public class CloudinaryTest {
 	public void testSecureDistribution() {
 		// should use default secure distribution if secure=TRUE
 		String result = cloudinary.url().secure(true).generate("test");
-		assertEquals("https://cloudinary-a.akamaihd.net/test123/image/upload/test", result);
+		assertEquals("https://res.cloudinary.com/test123/image/upload/test", result);
 	}
 
 	@Test
@@ -68,7 +68,7 @@ public class CloudinaryTest {
 		cloudinary.setConfig("secure", true);
 		cloudinary.setConfig("private_cdn", true);
 		String result = cloudinary.url().generate("test");
-		assertEquals("https://cloudinary-a.akamaihd.net/test123/image/upload/test", result);
+		assertEquals("https://test123-res.cloudinary.com/image/upload/test", result);
 	}
 
 	@Test

@@ -122,21 +122,22 @@ public class Url {
 		} else if (format != null) {
 			source = source + "." + format;
 		}
-		if (secure && StringUtils.isBlank(secureDistribution)) {
-			secureDistribution = Cloudinary.SHARED_CDN;
-		}
 		String prefix;
-		if (secure) {
-			prefix = "https://" + secureDistribution;
-		} else {
+        boolean sharedDomain = !privateCdn;
+        if (secure) {
+            if (StringUtils.isBlank(secureDistribution) || Cloudinary.OLD_AKAMAI_SHARED_CDN.equals(secureDistribution)) {
+                secureDistribution = privateCdn ? cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
+            }
+            sharedDomain = sharedDomain || secureDistribution == Cloudinary.SHARED_CDN;
+            prefix = "https://" + secureDistribution;
+        } else {
 			CRC32 crc32 = new CRC32();
 			crc32.update(source.getBytes());
 			String subdomain = cdnSubdomain ? "a" + ((crc32.getValue() % 5 + 5) % 5 + 1) + "." : "";
 			String host = cname != null ? cname : (privateCdn ? cloudName + "-" : "") + "res.cloudinary.com";
 			prefix = "http://" + subdomain + host;
-		}
-		if (!privateCdn || (secure && Cloudinary.AKAMAI_SHARED_CDN.equals(secureDistribution)))
-			prefix = prefix + "/" + cloudName;
+        }
+        if (sharedDomain) prefix = prefix + "/" + cloudName; 
 
 		if (shorten && resourceType.equals("image") && type.equals("upload")) {
 			resourceType = "iu";

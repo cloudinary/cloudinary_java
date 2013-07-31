@@ -59,6 +59,8 @@ public class Uploader {
 		params.put("headers", buildCustomHeaders(options.get("headers")));
 		params.put("notification_url", (String) options.get("notification_url"));
 		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
+		params.put("proxy", (String) options.get("proxy"));
+		params.put("folder", (String) options.get("folder"));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
 		return params;
 	}

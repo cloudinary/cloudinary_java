@@ -297,7 +297,7 @@ public class Uploader {
 	        }
 	    }
 	    
-	    return StringEscapeUtils.escapeHtml(JSONObject.toJSONString(params));
+	    return JSONObject.toJSONString(params);
 	}
 	
 	public String getUploadUrl(Map options) {
@@ -308,7 +308,7 @@ public class Uploader {
 	public String imageUploadTag(String field, Map options, Map<String, Object> htmlOptions) {
         if (htmlOptions == null) htmlOptions = Cloudinary.emptyMap();
 		
-        String tagParams = prepareUploadTagParams(options);
+        String tagParams = StringEscapeUtils.escapeHtml(prepareUploadTagParams(options));
         
 		String cloudinaryUploadUrl = getUploadUrl(options);
         

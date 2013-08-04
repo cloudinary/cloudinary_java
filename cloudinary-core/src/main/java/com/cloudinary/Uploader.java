@@ -273,35 +273,48 @@ public class Uploader {
 		return result;
 	}
 
+	public String prepareUploadTagParams(Map options) {
+	    if (options == null) options = new HashMap();
+	    if (options.get("resource_type") == null) { 
+	        options = new HashMap(options);
+	        options.put("resource_type", "auto");
+	    }
+	    
+	    String callback = Cloudinary.asString(options.get("callback"), this.cloudinary.getStringConfig("callback"));
+	    if (callback == null) {
+	        throw new IllegalArgumentException("Must supply callback");
+	    }
+	    options.put("callback", callback);
+	    
+	    Map<String, Object> params = this.buildUploadParams(options);
+	    signRequestParams(params, options);
+	    
+	    // Remove blank parameters
+	    for (Iterator<Object> iterator = params.values().iterator(); iterator.hasNext(); ) {
+	        String value = (String) iterator.next();
+	        if (StringUtils.isBlank(value)) {
+	            iterator.remove();
+	        }
+	    }
+	    
+	    return JSONObject.toJSONString(params);
+	}
+	
+	public String getUploadUrl(Map options) {
+	    if (options == null) options = new HashMap();
+	    return this.cloudinary.cloudinaryApiUrl("upload", options);
+	}
+	
 	public String imageUploadTag(String field, Map options, Map<String, Object> htmlOptions) {
         if (htmlOptions == null) htmlOptions = Cloudinary.emptyMap();
-        if (options == null) options = new HashMap();
-        if (options.get("resource_type") == null) { 
-        	options = new HashMap(options);
-        	options.put("resource_type", "auto");
-        }
-        String cloudinaryUploadUrl = this.cloudinary.cloudinaryApiUrl("upload", options);
 		
-		String callback = Cloudinary.asString(options.get("callback"), this.cloudinary.getStringConfig("callback"));
-		if (callback == null) {
-		    throw new IllegalArgumentException("Must supply callback");
-		}
-		options.put("callback", callback);
-
-		Map<String, Object> params = this.buildUploadParams(options);
-		signRequestParams(params, options);
-
-		// Remove blank parameters
-		for (Iterator<Object> iterator = params.values().iterator(); iterator.hasNext(); ) {
-			String value = (String) iterator.next();
-			if (StringUtils.isBlank(value)) {
-				iterator.remove();
-			}
-		}
+        String tagParams = StringEscapeUtils.escapeHtml(prepareUploadTagParams(options));
+        
+		String cloudinaryUploadUrl = getUploadUrl(options);
         
 		StringBuilder builder = new StringBuilder();
 		builder.append("<input type='file' name='file' data-url='").append(cloudinaryUploadUrl).
-				append("' data-form-data='").append(StringEscapeUtils.escapeHtml(JSONObject.toJSONString(params))).
+				append("' data-form-data='").append(tagParams).
 				append("' data-cloudinary-field='").append(field).
 				append("' class='cloudinary-fileupload");
 		if (htmlOptions.containsKey("class")) {

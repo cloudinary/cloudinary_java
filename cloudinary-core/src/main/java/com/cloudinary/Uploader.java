@@ -273,7 +273,7 @@ public class Uploader {
 		return result;
 	}
 
-	public String prepareUploadTagParams(Map options) {
+	public String uploadTagParams(Map options) {
 	    if (options == null) options = new HashMap();
 	    if (options.get("resource_type") == null) { 
 	        options = new HashMap(options);
@@ -308,7 +308,7 @@ public class Uploader {
 	public String imageUploadTag(String field, Map options, Map<String, Object> htmlOptions) {
         if (htmlOptions == null) htmlOptions = Cloudinary.emptyMap();
 		
-        String tagParams = StringEscapeUtils.escapeHtml(prepareUploadTagParams(options));
+        String tagParams = StringEscapeUtils.escapeHtml(uploadTagParams(options));
         
 		String cloudinaryUploadUrl = getUploadUrl(options);
         

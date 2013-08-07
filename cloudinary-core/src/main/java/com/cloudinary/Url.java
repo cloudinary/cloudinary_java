@@ -1,5 +1,7 @@
 package com.cloudinary;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.CRC32;
@@ -119,8 +121,13 @@ public class Url {
 				return original_source;
 			}
 			source = SmartUrlEncoder.encode(source);
-		} else if (format != null) {
-			source = source + "." + format;
+		} else {
+			try {
+				source = SmartUrlEncoder.encode(URLDecoder.decode(source.replace("+", "%2B"), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+			if (format != null) source = source + "." + format;
 		}
 		String prefix;
         boolean sharedDomain = !privateCdn;

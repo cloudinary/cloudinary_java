@@ -395,6 +395,22 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/sprite/test.css", result);
 	}
 
+    @SuppressWarnings("unchecked")
+	@Test
+    public void testEscapePublicId() {
+        // should escape public_ids
+        Map<String, String> tests = Cloudinary.asMap(
+            "a b", "a%20b",
+            "a+b", "a%2Bb",
+            "a%20b", "a%20b",
+            "a-b", "a-b",
+            "a??b", "a%3F%3Fb");
+        for (Map.Entry<String, String> entry : tests.entrySet()) {
+            String result = cloudinary.url().generate(entry.getKey());        	
+            assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);			
+		}
+    }
+	
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();
 		for (String param : uri.getQuery().split("&")) {

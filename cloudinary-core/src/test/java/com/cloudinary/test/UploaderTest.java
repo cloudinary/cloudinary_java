@@ -39,9 +39,11 @@ public class UploaderTest {
 
     @Test
 	public void testUpload() throws IOException {
-        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("colors", true));
         assertEquals(result.get("width"), 241L);
         assertEquals(result.get("height"), 51L);
+        assertNotNull(result.get("colors"));
+        assertNotNull(result.get("predominant"));
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", (String) result.get("public_id"));
         to_sign.put("version", Cloudinary.asString(result.get("version")));

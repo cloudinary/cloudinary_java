@@ -53,7 +53,7 @@ public class Uploader {
 		for (String attr : BOOLEAN_UPLOAD_OPTIONS) {
 			Boolean value = Cloudinary.asBoolean(options.get(attr), null);
 			if (value != null)
-				options.put(attr, value.toString());			
+				params.put(attr, value.toString());			
 		}
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
 		params.put("headers", buildCustomHeaders(options.get("headers")));

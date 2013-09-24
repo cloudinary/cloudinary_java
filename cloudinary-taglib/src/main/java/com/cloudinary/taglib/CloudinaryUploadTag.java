@@ -20,6 +20,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String tags = null;
     private String fieldName;
     private String resourceType = "auto";
+    private String transformation;
     
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -37,6 +38,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         
         Map<String, String> options = new HashMap<String, String>();
         options.put("resource_type", resourceType);
+        options.put("transformation", transformation);
         if (tags != null) {
             options.put("tags", tags);
         }
@@ -84,6 +86,14 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     
     public String getFieldName() {
         return fieldName;
+    }
+    
+    public void setTransformation(String transformation) {
+        this.transformation = transformation;
+    }
+    
+    public String getTransformation() {
+        return transformation;
     }
 
     public void setResourceType(String resourceType) {

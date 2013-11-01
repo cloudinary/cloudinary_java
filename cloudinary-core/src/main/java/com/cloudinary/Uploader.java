@@ -34,7 +34,7 @@ public class Uploader {
 	public Uploader(Cloudinary cloudinary) {
 		this.cloudinary = cloudinary;
 	}
-	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "eager_async", "invalidate"};
+	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename", "eager_async", "invalidate"};
 
 	public Map<String, Object> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();

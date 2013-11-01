@@ -95,6 +95,13 @@ public class UploaderTest {
     }
 
     @Test
+	public void testUniqueFilename() throws Exception {
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("use_filename", true));
+	assertTrue(((String) result.get("public_id")).matches("logo_[a-z0-9]{6}")); 
+        result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("use_filename", true, "unique_filename", false));
+	assertEquals((String) result.get("public_id"), "logo"); 
+	}
+    @Test
 	public void testExplicit() throws IOException {
         Map result = cloudinary.uploader().explicit("cloudinary", Cloudinary.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name")); 
         String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png").version(result.get("version")).generate("cloudinary");

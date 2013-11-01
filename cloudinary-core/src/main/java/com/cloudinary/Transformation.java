@@ -43,6 +43,7 @@ public class Transformation {
 	public Transformation named(String...value) { return param("transformation", value); }
 	public Transformation crop(String value) { return param("crop", value); }
 	public Transformation background(String value) { return param("background", value); }
+	public Transformation color(String value) { return param("color", value); }
 	public Transformation effect(String value) { return param("effect", value); }
 	public Transformation effect(String effect, Object param) { return param("effect", effect + ":" + param); }
 	public Transformation angle(int value) { return param("angle", value); }
@@ -122,6 +123,11 @@ public class Transformation {
 			background = background.replaceFirst("^#", "rgb:");
 		}
 		    
+		String color = (String) options.get("color");
+		if (color != null) {
+			color = color.replaceFirst("^#", "rgb:");
+		}
+		    
 		List transformations = Cloudinary.asArray(options.get("transformation"));
 		Predicate isAMap = new Predicate() {			
 			public boolean evaluate(Object value) {
@@ -154,6 +160,7 @@ public class Transformation {
 		params.put("t", namedTransformation);
 		params.put("c", crop);
 		params.put("b", background);
+		params.put("co", color);
 		params.put("a", angle);
 		params.put("fl", flags);
 		String[] simple_params = new String[]{

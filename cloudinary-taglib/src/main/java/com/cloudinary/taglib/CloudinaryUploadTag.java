@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import com.cloudinary.*;
@@ -21,6 +23,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String fieldName;
     private String resourceType = "auto";
     private String transformation;
+    private String callback;
     
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -42,6 +45,10 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         if (tags != null) {
             options.put("tags", tags);
         }
+
+        options.put("callback", callback);
+
+        buildCallbackUrl(options);
 
         String renderedHtml = uploader.imageUploadTag(fieldName, options, htmlOptions);
         
@@ -89,7 +96,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     }
     
     public void setTransformation(String transformation) {
-        this.transformation = transformation;
+        this.transformation = transformation.replaceAll("\\s+","/");;
     }
     
     public String getTransformation() {
@@ -102,6 +109,31 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     
     public String GetResourceType() {
         return resourceType;
+    }
+
+    public String getCallback() {
+        return callback;
+    }
+
+    public void setCallback(String callback) {
+        this.callback = callback;
+    }
+
+    private void buildCallbackUrl(Map options) {
+        String callback = (String) options.get("callback");
+        if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().getStringConfig("callback");
+        if (callback == null || callback.isEmpty()) callback = "/cloudinary_cors.html";
+        if (!callback.matches("^https?://")) {
+            PageContext context = (PageContext) getJspContext();
+            ServletRequest request = context.getRequest();
+            String callbackUrl = request.getScheme() + "://" + request.getServerName();
+            if (request.getScheme().equals("https") && request.getServerPort() != 443 ||
+                    request.getScheme().equals("http") && request.getServerPort() != 80) {
+                callbackUrl += ":" + request.getServerPort();
+            }
+            callbackUrl += callback;
+            options.put("callback", callbackUrl);
+        }
     }
     
 }

@@ -11,3 +11,5 @@ test-output/
 .settings
 .classpath
 .project
+
+*.iml

@@ -21,8 +21,15 @@ public class Singleton {
     public static void deregisterCloudinary() {
         cloudinary = null;
     }
+
+    private static class DefaultCloudinaryHolder {
+        public static final Cloudinary INSTANCE = new Cloudinary();
+    }
     
     public static Cloudinary getCloudinary() {
+        if (cloudinary == null) {
+            return DefaultCloudinaryHolder.INSTANCE;
+        }
         return cloudinary;
     }
 }

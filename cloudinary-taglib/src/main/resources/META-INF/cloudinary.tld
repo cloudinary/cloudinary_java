@@ -45,6 +45,17 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>callback</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>transformation</name>
+        <tag-class>com.cloudinary.taglib.CloudinaryTransformationTag</tag-class>
+        <body-content>empty</body-content>
+        <dynamic-attributes>true</dynamic-attributes>
     </tag>
     <tag>
         <name>image</name>
@@ -61,7 +72,43 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <name>publicId</name>
+            <name>src</name>
+            <required>false</required> <!-- should be true but replaces publicId so can't break -->
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>publicId</name><!-- Deprecated -->
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>format</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>type</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>resourceType</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>transformation</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <dynamic-attributes>true</dynamic-attributes>
+    </tag>
+    <tag>
+        <name>url</name>
+        <tag-class>com.cloudinary.taglib.CloudinaryUrl</tag-class>
+        <body-content>scriptless</body-content>
+        <attribute>
+            <name>src</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -70,6 +117,40 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-        <dynamic-attributes>true</dynamic-attributes>
+        <attribute>
+            <name>type</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>resourceType</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>transformation</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+    <tag>
+        <name>jsconfig</name>
+        <tag-class>com.cloudinary.taglib.CloudinaryJsConfigTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+    <tag>
+        <name>jsinclude</name>
+        <tag-class>com.cloudinary.taglib.CloudinaryJsIncludeTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <name>full</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>base</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
 </taglib>

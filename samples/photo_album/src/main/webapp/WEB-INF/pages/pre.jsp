@@ -5,7 +5,7 @@
     <title>Photo Album</title>
     <link type="text/css" rel="stylesheet" media="all" href="<c:url value="/stylesheets/application.css"/>">
     <link rel="shortcut icon"
-          href="<cl:url src="http://cloudinary.com/favicon.png" type="fetch"/>" />
+          href="<cl:url src="http://cloudinary.com/favicon.png" type="fetch" effect="sepia"/>" />
     <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 </head>
 <body>

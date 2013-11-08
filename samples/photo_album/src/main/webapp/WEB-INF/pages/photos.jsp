@@ -45,7 +45,7 @@ requested transformations. This also shows how to chain transformations -->
         <c:forEach items="${photos}" var="photo">
             <div class="photo">
                 <h2>${photo.title}</h2>
-                <a href="<cl:url src="${photo.image}"/>" target="_blank">
+                <a href="<cl:url src="${photo.image}" format="jpg"/>" target="_blank">
                     <cl:image src="${photo.image}" extraClasses="thumbnail inline" width="150" height="150" crop="fit" quality="80" format="jpg"/>
                 </a>
 
@@ -58,11 +58,7 @@ requested transformations. This also shows how to chain transformations -->
                     <table class="thumbnails">
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="jpg">
-                                    <jsp:attribute name="transformation">
-                                        <cl:transformation crop="fill" height="150" width="150" radius="10"/>
-                                    </jsp:attribute>
-                                </cl:image>
+                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="fill" height="150" width="150" radius="10" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>fill</td></tr>
@@ -74,11 +70,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="jpg">
-                                    <jsp:attribute name="transformation">
-                                        <cl:transformation crop="scale" height="150" width="150"/>
-                                    </jsp:attribute>
-                                </cl:image>
+                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="scale" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>scale</td></tr>
@@ -89,11 +81,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="jpg">
-                                    <jsp:attribute name="transformation">
-                                        <cl:transformation crop="fit" height="150" width="150"/>
-                                    </jsp:attribute>
-                                </cl:image>
+                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="fit" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>fit</td></tr>
@@ -104,11 +92,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="jpg">
-                                    <jsp:attribute name="transformation">
-                                        <cl:transformation crop="thumb" gravity="face" height="150" width="150"/>
-                                    </jsp:attribute>
-                                </cl:image>
+                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="thumb" gravity="face" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>thumb</td></tr>
@@ -120,9 +104,8 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="png">
+                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="png" angle="20">
                                     <jsp:attribute name="transformation">
-                                        <cl:transformation angle="20"/>
                                         <cl:transformation crop="fill" gravity="north" height="150" width="150" effect="sepia"/>
                                     </jsp:attribute>
                                 </cl:image>

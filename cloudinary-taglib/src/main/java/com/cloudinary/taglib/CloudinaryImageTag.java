@@ -60,7 +60,7 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
 
         Transformation baseTransformation = new Transformation().params(tagAttrs);
 
-        if (transformation != null) url.transformation(baseTransformation.chain().rawTransformation(transformation));
+        url.transformation(baseTransformation.chain().rawTransformation(transformation));
         if (format != null) url.format(format);
         if (type != null) url.type(type);
         if (resourceType != null) url.resourceType(resourceType);

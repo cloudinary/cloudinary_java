@@ -14,19 +14,11 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import com.cloudinary.*;
 
 /**
- * <cl:img source='test' height='101' width='100' crop="crop" />
- *
- * Transformation transformation = new Transformation().width(100).height(101).crop("crop");
- * String result = cloudinary.url().transformation(transformation).imageTag("test",
- * Cloudinary.asMap("alt", "my image"));
- *
- * <img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image'
- * height='101' width='100'/>
- *
- * @author jpollak
+ * <cl:url source='test' height='101' width='100' crop="crop" />
+ * http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test
  *
  */
-public class CloudinaryUrl extends SimpleTagSupport {
+public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes {
 
     private String src = null;
 
@@ -35,6 +27,9 @@ public class CloudinaryUrl extends SimpleTagSupport {
     private String format = null;
 
     private String transformation = null;
+
+    /** stores the dynamic attributes */
+    private Map<String,Object> tagAttrs = new HashMap<String,Object>();
 
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -45,7 +40,8 @@ public class CloudinaryUrl extends SimpleTagSupport {
         JspWriter out = getJspContext().getOut();
 
         Url url = cloudinary.url();
-        if (transformation != null) url.transformation(new Transformation().rawTransformation(transformation));
+        Transformation baseTransformation = new Transformation().params(tagAttrs);
+        url.transformation(baseTransformation.chain().rawTransformation(transformation));
         if (format != null) url.format(format);
         if (type != null) url.type(type);
         if (resourceType != null) url.resourceType(resourceType);
@@ -92,5 +88,10 @@ public class CloudinaryUrl extends SimpleTagSupport {
 
     public void setTransformation(String transformation) {
         this.transformation = transformation.replaceAll("\\s","/");
+    }
+
+    @Override
+    public void setDynamicAttribute(String uri, String name, Object value) throws JspException {
+        tagAttrs.put(name, value);
     }
 }

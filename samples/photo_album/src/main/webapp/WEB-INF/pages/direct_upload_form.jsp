@@ -22,7 +22,9 @@
             <div class="form_controls">
                 <div class="upload_button_holder">
                     <a href="#" class="upload_button">Upload</a>
-                    <cl:upload fieldName="preloadedImage"/>
+                    <cl:upload fieldName="preloadedImage" transformation="w_1000,h_1000,c_limit"
+                            eager="c_scale,w_150,h_150|c_fit,w_150,h_150" extraClasses="extra" exif="true"
+                            imageMetadata="true" colors="true" faces="true"/>
                 </div>
                 <span class="status"></span>
             </div>

@@ -1,8 +1,7 @@
 package com.cloudinary.taglib;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
@@ -17,13 +16,30 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String id = null;
     private String name = "file";
     private String extraClasses = null;
+    private Boolean multiple = false;
     
     // Cloudinary Specific
     private String tags = null;
     private String fieldName;
     private String resourceType = "auto";
-    private String transformation;
-    private String callback;
+    private String transformation = null;
+    private String eager = null;
+    private String callback = null;
+    private String publicId = null;
+    private String format = null;
+    private String notificationUrl = null;
+    private String eagerNotificationUrl = null;
+    private String proxy = null;
+    private String folder = null;
+    private boolean backup = false;
+    private boolean exif = false;
+    private boolean faces = false;
+    private boolean colors = false;
+    private boolean imageMetadata = false;
+    private boolean useFilename = false;
+    private boolean uniqueFilename = true;
+    private boolean eagerAsync = false;
+    private boolean invalidate = false;
     
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -35,18 +51,31 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         Map<String, Object> htmlOptions = new HashMap<String, Object>();
         htmlOptions.put("type", "file");
         htmlOptions.put("name", name);
-        if (id != null) {
-            htmlOptions.put("id", id);
-        }
+        htmlOptions.put("multiple", multiple);
+        htmlOptions.put("class", extraClasses);
+        htmlOptions.put("id", id);
         
-        Map<String, String> options = new HashMap<String, String>();
+        Map<String, Object> options = new HashMap<String, Object>();
         options.put("resource_type", resourceType);
         options.put("transformation", transformation);
-        if (tags != null) {
-            options.put("tags", tags);
-        }
-
+        options.put("eager", buildEager());
+        options.put("tags", tags);
         options.put("callback", callback);
+        options.put("public_id", publicId);
+        options.put("format", format);
+        options.put("notification_url", notificationUrl);
+        options.put("eager_notification_url", eagerNotificationUrl);
+        options.put("proxy", proxy);
+        options.put("folder", folder);
+        options.put("backup", backup);
+        options.put("exif", exif);
+        options.put("faces", faces);
+        options.put("colors", colors);
+        options.put("image_metadata", imageMetadata);
+        options.put("use_filename", useFilename);
+        options.put("unique_filename", uniqueFilename);
+        options.put("eager_async", eagerAsync);
+        options.put("invalidate", invalidate);
 
         buildCallbackUrl(options);
 
@@ -96,19 +125,156 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     }
     
     public void setTransformation(String transformation) {
-        this.transformation = transformation.replaceAll("\\s+","/");;
+        this.transformation = transformation.replaceAll("\\s+","/");
     }
     
     public String getTransformation() {
         return transformation;
     }
 
+
+    public String getResourceType() {
+        return resourceType;
+    }
+
     public void setResourceType(String resourceType) {
         this.resourceType = resourceType;
     }
-    
-    public String GetResourceType() {
-        return resourceType;
+
+    public Boolean getMultiple() {
+        return multiple;
+    }
+
+    public void setMultiple(Boolean multiple) {
+        this.multiple = multiple;
+    }
+
+    public String getEager() {
+        return eager;
+    }
+
+    public void setEager(String eager) {
+        this.eager = eager.replaceAll("\\s+","|");;
+    }
+
+    public String getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(String publicId) {
+        this.publicId = publicId;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    public void setFormat(String format) {
+        this.format = format;
+    }
+
+    public String getNotificationUrl() {
+        return notificationUrl;
+    }
+
+    public void setNotificationUrl(String notificationUrl) {
+        this.notificationUrl = notificationUrl;
+    }
+
+    public String getEagerNotificationUrl() {
+        return eagerNotificationUrl;
+    }
+
+    public void setEagerNotificationUrl(String eagerNotificationUrl) {
+        this.eagerNotificationUrl = eagerNotificationUrl;
+    }
+
+    public String getProxy() {
+        return proxy;
+    }
+
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
+    }
+
+    public boolean isBackup() {
+        return backup;
+    }
+
+    public void setBackup(boolean backup) {
+        this.backup = backup;
+    }
+
+    public boolean isExif() {
+        return exif;
+    }
+
+    public void setExif(boolean exif) {
+        this.exif = exif;
+    }
+
+    public boolean isFaces() {
+        return faces;
+    }
+
+    public void setFaces(boolean faces) {
+        this.faces = faces;
+    }
+
+    public boolean isColors() {
+        return colors;
+    }
+
+    public void setColors(boolean colors) {
+        this.colors = colors;
+    }
+
+    public boolean isImageMetadata() {
+        return imageMetadata;
+    }
+
+    public void setImageMetadata(boolean imageMetadata) {
+        this.imageMetadata = imageMetadata;
+    }
+
+    public boolean isUseFilename() {
+        return useFilename;
+    }
+
+    public void setUseFilename(boolean useFilename) {
+        this.useFilename = useFilename;
+    }
+
+    public boolean isUniqueFilename() {
+        return uniqueFilename;
+    }
+
+    public void setUniqueFilename(boolean uniqueFilename) {
+        this.uniqueFilename = uniqueFilename;
+    }
+
+    public boolean isEagerAsync() {
+        return eagerAsync;
+    }
+
+    public void setEagerAsync(boolean eagerAsync) {
+        this.eagerAsync = eagerAsync;
+    }
+
+    public boolean isInvalidate() {
+        return invalidate;
+    }
+
+    public void setInvalidate(boolean invalidate) {
+        this.invalidate = invalidate;
     }
 
     public String getCallback() {
@@ -134,6 +300,15 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
             callbackUrl += callback;
             options.put("callback", callbackUrl);
         }
+    }
+
+    private List<Transformation> buildEager() {
+        String[] raws = eager.split("\\|");
+        List<Transformation> list = new ArrayList<Transformation>();
+        for (String raw : raws) {
+            list.add(new Transformation().rawTransformation(raw));
+        }
+        return list;
     }
     
 }

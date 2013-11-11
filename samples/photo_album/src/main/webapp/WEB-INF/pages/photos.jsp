@@ -32,8 +32,8 @@ requested transformations. This also shows how to chain transformations -->
 <h1>Your Photos</h1>
 
 <div class="actions">
-    <a class="upload_link" href="/upload_form">Add photo</a>
-    <a class="upload_link" href="/direct_upload_form">Add photo (direct upload)</a>
+    <a class="upload_link" href="upload_form">Add photo</a>
+    <a class="upload_link" href="direct_upload_form">Add photo (direct upload)</a>
 </div>
 
 <div class="photos">
@@ -45,8 +45,8 @@ requested transformations. This also shows how to chain transformations -->
         <c:forEach items="${photos}" var="photo">
             <div class="photo">
                 <h2>${photo.title}</h2>
-                <a href="<cl:url src="${photo.image}" format="jpg"/>" target="_blank">
-                    <cl:image src="${photo.image}" extraClasses="thumbnail inline" width="150" height="150" crop="fit" quality="80" format="jpg"/>
+                <a href="<cl:url storedSrc="${photo.upload}" format="jpg"/>" target="_blank">
+                    <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" width="150" height="150" crop="fit" quality="80" format="jpg"/>
                 </a>
 
                 <div class="less_info">
@@ -58,7 +58,7 @@ requested transformations. This also shows how to chain transformations -->
                     <table class="thumbnails">
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="fill" height="150" width="150" radius="10" format="jpg"/>
+                                <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" crop="fill" height="150" width="150" radius="10" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>fill</td></tr>
@@ -70,7 +70,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="scale" height="150" width="150" format="jpg"/>
+                                <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" crop="scale" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>scale</td></tr>
@@ -81,7 +81,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="fit" height="150" width="150" format="jpg"/>
+                                <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" crop="fit" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>fit</td></tr>
@@ -92,7 +92,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" crop="thumb" gravity="face" height="150" width="150" format="jpg"/>
+                                <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" crop="thumb" gravity="face" height="150" width="150" format="jpg"/>
                             </div>
                             <table class="info">
                                 <tr><td>crop</td><td>thumb</td></tr>
@@ -104,7 +104,7 @@ requested transformations. This also shows how to chain transformations -->
                         </td>
                         <td>
                             <div class="thumbnail_holder">
-                                <cl:image src="${photo.image}" extraClasses="thumbnail inline" format="png" angle="20">
+                                <cl:image storedSrc="${photo.upload}" extraClasses="thumbnail inline" format="png" angle="20">
                                     <jsp:attribute name="transformation">
                                         <cl:transformation crop="fill" gravity="north" height="150" width="150" effect="sepia"/>
                                     </jsp:attribute>

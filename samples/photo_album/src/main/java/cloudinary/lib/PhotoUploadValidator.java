@@ -20,11 +20,7 @@ public class PhotoUploadValidator implements Validator {
         ValidationUtils.rejectIfEmpty(e, "title", "title.empty");
         PhotoUpload pu = (PhotoUpload) obj;
         if (pu.getFile() == null || pu.getFile().isEmpty()) {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("version", pu.getVersion().toString());
-            params.put("public_id", pu.getPublicIdForSigning());
-            Singleton.getCloudinary().signRequest(params, new HashMap<String, Object>());
-            if (!params.get("signature").toString().equals(pu.getSignature())) {
+            if (!pu.validSignature()) {
                 e.rejectValue("signature", "signature.mismatch");
             }
         }

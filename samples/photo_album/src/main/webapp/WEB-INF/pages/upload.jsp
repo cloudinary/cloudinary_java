@@ -10,8 +10,8 @@
 <c:if test="${!empty photo}">
 <div class="photo">
     <h2>${photo.title}</h2>
-    <a href="<cl:url src="${photo.image}" format="jpg"/>" target="_blank">
-        <cl:image src="${photo.image}" format="jpg" extraClasses="thumbnail inline" />
+    <a href="<cl:url storedSrc="${photo.upload}" format="jpg"/>" target="_blank">
+        <cl:image storedSrc="${photo.upload}" format="jpg" extraClasses="thumbnail inline" />
     </a>
 </div>
 </c:if>

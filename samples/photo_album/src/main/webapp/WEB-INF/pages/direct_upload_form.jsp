@@ -9,7 +9,7 @@
     <h1>New Photo</h1>
     <h2>Direct upload from the browser</h2>
     <p>You can also drag and drop an image file into the dashed area.</p>
-    <form:form method="post" action="/upload" commandName="photoUpload" enctype="multipart/form-data">
+    <form:form method="post" action="upload" commandName="photoUpload" enctype="multipart/form-data">
         <div class="form_line">
             <form:label path="title">Title:</form:label>
             <div class="form_controls">
@@ -22,7 +22,7 @@
             <div class="form_controls">
                 <div class="upload_button_holder">
                     <a href="#" class="upload_button">Upload</a>
-                    <cl:upload fieldName="preloadedImage" transformation="w_1000,h_1000,c_limit"
+                    <cl:upload fieldName="preloadedFile" transformation="w_1000,h_1000,c_limit"
                             eager="c_scale,w_150,h_150|c_fit,w_150,h_150" extraClasses="extra" exif="true"
                             imageMetadata="true" colors="true" faces="true"/>
                 </div>

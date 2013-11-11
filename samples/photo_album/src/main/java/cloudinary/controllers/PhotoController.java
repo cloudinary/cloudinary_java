@@ -4,6 +4,7 @@ import cloudinary.lib.PhotoUploadValidator;
 import cloudinary.models.Photo;
 import cloudinary.models.PhotoUpload;
 import cloudinary.repositories.PhotoRepository;
+import com.cloudinary.Cloudinary;
 import com.cloudinary.Singleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -34,11 +35,13 @@ public class PhotoController {
 
         Map uploadResult = null;
         if (photoUpload.getFile() != null && !photoUpload.getFile().isEmpty()) {
-            uploadResult = Singleton.getCloudinary().uploader().upload(photoUpload.getFile().getBytes(), Collections.emptyMap());
+            uploadResult = Singleton.getCloudinary().uploader().upload(photoUpload.getFile().getBytes(),
+                    Cloudinary.asMap("resource_type", "auto"));
             photoUpload.setPublicId((String) uploadResult.get("public_id"));
             photoUpload.setVersion((Long) uploadResult.get("version"));
             photoUpload.setSignature((String) uploadResult.get("signature"));
             photoUpload.setFormat((String) uploadResult.get("format"));
+            photoUpload.setResourceType((String) uploadResult.get("resource_type"));
         }
 
         if (result.hasErrors()){
@@ -47,8 +50,7 @@ public class PhotoController {
         } else {
             Photo photo = new Photo();
             photo.setTitle(photoUpload.getTitle());
-            String identifier = "v" + photoUpload.getVersion() + "/" + photoUpload.getPublicId();
-            photo.setImage(identifier);
+            photo.setUpload(photoUpload);
             model.addAttribute("upload", uploadResult);
             photoRepository.save(photo);
             model.addAttribute("photo", photo);

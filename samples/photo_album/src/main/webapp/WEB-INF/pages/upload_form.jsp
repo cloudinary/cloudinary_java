@@ -8,7 +8,7 @@
 <div id='backend_upload'>
     <h1>New Photo</h1>
     <h2>Image file is uploaded through the server</h2>
-    <form:form method="post" action="/upload" commandName="photoUpload" enctype="multipart/form-data">
+    <form:form method="post" action="upload" commandName="photoUpload" enctype="multipart/form-data">
         <div class="form_line">
             <form:label path="title">Title:</form:label>
             <div class="form_controls">
@@ -24,7 +24,7 @@
                         <img src="${photoUpload.thumbnailUrl}"/>
                     </c:if>
                     <c:if test="${!photoUpload.isImage}">
-                        <a href="${photoUpload.url}">${photoUpload.publicIdForSigning}</a>
+                        <a href="${photoUpload.url}">${photoUpload.publicId}</a>
                     </c:if>
                 </div>
             </div>
@@ -42,11 +42,7 @@
                 <input type="submit" value="Submit Photo"/>
             </div>
         </div>
-        <form:hidden path="publicId"/>
-        <form:hidden path="version"/>
-        <form:hidden path="signature"/>
-        <form:hidden path="format"/>
-        <form:hidden path="resourceType"/>
+        <form:hidden path="preloadedFile"/>
         <form:errors path="signature" extraClasses="error" />
     </form:form>
 

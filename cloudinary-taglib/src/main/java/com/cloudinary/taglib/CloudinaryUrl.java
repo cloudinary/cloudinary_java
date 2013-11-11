@@ -21,6 +21,7 @@ import com.cloudinary.*;
 public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes {
 
     private String src = null;
+    private StoredFile storedSrc = null;
 
     private String type = null;
     private String resourceType = null;
@@ -45,6 +46,12 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         JspWriter out = getJspContext().getOut();
 
         Url url = cloudinary.url();
+        if (storedSrc != null) {
+            url.source(storedSrc);
+        } else {
+            url.source(src);
+        }
+
         Transformation baseTransformation = new Transformation().params(tagAttrs);
         if (namedTransformation != null) baseTransformation.named(namedTransformation);
         url.transformation(baseTransformation.chain().rawTransformation(transformation));
@@ -58,11 +65,19 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         }
         if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
 
-        out.println(url.generate(src));
+        out.println(url.generate());
     }
 
     public void setSrc(String src) {
         this.src = src;
+    }
+
+    public StoredFile getStoredSrc() {
+        return storedSrc;
+    }
+
+    public void setStoredSrc(StoredFile storedSrc) {
+        this.storedSrc = storedSrc;
     }
 
     public String getSrc() {

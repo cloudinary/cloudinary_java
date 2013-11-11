@@ -32,6 +32,7 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
     private String extraClasses = null;
 
     private String src = null;
+    private StoredFile storedSrc = null;
 
     private String type = null;
     private String resourceType = null;
@@ -64,13 +65,18 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
         }
 
         Url url = cloudinary.url();
-
+        if (storedSrc != null) {
+            url.source(storedSrc);
+        } else {
+            url.source(src);
+        }
         Transformation baseTransformation = new Transformation().params(tagAttrs);
         if (namedTransformation != null) baseTransformation.named(namedTransformation);
         url.transformation(baseTransformation.chain().rawTransformation(transformation));
         if (format != null) url.format(format);
         if (type != null) url.type(type);
         if (resourceType != null) url.resourceType(resourceType);
+
         if (secure != null) {
             url.secure(secure.booleanValue());
         } else if(Boolean.TRUE.equals(isSecureRequest())) {
@@ -78,7 +84,7 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
         }
         if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
         
-        out.println(url.imageTag(src, attributes));
+        out.println(url.imageTag(attributes));
     }
 
     public void setId(String id) {
@@ -99,6 +105,14 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
 
     public void setSrc(String src) {
         this.src = src;
+    }
+
+    public StoredFile getStoredSrc() {
+        return storedSrc;
+    }
+
+    public void setStoredSrc(StoredFile storedSrc) {
+        this.storedSrc = storedSrc;
     }
 
     public String getSrc() {

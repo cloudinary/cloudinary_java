@@ -20,6 +20,7 @@ public class Url {
 	String resourceType = "image";
 	String format = null;
 	String version = null;
+    String source = null;
 	Transformation transformation = null;
 
 	public Url(Cloudinary cloudinary) {
@@ -37,6 +38,7 @@ public class Url {
 		return this;
 	}
 
+    @Deprecated
 	public Url resourcType(String resourceType) {
 		return resourceType(resourceType);
 	}
@@ -96,13 +98,32 @@ public class Url {
 		return this;
 	}
 
+    public Url source(String source) {
+      this.source = source;
+      return this;
+    }
+
+    public Url source(StoredFile source) {
+        if (source.getResourceType() != null) resourceType = source.getResourceType();
+        if (source.getType() != null) type = source.getType();
+        if (source.getVersion() != null) version = source.getVersion().toString();
+        format = source.getFormat();
+        this.source = source.getPublicId();
+        return this;
+    }
+
 	public Transformation transformation() {
 		if (this.transformation == null)
 			this.transformation = new Transformation();
 		return this.transformation;
 	}
 
-	public String generate(String source) {
+    public String generate(String source) {
+        this.source = source;
+        return this.generate();
+    }
+
+	public String generate() {
 		if (type.equals("fetch") && StringUtils.isNotBlank(format)) {
 			transformation().fetchFormat(format);
 			this.format = null;
@@ -172,8 +193,26 @@ public class Url {
 		return imageTag(source, Cloudinary.emptyMap());
 	}
 
-	public String imageTag(String source, Map<String, String> attributes) {
-		String url = generate(source);
+    public String imageTag(String source, Map<String, String> attributes) {
+        this.source = source;
+        return imageTag(attributes);
+    }
+
+    public String imageTag() {
+        return imageTag(Cloudinary.emptyMap());
+    }
+
+    public String imageTag(StoredFile source) {
+        return imageTag(source, Cloudinary.emptyMap());
+    }
+
+    public String imageTag(StoredFile source, Map<String, String> attributes) {
+        source(source);
+        return imageTag(attributes);
+    }
+
+	public String imageTag(Map<String, String> attributes) {
+		String url = generate();
 		attributes = new TreeMap<String, String>(attributes); // Make sure they are ordered.
 		if (transformation().getHtmlHeight() != null)
 			attributes.put("height", transformation().getHtmlHeight());

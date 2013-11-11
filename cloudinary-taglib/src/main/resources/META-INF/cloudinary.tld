@@ -162,6 +162,11 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>storedSrc</name>
+            <required>false</required> <!-- should be true but replaces publicId so can't break -->
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>publicId</name><!-- Deprecated -->
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
@@ -209,7 +214,12 @@
         <body-content>scriptless</body-content>
         <attribute>
             <name>src</name>
-            <required>true</required>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>storedSrc</name>
+            <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>

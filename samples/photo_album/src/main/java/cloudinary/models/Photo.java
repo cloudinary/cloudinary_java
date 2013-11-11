@@ -1,5 +1,7 @@
 package cloudinary.models;
 
+import com.cloudinary.StoredFile;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -48,6 +50,16 @@ public class Photo {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt =  createdAt;
+    }
+
+    public StoredFile getUpload() {
+        StoredFile file = new StoredFile();
+        file.setPreloadedFile(image);
+        return file;
+    }
+
+    public void setUpload(StoredFile file) {
+        this.image = file.getPreloadedFile();
     }
 
 }

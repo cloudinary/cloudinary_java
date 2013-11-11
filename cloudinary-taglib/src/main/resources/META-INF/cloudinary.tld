@@ -186,6 +186,16 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <name>secure</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cdnSubdomain</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
         <dynamic-attributes>true</dynamic-attributes>
     </tag>
     <tag>
@@ -214,6 +224,16 @@
         </attribute>
         <attribute>
             <name>transformation</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>secure</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>cdnSubdomain</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>

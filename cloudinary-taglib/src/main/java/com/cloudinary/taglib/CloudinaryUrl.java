@@ -4,8 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
@@ -26,6 +28,9 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
 
     private String transformation = null;
 
+    private Boolean secure = null;
+    private Boolean cdnSubdomain = null;
+
     /** stores the dynamic attributes */
     private Map<String,Object> tagAttrs = new HashMap<String,Object>();
 
@@ -43,6 +48,12 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         if (format != null) url.format(format);
         if (type != null) url.type(type);
         if (resourceType != null) url.resourceType(resourceType);
+        if (secure != null) {
+            url.secure(secure.booleanValue());
+        } else if(Boolean.TRUE.equals(isSecureRequest())) {
+            url.secure(true);
+        }
+        if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
 
         out.println(url.generate(src));
     }
@@ -88,8 +99,31 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         this.transformation = transformation.replaceAll("\\s","/");
     }
 
+    public Boolean getSecure() {
+        return secure;
+    }
+
+    public void setSecure(Boolean secure) {
+        this.secure = secure;
+    }
+
+    public Boolean getCdnSubdomain() {
+        return cdnSubdomain;
+    }
+
+    public void setCdnSubdomain(Boolean cdnSubdomain) {
+        this.cdnSubdomain = cdnSubdomain;
+    }
+
     @Override
     public void setDynamicAttribute(String uri, String name, Object value) throws JspException {
         tagAttrs.put(name, value);
+    }
+
+    private Boolean isSecureRequest() {
+        PageContext context = (PageContext) getJspContext();
+        if (context == null) return null;
+        ServletRequest request = context.getRequest();
+        return request.getScheme().equals("https");
     }
 }

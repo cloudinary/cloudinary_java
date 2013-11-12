@@ -83,11 +83,13 @@
                 .off("cloudinarydone").on("cloudinarydone", function (e, data) {
                     $("#photo_bytes").val(data.result.bytes);
                     $(".status").text("");
-                    $(".preview").html(
-                            $.cloudinary.image(data.result.public_id, {
-                                format: data.result.format, width: 50, height: 50, crop: "fit"
-                            })
-                    );
+                    if (data.result.resource_type == "image") {
+                        $(".preview").html(
+                                $.cloudinary.image(data.result.public_id, {
+                                    format: data.result.format, width: 50, height: 50, crop: "fit"
+                                })
+                        );
+                    }
                     view_upload_details(data.result);
                 });
     });

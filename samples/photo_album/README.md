@@ -33,6 +33,8 @@ If you would like to deploy the sample application in the root server path do th
 
     mv target/photo_album.war $CATALINA_HOME/webapps/ROOT.war
 
+## Configuration
+
 Next you need to pass your Cloudinary account's Cloud Name, API Key, and API Secret. This sample application assumes these values exists in the form
 of a `CLOUDINARY_URL` settings either as an environment variable or as system property. The `CLOUDINARY_URL` value is available in the [dashboard of your Cloudinary account](https://cloudinary.com/console). 
 If you don't have a Cloudinary account yet, [click here](https://cloudinary.com/users/register/free) to create one for free.
@@ -46,6 +48,8 @@ The specific method with which you pass that information to Tomcat (or any other
 * Set `TOMCAT_OPTS` environment variable either globally (`/etc/profile`) or for the user running Tomcat (`~/.profile`)
 
         TOMCAT_OPTS=-DCLOUDINARY_URL=cloudinary://<API-KEY>:<API-SECRET>@<CLOUD-NAME>
+
+## Running
 
 If you chose the second option you will need to now start Tomcat:
 

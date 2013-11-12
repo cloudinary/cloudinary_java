@@ -104,10 +104,10 @@ public class Url {
     }
 
     public Url source(StoredFile source) {
-        if (source.getResourceType() != null) resourceType = source.getResourceType();
-        if (source.getType() != null) type = source.getType();
-        if (source.getVersion() != null) version = source.getVersion().toString();
-        format = source.getFormat();
+        if (source.getResourceType() != null) this.resourceType = source.getResourceType();
+        if (source.getType() != null) this.type = source.getType();
+        if (source.getVersion() != null) this.version = source.getVersion().toString();
+        this.format = source.getFormat();
         this.source = source.getPublicId();
         return this;
     }

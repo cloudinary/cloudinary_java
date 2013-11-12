@@ -3,7 +3,7 @@ package com.cloudinary.taglib;
 import java.io.IOException;
 import java.util.*;
 
-import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
@@ -291,11 +291,11 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         if (callback == null || callback.isEmpty()) callback = "/cloudinary_cors.html";
         if (!callback.matches("^https?://")) {
             PageContext context = (PageContext) getJspContext();
-            ServletRequest request = context.getRequest();
+            HttpServletRequest request = (HttpServletRequest) context.getRequest();
             String callbackUrl = request.getScheme() + "://" + request.getServerName();
             if (request.getScheme().equals("https") && request.getServerPort() != 443 ||
                     request.getScheme().equals("http") && request.getServerPort() != 80) {
-                callbackUrl += ":" + request.getServerPort();
+                callbackUrl += ":" + request.getServerPort() + request.getContextPath();
             }
             callbackUrl += callback;
             options.put("callback", callbackUrl);

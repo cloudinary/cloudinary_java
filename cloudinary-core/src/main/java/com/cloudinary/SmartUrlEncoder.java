@@ -1,28 +1,14 @@
 package com.cloudinary;
 
-// See http://stackoverflow.com/a/4605816
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 public class SmartUrlEncoder {
-	public static String encode(String input) {
-		StringBuilder resultStr = new StringBuilder();
-		for (char ch : input.toCharArray()) {
-			if (isUnsafe(ch)) {
-				resultStr.append('%');
-				resultStr.append(toHex(ch / 16));
-				resultStr.append(toHex(ch % 16));
-			} else {
-				resultStr.append(ch);
-			}
-		}
-		return resultStr.toString();
-	}
-
-	private static char toHex(int ch) {
-		return (char) (ch < 10 ? '0' + ch : 'A' + ch - 10);
-	}
-
-	private static boolean isUnsafe(char ch) {
-		if (ch > 128 || ch < 0)
-			return true;
-		return " %$&+,;=?@<>#%".indexOf(ch) >= 0;
+	public static String encode(String input)  {
+		try {
+			return URLEncoder.encode(input, "UTF-8").replace("%2F", "/").replace("%3A", ":").replace("+", "%20");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException(e);
+		}			
 	}
 }

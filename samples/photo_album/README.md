@@ -10,12 +10,7 @@ Run the following commands from your shell.
 Clone the Cloudinary Java project: 
 
     git clone git://github.com/cloudinary/cloudinary_java.git    
-    
-Compile the parent project and install it locally, Note: This sample depends on a snapshot build of the Java client which isn't available on an external maven repository:
-
-    cd cloudinary_java
-    mvn compile && mvn install
-    
+        
 Compile the sample project and create a WAR file (package):
 
     cd samples/photo_album

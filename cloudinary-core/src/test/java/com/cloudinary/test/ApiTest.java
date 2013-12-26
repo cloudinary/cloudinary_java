@@ -55,6 +55,7 @@ public class ApiTest {
         Map options = Cloudinary.asMap(
                 "public_id", "api_test", 
                 "tags", "api_test_tag",
+                "context", "key=value",
                 "eager", Collections.singletonList(new Transformation().width(100).crop("scale"))); 
         cloudinary.uploader().upload("src/test/resources/logo.png", options);
         options.put("public_id", "api_test1");
@@ -123,18 +124,51 @@ public class ApiTest {
     @Test
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
-        Map result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test"));
+        Map result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "tags", true, "context", true));
         List<Map> resources = (List<Map>) result.get("resources");
         assertNotNull(findByAttr(resources, "public_id", "api_test"));
         assertNotNull(findByAttr(resources, "public_id", "api_test1"));
+        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value"))));
+        boolean found = false;
+        for (Map r: resources) {
+        	org.json.simple.JSONArray tags = (org.json.simple.JSONArray) r.get("tags");
+        	found = found || tags.contains("api_test_tag");
+        }
+        assertTrue(found);
     }
-
+    
+    @Test
+    public void testResourcesByPublicIds() throws Exception {
+        // should allow listing resources by public ids
+        Map result = api.resourcesByIds(Arrays.asList("api_test", "api_test1", "bogus"), Cloudinary.asMap("type", "upload", "tags", true, "context", true));
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertEquals(2, resources.size());
+        assertNotNull(findByAttr(resources, "public_id", "api_test"));
+        assertNotNull(findByAttr(resources, "public_id", "api_test1"));
+        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value"))));
+        boolean found = false;
+        for (Map r: resources) {
+        	org.json.simple.JSONArray tags = (org.json.simple.JSONArray) r.get("tags");
+        	found = found || tags.contains("api_test_tag");
+        }
+        assertTrue(found);
+    }
+    
     @Test
     public void test06ResourcesTag() throws Exception {
         // should allow listing resources by tag
-        Map result = api.resourcesByTag("api_test_tag", Cloudinary.emptyMap());
+        Map result = api.resourcesByTag("api_test_tag", Cloudinary.asMap("tags", true, "context", true));
         Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
         assertNotNull(resource);
+        resource = findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value")));
+        assertNotNull(resource);
+        List<Map> resources = (List<Map>) result.get("resources");
+        boolean found = false;
+        for (Map r: resources) {
+        	org.json.simple.JSONArray tags = (org.json.simple.JSONArray) r.get("tags");
+        	found = found || tags.contains("api_test_tag");
+        }
+        assertTrue(found);
     }
 
     @Test
@@ -316,5 +350,17 @@ public class ApiTest {
 
     private void assertContains(Object object, Collection list) {
         assertTrue(list.contains(object));
+    }
+    
+    //this test must be last because it deletes (potentially) all dependent transformations which some tests rely on.
+    @Test
+    public void testDeleteAllResources() throws Exception {
+        // should allow deleting all resources
+        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
+        Map result = cloudinary.api().resource("api_test5", Cloudinary.emptyMap());
+        assertEquals(1, ((org.json.simple.JSONArray) result.get("derived")).size());
+        api.deleteAllResources(Cloudinary.asMap("keep_original", true));
+        result = cloudinary.api().resource("api_test5", Cloudinary.emptyMap());
+        //assertEquals(0, ((org.json.simple.JSONArray) result.get("derived")).size());
     }
 }

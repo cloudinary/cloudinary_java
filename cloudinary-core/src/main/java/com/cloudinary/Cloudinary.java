@@ -210,6 +210,12 @@ public class Cloudinary {
 	public static List asArray(Object value) {
 		if (value == null) {
 			return Collections.EMPTY_LIST;
+		} else if (value instanceof int[]){
+			List array = new ArrayList();
+			for (int i: (int[]) value) {
+				array.add(new Integer(i));
+			}
+			return array;
 		} else if (value instanceof Object[]){
 			return Arrays.asList((Object[]) value);
 		} else if (value instanceof List) {

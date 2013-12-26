@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,21 @@ public class Uploader {
 		params.put("proxy", (String) options.get("proxy"));
 		params.put("folder", (String) options.get("folder"));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
+		params.put("face_coordinates", StringUtils.join(Cloudinary.asArray(options.get("face_coordinates")), ","));
+		params.put("allowed_formats", StringUtils.join(Cloudinary.asArray(options.get("allowed_formats")), ","));
+		Map<String,String> inputContext = null;
+		if (options.get("context") != null && options.get("context") instanceof Map) {
+			inputContext = ((Map<String,String>) options.get("context"));
+		}
+		if (inputContext != null) {
+			HashSet context = new HashSet();
+			for (Map.Entry<String, String> entry : inputContext.entrySet()) {
+				context.add(entry.getKey() + "=" + entry.getValue());
+			}
+			params.put("context", StringUtils.join(context.toArray(), "|"));
+		} else {
+			params.put("context", options.get("context"));
+		}
 		return params;
 	}
 
@@ -99,6 +115,7 @@ public class Uploader {
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
 		params.put("headers", buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
+		params.put("face_coordinates", StringUtils.join(Cloudinary.asArray(options.get("face_coordinates")), ","));
 		return callApi("explicit", params, options, null);
 	}
 

@@ -121,13 +121,22 @@ public class Api {
         uri.add(resourceType);
         if (type != null)
             uri.add(type);
-        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "max_results", "prefix"), options);
+        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "max_results", "prefix", "tags", "context"), options);
     }
 
     public Map resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "max_results"), options);
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "max_results", "tags", "context"), options);
+    }
+    
+    public Map resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+        String type = Cloudinary.asString(options.get("type"), "upload");
+        Map params = only(options, "tags", "context");
+        params.put("public_ids", publicIds);
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
     }
 
     public Map resource(String public_id, Map options) throws Exception {
@@ -142,7 +151,7 @@ public class Api {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
-        Map params = only(options, "keep_original");
+        Map params = only(options, "keep_original", "next_cursor");
         params.put("public_ids", publicIds);
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
@@ -151,7 +160,7 @@ public class Api {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
-        Map params = only(options, "keep_original");
+        Map params = only(options, "keep_original", "next_cursor");
         params.put("prefix", prefix);
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
@@ -159,7 +168,16 @@ public class Api {
     public Map deleteResourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, "tags", tag), only(options, "keep_original"), options);
+        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, "tags", tag), only(options, "keep_original", "next_cursor"), options);
+    }
+    
+    public Map deleteAllResources(Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+        String type = Cloudinary.asString(options.get("type"), "upload");
+        Map filtered = only(options, "keep_original", "next_cursor");
+        filtered.put("all", true);
+        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), filtered, options);
     }
 
     public Map deleteDerivedResources(Iterable<String> derivedResourceIds, Map options) throws Exception {

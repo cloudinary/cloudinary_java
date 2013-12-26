@@ -31,6 +31,9 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String eagerNotificationUrl = null;
     private String proxy = null;
     private String folder = null;
+    private String faceCoordinates = null;
+	private String allowedFormats = null;
+    private String context = null;
     private boolean backup = false;
     private boolean exif = false;
     private boolean faces = false;
@@ -76,6 +79,9 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("unique_filename", uniqueFilename);
         options.put("eager_async", eagerAsync);
         options.put("invalidate", invalidate);
+        options.put("face_coordinates", faceCoordinates);
+        options.put("allowed_formats", allowedFormats);
+        options.put("context", context);
 
         buildCallbackUrl(options);
 
@@ -284,6 +290,30 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     public void setCallback(String callback) {
         this.callback = callback;
     }
+    
+    public String getFaceCoordinates() {
+		return faceCoordinates;
+	}
+
+	public void setFaceCoordinates(String faceCoordinates) {
+		this.faceCoordinates = faceCoordinates;
+	}
+
+	public String getAllowedFormats() {
+		return allowedFormats;
+	}
+
+	public void setAllowedFormats(String allowedFormats) {
+		this.allowedFormats = allowedFormats;
+	}
+
+	public String getContext() {
+		return context;
+	}
+
+	public void setContext(String context) {
+		this.context = context;
+	}
 
     private void buildCallbackUrl(Map options) {
         String callback = (String) options.get("callback");

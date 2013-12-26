@@ -105,7 +105,9 @@ public class UploaderTest {
 	public void testExplicit() throws IOException {
         Map result = cloudinary.uploader().explicit("cloudinary", Cloudinary.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name")); 
         String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png").version(result.get("version")).generate("cloudinary");
-        assertEquals(((Map) ((List)result.get("eager")).get(0)).get("url"), url);        
+        String eagerUrl = (String) ((Map) ((List)result.get("eager")).get(0)).get("url");
+        String cloudName = cloudinary.getStringConfig("cloud_name");
+        assertEquals(eagerUrl.substring(eagerUrl.indexOf(cloudName)), url.substring(url.indexOf(cloudName)));        
     }
 
     @Test
@@ -180,5 +182,69 @@ public class UploaderTest {
         cloudinary.uploader().replaceTag("tag3", new String[]{public_id}, Cloudinary.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, Cloudinary.emptyMap()).get("tags"); 
         assertEquals(tags, Cloudinary.asArray(new String[]{"tag3"}));
+    }
+    
+    @Test
+    public void testAllowedFormats() throws Exception {
+    	//should allow whitelisted formats if allowed_formats
+    	String[] formats = {"png"}; 
+    	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("allowed_formats", formats));
+    	assertEquals(result.get("format"), "png");
+    }
+    
+    @Test
+    public void testAllowedFormatsWithIllegalFormat() throws Exception {
+    	//should prevent non whitelisted formats from being uploaded if allowed_formats is specified
+    	boolean error_found = false;
+    	String[] formats = {"jpg"}; 
+    	try{
+    		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("allowed_formats", formats));
+    	} catch(Exception e) {
+        	error_found=true;
+        }
+        assertTrue(error_found);
+    }
+    
+    @Test
+    public void testAllowedFormatsWithFormat() throws Exception {
+    	//should allow non whitelisted formats if type is specified and convert to that type
+    	String[] formats = {"jpg"}; 
+    	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("allowed_formats", formats, "format", "jpg"));
+    	assertEquals("jpg", result.get("format"));
+    }
+    
+    @Test
+    public void testFaceCoordinates() throws Exception {
+    	//should allow sending face coordinates
+    	Long[] coordinates = new Long[]{120L,30L,109L,150L};
+    	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("face_coordinates", coordinates, "faces", true));
+    	org.json.simple.JSONArray resultFaces = (org.json.simple.JSONArray) result.get("faces");
+    	assertEquals(1, resultFaces.size());
+    	Object[] resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(0)).toArray();
+    	assertEquals(4, resultCoordinates.length);
+    	for (int i=0; i < resultCoordinates.length; i++) {
+    		assertEquals(coordinates[i], resultCoordinates[i]);
+    	}
+    	
+    	Long[] differentCoordinates = new Long[]{121L,31L,110L,151L};
+    	cloudinary.uploader().explicit((String) result.get("public_id"), Cloudinary.asMap("face_coordinates", differentCoordinates, "faces", true, "type", "upload"));
+    	Map info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("faces", true));
+    	
+    	resultFaces = (org.json.simple.JSONArray) info.get("faces");
+    	assertEquals(1, resultFaces.size());
+    	resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(0)).toArray();
+    	assertEquals(4, resultCoordinates.length);
+    	for (int i=0; i < resultCoordinates.length; i++) {
+    		assertEquals(differentCoordinates[i], resultCoordinates[i]);
+    	}
+    }
+    
+    @Test
+    public void testContext() throws Exception {
+    	//should allow sending context
+    	Map context = Cloudinary.asMap("caption", "some caption", "alt", "alternative");
+    	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("context", context));
+    	Map info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("context", true));
+    	assertEquals(Cloudinary.asMap("custom", context), info.get("context"));
     }
 }

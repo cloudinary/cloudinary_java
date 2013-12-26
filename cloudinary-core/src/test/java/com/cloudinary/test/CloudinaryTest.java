@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -409,6 +408,30 @@ public class CloudinaryTest {
             String result = cloudinary.url().generate(entry.getKey());        	
             assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);			
 		}
+    }
+    
+    @Test
+    public void testSignedUrl() {
+    	// should correctly sign a url
+    	String expected = "http://res.cloudinary.com/test123/image/upload/s--MaRXzoEC--/c_crop,h_20,w_10/v1234/image.jpg";
+    	String actual = cloudinary.url().version(1234).
+    			transformation(new Transformation().crop("crop").width(10).height(20)).
+    			signed(true).
+    			generate("image.jpg");
+    	assertEquals(expected, actual);
+    	
+    	expected = "http://res.cloudinary.com/test123/image/upload/s--ZlgFLQcO--/v1234/image.jpg";
+    	actual = cloudinary.url().version(1234).
+    			signed(true).
+    			generate("image.jpg");
+    	assertEquals(expected, actual);
+    	
+    	expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
+    	actual = cloudinary.url().
+    			transformation(new Transformation().crop("crop").width(10).height(20)).
+    			signed(true).
+    			generate("image.jpg");
+    	assertEquals(expected, actual);
     }
 	
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

@@ -2,10 +2,14 @@ package com.cloudinary;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.CRC32;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 
 public class Url {
@@ -15,12 +19,14 @@ public class Url {
 	String secureDistribution;
 	boolean cdnSubdomain;
 	boolean shorten;
+	boolean signUrl;
 	String cname;
 	String type = "upload";
 	String resourceType = "image";
 	String format = null;
 	String version = null;
     String source = null;
+    String apiSecret = null;
 	Transformation transformation = null;
 
 	public Url(Cloudinary cloudinary) {
@@ -31,6 +37,8 @@ public class Url {
 		this.privateCdn = cloudinary.getBooleanConfig("private_cdn", false);
 		this.cdnSubdomain = cloudinary.getBooleanConfig("cdn_subdomain", false);
 		this.shorten = cloudinary.getBooleanConfig("shorten", false);
+		this.signUrl = cloudinary.getBooleanConfig("sign_url", false);
+		this.apiSecret = cloudinary.getStringConfig("api_secret");
 	}
 
 	public Url type(String type) {
@@ -117,6 +125,11 @@ public class Url {
 			this.transformation = new Transformation();
 		return this.transformation;
 	}
+	
+	public Url signed(boolean signUrl) {
+		this.signUrl = signUrl;
+		return this;
+	}
 
     public String generate(String source) {
         this.source = source;
@@ -178,9 +191,24 @@ public class Url {
 
 		if (version != null)
 			version = "v" + version;
-
-		return StringUtils.join(new String[] { prefix, resourceType, type, transformationStr, version, source }, "/").replaceAll(
-				"([^:])\\/+", "$1/");
+		
+		String rest = StringUtils.join(new String[] {transformationStr, version, source }, "/");
+		rest = rest.replaceAll("^/+", "").replaceAll("([^:])\\/+", "$1/");
+		
+		if (signUrl) {
+			MessageDigest md = null;
+	        try {
+	            md = MessageDigest.getInstance("SHA-1");
+	        }
+	        catch(NoSuchAlgorithmException e) {
+	            throw new RuntimeException("Unexpected exception", e);
+	        }
+	        byte[] digest = md.digest((rest + apiSecret).getBytes());
+	        String signature = Base64.encodeBase64URLSafeString(digest);
+			rest = "s--" + signature.substring(0, 8) + "--/" + rest;
+		}
+		
+		return StringUtils.join(new String[] { prefix, resourceType, type, rest }, "/").replaceAll("([^:])\\/+", "$1/");
 	}
 	
 	public String generateSpriteCss(String source) {

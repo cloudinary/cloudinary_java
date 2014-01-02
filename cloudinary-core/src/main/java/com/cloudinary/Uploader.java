@@ -63,7 +63,9 @@ public class Uploader {
 		params.put("proxy", (String) options.get("proxy"));
 		params.put("folder", (String) options.get("folder"));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
-		params.put("face_coordinates", StringUtils.join(Cloudinary.asArray(options.get("face_coordinates")), ","));
+		if (options.get("face_coordinates") != null) {
+			params.put("face_coordinates", options.get("face_coordinates").toString());
+		}
 		params.put("allowed_formats", StringUtils.join(Cloudinary.asArray(options.get("allowed_formats")), ","));
 		Map<String,String> inputContext = null;
 		if (options.get("context") != null && options.get("context") instanceof Map) {

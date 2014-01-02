@@ -11,11 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.awt.Rectangle;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -216,27 +219,44 @@ public class UploaderTest {
     @Test
     public void testFaceCoordinates() throws Exception {
     	//should allow sending face coordinates
-    	Long[] coordinates = new Long[]{120L,30L,109L,150L};
+    	Coordinates coordinates = new Coordinates();
+    	Rectangle rect1 = new Rectangle(121,31,110,151);
+    	Rectangle rect2 = new Rectangle(120,30,109,150);
+    	coordinates.addRect(rect1);
+    	coordinates.addRect(rect2);
     	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("face_coordinates", coordinates, "faces", true));
     	org.json.simple.JSONArray resultFaces = (org.json.simple.JSONArray) result.get("faces");
-    	assertEquals(1, resultFaces.size());
-    	Object[] resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(0)).toArray();
-    	assertEquals(4, resultCoordinates.length);
-    	for (int i=0; i < resultCoordinates.length; i++) {
-    		assertEquals(coordinates[i], resultCoordinates[i]);
-    	}
+    	assertEquals(2, resultFaces.size());
     	
-    	Long[] differentCoordinates = new Long[]{121L,31L,110L,151L};
+    	Object[] resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(0)).toArray();
+    	
+    	assertEquals((long)rect1.x, resultCoordinates[0]);
+    	assertEquals((long)rect1.y, resultCoordinates[1]);
+    	assertEquals((long)rect1.width, resultCoordinates[2]);
+    	assertEquals((long)rect1.height, resultCoordinates[3]);
+    	
+    	resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(1)).toArray();
+    	
+    	assertEquals((long)rect2.x, resultCoordinates[0]);
+    	assertEquals((long)rect2.y, resultCoordinates[1]);
+    	assertEquals((long)rect2.width, resultCoordinates[2]);
+    	assertEquals((long)rect2.height, resultCoordinates[3]);
+    	
+    	Coordinates differentCoordinates = new Coordinates();
+    	Rectangle rect3 = new Rectangle(122,32,111,152);
+    	differentCoordinates.addRect(rect3);
     	cloudinary.uploader().explicit((String) result.get("public_id"), Cloudinary.asMap("face_coordinates", differentCoordinates, "faces", true, "type", "upload"));
     	Map info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("faces", true));
     	
     	resultFaces = (org.json.simple.JSONArray) info.get("faces");
     	assertEquals(1, resultFaces.size());
     	resultCoordinates = ((org.json.simple.JSONArray) resultFaces.get(0)).toArray();
-    	assertEquals(4, resultCoordinates.length);
-    	for (int i=0; i < resultCoordinates.length; i++) {
-    		assertEquals(differentCoordinates[i], resultCoordinates[i]);
-    	}
+
+    	assertEquals((long)rect3.x, resultCoordinates[0]);
+    	assertEquals((long)rect3.y, resultCoordinates[1]);
+    	assertEquals((long)rect3.width, resultCoordinates[2]);
+    	assertEquals((long)rect3.height, resultCoordinates[3]);
+    	
     }
     
     @Test

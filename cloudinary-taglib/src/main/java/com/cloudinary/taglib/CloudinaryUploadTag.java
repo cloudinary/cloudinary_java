@@ -43,8 +43,9 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private boolean uniqueFilename = true;
     private boolean eagerAsync = false;
     private boolean invalidate = false;
-    
-    public void doTag() throws JspException, IOException {
+    private boolean overwrite = true;
+
+	public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
         if (cloudinary == null) {
             throw new JspException("Cloudinary config could not be located");
@@ -82,6 +83,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("face_coordinates", faceCoordinates);
         options.put("allowed_formats", allowedFormats);
         options.put("context", context);
+        options.put("overwrite", overwrite);
 
         buildCallbackUrl(options);
 
@@ -313,6 +315,14 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 
 	public void setContext(String context) {
 		this.context = context;
+	}
+	
+	public boolean isOverwrite() {
+		return overwrite;
+	}
+
+	public void setOverwrite(boolean overwrite) {
+		this.overwrite = overwrite;
 	}
 
     private void buildCallbackUrl(Map options) {

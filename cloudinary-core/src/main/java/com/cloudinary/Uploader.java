@@ -67,19 +67,7 @@ public class Uploader {
 			params.put("face_coordinates", options.get("face_coordinates").toString());
 		}
 		params.put("allowed_formats", StringUtils.join(Cloudinary.asArray(options.get("allowed_formats")), ","));
-		Map<String,String> inputContext = null;
-		if (options.get("context") != null && options.get("context") instanceof Map) {
-			inputContext = ((Map<String,String>) options.get("context"));
-		}
-		if (inputContext != null) {
-			HashSet context = new HashSet();
-			for (Map.Entry<String, String> entry : inputContext.entrySet()) {
-				context.add(entry.getKey() + "=" + entry.getValue());
-			}
-			params.put("context", StringUtils.join(context.toArray(), "|"));
-		} else {
-			params.put("context", options.get("context"));
-		}
+		params.put("context", Cloudinary.encodeMap(options.get("context")));
 		return params;
 	}
 

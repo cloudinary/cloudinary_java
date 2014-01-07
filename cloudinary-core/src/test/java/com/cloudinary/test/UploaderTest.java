@@ -198,14 +198,14 @@ public class UploaderTest {
     @Test
     public void testAllowedFormatsWithIllegalFormat() throws Exception {
     	//should prevent non whitelisted formats from being uploaded if allowed_formats is specified
-    	boolean error_found = false;
+    	boolean errorFound = false;
     	String[] formats = {"jpg"}; 
     	try{
     		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("allowed_formats", formats));
     	} catch(Exception e) {
-        	error_found=true;
+        	errorFound=true;
         }
-        assertTrue(error_found);
+        assertTrue(errorFound);
     }
     
     @Test

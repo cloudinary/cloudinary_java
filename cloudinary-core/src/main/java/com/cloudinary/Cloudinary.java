@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -248,5 +249,20 @@ public class Cloudinary {
 	
 	public static Map emptyMap() {
 		return Collections.EMPTY_MAP;
+	}
+	
+	public static String encodeMap(Object arg) {
+		if (arg != null && arg instanceof Map) {
+			Map<String,String> mapArg = (Map<String,String>) arg;
+			HashSet out = new HashSet();
+			for (Map.Entry<String, String> entry : mapArg.entrySet()) {
+				out.add(entry.getKey() + "=" + entry.getValue());
+			}
+			return StringUtils.join(out.toArray(), "|");
+		} else if (arg == null) {
+			return null;
+		} else {
+			return arg.toString();
+		}
 	}
 }

@@ -15,6 +15,9 @@ For Java, Cloudinary provides a library for simplifying the integration even fur
 
 **Note:** This Java library is intended mainly for Web applications. For **Android** integration, there is a dedicated library with a similar interface: https://github.com/cloudinary/cloudinary_android
 
+## Getting started guide
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](http://cloudinary.com/documentation/java_integration#getting_started_guide)**.
+
 ## Setup ######################################################################
 
 The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml:
@@ -22,7 +25,7 @@ The cloudinary_java library is available in [Maven Central](http://repo1.maven.o
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary</artifactId>
-        <version>1.0.4</version>
+        <version>1.0.8</version>
     </dependency>
 
 Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)
@@ -60,8 +63,7 @@ Generating a 120x90 thumbnail based on automatic face detection of the Facebook 
     
 ![Facebook 90x120](https://res.cloudinary.com/demo/image/facebook/c_thumb,g_face,h_90,w_120/billclinton.jpg "Facebook 90x200")
 
-For more details, see our documentation for embedding [Facebook](http://cloudinary.com/documentation/facebook_profile_pictures) and [Twitter](http://cloudinary.com/documentation/twitter_profile_pictures) profile pictures. 
-
+For more details, see our documentation for embedding [Facebook](http://cloudinary.com/documentation/facebook_profile_pictures) and [Twitter](http://cloudinary.com/documentation/twitter_profile_pictures) profile pictures.
 
 ## Usage
 
@@ -112,6 +114,8 @@ Same goes for Twitter:
 
     cloudinary.url().type("twitter_name").generate("billclinton.jpg")
 
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_manipulation) for more information about displaying and transforming images in Java**.
+
 ### Upload
 
 Assuming you have your Cloudinary configuration parameters defined (`cloud_name`, `api_key`, `api_secret`), uploading to Cloudinary is very simple.
@@ -133,7 +137,9 @@ You can also specify your own public ID:
     cloudinary.url().generate("sample_remote.jpg")
 
     http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
-        
+
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.        
+
 ### imageTag
 
 Returns an html image tag pointing to Cloudinary.
@@ -143,6 +149,18 @@ Usage:
     cloudinary.url().format("png").transformation(new Transformation().width(100).height(100).crop("fill")).imageTag("sample")
 
     # <img src='http://res.cloudinary.com/cloud_name/image/upload/c_fill,h_100,w_100/sample.png' height='100' width='100'/>
+
+### imageUploadTag
+
+Returns an html input field for direct image upload, to be used in conjunction with [cloudinary\_js package](https://github.com/cloudinary/cloudinary_js/). It integrates [jQuery-File-Upload widget](https://github.com/blueimp/jQuery-File-Upload) and provides all the necessary parameters for a direct upload.
+
+Usage:
+
+    Map options = Cloudinary.asMap("resource_type", "auto");
+    Map htmlOptions = Cloudinary.asMap("alt", "sample");
+    String html = cloudinary.uploader().imageUploadTag("image_id", options, htmlOptions);
+
+![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload#direct_uploading_from_the_browser) for plenty more options of uploading directly from the browser**.
   
 ## Additional resources ##########################################################
 

@@ -37,7 +37,7 @@ public class ApiTest {
         }
         Api api = cloudinary.api();
         try {
-            api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3"), Cloudinary.emptyMap());
+            api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3", "api_test5"), Cloudinary.emptyMap());
         } catch (Exception e) {
         }
         try {

@@ -256,6 +256,8 @@ public class Api {
         case DELETE: request = new HttpDelete(apiUri); break;
         }
         request.setHeader("Authorization", "Basic " + Base64.encodeBase64String((apiKey + ":" + apiSecret).getBytes()));
+        request.setHeader("User-Agent", Cloudinary.USER_AGENT);
+        
         HttpResponse response = client.execute(request);
 
         int code = response.getStatusLine().getStatusCode();

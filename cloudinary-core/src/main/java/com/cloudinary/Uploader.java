@@ -223,6 +223,8 @@ public class Uploader {
 		HttpClient client = new DefaultHttpClient();
 
 		HttpPost postMethod = new HttpPost(apiUrl);
+		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
+		
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {

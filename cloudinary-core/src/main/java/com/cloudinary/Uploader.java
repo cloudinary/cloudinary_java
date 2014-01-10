@@ -105,7 +105,9 @@ public class Uploader {
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
 		params.put("headers", buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
-		params.put("face_coordinates", StringUtils.join(Cloudinary.asArray(options.get("face_coordinates")), ","));
+		if (options.get("face_coordinates") != null) {
+			params.put("face_coordinates", options.get("face_coordinates").toString());
+		}
 		return callApi("explicit", params, options, null);
 	}
 

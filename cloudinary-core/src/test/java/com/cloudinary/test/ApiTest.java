@@ -352,8 +352,8 @@ public class ApiTest {
         assertTrue(list.contains(object));
     }
     
-    //this test must be last because it deletes (potentially) all dependent transformations which some tests rely on.
-    @Test
+    // This test must be last because it deletes (potentially) all dependent transformations which some tests rely on.
+    // Add @Test if you really want to test it - This test deletes derived resources!
     public void testDeleteAllResources() throws Exception {
         // should allow deleting all resources
         cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));

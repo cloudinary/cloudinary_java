@@ -138,6 +138,17 @@ public class ApiTest {
     }
     
     @Test
+    public void testResourcesListingDirection() throws Exception {
+        // should allow listing resources in both directions
+        Map result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "direction", "asc"));
+        List<Map> resources = (List<Map>) result.get("resources");
+        result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "direction", -1));
+        List<Map> resourcesDesc = (List<Map>) result.get("resources");
+        Collections.reverse(resources);
+        assertEquals(resources, resourcesDesc);
+    }
+    
+    @Test
     public void testResourcesByPublicIds() throws Exception {
         // should allow listing resources by public ids
         Map result = api.resourcesByIds(Arrays.asList("api_test", "api_test1", "bogus"), Cloudinary.asMap("type", "upload", "tags", true, "context", true));

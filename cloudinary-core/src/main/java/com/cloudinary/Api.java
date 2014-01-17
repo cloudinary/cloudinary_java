@@ -121,13 +121,13 @@ public class Api {
         uri.add(resourceType);
         if (type != null)
             uri.add(type);
-        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "max_results", "prefix", "tags", "context"), options);
+        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context"), options);
     }
 
     public Map resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "max_results", "tags", "context"), options);
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "direction", "max_results", "tags", "context"), options);
     }
     
     public Map resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {

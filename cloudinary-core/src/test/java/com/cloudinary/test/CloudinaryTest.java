@@ -433,6 +433,11 @@ public class CloudinaryTest {
     			generate("image.jpg");
     	assertEquals(expected, actual);
     }
+    
+    public void testUtils() {
+    	assertEquals(Cloudinary.asBoolean(true, null), true);
+    	assertEquals(Cloudinary.asBoolean(false, null), false);
+    }
 	
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();

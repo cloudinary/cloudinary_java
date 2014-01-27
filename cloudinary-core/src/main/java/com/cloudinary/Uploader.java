@@ -108,6 +108,9 @@ public class Uploader {
 		if (options.get("face_coordinates") != null) {
 			params.put("face_coordinates", options.get("face_coordinates").toString());
 		}
+		if (options.get("context") != null) {
+			params.put("context", Cloudinary.encodeMap(options.get("context")));
+		}
 		return callApi("explicit", params, options, null);
 	}
 

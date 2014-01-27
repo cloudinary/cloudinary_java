@@ -266,5 +266,9 @@ public class UploaderTest {
     	Map result = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("context", context));
     	Map info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("context", true));
     	assertEquals(Cloudinary.asMap("custom", context), info.get("context"));
+    	Map differentContext = Cloudinary.asMap("caption", "different caption", "alt2", "alternative alternative");
+    	cloudinary.uploader().explicit((String) result.get("public_id"), Cloudinary.asMap("type", "upload", "context", differentContext));
+    	info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("context", true));
+    	assertEquals(Cloudinary.asMap("custom", differentContext), info.get("context"));
     }
 }

@@ -241,6 +241,16 @@ public class Cloudinary {
 		}
 	}
 	
+	public static Float asFloat(Object value) {
+		if (value == null) {
+			return null;
+		} else if (value instanceof Float) {
+			return (Float) value;
+		} else {
+			return Float.parseFloat(value.toString());
+		}
+	}
+	
 	public static Map asMap(Object...values) {
 		if (values.length % 2 != 0) throw new RuntimeException("Usage - (key, value, key, value, ...)");
 		Map result = new HashMap(values.length / 2);

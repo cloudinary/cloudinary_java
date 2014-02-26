@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,17 +59,14 @@ public class Uploader {
 				params.put(attr, value.toString());			
 		}
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
-		params.put("headers", buildCustomHeaders(options.get("headers")));
 		params.put("notification_url", (String) options.get("notification_url"));
 		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("proxy", (String) options.get("proxy"));
 		params.put("folder", (String) options.get("folder"));
-		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
-		if (options.get("face_coordinates") != null) {
-			params.put("face_coordinates", options.get("face_coordinates").toString());
-		}
 		params.put("allowed_formats", StringUtils.join(Cloudinary.asArray(options.get("allowed_formats")), ","));
-		params.put("context", Cloudinary.encodeMap(options.get("context")));
+		params.put("moderation", options.get("moderation"));
+		
+		Util.processWriteParameters(options, params);
 		return params;
 	}
 
@@ -76,6 +75,61 @@ public class Uploader {
 		Map<String, Object> params = buildUploadParams(options);
 		return callApi("upload", params, options, file);
 	}
+	
+	public Map uploadLargeRaw(Object file, Map options) throws IOException {
+		return uploadLargeRaw(file, options, 20000000);
+	}
+	
+	public Map uploadLargeRaw(Object file, Map options, int bufferSize) throws IOException {
+		InputStream input;
+		if (file instanceof InputStream) {
+			input = (InputStream) file;
+		} else if (file instanceof File) {
+			input = new FileInputStream((File) file);
+		} else if (file instanceof byte[]) {
+			input = new ByteArrayInputStream((byte[]) file);
+		} else {
+			input = new FileInputStream(new File(file.toString()));
+		}
+		try {
+			Map result = uploadLargeRawPart(input, buildUploadParams(options), bufferSize);
+			return result;
+		} finally {
+			input.close();
+		}
+	}
+
+	private Map uploadLargeRawPart(InputStream input, Map params, int bufferSize) throws IOException {
+		Map nextParams = new HashMap();
+		Map sentParams = new HashMap();
+		nextParams.putAll(params);
+		byte[] buffer = new byte[bufferSize];
+		Map options = Cloudinary.asMap("resource_type", "raw");
+		int bytesRead;
+		int partNumber = 1;
+		while ((bytesRead = input.read(buffer)) != -1) {
+			if (bufferSize > bytesRead && bytesRead != -1) {
+				byte[] shortBuffer = new byte[bytesRead];
+				System.arraycopy(buffer, 0, shortBuffer, 0, bytesRead);
+				buffer = shortBuffer;
+			}
+			nextParams.put("part_number", Integer.toString(partNumber));
+			sentParams.clear();
+			sentParams.putAll(nextParams);
+			if (partNumber == 1) {
+				Map response = callApi("upload_large", sentParams, options, buffer);
+				nextParams.put("public_id", response.get("public_id"));
+				nextParams.put("upload_id", response.get("upload_id"));
+			} else {
+				callApi("upload_large", sentParams, options, buffer);
+			}
+			partNumber++;
+		}
+		nextParams.put("final", true);
+		nextParams.put("part_number", Integer.toString(partNumber));
+		return callApi("upload_large", nextParams, options, new byte[0]);
+	}
+
 
 	public Map destroy(String publicId, Map options) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
@@ -103,7 +157,7 @@ public class Uploader {
 		params.put("callback", (String) options.get("callback"));
 		params.put("type", (String) options.get("type"));
 		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
-		params.put("headers", buildCustomHeaders(options.get("headers")));
+		params.put("headers", Util.buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
 		if (options.get("face_coordinates") != null) {
 			params.put("face_coordinates", options.get("face_coordinates").toString());
@@ -377,20 +431,4 @@ public class Uploader {
 		return StringUtils.join(eager, "|");
 	}
 
-	protected String buildCustomHeaders(Object headers) {
-		if (headers == null) {
-			return null;
-		} else if (headers instanceof String) {
-			return (String) headers;
-		} else if (headers instanceof Object[]) {
-			return StringUtils.join((Object[]) headers, "\n") + "\n";
-		} else {
-			Map<String, String> headersMap = (Map<String, String>) headers;
-			StringBuilder builder = new StringBuilder();
-			for (Map.Entry<String, String> header : headersMap.entrySet()) {
-				builder.append(header.getKey()).append(": ").append(header.getValue()).append("\n");
-			}
-			return builder.toString();
-		}
-	}
 }

@@ -121,22 +121,28 @@ public class Api {
         uri.add(resourceType);
         if (type != null)
             uri.add(type);
-        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context"), options);
+        return callApi(HttpMethod.GET, uri, only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations"), options);
     }
-
+    
     public Map resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "direction", "max_results", "tags", "context"), options);
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
     }
     
     public Map resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
-        Map params = only(options, "tags", "context");
+        Map params = only(options, "tags", "context", "moderations");
         params.put("public_ids", publicIds);
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
+    }
+    
+    public Map resourcesByModeration(String kind, String status, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "moderations", kind, status), only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
     }
 
     public Map resource(String public_id, Map options) throws Exception {
@@ -145,6 +151,17 @@ public class Api {
         String type = Cloudinary.asString(options.get("type"), "upload");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
                 only(options, "exif", "colors", "faces", "image_metadata", "pages", "max_results"), options);
+    }
+    
+    public Map update(String public_id, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
+        String type = Cloudinary.asString(options.get("type"), "upload");
+        Map params = new HashMap<String, Object>();
+        Util.processWriteParameters(options, params);
+        params.put("moderation_status", options.get("moderation_status"));
+        return callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, public_id), 
+        		params, options);
     }
 
     public Map deleteResources(Iterable<String> publicIds, Map options) throws Exception {

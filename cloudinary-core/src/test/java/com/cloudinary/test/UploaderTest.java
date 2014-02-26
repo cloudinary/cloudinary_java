@@ -271,4 +271,80 @@ public class UploaderTest {
     	info = cloudinary.api().resource((String) result.get("public_id"), Cloudinary.asMap("context", true));
     	assertEquals(Cloudinary.asMap("custom", differentContext), info.get("context"));
     }
+    
+    @Test
+    public void testModerationRequest() throws Exception {
+    	//should support requesting manual moderation
+    	Map result = cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("moderation", "manual"));
+    	assertEquals("manual", ((Map) ((List<Map>) result.get("moderation")).get(0)).get("kind"));
+    	assertEquals("pending", ((Map) ((List<Map>) result.get("moderation")).get(0)).get("status"));
+    }
+    
+    @Test
+    public void testOcrRequest() {
+    	//should support requesting ocr info
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("ocr", "illegal"));
+    	} catch(Exception e) {
+        	assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+        }
+    }
+    
+    @Test
+    public void testRawConvertRequest() {
+    	//should support requesting raw conversion
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("raw_convert", "illegal"));
+    	} catch(Exception e) {
+    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+        }
+    }
+    
+    @Test
+    public void testCategorizationRequest() {
+    	//should support requesting categorization
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("categorization", "illegal"));
+    	} catch(Exception e) {
+    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+        }
+    }
+    
+    @Test
+    public void testDetectionRequest() {
+    	//should support requesting detection
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("detection", "illegal"));
+    	} catch(Exception e) {
+    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+        }
+    }
+    
+    @Test
+    public void testSimilaritySearchRequest() {
+    	//should support requesting similarity search
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("similarity_search", "illegal"));
+    	} catch(Exception e) {
+    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+        }
+    }
+    
+    @Test
+    public void testAutoTaggingRequest() {
+    	//should support requesting auto tagging
+    	try {
+    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("auto_tagging", 0.5f));
+    	} catch(Exception e) {
+    		assertTrue(e.getMessage().matches("^Must use(.*)"));
+        }
+    }
+    
+    @Test
+    public void testUploadLargeRawFiles()  throws Exception {
+    	// support uploading large raw files
+        Map response = cloudinary.uploader().uploadLargeRaw("src/test/resources/docx.docx", Cloudinary.emptyMap(), 2000);
+        assertEquals(new java.io.File("src/test/resources/docx.docx").length(), response.get("bytes"));
+    }
+    	
 }

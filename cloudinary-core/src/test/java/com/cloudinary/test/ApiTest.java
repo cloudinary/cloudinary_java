@@ -2,6 +2,7 @@ package com.cloudinary.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
@@ -359,19 +360,140 @@ public class ApiTest {
         assertEquals(result.get("status"), "ok");
     }
 
-    private void assertContains(Object object, Collection list) {
-        assertTrue(list.contains(object));
-    }
-    
     // This test must be last because it deletes (potentially) all dependent transformations which some tests rely on.
     // Add @Test if you really want to test it - This test deletes derived resources!
     public void testDeleteAllResources() throws Exception {
         // should allow deleting all resources
         cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
-        Map result = cloudinary.api().resource("api_test5", Cloudinary.emptyMap());
+        Map result = api.resource("api_test5", Cloudinary.emptyMap());
         assertEquals(1, ((org.json.simple.JSONArray) result.get("derived")).size());
         api.deleteAllResources(Cloudinary.asMap("keep_original", true));
-        result = cloudinary.api().resource("api_test5", Cloudinary.emptyMap());
+        result = api.resource("api_test5", Cloudinary.emptyMap());
         //assertEquals(0, ((org.json.simple.JSONArray) result.get("derived")).size());
+    }
+    
+    
+    @Test
+    public void testManualModeration() throws Exception {
+    	// should support setting manual moderation status
+        Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("moderation","manual"));
+        Map apiResult = api.update((String) uploadResult.get("public_id"), Cloudinary.asMap("moderation_status", "approved"));
+        assertEquals("approved", ((Map) ((List<Map>) apiResult.get("moderation")).get(0)).get("status"));
+    }
+    
+	@Test
+	public void testOcrUpdate() {
+		// should support requesting ocr info
+		try {
+			Map uploadResult = cloudinary.uploader().upload(
+					"src/test/resources/logo.png", Cloudinary.emptyMap());
+			api.update((String) uploadResult.get("public_id"),
+					Cloudinary.asMap("ocr", "illegal"));
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+		}
+	}
+	
+	@Test
+	public void testRawConvertUpdate() {
+		// should support requesting raw conversion
+		try {
+			Map uploadResult = cloudinary.uploader().upload(
+					"src/test/resources/logo.png", Cloudinary.emptyMap());
+			api.update((String) uploadResult.get("public_id"),
+					Cloudinary.asMap("raw_convert", "illegal"));
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+		}
+	}
+	
+	@Test
+	public void testCategorizationUpdate() {
+		// should support requesting categorization
+		try {
+			Map uploadResult = cloudinary.uploader().upload(
+					"src/test/resources/logo.png", Cloudinary.emptyMap());
+			api.update((String) uploadResult.get("public_id"),
+					Cloudinary.asMap("categorization", "illegal"));
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+		}
+	}
+	
+	@Test
+	public void testDetectionUpdate() {
+		// should support requesting detection
+		try {
+			Map uploadResult = cloudinary.uploader().upload(
+					"src/test/resources/logo.png", Cloudinary.emptyMap());
+			api.update((String) uploadResult.get("public_id"),
+					Cloudinary.asMap("detection", "illegal"));
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+		}
+	}
+	
+	@Test
+	public void testSimilaritySearchUpdate() {
+		// should support requesting similarity search
+		try {
+			Map uploadResult = cloudinary.uploader().upload(
+					"src/test/resources/logo.png", Cloudinary.emptyMap());
+			api.update((String) uploadResult.get("public_id"),
+					Cloudinary.asMap("similarity_search", "illegal"));
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+		}
+	}
+	
+	@Test
+	public void testListByModerationUpdate() throws Exception {
+		// "should support listing by moderation kind and value
+		Map result1 = cloudinary.uploader().upload(
+				"src/test/resources/logo.png",
+				Cloudinary.asMap("moderation", "manual"));
+		Map result2 = cloudinary.uploader().upload(
+				"src/test/resources/logo.png",
+				Cloudinary.asMap("moderation", "manual"));
+		Map result3 = cloudinary.uploader().upload(
+				"src/test/resources/logo.png",
+				Cloudinary.asMap("moderation", "manual"));
+		api.update((String) result1.get("public_id"),
+				Cloudinary.asMap("moderation_status", "approved"));
+		api.update((String) result2.get("public_id"),
+				Cloudinary.asMap("moderation_status", "rejected"));
+		Map approved = api.resourcesByModeration("manual", "approved",
+				Cloudinary.asMap("max_results", 1000));
+		Map rejected = api.resourcesByModeration("manual", "rejected",
+				Cloudinary.asMap("max_results", 1000));
+		Map pending = api.resourcesByModeration("manual", "pending",
+				Cloudinary.asMap("max_results", 1000));
+		assertNotNull(findByAttr((List<Map>) approved.get("resources"),
+				"public_id", (String) result1.get("public_id")));
+		assertNull(findByAttr((List<Map>) approved.get("resources"),
+				"public_id", (String) result2.get("public_id")));
+		assertNull(findByAttr((List<Map>) approved.get("resources"),
+				"public_id", (String) result2.get("public_id")));
+		assertNotNull(findByAttr((List<Map>) rejected.get("resources"),
+				"public_id", (String) result2.get("public_id")));
+		assertNull(findByAttr((List<Map>) rejected.get("resources"),
+				"public_id", (String) result1.get("public_id")));
+		assertNull(findByAttr((List<Map>) rejected.get("resources"),
+				"public_id", (String) result3.get("public_id")));
+		assertNotNull(findByAttr((List<Map>) pending.get("resources"),
+				"public_id", (String) result3.get("public_id")));
+		assertNull(findByAttr((List<Map>) pending.get("resources"),
+				"public_id", (String) result1.get("public_id")));
+		assertNull(findByAttr((List<Map>) pending.get("resources"),
+				"public_id", (String) result2.get("public_id")));
+	}
+	
+	private void assertContains(Object object, Collection list) {
+        assertTrue(list.contains(object));
     }
 }

@@ -34,7 +34,12 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String faceCoordinates = null;
 	private String allowedFormats = null;
     private String context = null;
-    private boolean backup = false;
+    private String ocr = null;
+    private String detection = null;
+    private String categorization = null;
+    private String similaritySearch = null;
+    private Float autoTagging = null;
+	private boolean backup = false;
     private boolean exif = false;
     private boolean faces = false;
     private boolean colors = false;
@@ -84,6 +89,11 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("allowed_formats", allowedFormats);
         options.put("context", context);
         options.put("overwrite", overwrite);
+        options.put("ocr", ocr);
+        options.put("detection", detection);
+        options.put("categorization", categorization);
+        options.put("similarity_search", similaritySearch);
+        options.put("auto_tagging", autoTagging);
 
         buildCallbackUrl(options);
 
@@ -323,6 +333,46 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 
 	public void setOverwrite(boolean overwrite) {
 		this.overwrite = overwrite;
+	}
+	
+	public String getOcr() {
+		return ocr;
+	}
+
+	public void setOcr(String ocr) {
+		this.ocr = ocr;
+	}
+
+	public String getDetection() {
+		return detection;
+	}
+
+	public void setDetection(String detection) {
+		this.detection = detection;
+	}
+
+	public String getCategorization() {
+		return categorization;
+	}
+
+	public void setCategorization(String categorization) {
+		this.categorization = categorization;
+	}
+
+	public String getSimilaritySearch() {
+		return similaritySearch;
+	}
+
+	public void setSimilaritySearch(String similaritySearch) {
+		this.similaritySearch = similaritySearch;
+	}
+
+	public Float getAutoTagging() {
+		return autoTagging;
+	}
+
+	public void setAutoTagging(String autoTagging) {
+		this.autoTagging = Float.parseFloat(autoTagging);
 	}
 
     private void buildCallbackUrl(Map options) {

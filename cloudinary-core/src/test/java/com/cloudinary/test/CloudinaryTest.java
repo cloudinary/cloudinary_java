@@ -394,51 +394,39 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/sprite/test.css", result);
 	}
 
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	@Test
-    public void testEscapePublicId() {
-        // should escape public_ids
-        Map<String, String> tests = Cloudinary.asMap(
-            "a b", "a%20b",
-            "a+b", "a%2Bb",
-            "a%20b", "a%20b",
-            "a-b", "a-b",
-            "a??b", "a%3F%3Fb");
-        for (Map.Entry<String, String> entry : tests.entrySet()) {
-            String result = cloudinary.url().generate(entry.getKey());        	
-            assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);			
+	public void testEscapePublicId() {
+		// should escape public_ids
+		Map<String, String> tests = Cloudinary.asMap("a b", "a%20b", "a+b", "a%2Bb", "a%20b", "a%20b", "a-b", "a-b", "a??b", "a%3F%3Fb");
+		for (Map.Entry<String, String> entry : tests.entrySet()) {
+			String result = cloudinary.url().generate(entry.getKey());
+			assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);
 		}
-    }
-    
-    @Test
-    public void testSignedUrl() {
-    	// should correctly sign a url
-    	String expected = "http://res.cloudinary.com/test123/image/upload/s--MaRXzoEC--/c_crop,h_20,w_10/v1234/image.jpg";
-    	String actual = cloudinary.url().version(1234).
-    			transformation(new Transformation().crop("crop").width(10).height(20)).
-    			signed(true).
-    			generate("image.jpg");
-    	assertEquals(expected, actual);
-    	
-    	expected = "http://res.cloudinary.com/test123/image/upload/s--ZlgFLQcO--/v1234/image.jpg";
-    	actual = cloudinary.url().version(1234).
-    			signed(true).
-    			generate("image.jpg");
-    	assertEquals(expected, actual);
-    	
-    	expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
-    	actual = cloudinary.url().
-    			transformation(new Transformation().crop("crop").width(10).height(20)).
-    			signed(true).
-    			generate("image.jpg");
-    	assertEquals(expected, actual);
-    }
-    
-    public void testUtils() {
-    	assertEquals(Cloudinary.asBoolean(true, null), true);
-    	assertEquals(Cloudinary.asBoolean(false, null), false);
-    }
-	
+	}
+
+	@Test
+	public void testSignedUrl() {
+		// should correctly sign a url
+		String expected = "http://res.cloudinary.com/test123/image/upload/s--MaRXzoEC--/c_crop,h_20,w_10/v1234/image.jpg";
+		String actual = cloudinary.url().version(1234).transformation(new Transformation().crop("crop").width(10).height(20)).signed(true)
+				.generate("image.jpg");
+		assertEquals(expected, actual);
+
+		expected = "http://res.cloudinary.com/test123/image/upload/s--ZlgFLQcO--/v1234/image.jpg";
+		actual = cloudinary.url().version(1234).signed(true).generate("image.jpg");
+		assertEquals(expected, actual);
+
+		expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
+		actual = cloudinary.url().transformation(new Transformation().crop("crop").width(10).height(20)).signed(true).generate("image.jpg");
+		assertEquals(expected, actual);
+	}
+
+	public void testUtils() {
+		assertEquals(Cloudinary.asBoolean(true, null), true);
+		assertEquals(Cloudinary.asBoolean(false, null), false);
+	}
+
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();
 		for (String param : uri.getQuery().split("&")) {

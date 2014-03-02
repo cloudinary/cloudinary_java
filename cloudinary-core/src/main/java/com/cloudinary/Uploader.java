@@ -92,42 +92,48 @@ public class Uploader {
 			input = new FileInputStream(new File(file.toString()));
 		}
 		try {
-			Map result = uploadLargeRawPart(input, buildUploadParams(options), bufferSize);
+			Map result = uploadLargeRawParts(input, options, bufferSize);
 			return result;
 		} finally {
 			input.close();
 		}
 	}
 
-	private Map uploadLargeRawPart(InputStream input, Map params, int bufferSize) throws IOException {
+	private Map uploadLargeRawParts(InputStream input, Map options, int bufferSize) throws IOException {
+		Map params = Cloudinary.only(options, "public_id", "backup", "type");
 		Map nextParams = new HashMap();
-		Map sentParams = new HashMap();
 		nextParams.putAll(params);
+		Map sentParams = new HashMap();
+		
+		Map sentOptions = new HashMap();
+		sentOptions.putAll(options);
+		sentOptions.put("resource_type", "raw");
+		
 		byte[] buffer = new byte[bufferSize];
-		Map options = Cloudinary.asMap("resource_type", "raw");
-		int bytesRead;
+		int bytesRead = 0;
+		int currentBufferSize = 0;
 		int partNumber = 1;
-		while ((bytesRead = input.read(buffer)) != -1) {
-			if (bufferSize > bytesRead && bytesRead != -1) {
-				byte[] shortBuffer = new byte[bytesRead];
-				System.arraycopy(buffer, 0, shortBuffer, 0, bytesRead);
-				buffer = shortBuffer;
-			}
-			nextParams.put("part_number", Integer.toString(partNumber));
-			sentParams.clear();
-			sentParams.putAll(nextParams);
-			if (partNumber == 1) {
-				Map response = callApi("upload_large", sentParams, options, buffer);
-				nextParams.put("public_id", response.get("public_id"));
-				nextParams.put("upload_id", response.get("upload_id"));
+		while ((bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize)) != -1) {
+			if (bytesRead + currentBufferSize == bufferSize) {
+				nextParams.put("part_number", Integer.toString(partNumber));
+				sentParams.clear();
+				sentParams.putAll(nextParams);
+				Map response = callApi("upload_large", sentParams, sentOptions, buffer);
+				if (partNumber == 1) {
+					nextParams.put("public_id", response.get("public_id"));
+					nextParams.put("upload_id", response.get("upload_id"));
+				}
+				currentBufferSize = 0;
+				partNumber++;
 			} else {
-				callApi("upload_large", sentParams, options, buffer);
+				currentBufferSize += bytesRead;
 			}
-			partNumber++;
 		}
+		byte[] finalBuffer = new byte[currentBufferSize];
+		System.arraycopy(buffer, 0, finalBuffer, 0, currentBufferSize);
 		nextParams.put("final", true);
 		nextParams.put("part_number", Integer.toString(partNumber));
-		return callApi("upload_large", nextParams, options, new byte[0]);
+		return callApi("upload_large", nextParams, sentOptions, finalBuffer);
 	}
 
 

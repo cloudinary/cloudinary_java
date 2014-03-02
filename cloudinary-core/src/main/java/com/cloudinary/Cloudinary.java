@@ -278,4 +278,14 @@ public class Cloudinary {
 			return arg.toString();
 		}
 	}
+	
+	public static Map<String, ? extends Object> only(Map<String, ? extends Object> hash, String... keys) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        for (String key : keys) {
+            if (hash.containsKey(key)) {
+                result.put(key, hash.get(key));
+            }
+        }
+        return result;
+    }
 }

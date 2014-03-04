@@ -9,7 +9,7 @@
 
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-parent</artifactId>
-    <version>1.0.12</version>
+    <version>1.0.13-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Cloudinary Java Client Library Parent Project</name>
 

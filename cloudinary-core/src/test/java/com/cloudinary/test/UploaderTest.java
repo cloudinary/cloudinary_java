@@ -345,6 +345,7 @@ public class UploaderTest {
     	// support uploading large raw files
         Map response = cloudinary.uploader().uploadLargeRaw("src/test/resources/docx.docx", Cloudinary.emptyMap());
         assertEquals(new java.io.File("src/test/resources/docx.docx").length(), response.get("bytes"));
+        assertEquals(Boolean.TRUE, response.get("done"));
     }
     	
 }

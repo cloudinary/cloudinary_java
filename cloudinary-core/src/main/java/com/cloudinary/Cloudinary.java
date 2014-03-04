@@ -22,22 +22,22 @@ import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({ "rawtypes", "unchecked" })
 public class Cloudinary {
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
-	
+
 	public final static String VERSION = "1.0.11";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
-	
+
 	private final Map config = new HashMap();
-	
+
 	public Cloudinary(Map config) {
-		this.config.putAll(config);	
+		this.config.putAll(config);
 	}
-	
+
 	public Cloudinary(String cloudinaryUrl) {
 		initFromUrl(cloudinaryUrl);
 	}
@@ -47,13 +47,13 @@ public class Cloudinary {
 		if (cloudinaryUrl != null) {
 			initFromUrl(cloudinaryUrl);
 		}
-		
+
 	}
-	
+
 	public Url url() {
 		return new Url(this);
 	}
-	
+
 	public Uploader uploader() {
 		return new Uploader(this);
 	}
@@ -61,53 +61,53 @@ public class Cloudinary {
 	public Api api() {
 		return new Api(this);
 	}
-	
+
 	public String cloudinaryApiUrl(String action, Map options) {
-        String cloudinary = asString(options.get("upload_prefix"), asString(this.config.get("upload_prefix"), "https://api.cloudinary.com"));
-        String cloud_name = asString(options.get("cloud_name"), asString(this.config.get("cloud_name")));
-        if (cloud_name == null) throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
-        String resource_type = asString(options.get("resource_type"), "image"); 
-        return StringUtils.join(new String[]{cloudinary, "v1_1", cloud_name, resource_type, action}, "/");
-    }
+		String cloudinary = asString(options.get("upload_prefix"), asString(this.config.get("upload_prefix"), "https://api.cloudinary.com"));
+		String cloud_name = asString(options.get("cloud_name"), asString(this.config.get("cloud_name")));
+		if (cloud_name == null)
+			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
+		String resource_type = asString(options.get("resource_type"), "image");
+		return StringUtils.join(new String[] { cloudinary, "v1_1", cloud_name, resource_type, action }, "/");
+	}
 
-    private final static SecureRandom RND = new SecureRandom();
-    
-    public String randomPublicId() {
-    	byte[] bytes = new byte[8];
-        RND.nextBytes(bytes);
-        return Hex.encodeHexString(bytes);
-    }
+	private final static SecureRandom RND = new SecureRandom();
 
-    public String signedPreloadedImage(Map result) {
-        return result.get("resource_type") + "/upload/v" + result.get("version") + "/" + result.get("public_id") +
-               (result.containsKey("format") ? "." + result.get("format") : "") + "#" + result.get("signature");
-    }
+	public String randomPublicId() {
+		byte[] bytes = new byte[8];
+		RND.nextBytes(bytes);
+		return Hex.encodeHexString(bytes);
+	}
 
-    public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
-    	Collection<String> params = new ArrayList<String>();
-        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
-            } else if (param.getValue() instanceof String) {
-            	String value = (String) param.getValue(); 
-            	if (StringUtils.isNotBlank(value)) {
-            		params.add(param.getKey() + "=" + value);
-            	}
-            }
-        }
-        String to_sign = StringUtils.join(params, "&");
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        }
-        catch(NoSuchAlgorithmException e) {
-            throw new RuntimeException("Unexpected exception", e);
-        } 
-        byte[] digest = md.digest((to_sign + apiSecret).getBytes());
-        return Hex.encodeHexString(digest);
-    }
+	public String signedPreloadedImage(Map result) {
+		return result.get("resource_type") + "/upload/v" + result.get("version") + "/" + result.get("public_id")
+				+ (result.containsKey("format") ? "." + result.get("format") : "") + "#" + result.get("signature");
+	}
 
-    public void signRequest(Map<String, Object> params, Map<String, Object> options) {
+	public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
+		Collection<String> params = new ArrayList<String>();
+		for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
+			if (param.getValue() instanceof Collection) {
+				params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
+			} else {
+				String value = param.getValue().toString();
+				if (StringUtils.isNotBlank(value)) {
+					params.add(param.getKey() + "=" + value);
+				}
+			}
+		}
+		String to_sign = StringUtils.join(params, "&");
+		MessageDigest md = null;
+		try {
+			md = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException("Unexpected exception", e);
+		}
+		byte[] digest = md.digest((to_sign + apiSecret).getBytes());
+		return Hex.encodeHexString(digest);
+	}
+
+	public void signRequest(Map<String, Object> params, Map<String, Object> options) {
 		String apiKey = Cloudinary.asString(options.get("api_key"), this.getStringConfig("api_key"));
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
@@ -121,11 +121,11 @@ public class Cloudinary {
 			}
 		}
 		params.put("signature", this.apiSignRequest(params, apiSecret));
-		params.put("api_key", apiKey);    	
-    }
+		params.put("api_key", apiKey);
+	}
 
 	public String privateDownload(String publicId, String format, Map<String, Object> options) throws URISyntaxException {
-		Map<String, Object> params = new HashMap<String, Object>(); 
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("public_id", publicId);
 		params.put("format", format);
 		params.put("attachment", options.get("attachment"));
@@ -138,9 +138,9 @@ public class Cloudinary {
 		}
 		return builder.toString();
 	}
-    
+
 	public String zipDownload(String tag, Map<String, Object> options) throws URISyntaxException {
-		Map<String, Object> params = new HashMap<String, Object>(); 
+		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		params.put("tag", tag);
 		Object transformation = options.get("transformation");
@@ -158,7 +158,7 @@ public class Cloudinary {
 		}
 		return builder.toString();
 	}
-    
+
 	protected void initFromUrl(String cloudinaryUrl) {
 		URI cloudinaryUri = URI.create(cloudinaryUrl);
 		setConfig("cloud_name", cloudinaryUri.getHost());
@@ -214,13 +214,13 @@ public class Cloudinary {
 	public static List asArray(Object value) {
 		if (value == null) {
 			return Collections.EMPTY_LIST;
-		} else if (value instanceof int[]){
+		} else if (value instanceof int[]) {
 			List array = new ArrayList();
-			for (int i: (int[]) value) {
+			for (int i : (int[]) value) {
 				array.add(new Integer(i));
 			}
 			return array;
-		} else if (value instanceof Object[]){
+		} else if (value instanceof Object[]) {
 			return Arrays.asList((Object[]) value);
 		} else if (value instanceof List) {
 			return (List) value;
@@ -229,7 +229,7 @@ public class Cloudinary {
 			array.add(value);
 			return array;
 		}
-	}	
+	}
 
 	public static Boolean asBoolean(Object value, Boolean defaultValue) {
 		if (value == null) {
@@ -240,7 +240,7 @@ public class Cloudinary {
 			return "true".equals(value);
 		}
 	}
-	
+
 	public static Float asFloat(Object value) {
 		if (value == null) {
 			return null;
@@ -250,23 +250,24 @@ public class Cloudinary {
 			return Float.parseFloat(value.toString());
 		}
 	}
-	
-	public static Map asMap(Object...values) {
-		if (values.length % 2 != 0) throw new RuntimeException("Usage - (key, value, key, value, ...)");
+
+	public static Map asMap(Object... values) {
+		if (values.length % 2 != 0)
+			throw new RuntimeException("Usage - (key, value, key, value, ...)");
 		Map result = new HashMap(values.length / 2);
-		for (int i = 0; i < values.length; i+=2) {
-			result.put(values[i], values[i+1]);
+		for (int i = 0; i < values.length; i += 2) {
+			result.put(values[i], values[i + 1]);
 		}
 		return result;
 	}
-	
+
 	public static Map emptyMap() {
 		return Collections.EMPTY_MAP;
 	}
-	
+
 	public static String encodeMap(Object arg) {
 		if (arg != null && arg instanceof Map) {
-			Map<String,String> mapArg = (Map<String,String>) arg;
+			Map<String, String> mapArg = (Map<String, String>) arg;
 			HashSet out = new HashSet();
 			for (Map.Entry<String, String> entry : mapArg.entrySet()) {
 				out.add(entry.getKey() + "=" + entry.getValue());
@@ -278,14 +279,14 @@ public class Cloudinary {
 			return arg.toString();
 		}
 	}
-	
+
 	public static Map<String, ? extends Object> only(Map<String, ? extends Object> hash, String... keys) {
-        Map<String, Object> result = new HashMap<String, Object>();
-        for (String key : keys) {
-            if (hash.containsKey(key)) {
-                result.put(key, hash.get(key));
-            }
-        }
-        return result;
-    }
+		Map<String, Object> result = new HashMap<String, Object>();
+		for (String key : keys) {
+			if (hash.containsKey(key)) {
+				result.put(key, hash.get(key));
+			}
+		}
+		return result;
+	}
 }

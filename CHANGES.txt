@@ -1,0 +1,1 @@
+1.0.11 - 2014-03-04 - new update method. add listing by moderation kind and status. add moderation status in listing. add moderation flag in upload. add moderation_status in update. add ocr, raw_conversion, categorization, detection, similarity_search and auto_tagging parameters in update and upload. add support for uploading large raw files

@@ -26,6 +26,7 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.conn.ClientConnectionManager;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -276,7 +277,11 @@ public class Uploader {
         params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
         cloudinary.signRequest(params, options);
     }
-
+	
+	public Uploader withConnectionManager(ClientConnectionManager connectionManager) {
+		this.connectionManager = connectionManager;
+		return this;
+	}
 
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
         if (options == null) options = Cloudinary.emptyMap();
@@ -285,7 +290,7 @@ public class Uploader {
 
 		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
 
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client = new DefaultHttpClient(connectionManager);
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
@@ -436,5 +441,7 @@ public class Uploader {
 		}
 		return StringUtils.join(eager, "|");
 	}
+	
+	private ClientConnectionManager connectionManager = null;
 
 }

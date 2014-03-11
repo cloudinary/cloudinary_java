@@ -18,6 +18,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -234,6 +235,11 @@ public class Api {
     public Map createTransformation(String name, String definition, Map options) throws Exception {
         return callApi(HttpMethod.POST, Arrays.asList("transformations", name), Cloudinary.asMap("transformation", definition), options);
     }
+    
+    public Api withConnectionManager(ClientConnectionManager connectionManager) {
+		this.connectionManager = connectionManager;
+		return this;
+	}
 
     protected Map callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
@@ -263,7 +269,7 @@ public class Api {
                 apiUrlBuilder.addParameter(param.getKey(), Cloudinary.asString(param.getValue()));
             }  
         }
-        DefaultHttpClient client = new DefaultHttpClient();
+        DefaultHttpClient client = new DefaultHttpClient(connectionManager);
         URI apiUri = apiUrlBuilder.build();
         HttpUriRequest request = null;
         switch (method) {
@@ -300,4 +306,6 @@ public class Api {
             throw exceptionConstructor.newInstance(message);
         }
     }
+    
+    private ClientConnectionManager connectionManager = null;
 }

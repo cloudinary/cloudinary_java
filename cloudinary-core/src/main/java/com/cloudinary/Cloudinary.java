@@ -21,6 +21,7 @@ import java.util.TreeMap;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ClientConnectionManager;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
@@ -55,11 +56,11 @@ public class Cloudinary {
 	}
 	
 	public Uploader uploader() {
-		return new Uploader(this);
+		return new Uploader(this).withConnectionManager(connectionManager);
 	}
 
 	public Api api() {
-		return new Api(this);
+		return new Api(this).withConnectionManager(connectionManager);
 	}
 	
 	public String cloudinaryApiUrl(String action, Map options) {
@@ -288,4 +289,11 @@ public class Cloudinary {
         }
         return result;
     }
+	
+	public Cloudinary withConnectionManager(ClientConnectionManager connectionManager) {
+		this.connectionManager = connectionManager;
+		return this;
+	}
+	
+	private ClientConnectionManager connectionManager = null;
 }

@@ -298,15 +298,15 @@ public class Uploader {
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {
-			if (param.getValue() instanceof String) { 
-				String value = (String) param.getValue();
-				if (StringUtils.isNotBlank(value)) {
-					multipart.addPart(param.getKey(), new StringBody(value));
-				}
-			} else if (param.getValue() instanceof Collection) {
+			if (param.getValue() instanceof Collection) {
 				for (Object value : (Collection) param.getValue()) {
 					multipart.addPart(param.getKey()+"[]", new StringBody(Cloudinary.asString(value)));					
 				}
+			} else {
+				String value = param.getValue().toString();
+				if (StringUtils.isNotBlank(value)) {
+					multipart.addPart(param.getKey(), new StringBody(value));
+				}				
 			}
 		}
 

@@ -332,6 +332,14 @@ public class CloudinaryTest {
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc.def/test", result);
 	}
+	
+	@Test
+	public void testOpacity() {
+		// should support opacity
+		Transformation transformation = new Transformation().opacity(50);
+		String result = cloudinary.url().transformation(transformation).generate("test");
+		assertEquals("http://res.cloudinary.com/test123/image/upload/o_50/test", result);
+	}
 
 	@Test
 	public void testImageTag() {

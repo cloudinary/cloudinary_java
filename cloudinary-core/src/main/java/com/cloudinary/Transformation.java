@@ -64,6 +64,7 @@ public class Transformation {
 	public Transformation density(Object value) { return param("density", value); }
 	public Transformation page(Object value) { return param("page", value); }
 	public Transformation delay(Object value) { return param("delay", value); }
+	public Transformation opacity(int value) { return param("opacity", value); }
 	public Transformation rawTransformation(String value) { return param("raw_transformation", value); }
 	public Transformation flags(String...value) { return param("flags", value); }
 	
@@ -166,7 +167,7 @@ public class Transformation {
 		String[] simple_params = new String[]{
 			"x", "x", "y", "y", "r", "radius", "d", "default_image", "g", "gravity", "cs", "color_space",
 			"p", "prefix", "l", "overlay", "u", "underlay", "f", "fetch_format", "dn", "density",
-			"pg", "page", "dl", "delay", "e", "effect", "bo", "border", "q", "quality"
+			"pg", "page", "dl", "delay", "e", "effect", "bo", "border", "q", "quality", "o", "opacity"
 		};
 		for (int i = 0; i < simple_params.length; i+=2) {
 			params.put(simple_params[i], Cloudinary.asString(options.get(simple_params[i+1])));

@@ -280,15 +280,6 @@ public class UploaderTest {
     	assertEquals("pending", ((Map) ((List<Map>) result.get("moderation")).get(0)).get("status"));
     }
     
-    @Test
-    public void testOcrRequest() {
-    	//should support requesting ocr info
-    	try {
-    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("ocr", "illegal"));
-    	} catch(Exception e) {
-        	assertTrue(e.getMessage().matches("^Illegal value(.*)"));
-        }
-    }
     
     @Test
     public void testRawConvertRequest() {
@@ -296,7 +287,7 @@ public class UploaderTest {
     	try {
     		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("raw_convert", "illegal"));
     	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
     
@@ -306,7 +297,7 @@ public class UploaderTest {
     	try {
     		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("categorization", "illegal"));
     	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
     
@@ -316,17 +307,7 @@ public class UploaderTest {
     	try {
     		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("detection", "illegal"));
     	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
-        }
-    }
-    
-    @Test
-    public void testSimilaritySearchRequest() {
-    	//should support requesting similarity search
-    	try {
-    		cloudinary.uploader().upload("src/test/resources/logo.png",  Cloudinary.asMap("similarity_search", "illegal"));
-    	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
     
@@ -346,6 +327,15 @@ public class UploaderTest {
         Map response = cloudinary.uploader().uploadLargeRaw("src/test/resources/docx.docx", Cloudinary.emptyMap());
         assertEquals(new java.io.File("src/test/resources/docx.docx").length(), response.get("bytes"));
         assertEquals(Boolean.TRUE, response.get("done"));
+    }
+    
+    @Test
+    public void testUnsignedUpload()  throws Exception {
+    	// should support unsigned uploading using presets
+        Map preset = cloudinary.api().createUploadPreset(Cloudinary.asMap("folder", "upload_folder", "unsigned", true));
+        Map result = cloudinary.uploader().unsignedUpload("src/test/resources/logo.png", preset.get("name").toString(), Cloudinary.emptyMap());
+        assertTrue(result.get("public_id").toString().matches("^upload_folder\\/[a-z0-9]+$"));
+        cloudinary.api().deleteUploadPreset(preset.get("name").toString(), Cloudinary.emptyMap());
     }
     	
 }

@@ -2,9 +2,71 @@ package com.cloudinary;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class Util {
+	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {
+		"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename", 
+		"eager_async", "invalidate", "discard_original_filename", "overwrite", "phash"};
+	
+	protected static final Map<String, Object> buildUploadParams(Map options) {
+        if (options == null) options = Cloudinary.emptyMap();
+		Map<String, Object> params = new HashMap<String, Object>();
+		Object transformation = options.get("transformation");
+		if (transformation != null) {
+			if (transformation instanceof Transformation) {
+				transformation = ((Transformation) transformation).generate();
+			}
+			params.put("transformation", transformation.toString());
+		}
+		params.put("public_id", (String) options.get("public_id"));
+		params.put("callback", (String) options.get("callback"));
+		params.put("format", (String) options.get("format"));
+		params.put("type", (String) options.get("type"));
+		for (String attr : BOOLEAN_UPLOAD_OPTIONS) {
+			Boolean value = Cloudinary.asBoolean(options.get(attr), null);
+			if (value != null)
+				params.put(attr, value.toString());			
+		}
+		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+		params.put("notification_url", (String) options.get("notification_url"));
+		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
+		params.put("proxy", (String) options.get("proxy"));
+		params.put("folder", (String) options.get("folder"));
+		params.put("allowed_formats", StringUtils.join(Cloudinary.asArray(options.get("allowed_formats")), ","));
+		params.put("moderation", options.get("moderation"));
+		params.put("upload_preset", options.get("upload_preset"));
+		
+		processWriteParameters(options, params);
+		return params;
+	}
+	
+	protected static final String buildEager(List<? extends Transformation> transformations) {
+		if (transformations == null) {
+			return null;
+		}
+		List<String> eager = new ArrayList<String>();
+		for (Transformation transformation : transformations) {
+			List<String> single_eager = new ArrayList<String>();
+			String transformationString = transformation.generate();
+			if (StringUtils.isNotBlank(transformationString)) {
+				single_eager.add(transformationString);
+			}
+			if (transformation instanceof EagerTransformation) {
+				EagerTransformation eagerTransformation = (EagerTransformation) transformation;
+				if (StringUtils.isNotBlank(eagerTransformation.getFormat())) {
+					single_eager.add(eagerTransformation.getFormat());
+				}
+			}
+			eager.add(StringUtils.join(single_eager, "/"));
+		}
+		return StringUtils.join(eager, "|");
+	}
+	
 	protected static final void processWriteParameters(
 			Map<String, Object> options, Map<String, Object> params) {
 		if (options.get("headers") != null)
@@ -47,6 +109,15 @@ public class Util {
 						.append(header.getValue()).append("\n");
 			}
 			return builder.toString();
+		}
+	}
+	
+	protected static void clearEmpty(Map params){
+		for (Iterator iterator = params.values().iterator(); iterator.hasNext();) {
+			Object value = iterator.next();
+			if (value == null || "".equals(value)) {
+				iterator.remove();
+			}
 		}
 	}
 }

@@ -34,6 +34,7 @@ requested transformations. This also shows how to chain transformations -->
 <div class="actions">
     <a class="upload_link" href="upload_form">Add photo</a>
     <a class="upload_link" href="direct_upload_form">Add photo (direct upload)</a>
+    <a class="upload_link" href="direct_unsigned_upload_form">Add photo (direct unsigned upload)</a>
 </div>
 
 <div class="photos">

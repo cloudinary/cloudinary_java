@@ -8,10 +8,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
+import org.apache.http.Header;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -27,56 +33,140 @@ import org.json.simple.parser.ParseException;
 public class Api {
     enum HttpMethod { GET, POST, PUT, DELETE }
     
-    public static class Response extends HashMap {
+    public static class RateLimit {
+    	private long limit = 0L;
+		private long remaining = 0L;
+    	private Date reset = null;
+    	public RateLimit(){
+    		super();
+    	}
+    	
+    	public long getLimit() {
+			return limit;
+		}
+		public void setLimit(long limit) {
+			this.limit = limit;
+		}
+		public long getRemaining() {
+			return remaining;
+		}
+		public void setRemaining(long remaining) {
+			this.remaining = remaining;
+		}
+		public Date getReset() {
+			return reset;
+		}
+		public void setReset(Date reset) {
+			this.reset = reset;
+		}
+    }
+    
+    public static interface ApiResponse extends Map {
+    	HttpResponse getRawHttpResponse();
+    	Map<String, RateLimit> rateLimits() throws java.text.ParseException;
+    	RateLimit apiRateLimit() throws java.text.ParseException;
+    }
+    
+    public static class Response extends HashMap implements ApiResponse {
+		private static final long serialVersionUID = -5458609797599845837L;
+		private HttpResponse response = null;
         public Response(HttpResponse response, Map result) {
             super(result);
+            this.response = response;
+        }
+        
+        public HttpResponse getRawHttpResponse(){
+        	return this.response;
+        }
+        
+        private static final Pattern RATE_LIMIT_REGEX = Pattern.compile("X-Feature(\\w*)RateLimit(-Limit|-Reset|-Remaining)");
+        private static final String RFC1123_PATTERN = "EEE, dd MMM yyyyy HH:mm:ss z";
+        private static final DateFormat RFC1123 = new SimpleDateFormat(RFC1123_PATTERN);
+        public Map<String, RateLimit> rateLimits() throws java.text.ParseException {
+        	Header[] headers = this.response.getAllHeaders();
+        	Map<String, RateLimit> limits = new HashMap<String, RateLimit>();
+        	for (Header header : headers){
+        		Matcher m = RATE_LIMIT_REGEX.matcher(header.getName());
+        		if (m.matches()){
+        			String limitName = "Api";
+        			RateLimit limit = null;
+        			if (!m.group(1).isEmpty()) {
+        				limitName = m.group(1);
+        			}
+        			limit = limits.get(limitName);
+        			if (limit == null) {
+        				limit = new RateLimit();
+        			}
+        			if (m.group(2).equalsIgnoreCase("-limit")) {
+        				limit.setLimit(Long.parseLong(header.getValue()));
+        			} else if (m.group(2).equalsIgnoreCase("-remaining")) {
+        				limit.setRemaining(Long.parseLong(header.getValue()));
+        			} else if (m.group(2).equalsIgnoreCase("-reset")) {
+        				limit.setReset(RFC1123.parse(header.getValue()));
+        			} 
+        			limits.put(limitName, limit);
+        		}
+        	}
+        	return limits;
+        }
+        
+        public RateLimit apiRateLimit() throws java.text.ParseException {
+        	return rateLimits().get("Api");
         }
     }
 
     public static class ApiException extends Exception {
-        public ApiException(String message) {
+		private static final long serialVersionUID = 4416861825144420038L;
+		public ApiException(String message) {
             super(message);
         }
     }
 
     public static class BadRequest extends ApiException {
-        public BadRequest(String message) {
+		private static final long serialVersionUID = 1410136354253339531L;
+		public BadRequest(String message) {
             super(message);
         }
     }
 
     public static class AuthorizationRequired extends ApiException {
-        public AuthorizationRequired(String message) {
+		private static final long serialVersionUID = 7160740370855761014L;
+		public AuthorizationRequired(String message) {
             super(message);
         }
     }
 
     public static class NotAllowed extends ApiException {
-        public NotAllowed(String message) {
+		private static final long serialVersionUID = 4371365822491647653L;
+		public NotAllowed(String message) {
             super(message);
         }
     }
 
     public static class NotFound extends ApiException {
-        public NotFound(String message) {
+		private static final long serialVersionUID = -2072640462778940357L;
+		public NotFound(String message) {
             super(message);
         }
     }
 
     public static class AlreadyExists extends ApiException {
-        public AlreadyExists(String message) {
+		private static final long serialVersionUID = 999568182896607322L;
+		public AlreadyExists(String message) {
             super(message);
         }
     }
 
     public static class RateLimited extends ApiException {
-        public RateLimited(String message) {
+		private static final long serialVersionUID = -8298038106172355219L;
+		public RateLimited(String message) {
             super(message);
         }
     }
 
     public static class GeneralError extends ApiException {
-        public GeneralError(String message) {
+		private static final long serialVersionUID = 4553362706625067182L;
+		public GeneralError(String message) {
             super(message);
         }
     }
@@ -98,22 +188,22 @@ public class Api {
         this.cloudinary = cloudinary;
     }
 
-    public Map ping(Map options) throws Exception {
+    public ApiResponse ping(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("ping"), Cloudinary.emptyMap(), options);
     }
 
-    public Map usage(Map options) throws Exception {
+    public ApiResponse usage(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("usage"), Cloudinary.emptyMap(), options);
     }
 
-    public Map resourceTypes(Map options) throws Exception {
+    public ApiResponse resourceTypes(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("resources"), Cloudinary.emptyMap(), options);
     }
 
-    public Map resources(Map options) throws Exception {
+    public ApiResponse resources(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"));
@@ -122,16 +212,16 @@ public class Api {
         uri.add(resourceType);
         if (type != null)
             uri.add(type);
-        return callApi(HttpMethod.GET, uri, Cloudinary.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations"), options);
+        return callApi(HttpMethod.GET, uri, Cloudinary.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations", "start_at"), options);
     }
     
-    public Map resourcesByTag(String tag, Map options) throws Exception {
+    public ApiResponse resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), Cloudinary.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
     }
     
-    public Map resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
+    public ApiResponse resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
@@ -140,21 +230,21 @@ public class Api {
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
     }
     
-    public Map resourcesByModeration(String kind, String status, Map options) throws Exception {
+    public ApiResponse resourcesByModeration(String kind, String status, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "moderations", kind, status), Cloudinary.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
     }
 
-    public Map resource(String public_id, Map options) throws Exception {
+    public ApiResponse resource(String public_id, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
-                Cloudinary.only(options, "exif", "colors", "faces", "image_metadata", "pages", "max_results"), options);
+                Cloudinary.only(options, "exif", "colors", "faces", "image_metadata", "pages", "phash", "max_results"), options);
     }
     
-    public Map update(String public_id, Map options) throws Exception {
+    public ApiResponse update(String public_id, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
@@ -165,7 +255,7 @@ public class Api {
         		params, options);
     }
 
-    public Map deleteResources(Iterable<String> publicIds, Map options) throws Exception {
+    public ApiResponse deleteResources(Iterable<String> publicIds, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
@@ -174,7 +264,7 @@ public class Api {
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
 
-    public Map deleteResourcesByPrefix(String prefix, Map options) throws Exception {
+    public ApiResponse deleteResourcesByPrefix(String prefix, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
@@ -183,13 +273,13 @@ public class Api {
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
 
-    public Map deleteResourcesByTag(String tag, Map options) throws Exception {
+    public ApiResponse deleteResourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, "tags", tag), Cloudinary.only(options, "keep_original", "next_cursor"), options);
     }
     
-    public Map deleteAllResources(Map options) throws Exception {
+    public ApiResponse deleteAllResources(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
@@ -198,28 +288,28 @@ public class Api {
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), filtered, options);
     }
 
-    public Map deleteDerivedResources(Iterable<String> derivedResourceIds, Map options) throws Exception {
+    public ApiResponse deleteDerivedResources(Iterable<String> derivedResourceIds, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.DELETE, Arrays.asList("derived_resources"), Cloudinary.asMap("derived_resource_ids", derivedResourceIds), options);
     }
 
-    public Map tags(Map options) throws Exception {
+    public ApiResponse tags(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         return callApi(HttpMethod.GET, Arrays.asList("tags", resourceType), Cloudinary.only(options, "next_cursor", "max_results", "prefix"), options);
     }
 
-    public Map transformations(Map options) throws Exception {
+    public ApiResponse transformations(Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("transformations"), Cloudinary.only(options, "next_cursor", "max_results"), options);
     }
 
-    public Map transformation(String transformation, Map options) throws Exception {
+    public ApiResponse transformation(String transformation, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("transformations", transformation), Cloudinary.only(options, "max_results"), options);
     }
 
-    public Map deleteTransformation(String transformation, Map options) throws Exception {
+    public ApiResponse deleteTransformation(String transformation, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.DELETE, Arrays.asList("transformations", transformation), Cloudinary.emptyMap(), options);
     }
@@ -227,13 +317,44 @@ public class Api {
     // updates - currently only supported update are:
     // "allowed_for_strict": boolean flag
     // "unsafe_update": transformation string
-    public Map updateTransformation(String transformation, Map updates, Map options) throws Exception {
+    public ApiResponse updateTransformation(String transformation, Map updates, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         return callApi(HttpMethod.PUT, Arrays.asList("transformations", transformation), updates, options);
     }
 
-    public Map createTransformation(String name, String definition, Map options) throws Exception {
+    public ApiResponse createTransformation(String name, String definition, Map options) throws Exception {
         return callApi(HttpMethod.POST, Arrays.asList("transformations", name), Cloudinary.asMap("transformation", definition), options);
+    }
+    
+    public ApiResponse uploadPresets(Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        return callApi(HttpMethod.GET, Arrays.asList("upload_presets"), Cloudinary.only(options, "next_cursor", "max_results"), options);
+    }
+
+    public ApiResponse uploadPreset(String name, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        return callApi(HttpMethod.GET, Arrays.asList("upload_presets", name), Cloudinary.only(options, "max_results"), options);
+    }
+
+    public ApiResponse deleteUploadPreset(String name, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        return callApi(HttpMethod.DELETE, Arrays.asList("upload_presets", name), Cloudinary.emptyMap(), options);
+    }
+
+    public ApiResponse updateUploadPreset(String name, Map options) throws Exception {
+        if (options == null) options = Cloudinary.emptyMap();
+        Map params = Util.buildUploadParams(options);
+        Util.clearEmpty(params);
+        params.putAll(Cloudinary.only(options, "unsigned", "disallow_public_id"));
+        return callApi(HttpMethod.PUT, Arrays.asList("upload_presets", name), params, options);
+    }
+
+    public ApiResponse createUploadPreset(Map options) throws Exception {
+    	if (options == null) options = Cloudinary.emptyMap();
+        Map params = Util.buildUploadParams(options);
+        Util.clearEmpty(params);
+        params.putAll(Cloudinary.only(options, "name", "unsigned", "disallow_public_id"));
+        return callApi(HttpMethod.POST,  Arrays.asList("upload_presets"), params, options);
     }
     
     public Api withConnectionManager(ClientConnectionManager connectionManager) {
@@ -241,7 +362,7 @@ public class Api {
 		return this;
 	}
 
-    protected Map callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
+    protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
         if (options == null) options = Cloudinary.emptyMap();
         String prefix = Cloudinary.asString(options.get("upload_prefix"),
                 this.cloudinary.getStringConfig("upload_prefix", "https://api.cloudinary.com"));

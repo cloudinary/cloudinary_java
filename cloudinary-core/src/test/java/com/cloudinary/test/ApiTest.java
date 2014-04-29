@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.cloudinary.Api;
+import com.cloudinary.Api.ApiResponse;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 
@@ -53,6 +55,10 @@ public class ApiTest {
             api.deleteTransformation("api_test_transformation3", Cloudinary.emptyMap());
         } catch (Exception e) {
         }
+        try{api.deleteUploadPreset("api_test_upload_preset", Cloudinary.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset2", Cloudinary.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset3", Cloudinary.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());}catch (Exception e) {}
         Map options = Cloudinary.asMap(
                 "public_id", "api_test", 
                 "tags", "api_test_tag",
@@ -147,6 +153,17 @@ public class ApiTest {
         List<Map> resourcesDesc = (List<Map>) result.get("resources");
         Collections.reverse(resources);
         assertEquals(resources, resourcesDesc);
+    }
+    
+    @Test
+    public void testResourcesListingStartAt() throws Exception {
+    	// should allow listing resources by start date - make sure your clock is set correctly!!!
+        Thread.sleep(2000L);
+        java.util.Date startAt = new java.util.Date();
+		Thread.sleep(2000L);
+        Map response = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
+        List<Map> resources = (List<Map>) api.resources(Cloudinary.asMap("type", "upload", "start_at", startAt, "direction", "asc")).get("resources");
+        assertEquals(response.get("public_id"), resources.get(0).get("public_id"));
     }
     
     @Test
@@ -449,6 +466,104 @@ public class ApiTest {
 			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
+	}
+	
+	@Test
+	public void testApiLimits() throws Exception {
+		// should support reporting the current API limits found in the response header
+		ApiResponse result1 = api.transformations(Cloudinary.emptyMap());
+		ApiResponse result2 = api.transformations(Cloudinary.emptyMap());
+		assertNotNull(result1.apiRateLimit());
+		assertNotNull(result2.apiRateLimit());
+		assertEquals(result1.apiRateLimit().getRemaining() - 1, result2.apiRateLimit().getRemaining());
+		assertTrue(result2.apiRateLimit().getLimit() > result2.apiRateLimit().getRemaining());
+		assertEquals(result1.apiRateLimit().getLimit(), result2.apiRateLimit().getLimit());
+		assertEquals(result1.apiRateLimit().getReset(), result2.apiRateLimit().getReset());
+		assertTrue(result2.apiRateLimit().getReset().after(new java.util.Date()));
+	}
+	
+	@Test
+	public void testListUploadPresets() throws Exception {
+		// should allow creating and listing upload_presets
+		api.createUploadPreset(Cloudinary.asMap("name",
+				"api_test_upload_preset", "folder", "folder"));
+		api.createUploadPreset(Cloudinary.asMap("name",
+				"api_test_upload_preset2", "folder", "folder2"));
+		api.createUploadPreset(Cloudinary.asMap("name",
+				"api_test_upload_preset3", "folder", "folder3"));
+		org.json.simple.JSONArray presets = (org.json.simple.JSONArray) api
+				.uploadPresets(Cloudinary.emptyMap()).get("presets");
+		assertEquals(((Map) presets.get(0)).get("name"),
+				"api_test_upload_preset3");
+		assertEquals(((Map) presets.get(1)).get("name"),
+				"api_test_upload_preset2");
+		assertEquals(((Map) presets.get(2)).get("name"),
+				"api_test_upload_preset");
+		api.deleteUploadPreset("api_test_upload_preset", Cloudinary.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset2", Cloudinary.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset3", Cloudinary.emptyMap());
+	}
+
+	@Test
+	public void testGetUploadPreset() throws Exception {
+		// should allow getting a single upload_preset
+		String[] tags = { "a", "b", "c" };
+		Map context = Cloudinary.asMap("a", "b", "c", "d");
+		Transformation transformation = new Transformation();
+		transformation.width(100).crop("scale");
+		Map result = api.createUploadPreset(Cloudinary.asMap("unsigned", true,
+				"folder", "folder", "transformation", transformation, "tags",
+				tags, "context", context));
+		String name = result.get("name").toString();
+		Map preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		assertEquals(preset.get("name"), name);
+		assertEquals(Boolean.TRUE, preset.get("unsigned"));
+		Map settings = (Map) preset.get("settings");
+		assertEquals(settings.get("folder"), "folder");
+		Map outTransformation = (Map) ((org.json.simple.JSONArray) settings
+				.get("transformation")).get(0);
+		assertEquals(outTransformation.get("width"), 100L);
+		assertEquals(outTransformation.get("crop"), "scale");
+		Object[] outTags = ((org.json.simple.JSONArray) settings.get("tags"))
+				.toArray();
+		assertArrayEquals(tags, outTags);
+		Map outContext = (Map) settings.get("context");
+		assertEquals(context, outContext);
+	}
+
+	@Test
+	public void testDeleteUploadPreset() throws Exception {
+		// should allow deleting upload_presets", :upload_preset => true do
+		api.createUploadPreset(Cloudinary.asMap("name",
+				"api_test_upload_preset4", "folder", "folder"));
+		api.uploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
+		boolean error = false;
+		try {
+			api.uploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
+		} catch (Exception e) {
+			error = true;
+		}
+		assertTrue(error);
+	}
+
+	@Test
+	public void testUpdateUploadPreset() throws Exception {
+		// should allow updating upload_presets
+		String name = api
+				.createUploadPreset(Cloudinary.asMap("folder", "folder"))
+				.get("name").toString();
+		Map preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		Map settings = (Map) preset.get("settings");
+		settings.putAll(Cloudinary.asMap("colors", true, "unsigned", true,
+				"disallow_public_id", true));
+		api.updateUploadPreset(name, settings);
+		settings.remove("unsigned");
+		preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		assertEquals(name, preset.get("name"));
+		assertEquals(Boolean.TRUE, preset.get("unsigned"));
+		assertEquals(settings, preset.get("settings"));
+		api.deleteUploadPreset(name, Cloudinary.emptyMap());
 	}
 	
 	@Test

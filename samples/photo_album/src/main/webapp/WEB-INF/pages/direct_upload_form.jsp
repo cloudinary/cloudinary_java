@@ -22,9 +22,14 @@
             <div class="form_controls">
                 <div class="upload_button_holder">
                     <a href="#" class="upload_button">Upload</a>
-                    <cl:upload fieldName="preloadedFile" transformation="w_1000,h_1000,c_limit"
+		    <c:if test="${unsigned}">
+                      <cl:unsignedUpload fieldName="preloadedFile" uploadPreset="${preset}" extraClasses="extra"/>
+		    </c:if>
+		    <c:if test="${!unsigned}">
+		      <cl:upload fieldName="preloadedFile" transformation="w_1000,h_1000,c_limit"
                             eager="c_scale,w_150,h_150|c_fit,w_150,h_150" extraClasses="extra" exif="true"
                             imageMetadata="true" colors="true" faces="true"/>
+		    </c:if>
                 </div>
                 <span class="status"></span>
             </div>

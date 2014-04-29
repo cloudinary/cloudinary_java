@@ -116,12 +116,7 @@ public class Cloudinary {
 		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.getStringConfig("api_secret"));
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
-		for (Iterator iterator = params.values().iterator(); iterator.hasNext();) {
-			Object value = iterator.next();
-			if (value == null || "".equals(value)) {
-				iterator.remove();
-			}
-		}
+		Util.clearEmpty(params);
 		params.put("signature", this.apiSignRequest(params, apiSecret));
 		params.put("api_key", apiKey);
 	}

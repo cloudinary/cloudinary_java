@@ -260,6 +260,28 @@ public class UploaderTest {
     }
     
     @Test
+    public void testCustomCoordinates() throws Exception {
+    	//should allow sending face coordinates
+    	Coordinates coordinates = new Coordinates("121,31,110,151");
+    	Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("custom_coordinates", coordinates));
+    	Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), Cloudinary.asMap("coordinates", true));
+    	long[] expected = new long[]{121L,31L,110L,151L};
+    	Object[] actual = ((org.json.simple.JSONArray)((org.json.simple.JSONArray)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
+    	for (int i = 0; i < expected.length; i++){
+    		assertEquals(expected[i], actual[i]);
+    	}
+    	
+    	coordinates = new Coordinates(new int[]{122,32,110,152});
+    	cloudinary.uploader().explicit((String) uploadResult.get("public_id"), Cloudinary.asMap("custom_coordinates", coordinates, "coordinates", true, "type", "upload"));
+    	result = cloudinary.api().resource(uploadResult.get("public_id").toString(), Cloudinary.asMap("coordinates", true));
+    	expected = new long[]{122L,32L,110L,152L};
+    	actual = ((org.json.simple.JSONArray)((org.json.simple.JSONArray)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
+    	for (int i = 0; i < expected.length; i++){
+    		assertEquals(expected[i], actual[i]);
+    	}
+    }
+    
+    @Test
     public void testContext() throws Exception {
     	//should allow sending context
     	Map context = Cloudinary.asMap("caption", "some caption", "alt", "alternative");

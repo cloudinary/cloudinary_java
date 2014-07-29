@@ -241,7 +241,8 @@ public class Api {
         String resourceType = Cloudinary.asString(options.get("resource_type"), "image");
         String type = Cloudinary.asString(options.get("type"), "upload");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
-                Cloudinary.only(options, "exif", "colors", "faces", "image_metadata", "pages", "phash", "max_results"), options);
+                Cloudinary.only(options, "exif", "colors", "faces", "coordinates", 
+                						 "image_metadata", "pages", "phash", "max_results"), options);
     }
     
     public ApiResponse update(String public_id, Map options) throws Exception {

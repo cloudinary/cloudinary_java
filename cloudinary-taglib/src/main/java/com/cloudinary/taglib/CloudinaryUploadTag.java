@@ -32,12 +32,14 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private String proxy = null;
     private String folder = null;
     private String faceCoordinates = null;
+    private String customCoordinates = null;
 	private String allowedFormats = null;
     private String context = null;
     private String ocr = null;
     private String detection = null;
     private String categorization = null;
     private String similaritySearch = null;
+    private String backgroundRemoval = null;
     private Float autoTagging = null;
     protected String uploadPreset = null;
 	private Boolean backup = null;
@@ -89,6 +91,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("eager_async", eagerAsync);
         options.put("invalidate", invalidate);
         options.put("face_coordinates", faceCoordinates);
+        options.put("custom_coordinates", customCoordinates);
         options.put("allowed_formats", allowedFormats);
         options.put("context", context);
         options.put("overwrite", overwrite);
@@ -98,6 +101,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("categorization", categorization);
         options.put("similarity_search", similaritySearch);
         options.put("auto_tagging", autoTagging);
+        options.put("background_removal", backgroundRemoval);
         options.put("upload_preset", uploadPreset);
         options.put("unsigned", unsigned);
 
@@ -315,6 +319,14 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 		this.faceCoordinates = faceCoordinates;
 	}
 
+    public String getCustomCoordinates() {
+        return customCoordinates;
+    }
+
+    public void setCustomCoordinates(String customCoordinates) {
+        this.customCoordinates = customCoordinates;
+    }
+
 	public String getAllowedFormats() {
 		return allowedFormats;
 	}
@@ -378,6 +390,14 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 	public void setSimilaritySearch(String similaritySearch) {
 		this.similaritySearch = similaritySearch;
 	}
+
+    public String getBackgroundRemoval() {
+        return backgroundRemoval;
+    }
+
+    public void setBackgroundRemoval(String backgroundRemoval) {
+        this.backgroundRemoval = backgroundRemoval;
+    }
 
 	public Float getAutoTagging() {
 		return autoTagging;

@@ -1,7 +1,5 @@
 package cloudinary.controllers;
 
-import com.cloudinary.Transformation;
-
 import cloudinary.lib.PhotoUploadValidator;
 import cloudinary.models.Photo;
 import cloudinary.models.PhotoUpload;
@@ -17,10 +15,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 
 @Controller
@@ -35,7 +29,8 @@ public class PhotoController {
         return "photos";
     }
 
-    @RequestMapping(value = "/upload", method = RequestMethod.POST)
+    @SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/upload", method = RequestMethod.POST)
     public String uploadPhoto(@ModelAttribute PhotoUpload photoUpload, BindingResult result, ModelMap model) throws IOException {
         PhotoUploadValidator validator = new PhotoUploadValidator();
         validator.validate(photoUpload, result);
@@ -78,7 +73,8 @@ public class PhotoController {
         return "direct_upload_form";
     }
     
-    @RequestMapping(value = "/direct_unsigned_upload_form", method = RequestMethod.GET)
+    @SuppressWarnings("unchecked")
+	@RequestMapping(value = "/direct_unsigned_upload_form", method = RequestMethod.GET)
     public String directUnsignedUploadPhotoForm(ModelMap model) throws Exception {
         model.addAttribute("photoUpload", new PhotoUpload());
         model.addAttribute("unsigned", true);

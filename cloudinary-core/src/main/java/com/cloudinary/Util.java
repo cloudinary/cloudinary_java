@@ -2,6 +2,7 @@ package com.cloudinary;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,7 +12,7 @@ import java.util.Map;
 public class Util {
 	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {
 		"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename", 
-		"eager_async", "invalidate", "discard_original_filename", "overwrite", "phash"};
+		"eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token"};
 	
 	protected static final Map<String, Object> buildUploadParams(Map options) {
         if (options == null) options = Cloudinary.emptyMap();
@@ -75,7 +76,10 @@ public class Util {
 			params.put("tags", StringUtils.join(
 					Cloudinary.asArray(options.get("tags")), ","));
 		if (options.get("face_coordinates") != null)
-			params.put("face_coordinates", options.get("face_coordinates")
+			params.put("face_coordinates", Coordinates.parseCoordinates(options.get("face_coordinates"))
+					.toString());
+		if (options.get("custom_coordinates") != null)
+			params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates"))
 					.toString());
 		if (options.get("context") != null)
 			params.put("context", Cloudinary.encodeMap(options.get("context")));
@@ -89,6 +93,8 @@ public class Util {
 			params.put("detection", options.get("detection"));
 		if (options.get("similarity_search") != null)
 			params.put("similarity_search", options.get("similarity_search"));
+		if (options.get("background_removal") != null)
+			params.put("background_removal", options.get("background_removal"));
 		if (options.get("auto_tagging") != null)
 			params.put("auto_tagging",
 					Cloudinary.asFloat(options.get("auto_tagging")));

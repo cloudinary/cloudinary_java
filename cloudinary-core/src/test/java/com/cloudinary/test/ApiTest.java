@@ -23,6 +23,7 @@ import org.junit.Test;
 import com.cloudinary.Api;
 import com.cloudinary.Api.ApiResponse;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -30,6 +31,7 @@ public class ApiTest {
 
     private Cloudinary cloudinary;
     private Api api;
+    private static String uniqueTag = String.format("api_test_tag_%d", new java.util.Date().getTime());
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -61,7 +63,7 @@ public class ApiTest {
         try{api.deleteUploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());}catch (Exception e) {}
         Map options = Cloudinary.asMap(
                 "public_id", "api_test", 
-                "tags", "api_test_tag",
+                "tags", new String[]{"api_test_tag", uniqueTag},
                 "context", "key=value",
                 "eager", Collections.singletonList(new Transformation().width(100).crop("scale"))); 
         cloudinary.uploader().upload("src/test/resources/logo.png", options);
@@ -147,9 +149,9 @@ public class ApiTest {
     @Test
     public void testResourcesListingDirection() throws Exception {
         // should allow listing resources in both directions
-        Map result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "direction", "asc"));
+        Map result = api.resourcesByTag(uniqueTag, Cloudinary.asMap("type", "upload", "direction", "asc"));
         List<Map> resources = (List<Map>) result.get("resources");
-        result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "direction", -1));
+        result = api.resourcesByTag(uniqueTag, Cloudinary.asMap("type", "upload", "direction", -1));
         List<Map> resourcesDesc = (List<Map>) result.get("resources");
         Collections.reverse(resources);
         assertEquals(resources, resourcesDesc);
@@ -466,6 +468,20 @@ public class ApiTest {
 			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
+	}
+	
+	@Test
+	public void testUpdateCustomCoordinates() throws IOException, Exception {
+		//should update custom coordinates
+    	Coordinates coordinates = new Coordinates("121,31,110,151");
+    	Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
+    	cloudinary.api().update(uploadResult.get("public_id").toString(), Cloudinary.asMap("custom_coordinates", coordinates));
+    	Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), Cloudinary.asMap("coordinates", true));
+    	long[] expected = new long[]{121L,31L,110L,151L};
+    	Object[] actual = ((org.json.simple.JSONArray)((org.json.simple.JSONArray)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
+    	for (int i = 0; i < expected.length; i++){
+    		assertEquals(expected[i], actual[i]);
+    	}
 	}
 	
 	@Test

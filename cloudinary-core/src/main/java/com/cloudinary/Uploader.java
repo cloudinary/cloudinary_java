@@ -147,7 +147,10 @@ public class Uploader {
 		params.put("headers", Util.buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(Cloudinary.asArray(options.get("tags")), ","));
 		if (options.get("face_coordinates") != null) {
-			params.put("face_coordinates", options.get("face_coordinates").toString());
+			params.put("face_coordinates", Coordinates.parseCoordinates(options.get("face_coordinates")).toString());
+		}
+		if (options.get("custom_coordinates") != null) {
+			params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
 		}
 		if (options.get("context") != null) {
 			params.put("context", Cloudinary.encodeMap(options.get("context")));

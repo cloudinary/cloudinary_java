@@ -141,6 +141,11 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <name>customCoordinates</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <name>allowedFormats</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
@@ -172,6 +177,11 @@
         </attribute>
         <attribute>
             <name>similaritySearch</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>backgroundRemoval</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -247,6 +257,11 @@
         </attribute>
         <attribute>
             <name>faceCoordinates</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>customCoordinates</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>

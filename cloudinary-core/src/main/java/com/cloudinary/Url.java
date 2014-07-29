@@ -28,6 +28,7 @@ public class Url {
     String source = null;
     String apiSecret = null;
 	Transformation transformation = null;
+	private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 	public Url(Cloudinary cloudinary) {
 		this.cloudName = cloudinary.getStringConfig("cloud_name");
@@ -246,8 +247,26 @@ public class Url {
 			attributes.put("height", transformation().getHtmlHeight());
 		if (transformation().getHtmlWidth() != null)
 			attributes.put("width", transformation().getHtmlWidth());
+		
+		boolean hiDPI = transformation().isHiDPI();
+		boolean responsive = transformation().isResponsive();
+		
+		if (hiDPI || responsive) {
+		  attributes.put("data-src", url);      
+	      String extraClass = responsive ? "cld-responsive" : "cld-hidpi";
+	      attributes.put("class", (StringUtils.isBlank(attributes.get("class")) ? "" : attributes.get("class") + " ") + extraClass);
+	      String responsivePlaceholder = attributes.remove("responsive_placeholder");
+	      if ("blank".equals(responsivePlaceholder)) {
+	    	  responsivePlaceholder = CL_BLANK;
+	      }
+	      url = responsivePlaceholder;
+		}
+		
 		StringBuilder builder = new StringBuilder();
-		builder.append("<img src='").append(url).append("'");
+		builder.append("<img");
+		if (url != null) { 
+			builder.append(" src='").append(url).append("'"); 
+		}
 		for (Map.Entry<String, String> attr : attributes.entrySet()) {
 			builder.append(" ").append(attr.getKey()).append("='").append(attr.getValue()).append("'");
 		}

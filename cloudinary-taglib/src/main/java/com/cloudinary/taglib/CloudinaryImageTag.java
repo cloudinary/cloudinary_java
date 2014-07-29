@@ -71,8 +71,12 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
             url.source(src);
         }
         Transformation baseTransformation = new Transformation().params(tagAttrs);
-        if (namedTransformation != null) baseTransformation.named(namedTransformation);
-        url.transformation(baseTransformation.chain().rawTransformation(transformation));
+        if (null != namedTransformation  && !namedTransformation.isEmpty()) baseTransformation.named(namedTransformation);
+        if (null == transformation || transformation.isEmpty()) {
+            url.transformation(baseTransformation);
+        } else {
+            url.transformation(baseTransformation.chain().rawTransformation(transformation));
+        }
         if (format != null) url.format(format);
         if (type != null) url.type(type);
         if (resourceType != null) url.resourceType(resourceType);

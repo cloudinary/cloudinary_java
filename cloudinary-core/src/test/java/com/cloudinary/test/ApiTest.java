@@ -624,6 +624,34 @@ public class ApiTest {
 				"public_id", (String) result2.get("public_id")));
 	}
 	
+	// For this test to work, "Auto-create folders" should be enabled in the
+	// Upload Settings.
+	// Uncomment @Test if you really want to test it.
+	// @Test
+	public void testFolderApi() throws Exception {
+		// should allow deleting all resources
+		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "test_folder1/item"));
+		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "test_folder2/item"));
+		cloudinary.uploader().upload("src/test/resources/logo.png",
+				Cloudinary.asMap("public_id", "test_folder1/test_subfolder1/item"));
+		cloudinary.uploader().upload("src/test/resources/logo.png",
+				Cloudinary.asMap("public_id", "test_folder1/test_subfolder2/item"));
+		Map result = api.rootFolders(null);
+		assertEquals("test_folder1", ((Map) ((org.json.simple.JSONArray) result.get("folders")).get(0)).get("name"));
+		assertEquals("test_folder2", ((Map) ((org.json.simple.JSONArray) result.get("folders")).get(1)).get("name"));
+		result = api.subFolders("test_folder1", null);
+		assertEquals("test_folder1/test_subfolder1",
+				((Map) ((org.json.simple.JSONArray) result.get("folders")).get(0)).get("path"));
+		assertEquals("test_folder1/test_subfolder2",
+				((Map) ((org.json.simple.JSONArray) result.get("folders")).get(1)).get("path"));
+		try {
+			api.subFolders("test_folder", null);
+		} catch (Exception e) {
+			assertTrue(e instanceof com.cloudinary.Api.NotFound);
+		}
+		api.deleteResourcesByPrefix("test_folder", Cloudinary.emptyMap());
+	}
+	
 	private void assertContains(Object object, Collection list) {
         assertTrue(list.contains(object));
     }

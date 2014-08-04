@@ -357,6 +357,18 @@ public class Api {
         params.putAll(Cloudinary.only(options, "name", "unsigned", "disallow_public_id"));
         return callApi(HttpMethod.POST,  Arrays.asList("upload_presets"), params, options);
     }
+
+	public ApiResponse rootFolders(Map options) throws Exception {
+		if (options == null)
+			options = Cloudinary.emptyMap();
+		return callApi(HttpMethod.GET, Arrays.asList("folders"), Cloudinary.emptyMap(), options);
+	}
+
+	public ApiResponse subFolders(String ofFolderPath, Map options) throws Exception {
+		if (options == null)
+			options = Cloudinary.emptyMap();
+		return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), Cloudinary.emptyMap(), options);
+	}
     
     public Api withConnectionManager(ClientConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;

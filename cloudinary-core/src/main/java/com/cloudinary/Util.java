@@ -1,13 +1,11 @@
 package com.cloudinary;
 
-import org.apache.commons.lang.StringUtils;
-
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 
 public class Util {
 	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] {

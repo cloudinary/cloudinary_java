@@ -1,11 +1,8 @@
 package com.cloudinary;
 
-import java.util.Collection;
-import java.util.ArrayList;
-
-import org.apache.commons.lang.StringUtils;
-
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.Collection;
 public class Coordinates {
 
 	Collection<Rectangle> coordinates = new ArrayList<Rectangle>();

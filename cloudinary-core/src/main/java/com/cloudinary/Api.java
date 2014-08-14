@@ -15,7 +15,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.Header;
 import org.apache.http.client.methods.HttpDelete;

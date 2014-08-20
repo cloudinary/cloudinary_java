@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
+import com.cloudinary.utils.ObjectUtils;
 
 public class CloudinaryTest {
 
@@ -167,6 +168,7 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/facebook/test", result);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testResourceType() {
 		// should use resource_type from options
@@ -342,28 +344,29 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/upload/o_50/test", result);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testImageTag() {
 		Transformation transformation = new Transformation().width(100).height(101).crop("crop");
-		String result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image"));
+		String result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image"));
 		assertEquals(
 				"<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>",
 				result);
 		transformation = new Transformation().width(0.9).height(0.9).crop("crop").responsiveWidth(true);
-		result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image"));
+		result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image"));
 		assertEquals(
 				"<img alt='my image' class='cld-responsive' data-src='http://res.cloudinary.com/test123/image/upload/c_crop,h_0.9,w_0.9/c_limit,w_auto/test'/>",
 				result);
-		result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image", "class", "extra"));
+		result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image", "class", "extra"));
 		assertEquals(
 				"<img alt='my image' class='extra cld-responsive' data-src='http://res.cloudinary.com/test123/image/upload/c_crop,h_0.9,w_0.9/c_limit,w_auto/test'/>",
 				result);
 		transformation = new Transformation().width("auto").crop("crop");
-		result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image", "responsive_placeholder", "blank"));
+		result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image", "responsive_placeholder", "blank"));
 		assertEquals(
 				"<img src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' alt='my image' class='cld-responsive' data-src='http://res.cloudinary.com/test123/image/upload/c_crop,w_auto/test'/>",
 				result);
-		result = cloudinary.url().transformation(transformation).imageTag("test", Cloudinary.asMap("alt", "my image", "responsive_placeholder", "other.gif"));
+		result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image", "responsive_placeholder", "other.gif"));
 		assertEquals(
 				"<img src='other.gif' alt='my image' class='cld-responsive' data-src='http://res.cloudinary.com/test123/image/upload/c_crop,w_auto/test'/>",
 				result);
@@ -392,9 +395,10 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/iu/test", result);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testPrivateDownload() throws Exception {
-		String url = cloudinary.privateDownload("img", "jpg", Cloudinary.emptyMap());
+		String url = cloudinary.privateDownload("img", "jpg", ObjectUtils.emptyMap());
 		URI uri = new URI(url);
 		Map<String, String> parameters = getUrlParameters(uri);
 		assertEquals("img", parameters.get("public_id"));
@@ -403,9 +407,10 @@ public class CloudinaryTest {
 		assertEquals("/v1_1/test123/image/download", uri.getPath());
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testZipDownload() throws Exception {
-		String url = cloudinary.zipDownload("ttag", Cloudinary.emptyMap());
+		String url = cloudinary.zipDownload("ttag", ObjectUtils.emptyMap());
 		URI uri = new URI(url);
 		Map<String, String> parameters = getUrlParameters(uri);
 		assertEquals("ttag", parameters.get("tag"));
@@ -425,7 +430,7 @@ public class CloudinaryTest {
 	@Test
 	public void testEscapePublicId() {
 		// should escape public_ids
-		Map<String, String> tests = Cloudinary.asMap("a b", "a%20b", "a+b", "a%2Bb", "a%20b", "a%20b", "a-b", "a-b", "a??b", "a%3F%3Fb");
+		Map<String, String> tests = ObjectUtils.asMap("a b", "a%20b", "a+b", "a%2Bb", "a%20b", "a%20b", "a-b", "a-b", "a??b", "a%3F%3Fb");
 		for (Map.Entry<String, String> entry : tests.entrySet()) {
 			String result = cloudinary.url().generate(entry.getKey());
 			assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);
@@ -456,7 +461,7 @@ public class CloudinaryTest {
 		String result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
 		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_limit,w_auto/test", result);  
-		Transformation.setResponsiveWidthTransformation(Cloudinary.asMap("width", "auto", "crop", "pad")); 
+		Transformation.setResponsiveWidthTransformation(ObjectUtils.asMap("width", "auto", "crop", "pad")); 
 		trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
 		result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
@@ -465,8 +470,8 @@ public class CloudinaryTest {
 	}
 	
 	public void testUtils() {
-		assertEquals(Cloudinary.asBoolean(true, null), true);
-		assertEquals(Cloudinary.asBoolean(false, null), false);
+		assertEquals(ObjectUtils.asBoolean(true, null), true);
+		assertEquals(ObjectUtils.asBoolean(false, null), false);
 	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

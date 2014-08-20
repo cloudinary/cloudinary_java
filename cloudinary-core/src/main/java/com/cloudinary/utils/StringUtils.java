@@ -1,11 +1,10 @@
-package com.cloudinary;
+package com.cloudinary.utils;
 
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringEscapeUtils;
+import java.util.List;
 
 public class StringUtils {
 	public static final String EMPTY = "";
@@ -14,11 +13,10 @@ public class StringUtils {
 		if (list == null) {
 			return null;
 		}
-		
-		return join( list.toArray(), separator, 0, list.size());
+
+		return join(list.toArray(), separator, 0, list.size());
 	}
 
-	
 	public static String join(Object[] array, String separator) {
 		if (array == null) {
 			return null;
@@ -26,16 +24,15 @@ public class StringUtils {
 		return join(array, separator, 0, array.length);
 	}
 
-	public static String join(Collection<String> collection,String separator) {
+	public static String join(Collection<String> collection, String separator) {
 		if (collection == null) {
 			return null;
 		}
-		
-		return join( collection.toArray(new String[collection.size()]), separator, 0, collection.size());
+
+		return join(collection.toArray(new String[collection.size()]), separator, 0, collection.size());
 	}
 
-	public static String join(final Object[] array, String separator,
-			final int startIndex, final int endIndex) {
+	public static String join(final Object[] array, String separator, final int startIndex, final int endIndex) {
 		if (array == null) {
 			return null;
 		}
@@ -61,20 +58,31 @@ public class StringUtils {
 		return buf.toString();
 	}
 
+	final protected static char[] hexArray = "0123456789abcdef".toCharArray();
+
 	public static String encodeHexString(byte[] bytes) {
-		return Hex.encodeHexString(bytes);
+		char[] hexChars = new char[bytes.length * 2];
+		for (int j = 0; j < bytes.length; j++) {
+			int v = bytes[j] & 0xFF;
+			hexChars[j * 2] = hexArray[v >>> 4];
+			hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+		}
+		return new String(hexChars);
 	}
 
 	public static String escapeHtml(String input) {
-		return StringEscapeUtils.escapeHtml(input);
+		return HtmlEscape.escape(input);
 	}
 
 	public static boolean isNotBlank(String input) {
 		return !isBlank(input);
 	}
 
-	public static String encodeBase64URLSafeString(byte[] input) {
-		return Base64.encodeBase64URLSafeString(input);
+	public static boolean isEmpty(String input){
+		if (input == null ||  input.length()== 0) {
+			return true;
+		}
+		return false;
 	}
 
 	public static boolean isBlank(String input) {
@@ -88,6 +96,16 @@ public class StringUtils {
 			}
 		}
 		return true;
+	}
+
+	public static String read(InputStream in) throws IOException {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length = 0;
+		while ((length = in.read(buffer)) != -1) {
+			baos.write(buffer, 0, length);
+		}
+		return new String(baos.toByteArray());
 	}
 
 }

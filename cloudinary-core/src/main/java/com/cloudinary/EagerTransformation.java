@@ -5,6 +5,8 @@ import java.util.Map;
 
 public class EagerTransformation extends Transformation {
 	protected String format;
+
+	@SuppressWarnings("rawtypes")
 	public EagerTransformation(List<Map> transformations) {
 		super(transformations);
 	}
@@ -17,7 +19,7 @@ public class EagerTransformation extends Transformation {
 		this.format = format;
 		return this;
 	}
-	
+
 	public String getFormat() {
 		return format;
 	}

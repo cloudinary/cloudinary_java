@@ -7,9 +7,8 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
-import org.apache.commons.collections.Transformer;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Transformation {
@@ -22,8 +21,7 @@ public class Transformation {
 	protected static boolean defaultIsResponsive = false;
 	protected static Object defaultDPR = null;
 
-	private static final Map DEFAULT_RESPONSIVE_WIDTH_TRANSFORMATION = Cloudinary.asMap("width", "auto", "crop",
-			"limit");
+	private static final Map DEFAULT_RESPONSIVE_WIDTH_TRANSFORMATION = ObjectUtils.asMap("width", "auto", "crop", "limit");
 	protected static Map responsiveWidthTransformation = null;
 
 	public Transformation(Transformation transformation) {
@@ -31,7 +29,7 @@ public class Transformation {
 		this.hiDPI = transformation.isHiDPI();
 		this.isResponsive = transformation.isResponsive();
 	}
-
+	
 	// Warning: options will destructively updated!
 	public Transformation(List<Map> transformations) {
 		this.transformations = transformations;
@@ -216,7 +214,7 @@ public class Transformation {
 	}
 
 	public String generate(Map options) {
-		boolean isResponsive = Cloudinary.asBoolean(options.get("responsive_width"), defaultIsResponsive);
+		boolean isResponsive = ObjectUtils.asBoolean(options.get("responsive_width"), defaultIsResponsive);
 
 		String size = (String) options.get("size");
 		if (size != null) {
@@ -224,13 +222,13 @@ public class Transformation {
 			options.put("width", size_components[0]);
 			options.put("height", size_components[1]);
 		}
-		String width = this.htmlWidth = Cloudinary.asString(options.get("width"));
-		String height = this.htmlHeight = Cloudinary.asString(options.get("height"));
+		String width = this.htmlWidth = ObjectUtils.asString(options.get("width"));
+		String height = this.htmlHeight = ObjectUtils.asString(options.get("height"));
 		boolean hasLayer = StringUtils.isNotBlank((String) options.get("overlay"))
 				|| StringUtils.isNotBlank((String) options.get("underlay"));
 
 		String crop = (String) options.get("crop");
-		String angle = StringUtils.join(Cloudinary.asArray(options.get("angle")), ".");
+		String angle = StringUtils.join(ObjectUtils.asArray(options.get("angle")), ".");
 
 		boolean noHtmlSizes = hasLayer || StringUtils.isNotBlank(angle) || "fit".equals(crop) || "limit".equals(crop);
 		if (width != null && (width.equals("auto") || Float.parseFloat(width) < 1 || noHtmlSizes || isResponsive)) {
@@ -250,31 +248,36 @@ public class Transformation {
 			color = color.replaceFirst("^#", "rgb:");
 		}
 
-		List transformations = Cloudinary.asArray(options.get("transformation"));
-		Predicate isAMap = new Predicate() {
-			public boolean evaluate(Object value) {
-				return value instanceof Map;
+		List transformations = ObjectUtils.asArray(options.get("transformation"));
+		boolean allNamed = true;		
+		for (Object baseTransformation : transformations) {			
+			if (baseTransformation instanceof Map) {
+				allNamed = false;
+				break;
 			}
-		};
-		String namedTransformation = null;
-		if (CollectionUtils.exists(transformations, isAMap)) {
-			CollectionUtils.transform(transformations, new Transformer() {
-				public Object transform(Object baseTransformation) {
-					if (baseTransformation instanceof Map) {
-						return generate((Map) baseTransformation);
-					} else {
-						Map map = new HashMap();
-						map.put("transformation", baseTransformation);
-						return generate(map);
-					}
-				}
-			});
-		} else {
-			namedTransformation = StringUtils.join(transformations, ".");
+		}
+		String namedTransformation = null; 
+		if (allNamed) {
+			namedTransformation = StringUtils.join(transformations,".");
 			transformations = new ArrayList();
+		} else {
+			List ts = transformations;
+			transformations = new ArrayList();
+			for (Object baseTransformation : ts) {
+				String transformationString;
+				if (baseTransformation instanceof Map) {
+					transformationString = generate((Map) baseTransformation); 
+				} else {
+					Map map = new HashMap();
+					map.put("transformation", baseTransformation);
+					transformationString = generate(map);
+				}
+				transformations.add(transformationString);
+			}
 		}
 
-		String flags = StringUtils.join(Cloudinary.asArray(options.get("flags")), ".");
+
+		String flags = StringUtils.join(ObjectUtils.asArray(options.get("flags")), ".");
 
 		SortedMap<String, String> params = new TreeMap<String, String>();
 		params.put("w", width);
@@ -285,7 +288,7 @@ public class Transformation {
 		params.put("co", color);
 		params.put("a", angle);
 		params.put("fl", flags);
-		String dpr = Cloudinary.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
+		String dpr = ObjectUtils.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
 		params.put("dpr", dpr);
 
 		String[] simple_params = new String[] { "x", "x", "y", "y", "r", "radius", "d", "default_image", "g",
@@ -293,7 +296,7 @@ public class Transformation {
 				"dn", "density", "pg", "page", "dl", "delay", "e", "effect", "bo", "border", "q", "quality", "o",
 				"opacity" };
 		for (int i = 0; i < simple_params.length; i += 2) {
-			params.put(simple_params[i], Cloudinary.asString(options.get(simple_params[i + 1])));
+			params.put(simple_params[i], ObjectUtils.asString(options.get(simple_params[i + 1])));
 		}
 		List<String> components = new ArrayList<String>();
 		for (Map.Entry<String, String> param : params.entrySet()) {

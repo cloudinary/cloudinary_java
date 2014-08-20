@@ -11,20 +11,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
-import com.cloudinary.test.stubs.CloudinaryStub;
 import com.cloudinary.utils.ObjectUtils;
 
 public class CloudinaryTest {
 
-	private CloudinaryStub cloudinary;
+	private Cloudinary cloudinary;
 
 	@Before
 	public void setUp() {
-		this.cloudinary = new CloudinaryStub("cloudinary://a:b@test123");
+		this.cloudinary = new Cloudinary("cloudinary://a:b@test123");
 	}
 
 	@Test
@@ -397,7 +396,7 @@ public class CloudinaryTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Ignore
+	@Test
 	public void testPrivateDownload() throws Exception {
 		String url = cloudinary.privateDownload("img", "jpg", ObjectUtils.emptyMap());
 		URI uri = new URI(url);
@@ -409,7 +408,7 @@ public class CloudinaryTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Ignore
+	@Test
 	public void testZipDownload() throws Exception {
 		String url = cloudinary.zipDownload("ttag", ObjectUtils.emptyMap());
 		URI uri = new URI(url);

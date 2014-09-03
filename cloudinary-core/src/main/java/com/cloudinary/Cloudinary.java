@@ -175,6 +175,12 @@ public class Cloudinary {
 			}
 		}
 	}
+        
+        
+
+	public Integer getIntegerConfig(String key, Integer default_value) {
+		return asInteger(this.config.get(key), default_value);
+	}
 
 	public boolean getBooleanConfig(String key, boolean default_value) {
 		return asBoolean(this.config.get(key), default_value);
@@ -240,6 +246,16 @@ public class Cloudinary {
 			return (Boolean) value;
 		} else {
 			return "true".equals(value);
+		}
+	}
+
+	public static Integer asInteger(Object value, Integer defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		} else if (value instanceof Integer) {
+			return (Integer) value;
+		} else {
+			return Integer.parseInt(value.toString());
 		}
 	}
 

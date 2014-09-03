@@ -176,8 +176,6 @@ public class Cloudinary {
 		}
 	}
         
-        
-
 	public Integer getIntegerConfig(String key, Integer default_value) {
 		return asInteger(this.config.get(key), default_value);
 	}

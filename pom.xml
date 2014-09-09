@@ -15,6 +15,7 @@
 
     <modules>
         <module>cloudinary-core</module>
+        <module>cloudinary-android</module>
         <module>cloudinary-taglib</module>
         <module>cloudinary-http42</module>
     </modules>

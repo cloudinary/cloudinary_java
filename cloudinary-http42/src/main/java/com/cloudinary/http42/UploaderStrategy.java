@@ -1,4 +1,4 @@
-package com.cloudinary;
+package com.cloudinary.http42;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,31 +18,33 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Util;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
-public class Uploader extends UploaderBase {
-
-	public Uploader(CloudinaryBase cloudinary) {
-		super(cloudinary);
-	}
+public class UploaderStrategy extends AbstractUploaderStrategy {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
-		if (options == null)
+		// initialize options if passed as null
+		if (options == null){
 			options = ObjectUtils.emptyMap();
+		}
+			
 		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
 		if (options.get("unsigned") == null || Boolean.FALSE.equals(options.get("unsigned"))) {
-			signRequestParams(params, options);
+			uploader.signRequestParams(params, options);
 		} else {
 			Util.clearEmpty(params);
 		}
 
-		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
+		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
-		HttpClient client = new DefaultHttpClient(connectionManager);
+		HttpClient client = new DefaultHttpClient(uploader.connectionManager);
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);

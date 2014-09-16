@@ -26,6 +26,7 @@ public class CloudinaryTest {
 		this.cloudinary = new Cloudinary("cloudinary://a:b@test123");
 	}
 
+	
 	@Test
 	public void testCloudName() {
 		// should use cloud_name from config

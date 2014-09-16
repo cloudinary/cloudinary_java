@@ -1,4 +1,4 @@
-package com.cloudinary.api;
+package com.cloudinary;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,18 +8,19 @@ import java.util.Map;
 
 import org.apache.http.conn.ClientConnectionManager;
 
-import com.cloudinary.CloudinaryBase;
-import com.cloudinary.Util;
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.AlreadyExists;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.GeneralError;
 import com.cloudinary.api.exceptions.NotAllowed;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.api.exceptions.RateLimited;
+import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class ApiBase {
+public class Api {
     public enum HttpMethod { GET, POST, PUT, DELETE }
     
     public final static Map<Integer, Class<? extends Exception>> CLOUDINARY_API_ERROR_CLASSES = new HashMap<Integer, Class<? extends Exception>>();
@@ -33,13 +34,18 @@ public abstract class ApiBase {
         CLOUDINARY_API_ERROR_CLASSES.put(500, GeneralError.class);
     }
 
-	protected final CloudinaryBase cloudinary;
-	protected ClientConnectionManager connectionManager = null;
+	public final Cloudinary cloudinary;
+	public ClientConnectionManager connectionManager = null;
+	private AbstractApiStrategy strategy;
     
-    protected abstract ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception ;
+    protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
+    	return this.strategy.callApi(method,uri,params,options);
+    }
     
-    public ApiBase(CloudinaryBase cloudinary) {
+    public Api(Cloudinary cloudinary,AbstractApiStrategy strategy) {
         this.cloudinary = cloudinary;
+        this.strategy = strategy;
+        this.strategy.init(this);
     }
 
     public ApiResponse ping(Map options) throws Exception {
@@ -224,7 +230,7 @@ public abstract class ApiBase {
 		return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
 	}
     
-    public ApiBase withConnectionManager(ClientConnectionManager connectionManager) {
+    public Api withConnectionManager(ClientConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		return this;
 	}

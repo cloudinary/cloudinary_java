@@ -30,7 +30,7 @@ public class Url {
 	Transformation transformation = null;
 	private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
-	public Url(CloudinaryBase cloudinary) {
+	public Url(Cloudinary cloudinary) {
 		this.cloudName = cloudinary.getStringConfig("cloud_name");
 		this.secureDistribution = cloudinary.getStringConfig("secure_distribution");
 		this.cname = cloudinary.getStringConfig("cname");
@@ -171,10 +171,10 @@ public class Url {
 		String prefix;
 		boolean sharedDomain = !privateCdn;
 		if (secure) {
-			if (StringUtils.isBlank(secureDistribution) || CloudinaryBase.OLD_AKAMAI_SHARED_CDN.equals(secureDistribution)) {
-				secureDistribution = privateCdn ? cloudName + "-res.cloudinary.com" : CloudinaryBase.SHARED_CDN;
+			if (StringUtils.isBlank(secureDistribution) || Cloudinary.OLD_AKAMAI_SHARED_CDN.equals(secureDistribution)) {
+				secureDistribution = privateCdn ? cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
 			}
-			sharedDomain = sharedDomain || CloudinaryBase.SHARED_CDN.equals(secureDistribution);
+			sharedDomain = sharedDomain || Cloudinary.SHARED_CDN.equals(secureDistribution);
 			prefix = "https://" + secureDistribution;
 		} else {
 			CRC32 crc32 = new CRC32();

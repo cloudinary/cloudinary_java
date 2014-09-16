@@ -13,18 +13,28 @@ import java.util.Map;
 import org.apache.http.conn.ClientConnectionManager;
 import org.json.JSONObject;
 
+import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class UploaderBase {
-	public abstract Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException;
+public class Uploader {
+	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException{
+		return strategy.callApi(action,params,options,file);
+	}
 
-	protected ClientConnectionManager connectionManager = null;
-	protected final CloudinaryBase cloudinary;
+	public ClientConnectionManager connectionManager = null;
+	private Cloudinary cloudinary;
+	private AbstractUploaderStrategy strategy;
 
-	public UploaderBase(CloudinaryBase cloudinary) {
+	public Uploader(Cloudinary cloudinary,AbstractUploaderStrategy strategy) {
 		this.cloudinary = cloudinary;
+		this.strategy = strategy;
+		this.strategy.init(this);
+	}
+	
+	public Cloudinary cloudinary(){
+		return this.cloudinary;
 	}
 
 	public Map<String, Object> buildUploadParams(Map options) {
@@ -262,7 +272,7 @@ public abstract class UploaderBase {
 		cloudinary.signRequest(params, options);
 	}
 
-	public UploaderBase withConnectionManager(ClientConnectionManager connectionManager) {
+	public Uploader withConnectionManager(ClientConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		return this;
 	}

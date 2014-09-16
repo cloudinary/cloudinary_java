@@ -21,10 +21,10 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
-import com.cloudinary.api.ApiBase;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
@@ -34,7 +34,7 @@ import com.cloudinary.utils.ObjectUtils;
 public class ApiTest {
 
     private Cloudinary cloudinary;
-    private ApiBase api;
+    private Api api;
     private static String uniqueTag = String.format("api_test_tag_%d", new java.util.Date().getTime());
 
     @BeforeClass
@@ -44,7 +44,7 @@ public class ApiTest {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
-        ApiBase api = cloudinary.api();
+        Api api = cloudinary.api();
         try {
             api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3", "api_test5"), ObjectUtils.emptyMap());
         } catch (Exception e) {

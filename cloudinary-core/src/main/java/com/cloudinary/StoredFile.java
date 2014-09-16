@@ -108,7 +108,7 @@ public class StoredFile {
 		}
 	}
 
-	public String getComputedSignature(CloudinaryBase cloudinary) {
+	public String getComputedSignature(Cloudinary cloudinary) {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("version", getVersion().toString());
 		params.put("public_id", getPublicIdForSigning());

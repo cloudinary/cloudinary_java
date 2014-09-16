@@ -1,4 +1,4 @@
-package com.cloudinary;
+package com.cloudinary.http42;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -17,7 +17,9 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 
-import com.cloudinary.api.ApiBase;
+import com.cloudinary.Api;
+import com.cloudinary.Api.HttpMethod;
+import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.Response;
 import com.cloudinary.api.exceptions.GeneralError;
@@ -25,27 +27,21 @@ import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
-public class Api extends ApiBase {
-
-	public Api(CloudinaryBase cloudinary) {
-		super(cloudinary);
-		// TODO Auto-generated constructor stub
-	}
-
+public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  {
+	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-
-	protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
+	public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
 		if (options == null)
 			options = ObjectUtils.emptyMap();
-		String prefix = ObjectUtils.asString(options.get("upload_prefix"), this.cloudinary.getStringConfig("upload_prefix", "https://api.cloudinary.com"));
-		String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.cloudinary.getStringConfig("cloud_name"));
+		String prefix = ObjectUtils.asString(options.get("upload_prefix"), this.api.cloudinary.getStringConfig("upload_prefix", "https://api.cloudinary.com"));
+		String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.getStringConfig("cloud_name"));
 		if (cloudName == null)
 			throw new IllegalArgumentException("Must supply cloud_name");
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary.getStringConfig("api_key"));
+		String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.getStringConfig("api_key"));
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary.getStringConfig("api_secret"));
+		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.getStringConfig("api_secret"));
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 
@@ -63,7 +59,7 @@ public class Api extends ApiBase {
 				apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
 			}
 		}
-		DefaultHttpClient client = new DefaultHttpClient(connectionManager);
+		DefaultHttpClient client = new DefaultHttpClient(api.connectionManager);
 		URI apiUri = apiUrlBuilder.build();
 		HttpUriRequest request = null;
 		switch (method) {
@@ -89,7 +85,7 @@ public class Api extends ApiBase {
 		InputStream responseStream = response.getEntity().getContent();
 		String responseData = StringUtils.read(responseStream);
 
-		Class<? extends Exception> exceptionClass = CLOUDINARY_API_ERROR_CLASSES.get(code);
+		Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
 		if (code != 200 && exceptionClass == null) {
 			throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
 		}

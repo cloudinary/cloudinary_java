@@ -74,6 +74,10 @@ public class StringUtils {
 		return HtmlEscape.escape(input);
 	}
 
+	public static boolean isNotBlank(Object input) {
+		if (input==null) return false;
+		return !isBlank(input.toString());
+	}
 	public static boolean isNotBlank(String input) {
 		return !isBlank(input);
 	}

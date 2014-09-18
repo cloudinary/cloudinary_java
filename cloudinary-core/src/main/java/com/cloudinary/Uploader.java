@@ -30,7 +30,7 @@ public class Uploader {
 	public Uploader(Cloudinary cloudinary,AbstractUploaderStrategy strategy) {
 		this.cloudinary = cloudinary;
 		this.strategy = strategy;
-		this.strategy.init(this);
+		strategy.init(this);
 	}
 	
 	public Cloudinary cloudinary(){
@@ -56,7 +56,7 @@ public class Uploader {
 		Map<String, Object> params = buildUploadParams(options);
 		return callApi("upload", params, options, file);
 	}
-
+	
 	public Map uploadLargeRaw(Object file, Map options) throws IOException {
 		return uploadLargeRaw(file, options, 20000000);
 	}

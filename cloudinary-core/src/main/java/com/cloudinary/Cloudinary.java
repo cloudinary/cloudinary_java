@@ -75,6 +75,7 @@ public class Cloudinary {
 	
 	private void loadStrategies() {
 		uploaderStrategy= StrategyLoader.find(UPLOAD_STRATEGIES);
+		
 		if (uploaderStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(UPLOAD_STRATEGIES, ",") + "]");
 		}
@@ -143,9 +144,8 @@ public class Cloudinary {
 			if (param.getValue() instanceof Collection) {
 				params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
 			} else {
-				String value = param.getValue().toString();
-				if (StringUtils.isNotBlank(value)) {
-					params.add(param.getKey() + "=" + value);
+				if (StringUtils.isNotBlank(param.getValue())) {
+					params.add(param.getKey() + "=" + param.getValue().toString());
 				}
 			}
 		}

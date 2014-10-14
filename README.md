@@ -25,7 +25,7 @@ The cloudinary_java library is available in [Maven Central](http://repo1.maven.o
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary</artifactId>
-        <version>1.0.8</version>
+        <version>1.0.14</version>
     </dependency>
 
 Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)

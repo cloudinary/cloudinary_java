@@ -18,9 +18,9 @@ import java.util.TreeMap;
 import org.apache.http.conn.ClientConnectionManager;
 
 import com.cloudinary.strategies.AbstractApiStrategy;
-import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
+import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -39,7 +39,7 @@ public class Cloudinary {
 	public final static String VERSION = "1.0.14";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
 
-	private final Map config = new HashMap();
+	public final Configuration config;
 	private AbstractUploaderStrategy uploaderStrategy;
 	private AbstractApiStrategy apiStrategy;
 	private AbstractUrlBuilderStrategy urlBuilderStrategy;
@@ -93,20 +93,22 @@ public class Cloudinary {
 
 	public Cloudinary(Map config) {
 		loadStrategies();
-		this.config.putAll(config);
+		this.config = new Configuration(config);
 
 	}
 
 	public Cloudinary(String cloudinaryUrl) {
 		loadStrategies();
-		initFromUrl(cloudinaryUrl);
+		this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
 	}
 
 	public Cloudinary() {
 		loadStrategies();
 		String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
 		if (cloudinaryUrl != null) {
-			initFromUrl(cloudinaryUrl);
+			this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+		}else {
+			this.config = new Configuration();
 		}
 
 	}
@@ -117,8 +119,8 @@ public class Cloudinary {
 
 	public String cloudinaryApiUrl(String action, Map options) {
 		String cloudinary = ObjectUtils.asString(options.get("upload_prefix"),
-				ObjectUtils.asString(this.config.get("upload_prefix"), "https://api.cloudinary.com"));
-		String cloud_name = ObjectUtils.asString(options.get("cloud_name"), ObjectUtils.asString(this.config.get("cloud_name")));
+				ObjectUtils.asString(this.config.uploadPrefix, "https://api.cloudinary.com"));
+		String cloud_name = ObjectUtils.asString(options.get("cloud_name"), ObjectUtils.asString(this.config.cloudName));
 		if (cloud_name == null)
 			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
 		String resource_type = ObjectUtils.asString(options.get("resource_type"), "image");
@@ -161,10 +163,10 @@ public class Cloudinary {
 	}
 
 	public void signRequest(Map<String, Object> params, Map<String, Object> options) {
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.getStringConfig("api_key"));
+		String apiKey = ObjectUtils.asString(options.get("api_key"), this.config.apiKey);
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.getStringConfig("api_secret"));
+		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.config.apiSecret);
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 		Util.clearEmpty(params);
@@ -208,42 +210,31 @@ public class Cloudinary {
 		return builder.url();
 	}
 
-	protected void initFromUrl(String cloudinaryUrl) {
+	protected Map parseConfigUrl(String cloudinaryUrl) {
+		Map params = new HashMap();
 		URI cloudinaryUri = URI.create(cloudinaryUrl);
-		setConfig("cloud_name", cloudinaryUri.getHost());
-		String[] creds = cloudinaryUri.getUserInfo().split(":");
-		setConfig("api_key", creds[0]);
-		setConfig("api_secret", creds[1]);
-		setConfig("private_cdn", StringUtils.isNotBlank(cloudinaryUri.getPath()));
-		setConfig("secure_distribution", cloudinaryUri.getPath());
+		params.put("cloud_name", cloudinaryUri.getHost());
+		if (cloudinaryUri.getUserInfo() != null) {
+			String[] creds = cloudinaryUri.getUserInfo().split(":");
+			params.put("api_key", creds[0]);
+			params.put("api_secret", creds[1]);
+		}
+		params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
+		params.put("secure_distribution", cloudinaryUri.getPath());
 		if (cloudinaryUri.getQuery() != null) {
 			for (String param : cloudinaryUri.getQuery().split("&")) {
 				String[] keyValue = param.split("=");
 				try {
-					setConfig(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
+					params.put(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException("Unexpected exception", e);
 				}
 			}
 		}
+		return params;
 	}
 
-	public boolean getBooleanConfig(String key, boolean default_value) {
-		return ObjectUtils.asBoolean(this.config.get(key), default_value);
-	}
-
-	public String getStringConfig(String key, String default_value) {
-		return ObjectUtils.asString(this.config.get(key), default_value);
-	}
-
-	public String getStringConfig(String key) {
-		return ObjectUtils.asString(this.config.get(key));
-	}
-
-	public void setConfig(String key, Object value) {
-		this.config.put(key, value);
-	}
-
+	
 	public Cloudinary withConnectionManager(ClientConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		return this;

@@ -6,9 +6,11 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ByteArrayBody;
@@ -30,10 +32,10 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 	@Override
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
 		// initialize options if passed as null
-		if (options == null){
+		if (options == null) {
 			options = ObjectUtils.emptyMap();
 		}
-			
+
 		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
 		if (options.get("unsigned") == null || Boolean.FALSE.equals(options.get("unsigned"))) {
@@ -45,6 +47,12 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
 		HttpClient client = new DefaultHttpClient(uploader.connectionManager);
+
+		// If the configuration specifies a proxy then apply it to the client
+		if (uploader.cloudinary().config.proxyHost != null && uploader.cloudinary().config.proxyPort != 0) {
+			HttpHost proxy = new HttpHost(uploader.cloudinary().config.proxyHost, uploader.cloudinary().config.proxyPort);
+			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+		}
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);

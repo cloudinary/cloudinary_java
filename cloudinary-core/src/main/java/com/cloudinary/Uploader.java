@@ -285,7 +285,7 @@ public class Uploader {
 			options.put("resource_type", "auto");
 		}
 
-		String callback = ObjectUtils.asString(options.get("callback"), this.cloudinary.getStringConfig("callback"));
+		String callback = ObjectUtils.asString(options.get("callback"), this.cloudinary.config.callback);
 		if (callback == null) {
 			throw new IllegalArgumentException("Must supply callback");
 		}

@@ -43,7 +43,7 @@ public class CloudinaryTest extends AndroidTestCase {
 
 	public void testSecureDistibution() {
 		// should take secure distribution from config if secure=TRUE
-		cloudinary.setConfig("secure_distribution", "config.secure.distribution.com");
+		cloudinary.config.secureDistribution = "config.secure.distribution.com";
 		String result = cloudinary.url().secure(true).generate("test");
 		assertEquals("https://config.secure.distribution.com/test123/image/upload/test", result);
 	}
@@ -51,8 +51,8 @@ public class CloudinaryTest extends AndroidTestCase {
 	public void testSecureAkamai() {
 		// should default to akamai if secure is given with private_cdn and no
 		// secure_distribution
-		cloudinary.setConfig("secure", true);
-		cloudinary.setConfig("private_cdn",true);
+		cloudinary.config.secure = true;
+		cloudinary.config.privateCdn = true ; 
 		String result = cloudinary.url().generate("test");
 		assertEquals("https://test123-res.cloudinary.com/image/upload/test", result);
 	}
@@ -60,16 +60,16 @@ public class CloudinaryTest extends AndroidTestCase {
 	public void testSecureNonAkamai() {
 		// should not add cloud_name if private_cdn and secure non akamai
 		// secure_distribution
-		cloudinary.setConfig("secure", true);
-		cloudinary.setConfig("private_cdn",true);
-		cloudinary.setConfig("secure_distribution", "something.cloudfront.net");
+		cloudinary.config.secure = true;
+		cloudinary.config.privateCdn = true; 
+		cloudinary.config.secureDistribution = "something.cloudfront.net";
 		String result = cloudinary.url().generate("test");
 		assertEquals("https://something.cloudfront.net/image/upload/test", result);
 	}
 
 	public void testHttpPrivateCdn() {
 		// should not add cloud_name if private_cdn and not secure
-		cloudinary.setConfig("private_cdn",true);
+		cloudinary.config.privateCdn = true ; 
 		String result = cloudinary.url().generate("test");
 		assertEquals("http://test123-res.cloudinary.com/image/upload/test", result);
 	}

@@ -6,6 +6,7 @@ import com.cloudinary.Singleton;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
+
 import java.io.IOException;
 
 public class CloudinaryJsConfigTag  extends SimpleTagSupport {
@@ -18,16 +19,21 @@ public class CloudinaryJsConfigTag  extends SimpleTagSupport {
         out.println("<script language='javascript' type='text/javascript'>$.cloudinary.config({");
         String[] keys = {"api_key", "cloud_name", "cdn_subdomain"};
         String[] boolKeys = {"private_cdn", "secure_distribution"};
-        for (String key : keys) {
-            if (cloudinary.getStringConfig(key) != null && !cloudinary.getStringConfig(key).isEmpty()) {
-                out.println(key + ": \""+cloudinary.getStringConfig(key) + "\",");
-            }
-        }
-        for (String key : boolKeys) {
-            if (cloudinary.getStringConfig(key) != null && !cloudinary.getStringConfig(key).isEmpty()) {
-                out.println(key + ": "+cloudinary.getStringConfig(key) + ",");
-            }
-        }
+        
+        print(out,"api_key",cloudinary.config.apiKey);
+        print(out,"cloud_name",cloudinary.config.cloudName);
+        print(out,"cdn_subdomain",cloudinary.config.cdnSubdomain);
+        
+        print(out,"private_cdn",cloudinary.config.privateCdn);
+        print(out,"secure_distribution",cloudinary.config.secureDistribution);
+        
+        
+       
         out.println("});</script>");
     }
+
+	private void print(JspWriter out, String key,Object value) throws IOException {
+		out.println(key + ": \""+value + "\",");
+		
+	}
 }

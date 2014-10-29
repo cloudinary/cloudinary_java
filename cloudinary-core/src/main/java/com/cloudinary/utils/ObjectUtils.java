@@ -135,16 +135,26 @@ public class ObjectUtils {
 			return toList((JSONArray) json);
 		} else {
 			return json;
-		}
+		} 
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static List toList(JSONArray array) throws JSONException {
-        List list = new ArrayList();
-        for (int i = 0; i < array.length(); i++) {
-            list.add(fromJson(array.get(i)));
-        }
-        return list;
-    }
+		List list = new ArrayList();
+		for (int i = 0; i < array.length(); i++) {
+			list.add(fromJson(array.get(i)));
+		}
+		return list;
+	}
+
+	public static Integer asInteger(Object value, Integer defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		} else if (value instanceof Integer) {
+			return (Integer) value;
+		} else {
+			return Integer.parseInt(value.toString());
+		}
+	}
 
 }

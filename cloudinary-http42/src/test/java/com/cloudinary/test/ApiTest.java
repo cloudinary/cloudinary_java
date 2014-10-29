@@ -40,7 +40,7 @@ public class ApiTest {
     @BeforeClass
     public static void setUpClass() throws IOException {
         Cloudinary cloudinary = new Cloudinary();
-        if (cloudinary.getStringConfig("api_secret") == null) {
+        if (cloudinary.config.apiSecret == null) {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
@@ -78,7 +78,7 @@ public class ApiTest {
     @Before
     public void setUp() {
         this.cloudinary = new Cloudinary();
-        assumeNotNull(cloudinary.getStringConfig("api_secret"));
+        assumeNotNull(cloudinary.config.apiSecret);
         this.api = cloudinary.api();
     }
 

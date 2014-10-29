@@ -29,7 +29,7 @@ public class UploaderTest {
 	@BeforeClass
 	public static void setUpClass() {
     	Cloudinary cloudinary = new Cloudinary();
-        if (cloudinary.getStringConfig("api_secret") == null) {
+        if (cloudinary.config.apiSecret == null) {
           System.err.println("Please setup environment for Upload test to run");
         }
     }
@@ -37,7 +37,7 @@ public class UploaderTest {
 	@Before
 	public void setUp() {
     	this.cloudinary = new Cloudinary();
-    	assumeNotNull(cloudinary.getStringConfig("api_secret"));
+    	assumeNotNull(cloudinary.config.apiSecret);
     }
 
     @Test
@@ -50,7 +50,7 @@ public class UploaderTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", (String) result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.getStringConfig("api_secret"));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
     }
     
@@ -62,7 +62,7 @@ public class UploaderTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", (String) result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.getStringConfig("api_secret"));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -74,7 +74,7 @@ public class UploaderTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", (String) result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.getStringConfig("api_secret"));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -109,7 +109,7 @@ public class UploaderTest {
         Map result = cloudinary.uploader().explicit("cloudinary", ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name")); 
         String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png").version(result.get("version")).generate("cloudinary");
         String eagerUrl = (String) ((Map) ((List)result.get("eager")).get(0)).get("url");
-        String cloudName = cloudinary.getStringConfig("cloud_name");
+        String cloudName = cloudinary.config.cloudName;
         assertEquals(eagerUrl.substring(eagerUrl.indexOf(cloudName)), url.substring(url.indexOf(cloudName)));        
     }
 

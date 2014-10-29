@@ -34,14 +34,15 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 	public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
 		if (options == null)
 			options = ObjectUtils.emptyMap();
-		String prefix = ObjectUtils.asString(options.get("upload_prefix"), this.api.cloudinary.getStringConfig("upload_prefix", "https://api.cloudinary.com"));
-		String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.getStringConfig("cloud_name"));
+		
+		String prefix = ObjectUtils.asString(options.get("upload_prefix"), ObjectUtils.asString(this.api.cloudinary.config.uploadPrefix, "https://api.cloudinary.com"));
+		String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
 		if (cloudName == null)
 			throw new IllegalArgumentException("Must supply cloud_name");
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.getStringConfig("api_key"));
+		String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.getStringConfig("api_secret"));
+		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 

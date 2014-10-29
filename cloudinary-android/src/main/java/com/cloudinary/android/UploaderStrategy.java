@@ -26,7 +26,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().getStringConfig("api_key"));
+		String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
 
@@ -37,7 +37,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			params.put("signature", options.get("signature"));
 			params.put("api_key", apiKey);
 		} else {
-			String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().getStringConfig("api_secret"));
+			String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().config.apiSecret);
 			if (apiSecret == null)
 				throw new IllegalArgumentException("Must supply api_secret");
 			params.put("timestamp", Long.valueOf(System.currentTimeMillis() / 1000L).toString());

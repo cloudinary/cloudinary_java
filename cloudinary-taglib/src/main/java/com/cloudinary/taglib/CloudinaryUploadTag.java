@@ -427,7 +427,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 
     private void buildCallbackUrl(Map options) {
         String callback = (String) options.get("callback");
-        if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().getStringConfig("callback");
+        if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().config.callback;
         if (callback == null || callback.isEmpty()) callback = "/cloudinary_cors.html";
         if (!callback.matches("^https?://")) {
             PageContext context = (PageContext) getJspContext();

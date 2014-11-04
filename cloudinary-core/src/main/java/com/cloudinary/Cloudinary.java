@@ -2,7 +2,6 @@ package com.cloudinary;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -10,21 +9,28 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
+//import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ClientConnectionManager;
+
+import com.cloudinary.strategies.AbstractApiStrategy;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
+import com.cloudinary.strategies.StrategyLoader;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Cloudinary {
+	
+	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList("com.cloudinary.android.UploaderStrategy","com.cloudinary.http42.UploaderStrategy","com.cloudinary.http43.UploaderStrategy"));
+	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.ApiStrategy", "com.cloudinary.http42.ApiStrategy", "com.cloudinary.http43.ApiStrategy" ));
+	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.UrlBuilderStrategy", "com.cloudinary.http42.UrlBuilderStrategy", "com.cloudinary.http43.UrlBuilderStrategy" ));
+	
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
@@ -33,21 +39,76 @@ public class Cloudinary {
 	public final static String VERSION = "1.0.14";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
 
-	private final Map config = new HashMap();
-	private ClientConnectionManager connectionManager = null;
+	public final Configuration config;
+	private AbstractUploaderStrategy uploaderStrategy;
+	private AbstractApiStrategy apiStrategy;
+	private AbstractUrlBuilderStrategy urlBuilderStrategy;
+	protected ClientConnectionManager connectionManager = null;
+
+	public Uploader uploader(){
+		return new Uploader(this,uploaderStrategy).withConnectionManager(connectionManager);
+		
+	};
+
+	public Api api(){
+		return new Api(this,apiStrategy).withConnectionManager(connectionManager);
+	};
+
+	public static void registerUploaderStrategy(String className){
+		if (!UPLOAD_STRATEGIES.contains(className)){
+			UPLOAD_STRATEGIES.add(className);
+		}
+		
+	}
+	
+	public static void registerAPIStrategy(String className){
+		if (!API_STRATEGIES.contains(className)){
+			API_STRATEGIES.add(className);
+		}
+	}
+	
+	public static void registerUrlBuilderStrategy(String className){
+		if (!URLBUILDER_STRATEGIES.contains(className)){
+			URLBUILDER_STRATEGIES.add(className);
+		}
+	}
+	
+	private void loadStrategies() {
+		uploaderStrategy= StrategyLoader.find(UPLOAD_STRATEGIES);
+		
+		if (uploaderStrategy==null){
+			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(UPLOAD_STRATEGIES, ",") + "]");
+		}
+		
+		apiStrategy= StrategyLoader.find(API_STRATEGIES);
+		if (apiStrategy==null){
+			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(API_STRATEGIES, ",") + "]");
+		}
+		
+		urlBuilderStrategy= StrategyLoader.find(URLBUILDER_STRATEGIES);
+		if (urlBuilderStrategy==null){
+			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(URLBUILDER_STRATEGIES, ",") + "]");
+		}
+	}
 
 	public Cloudinary(Map config) {
-		this.config.putAll(config);
+		loadStrategies();
+		this.config = new Configuration(config);
+
 	}
 
 	public Cloudinary(String cloudinaryUrl) {
-		initFromUrl(cloudinaryUrl);
+		loadStrategies();
+		this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
 	}
 
 	public Cloudinary() {
+		loadStrategies();
 		String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
 		if (cloudinaryUrl != null) {
-			initFromUrl(cloudinaryUrl);
+			this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+		}else {
+			this.config = new Configuration();
 		}
 
 	}
@@ -56,20 +117,13 @@ public class Cloudinary {
 		return new Url(this);
 	}
 
-	public Uploader uploader() {
-		return new Uploader(this).withConnectionManager(connectionManager);
-	}
-
-	public Api api() {
-		return new Api(this).withConnectionManager(connectionManager);
-	}
-
 	public String cloudinaryApiUrl(String action, Map options) {
-		String cloudinary = asString(options.get("upload_prefix"), asString(this.config.get("upload_prefix"), "https://api.cloudinary.com"));
-		String cloud_name = asString(options.get("cloud_name"), asString(this.config.get("cloud_name")));
+		String cloudinary = ObjectUtils.asString(options.get("upload_prefix"),
+				ObjectUtils.asString(this.config.uploadPrefix, "https://api.cloudinary.com"));
+		String cloud_name = ObjectUtils.asString(options.get("cloud_name"), ObjectUtils.asString(this.config.cloudName));
 		if (cloud_name == null)
 			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
-		String resource_type = asString(options.get("resource_type"), "image");
+		String resource_type = ObjectUtils.asString(options.get("resource_type"), "image");
 		return StringUtils.join(new String[] { cloudinary, "v1_1", cloud_name, resource_type, action }, "/");
 	}
 
@@ -78,7 +132,7 @@ public class Cloudinary {
 	public String randomPublicId() {
 		byte[] bytes = new byte[8];
 		RND.nextBytes(bytes);
-		return Hex.encodeHexString(bytes);
+		return StringUtils.encodeHexString(bytes);
 	}
 
 	public String signedPreloadedImage(Map result) {
@@ -92,9 +146,8 @@ public class Cloudinary {
 			if (param.getValue() instanceof Collection) {
 				params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
 			} else {
-				String value = param.getValue().toString();
-				if (StringUtils.isNotBlank(value)) {
-					params.add(param.getKey() + "=" + value);
+				if (StringUtils.isNotBlank(param.getValue())) {
+					params.add(param.getKey() + "=" + param.getValue().toString());
 				}
 			}
 		}
@@ -106,14 +159,14 @@ public class Cloudinary {
 			throw new RuntimeException("Unexpected exception", e);
 		}
 		byte[] digest = md.digest((to_sign + apiSecret).getBytes());
-		return Hex.encodeHexString(digest);
+		return StringUtils.encodeHexString(digest);
 	}
 
 	public void signRequest(Map<String, Object> params, Map<String, Object> options) {
-		String apiKey = Cloudinary.asString(options.get("api_key"), this.getStringConfig("api_key"));
+		String apiKey = ObjectUtils.asString(options.get("api_key"), this.config.apiKey);
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = Cloudinary.asString(options.get("api_secret"), this.getStringConfig("api_secret"));
+		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.config.apiSecret);
 		if (apiSecret == null)
 			throw new IllegalArgumentException("Must supply api_secret");
 		Util.clearEmpty(params);
@@ -121,7 +174,7 @@ public class Cloudinary {
 		params.put("api_key", apiKey);
 	}
 
-	public String privateDownload(String publicId, String format, Map<String, Object> options) throws URISyntaxException {
+	public String privateDownload(String publicId, String format, Map<String, Object> options) throws Exception {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("public_id", publicId);
 		params.put("format", format);
@@ -129,14 +182,15 @@ public class Cloudinary {
 		params.put("type", options.get("type"));
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		signRequest(params, options);
-		URIBuilder builder = new URIBuilder(cloudinaryApiUrl("download", options));
+		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download", options));
+		
 		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParameter(param.getKey(), param.getValue().toString());
+			builder.addParam(param.getKey(), param.getValue().toString());
 		}
-		return builder.toString();
+		return builder.url();
 	}
 
-	public String zipDownload(String tag, Map<String, Object> options) throws URISyntaxException {
+	public String zipDownload(String tag, Map<String, Object> options) throws Exception {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		params.put("tag", tag);
@@ -149,147 +203,41 @@ public class Cloudinary {
 		}
 		params.put("transformation", transformation);
 		signRequest(params, options);
-		URIBuilder builder = new URIBuilder(cloudinaryApiUrl("download_tag.zip", options));
+		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download_tag.zip", options));
 		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParameter(param.getKey(), param.getValue().toString());
+			builder.addParam(param.getKey(), param.getValue().toString());
 		}
-		return builder.toString();
+		return builder.url();
 	}
 
-	protected void initFromUrl(String cloudinaryUrl) {
+	protected Map parseConfigUrl(String cloudinaryUrl) {
+		Map params = new HashMap();
 		URI cloudinaryUri = URI.create(cloudinaryUrl);
-		setConfig("cloud_name", cloudinaryUri.getHost());
-		String[] creds = cloudinaryUri.getUserInfo().split(":");
-		setConfig("api_key", creds[0]);
-		setConfig("api_secret", creds[1]);
-		setConfig("private_cdn", StringUtils.isNotBlank(cloudinaryUri.getPath()));
-		setConfig("secure_distribution", cloudinaryUri.getPath());
+		params.put("cloud_name", cloudinaryUri.getHost());
+		if (cloudinaryUri.getUserInfo() != null) {
+			String[] creds = cloudinaryUri.getUserInfo().split(":");
+			params.put("api_key", creds[0]);
+			params.put("api_secret", creds[1]);
+		}
+		params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
+		params.put("secure_distribution", cloudinaryUri.getPath());
 		if (cloudinaryUri.getQuery() != null) {
 			for (String param : cloudinaryUri.getQuery().split("&")) {
 				String[] keyValue = param.split("=");
 				try {
-					setConfig(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
+					params.put(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
 				} catch (UnsupportedEncodingException e) {
 					throw new RuntimeException("Unexpected exception", e);
 				}
 			}
 		}
+		return params;
 	}
 
-	public boolean getBooleanConfig(String key, boolean default_value) {
-		return asBoolean(this.config.get(key), default_value);
-	}
-
-	public String getStringConfig(String key, String default_value) {
-		return asString(this.config.get(key), default_value);
-	}
-
-	public String getStringConfig(String key) {
-		return asString(this.config.get(key));
-	}
-
-	public void setConfig(String key, Object value) {
-		this.config.put(key, value);
-	}
 	
 	public Cloudinary withConnectionManager(ClientConnectionManager connectionManager) {
 		this.connectionManager = connectionManager;
 		return this;
 	}
 
-	public static String asString(Object value) {
-		if (value == null) {
-			return null;
-		} else {
-			return value.toString();
-		}
-	}
-
-	public static String asString(Object value, String defaultValue) {
-		if (value == null) {
-			return defaultValue;
-		} else {
-			return value.toString();
-		}
-	}
-
-	public static List asArray(Object value) {
-		if (value == null) {
-			return Collections.EMPTY_LIST;
-		} else if (value instanceof int[]) {
-			List array = new ArrayList();
-			for (int i : (int[]) value) {
-				array.add(new Integer(i));
-			}
-			return array;
-		} else if (value instanceof Object[]) {
-			return Arrays.asList((Object[]) value);
-		} else if (value instanceof List) {
-			return (List) value;
-		} else {
-			List array = new ArrayList();
-			array.add(value);
-			return array;
-		}
-	}
-
-	public static Boolean asBoolean(Object value, Boolean defaultValue) {
-		if (value == null) {
-			return defaultValue;
-		} else if (value instanceof Boolean) {
-			return (Boolean) value;
-		} else {
-			return "true".equals(value);
-		}
-	}
-
-	public static Float asFloat(Object value) {
-		if (value == null) {
-			return null;
-		} else if (value instanceof Float) {
-			return (Float) value;
-		} else {
-			return Float.parseFloat(value.toString());
-		}
-	}
-
-	public static Map asMap(Object... values) {
-		if (values.length % 2 != 0)
-			throw new RuntimeException("Usage - (key, value, key, value, ...)");
-		Map result = new HashMap(values.length / 2);
-		for (int i = 0; i < values.length; i += 2) {
-			result.put(values[i], values[i + 1]);
-		}
-		return result;
-	}
-
-	public static Map emptyMap() {
-		return Collections.EMPTY_MAP;
-	}
-
-	public static String encodeMap(Object arg) {
-		if (arg != null && arg instanceof Map) {
-			Map<String, String> mapArg = (Map<String, String>) arg;
-			HashSet out = new HashSet();
-			for (Map.Entry<String, String> entry : mapArg.entrySet()) {
-				out.add(entry.getKey() + "=" + entry.getValue());
-			}
-			return StringUtils.join(out.toArray(), "|");
-		} else if (arg == null) {
-			return null;
-		} else {
-			return arg.toString();
-		}
-	}
-
-	public static Map<String, ? extends Object> only(Map<String, ? extends Object> hash, String... keys) {
-        Map<String, Object> result = new HashMap<String, Object>();
-        for (String key : keys) {
-            if (hash.containsKey(key)) {
-                result.put(key, hash.get(key));
-            }
-        }
-        return result;
-    }
-	
 }

@@ -1,11 +1,11 @@
 package com.cloudinary.test;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assume.assumeNotNull;
 
 import java.io.IOException;
@@ -18,13 +18,17 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.cloudinary.Api;
-import com.cloudinary.Api.ApiResponse;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.exceptions.BadRequest;
+import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.utils.ObjectUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ApiTest {
@@ -36,32 +40,32 @@ public class ApiTest {
     @BeforeClass
     public static void setUpClass() throws IOException {
         Cloudinary cloudinary = new Cloudinary();
-        if (cloudinary.getStringConfig("api_secret") == null) {
+        if (cloudinary.config.apiSecret == null) {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
         Api api = cloudinary.api();
         try {
-            api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3", "api_test5"), Cloudinary.emptyMap());
+            api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3", "api_test5"), ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
         try {
-            api.deleteTransformation("api_test_transformation", Cloudinary.emptyMap());
+            api.deleteTransformation("api_test_transformation", ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
         try {
-            api.deleteTransformation("api_test_transformation2", Cloudinary.emptyMap());
+            api.deleteTransformation("api_test_transformation2", ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
         try {
-            api.deleteTransformation("api_test_transformation3", Cloudinary.emptyMap());
+            api.deleteTransformation("api_test_transformation3", ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
-        try{api.deleteUploadPreset("api_test_upload_preset", Cloudinary.emptyMap());}catch (Exception e) {}
-        try{api.deleteUploadPreset("api_test_upload_preset2", Cloudinary.emptyMap());}catch (Exception e) {}
-        try{api.deleteUploadPreset("api_test_upload_preset3", Cloudinary.emptyMap());}catch (Exception e) {}
-        try{api.deleteUploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());}catch (Exception e) {}
-        Map options = Cloudinary.asMap(
+        try{api.deleteUploadPreset("api_test_upload_preset", ObjectUtils.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset2", ObjectUtils.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset3", ObjectUtils.emptyMap());}catch (Exception e) {}
+        try{api.deleteUploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());}catch (Exception e) {}
+        Map options = ObjectUtils.asMap(
                 "public_id", "api_test", 
                 "tags", new String[]{"api_test_tag", uniqueTag},
                 "context", "key=value",
@@ -74,7 +78,7 @@ public class ApiTest {
     @Before
     public void setUp() {
         this.cloudinary = new Cloudinary();
-        assumeNotNull(cloudinary.getStringConfig("api_secret"));
+        assumeNotNull(cloudinary.config.apiSecret);
         this.api = cloudinary.api();
     }
 
@@ -90,14 +94,14 @@ public class ApiTest {
     @Test
     public void test01ResourceTypes() throws Exception {
         // should allow listing resource_types
-        Map result = api.resourceTypes(Cloudinary.emptyMap());
+        Map result = api.resourceTypes(ObjectUtils.emptyMap());
         assertContains("image", (Collection) result.get("resource_types"));
     }
 
     @Test
     public void test02Resources() throws Exception {
         // should allow listing resources
-        Map result = api.resources(Cloudinary.emptyMap());
+        Map result = api.resources(ObjectUtils.emptyMap());
         Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
         assertNotNull(resource);
         assertEquals(resource.get("type"), "upload");
@@ -125,7 +129,7 @@ public class ApiTest {
     @Test
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
-        Map result = api.resources(Cloudinary.asMap("type", "upload"));
+        Map result = api.resources(ObjectUtils.asMap("type", "upload"));
         Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
         assertNotNull(resource);
     }
@@ -133,11 +137,11 @@ public class ApiTest {
     @Test
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
-        Map result = api.resources(Cloudinary.asMap("type", "upload", "prefix", "api_test", "tags", true, "context", true));
+        Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", "api_test", "tags", true, "context", true));
         List<Map> resources = (List<Map>) result.get("resources");
         assertNotNull(findByAttr(resources, "public_id", "api_test"));
         assertNotNull(findByAttr(resources, "public_id", "api_test1"));
-        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value"))));
+        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value"))));
         boolean found = false;
         for (Map r: resources) {
         	org.json.simple.JSONArray tags = (org.json.simple.JSONArray) r.get("tags");
@@ -149,34 +153,35 @@ public class ApiTest {
     @Test
     public void testResourcesListingDirection() throws Exception {
         // should allow listing resources in both directions
-        Map result = api.resourcesByTag(uniqueTag, Cloudinary.asMap("type", "upload", "direction", "asc"));
+        Map result = api.resourcesByTag(uniqueTag, ObjectUtils.asMap("type", "upload", "direction", "asc"));
         List<Map> resources = (List<Map>) result.get("resources");
-        result = api.resourcesByTag(uniqueTag, Cloudinary.asMap("type", "upload", "direction", -1));
+        result = api.resourcesByTag(uniqueTag, ObjectUtils.asMap("type", "upload", "direction", -1));
         List<Map> resourcesDesc = (List<Map>) result.get("resources");
         Collections.reverse(resources);
         assertEquals(resources, resourcesDesc);
     }
     
-    @Test
+    @Ignore
     public void testResourcesListingStartAt() throws Exception {
     	// should allow listing resources by start date - make sure your clock is set correctly!!!
         Thread.sleep(2000L);
         java.util.Date startAt = new java.util.Date();
 		Thread.sleep(2000L);
-        Map response = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
-        List<Map> resources = (List<Map>) api.resources(Cloudinary.asMap("type", "upload", "start_at", startAt, "direction", "asc")).get("resources");
+        Map response = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+        ApiResponse listResources = api.resources(ObjectUtils.asMap("type", "upload", "start_at", startAt, "direction", "asc"));
+        List<Map> resources = (List<Map>) listResources.get("resources");
         assertEquals(response.get("public_id"), resources.get(0).get("public_id"));
     }
     
     @Test
     public void testResourcesByPublicIds() throws Exception {
         // should allow listing resources by public ids
-        Map result = api.resourcesByIds(Arrays.asList("api_test", "api_test1", "bogus"), Cloudinary.asMap("type", "upload", "tags", true, "context", true));
+        Map result = api.resourcesByIds(Arrays.asList("api_test", "api_test1", "bogus"), ObjectUtils.asMap("type", "upload", "tags", true, "context", true));
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(2, resources.size());
         assertNotNull(findByAttr(resources, "public_id", "api_test"));
         assertNotNull(findByAttr(resources, "public_id", "api_test1"));
-        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value"))));
+        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value"))));
         boolean found = false;
         for (Map r: resources) {
         	org.json.simple.JSONArray tags = (org.json.simple.JSONArray) r.get("tags");
@@ -188,10 +193,10 @@ public class ApiTest {
     @Test
     public void test06ResourcesTag() throws Exception {
         // should allow listing resources by tag
-        Map result = api.resourcesByTag("api_test_tag", Cloudinary.asMap("tags", true, "context", true));
+        Map result = api.resourcesByTag("api_test_tag", ObjectUtils.asMap("tags", true, "context", true));
         Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
         assertNotNull(resource);
-        resource = findByAttr((List<Map>) result.get("resources"), "context", Cloudinary.asMap("custom", Cloudinary.asMap("key", "value")));
+        resource = findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")));
         assertNotNull(resource);
         List<Map> resources = (List<Map>) result.get("resources");
         boolean found = false;
@@ -205,7 +210,7 @@ public class ApiTest {
     @Test
     public void test07ResourceMetadata() throws Exception {
         // should allow get resource metadata
-        Map resource = api.resource("api_test", Cloudinary.emptyMap());
+        Map resource = api.resource("api_test", ObjectUtils.emptyMap());
         assertNotNull(resource);
         assertEquals(resource.get("public_id"), "api_test");
         assertEquals(resource.get("bytes"), 3381L);
@@ -215,56 +220,56 @@ public class ApiTest {
     @Test
     public void test08DeleteDerived() throws Exception {
         // should allow deleting derived resource
-        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap(
+        cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap(
                 "public_id", "api_test3",
                 "eager", Collections.singletonList(new Transformation().width(101).crop("scale"))
                 ));
-        Map resource = api.resource("api_test3", Cloudinary.emptyMap());
+        Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
         assertNotNull(resource);
         List<Map> derived = (List<Map>) resource.get("derived");
         assertEquals(derived.size(), 1);
         String derived_resource_id = (String) derived.get(0).get("id");
-        api.deleteDerivedResources(Arrays.asList(derived_resource_id), Cloudinary.emptyMap());
-        resource = api.resource("api_test3", Cloudinary.emptyMap());
+        api.deleteDerivedResources(Arrays.asList(derived_resource_id), ObjectUtils.emptyMap());
+        resource = api.resource("api_test3", ObjectUtils.emptyMap());
         assertNotNull(resource);
         derived = (List<Map>) resource.get("derived");
         assertEquals(derived.size(), 0);
     }
 
-    @Test(expected = Api.NotFound.class)
+    @Test(expected = NotFound.class)
     public void test09DeleteResources() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test3"));
-        Map resource = api.resource("api_test3", Cloudinary.emptyMap());
+        cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test3"));
+        Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResources(Arrays.asList("apit_test", "api_test2", "api_test3"), Cloudinary.emptyMap());
-        api.resource("api_test3", Cloudinary.emptyMap());
+        api.deleteResources(Arrays.asList("apit_test", "api_test2", "api_test3"), ObjectUtils.emptyMap());
+        api.resource("api_test3", ObjectUtils.emptyMap());
     }
 
-    @Test(expected = Api.NotFound.class)
+    @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByPrefix() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test_by_prefix"));
-        Map resource = api.resource("api_test_by_prefix", Cloudinary.emptyMap());
+        cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test_by_prefix"));
+        Map resource = api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByPrefix("api_test_by", Cloudinary.emptyMap());
-        api.resource("api_test_by_prefix", Cloudinary.emptyMap());
+        api.deleteResourcesByPrefix("api_test_by", ObjectUtils.emptyMap());
+        api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
     }
     
-    @Test(expected = Api.NotFound.class)
+    @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByTags() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
-        Map resource = api.resource("api_test4", Cloudinary.emptyMap());
+        cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
+        Map resource = api.resource("api_test4", ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByTag("api_test_tag_for_delete", Cloudinary.emptyMap());
-        api.resource("api_test4", Cloudinary.emptyMap());
+        api.deleteResourcesByTag("api_test_tag_for_delete", ObjectUtils.emptyMap());
+        api.resource("api_test4", ObjectUtils.emptyMap());
     }
 
     @Test
     public void test10Tags() throws Exception {
         // should allow listing tags
-        Map result = api.tags(Cloudinary.emptyMap());
+        Map result = api.tags(ObjectUtils.emptyMap());
         List<String> tags = (List<String>) result.get("tags");
         assertContains("api_test_tag", tags);
     }
@@ -272,10 +277,10 @@ public class ApiTest {
     @Test
     public void test11TagsPrefix() throws Exception {
         // should allow listing tag by prefix
-        Map result = api.tags(Cloudinary.asMap("prefix", "api_test"));
+        Map result = api.tags(ObjectUtils.asMap("prefix", "api_test"));
         List<String> tags = (List<String>) result.get("tags");
         assertContains("api_test_tag", tags);
-        result = api.tags(Cloudinary.asMap("prefix", "api_test_no_such_tag"));
+        result = api.tags(ObjectUtils.asMap("prefix", "api_test_no_such_tag"));
         tags = (List<String>) result.get("tags");
         assertEquals(0, tags.size());
     }
@@ -283,7 +288,7 @@ public class ApiTest {
     @Test
     public void test12Transformations() throws Exception {
         // should allow listing transformations
-        Map result = api.transformations(Cloudinary.emptyMap());
+        Map result = api.transformations(ObjectUtils.emptyMap());
         Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", "c_scale,w_100");
 
         assertNotNull(transformation);
@@ -293,7 +298,7 @@ public class ApiTest {
     @Test
     public void test13TransformationMetadata() throws Exception {
         // should allow getting transformation metadata
-        Map transformation = api.transformation("c_scale,w_100", Cloudinary.emptyMap());
+        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(100)
                 .generate());
@@ -302,12 +307,12 @@ public class ApiTest {
     @Test
     public void test14TransformationUpdate() throws Exception {
         // should allow updating transformation allowed_for_strict
-        api.updateTransformation("c_scale,w_100", Cloudinary.asMap("allowed_for_strict", true), Cloudinary.emptyMap());
-        Map transformation = api.transformation("c_scale,w_100", Cloudinary.emptyMap());
+        api.updateTransformation("c_scale,w_100", ObjectUtils.asMap("allowed_for_strict", true), ObjectUtils.emptyMap());
+        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
-        api.updateTransformation("c_scale,w_100", Cloudinary.asMap("allowed_for_strict", false), Cloudinary.emptyMap());
-        transformation = api.transformation("c_scale,w_100", Cloudinary.emptyMap());
+        api.updateTransformation("c_scale,w_100", ObjectUtils.asMap("allowed_for_strict", false), ObjectUtils.emptyMap());
+        transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), false);
     }
@@ -315,8 +320,8 @@ public class ApiTest {
     @Test
     public void test15TransformationCreate() throws Exception {
         // should allow creating named transformation
-        api.createTransformation("api_test_transformation", new Transformation().crop("scale").width(102).generate(), Cloudinary.emptyMap());
-        Map transformation = api.transformation("api_test_transformation", Cloudinary.emptyMap());
+        api.createTransformation("api_test_transformation", new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
+        Map transformation = api.transformation("api_test_transformation", ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(102)
@@ -327,9 +332,9 @@ public class ApiTest {
     @Test
     public void test15aTransformationUnsafeUpdate() throws Exception {
         // should allow unsafe update of named transformation
-        api.createTransformation("api_test_transformation3", new Transformation().crop("scale").width(102).generate(), Cloudinary.emptyMap());
-        api.updateTransformation("api_test_transformation3", Cloudinary.asMap("unsafe_update", new Transformation().crop("scale").width(103).generate()), Cloudinary.emptyMap());
-        Map transformation = api.transformation("api_test_transformation3", Cloudinary.emptyMap());
+        api.createTransformation("api_test_transformation3", new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
+        api.updateTransformation("api_test_transformation3", ObjectUtils.asMap("unsafe_update", new Transformation().crop("scale").width(103).generate()), ObjectUtils.emptyMap());
+        Map transformation = api.transformation("api_test_transformation3", ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(103)
                 .generate());
@@ -339,43 +344,43 @@ public class ApiTest {
     @Test
     public void test16aTransformationDelete() throws Exception {
         // should allow deleting named transformation
-        api.createTransformation("api_test_transformation2", new Transformation().crop("scale").width(103).generate(), Cloudinary.emptyMap());
-        api.transformation("api_test_transformation2", Cloudinary.emptyMap());
-        api.deleteTransformation("api_test_transformation2", Cloudinary.emptyMap());
+        api.createTransformation("api_test_transformation2", new Transformation().crop("scale").width(103).generate(), ObjectUtils.emptyMap());
+        api.transformation("api_test_transformation2", ObjectUtils.emptyMap());
+        api.deleteTransformation("api_test_transformation2", ObjectUtils.emptyMap());
     }
 
-    @Test(expected = Api.NotFound.class)
+    @Test(expected = NotFound.class)
     public void test16bTransformationDelete() throws Exception {
-        api.transformation("api_test_transformation2", Cloudinary.emptyMap());
+        api.transformation("api_test_transformation2", ObjectUtils.emptyMap());
     }
 
     @Test
     public void test17aTransformationDeleteImplicit() throws Exception {
         // should allow deleting implicit transformation
-        api.transformation("c_scale,w_100", Cloudinary.emptyMap());
-        api.deleteTransformation("c_scale,w_100", Cloudinary.emptyMap());
+        api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
+        api.deleteTransformation("c_scale,w_100", ObjectUtils.emptyMap());
     }
 
     /**
      * @throws Exception
      * @expectedException \Cloudinary\Api\NotFound
      */
-    @Test(expected = Api.NotFound.class)
+    @Test(expected = NotFound.class)
     public void test17bTransformationDeleteImplicit() throws Exception {
-        api.transformation("c_scale,w_100", Cloudinary.emptyMap());
+        api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
     }
 
     @Test
     public void test18Usage() throws Exception {
         // should support usage API call
-        Map result = api.usage(Cloudinary.emptyMap());
+        Map result = api.usage(ObjectUtils.emptyMap());
         assertNotNull(result.get("last_updated"));
     }
 
     @Test
     public void test19Ping() throws Exception {
         // should support ping API call
-        Map result = api.ping(Cloudinary.emptyMap());
+        Map result = api.ping(ObjectUtils.emptyMap());
         assertEquals(result.get("status"), "ok");
     }
 
@@ -383,11 +388,11 @@ public class ApiTest {
     // Add @Test if you really want to test it - This test deletes derived resources!
     public void testDeleteAllResources() throws Exception {
         // should allow deleting all resources
-        cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
-        Map result = api.resource("api_test5", Cloudinary.emptyMap());
+        cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
+        Map result = api.resource("api_test5", ObjectUtils.emptyMap());
         assertEquals(1, ((org.json.simple.JSONArray) result.get("derived")).size());
-        api.deleteAllResources(Cloudinary.asMap("keep_original", true));
-        result = api.resource("api_test5", Cloudinary.emptyMap());
+        api.deleteAllResources(ObjectUtils.asMap("keep_original", true));
+        result = api.resource("api_test5", ObjectUtils.emptyMap());
         //assertEquals(0, ((org.json.simple.JSONArray) result.get("derived")).size());
     }
     
@@ -395,8 +400,8 @@ public class ApiTest {
     @Test
     public void testManualModeration() throws Exception {
     	// should support setting manual moderation status
-        Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("moderation","manual"));
-        Map apiResult = api.update((String) uploadResult.get("public_id"), Cloudinary.asMap("moderation_status", "approved"));
+        Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("moderation","manual"));
+        Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("moderation_status", "approved"));
         assertEquals("approved", ((Map) ((List<Map>) apiResult.get("moderation")).get(0)).get("status"));
     }
     
@@ -405,11 +410,11 @@ public class ApiTest {
 		// should support requesting ocr info
 		try {
 			Map uploadResult = cloudinary.uploader().upload(
-					"src/test/resources/logo.png", Cloudinary.emptyMap());
+					"src/test/resources/logo.png", ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"),
-					Cloudinary.asMap("ocr", "illegal"));
+					ObjectUtils.asMap("ocr", "illegal"));
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e instanceof BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
 	}
@@ -419,11 +424,11 @@ public class ApiTest {
 		// should support requesting raw conversion
 		try {
 			Map uploadResult = cloudinary.uploader().upload(
-					"src/test/resources/logo.png", Cloudinary.emptyMap());
+					"src/test/resources/logo.png", ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"),
-					Cloudinary.asMap("raw_convert", "illegal"));
+					ObjectUtils.asMap("raw_convert", "illegal"));
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e instanceof BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
 	}
@@ -433,11 +438,11 @@ public class ApiTest {
 		// should support requesting categorization
 		try {
 			Map uploadResult = cloudinary.uploader().upload(
-					"src/test/resources/logo.png", Cloudinary.emptyMap());
+					"src/test/resources/logo.png", ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"),
-					Cloudinary.asMap("categorization", "illegal"));
+					ObjectUtils.asMap("categorization", "illegal"));
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e instanceof BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
 	}
@@ -447,11 +452,11 @@ public class ApiTest {
 		// should support requesting detection
 		try {
 			Map uploadResult = cloudinary.uploader().upload(
-					"src/test/resources/logo.png", Cloudinary.emptyMap());
+					"src/test/resources/logo.png", ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"),
-					Cloudinary.asMap("detection", "illegal"));
+					ObjectUtils.asMap("detection", "illegal"));
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e instanceof BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
 	}
@@ -461,11 +466,11 @@ public class ApiTest {
 		// should support requesting similarity search
 		try {
 			Map uploadResult = cloudinary.uploader().upload(
-					"src/test/resources/logo.png", Cloudinary.emptyMap());
+					"src/test/resources/logo.png", ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"),
-					Cloudinary.asMap("similarity_search", "illegal"));
+					ObjectUtils.asMap("similarity_search", "illegal"));
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.BadRequest);
+			assertTrue(e instanceof BadRequest);
 			assertTrue(e.getMessage().matches("^Illegal value(.*)"));
 		}
 	}
@@ -474,9 +479,9 @@ public class ApiTest {
 	public void testUpdateCustomCoordinates() throws IOException, Exception {
 		//should update custom coordinates
     	Coordinates coordinates = new Coordinates("121,31,110,151");
-    	Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.emptyMap());
-    	cloudinary.api().update(uploadResult.get("public_id").toString(), Cloudinary.asMap("custom_coordinates", coordinates));
-    	Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), Cloudinary.asMap("coordinates", true));
+    	Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+    	cloudinary.api().update(uploadResult.get("public_id").toString(), ObjectUtils.asMap("custom_coordinates", coordinates));
+    	Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
     	long[] expected = new long[]{121L,31L,110L,151L};
     	Object[] actual = ((org.json.simple.JSONArray)((org.json.simple.JSONArray)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
     	for (int i = 0; i < expected.length; i++){
@@ -487,8 +492,8 @@ public class ApiTest {
 	@Test
 	public void testApiLimits() throws Exception {
 		// should support reporting the current API limits found in the response header
-		ApiResponse result1 = api.transformations(Cloudinary.emptyMap());
-		ApiResponse result2 = api.transformations(Cloudinary.emptyMap());
+		ApiResponse result1 = api.transformations(ObjectUtils.emptyMap());
+		ApiResponse result2 = api.transformations(ObjectUtils.emptyMap());
 		assertNotNull(result1.apiRateLimit());
 		assertNotNull(result2.apiRateLimit());
 		assertEquals(result1.apiRateLimit().getRemaining() - 1, result2.apiRateLimit().getRemaining());
@@ -501,37 +506,37 @@ public class ApiTest {
 	@Test
 	public void testListUploadPresets() throws Exception {
 		// should allow creating and listing upload_presets
-		api.createUploadPreset(Cloudinary.asMap("name",
+		api.createUploadPreset(ObjectUtils.asMap("name",
 				"api_test_upload_preset", "folder", "folder"));
-		api.createUploadPreset(Cloudinary.asMap("name",
+		api.createUploadPreset(ObjectUtils.asMap("name",
 				"api_test_upload_preset2", "folder", "folder2"));
-		api.createUploadPreset(Cloudinary.asMap("name",
+		api.createUploadPreset(ObjectUtils.asMap("name",
 				"api_test_upload_preset3", "folder", "folder3"));
 		org.json.simple.JSONArray presets = (org.json.simple.JSONArray) api
-				.uploadPresets(Cloudinary.emptyMap()).get("presets");
+				.uploadPresets(ObjectUtils.emptyMap()).get("presets");
 		assertEquals(((Map) presets.get(0)).get("name"),
 				"api_test_upload_preset3");
 		assertEquals(((Map) presets.get(1)).get("name"),
 				"api_test_upload_preset2");
 		assertEquals(((Map) presets.get(2)).get("name"),
 				"api_test_upload_preset");
-		api.deleteUploadPreset("api_test_upload_preset", Cloudinary.emptyMap());
-		api.deleteUploadPreset("api_test_upload_preset2", Cloudinary.emptyMap());
-		api.deleteUploadPreset("api_test_upload_preset3", Cloudinary.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset", ObjectUtils.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset2", ObjectUtils.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset3", ObjectUtils.emptyMap());
 	}
 
 	@Test
 	public void testGetUploadPreset() throws Exception {
 		// should allow getting a single upload_preset
 		String[] tags = { "a", "b", "c" };
-		Map context = Cloudinary.asMap("a", "b", "c", "d");
+		Map context = ObjectUtils.asMap("a", "b", "c", "d");
 		Transformation transformation = new Transformation();
 		transformation.width(100).crop("scale");
-		Map result = api.createUploadPreset(Cloudinary.asMap("unsigned", true,
+		Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true,
 				"folder", "folder", "transformation", transformation, "tags",
 				tags, "context", context));
 		String name = result.get("name").toString();
-		Map preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
 		assertEquals(preset.get("name"), name);
 		assertEquals(Boolean.TRUE, preset.get("unsigned"));
 		Map settings = (Map) preset.get("settings");
@@ -550,13 +555,13 @@ public class ApiTest {
 	@Test
 	public void testDeleteUploadPreset() throws Exception {
 		// should allow deleting upload_presets", :upload_preset => true do
-		api.createUploadPreset(Cloudinary.asMap("name",
+		api.createUploadPreset(ObjectUtils.asMap("name",
 				"api_test_upload_preset4", "folder", "folder"));
-		api.uploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
-		api.deleteUploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
+		api.uploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
+		api.deleteUploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
 		boolean error = false;
 		try {
-			api.uploadPreset("api_test_upload_preset4", Cloudinary.emptyMap());
+			api.uploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
 		} catch (Exception e) {
 			error = true;
 		}
@@ -567,19 +572,19 @@ public class ApiTest {
 	public void testUpdateUploadPreset() throws Exception {
 		// should allow updating upload_presets
 		String name = api
-				.createUploadPreset(Cloudinary.asMap("folder", "folder"))
+				.createUploadPreset(ObjectUtils.asMap("folder", "folder"))
 				.get("name").toString();
-		Map preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
 		Map settings = (Map) preset.get("settings");
-		settings.putAll(Cloudinary.asMap("colors", true, "unsigned", true,
+		settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true,
 				"disallow_public_id", true));
 		api.updateUploadPreset(name, settings);
 		settings.remove("unsigned");
-		preset = api.uploadPreset(name, Cloudinary.emptyMap());
+		preset = api.uploadPreset(name, ObjectUtils.emptyMap());
 		assertEquals(name, preset.get("name"));
 		assertEquals(Boolean.TRUE, preset.get("unsigned"));
 		assertEquals(settings, preset.get("settings"));
-		api.deleteUploadPreset(name, Cloudinary.emptyMap());
+		api.deleteUploadPreset(name, ObjectUtils.emptyMap());
 	}
 	
 	@Test
@@ -587,23 +592,23 @@ public class ApiTest {
 		// "should support listing by moderation kind and value
 		Map result1 = cloudinary.uploader().upload(
 				"src/test/resources/logo.png",
-				Cloudinary.asMap("moderation", "manual"));
+				ObjectUtils.asMap("moderation", "manual"));
 		Map result2 = cloudinary.uploader().upload(
 				"src/test/resources/logo.png",
-				Cloudinary.asMap("moderation", "manual"));
+				ObjectUtils.asMap("moderation", "manual"));
 		Map result3 = cloudinary.uploader().upload(
 				"src/test/resources/logo.png",
-				Cloudinary.asMap("moderation", "manual"));
+				ObjectUtils.asMap("moderation", "manual"));
 		api.update((String) result1.get("public_id"),
-				Cloudinary.asMap("moderation_status", "approved"));
+				ObjectUtils.asMap("moderation_status", "approved"));
 		api.update((String) result2.get("public_id"),
-				Cloudinary.asMap("moderation_status", "rejected"));
+				ObjectUtils.asMap("moderation_status", "rejected"));
 		Map approved = api.resourcesByModeration("manual", "approved",
-				Cloudinary.asMap("max_results", 1000));
+				ObjectUtils.asMap("max_results", 1000));
 		Map rejected = api.resourcesByModeration("manual", "rejected",
-				Cloudinary.asMap("max_results", 1000));
+				ObjectUtils.asMap("max_results", 1000));
 		Map pending = api.resourcesByModeration("manual", "pending",
-				Cloudinary.asMap("max_results", 1000));
+				ObjectUtils.asMap("max_results", 1000));
 		assertNotNull(findByAttr((List<Map>) approved.get("resources"),
 				"public_id", (String) result1.get("public_id")));
 		assertNull(findByAttr((List<Map>) approved.get("resources"),
@@ -630,12 +635,12 @@ public class ApiTest {
 	// @Test
 	public void testFolderApi() throws Exception {
 		// should allow deleting all resources
-		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "test_folder1/item"));
-		cloudinary.uploader().upload("src/test/resources/logo.png", Cloudinary.asMap("public_id", "test_folder2/item"));
+		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder1/item"));
+		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder2/item"));
 		cloudinary.uploader().upload("src/test/resources/logo.png",
-				Cloudinary.asMap("public_id", "test_folder1/test_subfolder1/item"));
+				ObjectUtils.asMap("public_id", "test_folder1/test_subfolder1/item"));
 		cloudinary.uploader().upload("src/test/resources/logo.png",
-				Cloudinary.asMap("public_id", "test_folder1/test_subfolder2/item"));
+				ObjectUtils.asMap("public_id", "test_folder1/test_subfolder2/item"));
 		Map result = api.rootFolders(null);
 		assertEquals("test_folder1", ((Map) ((org.json.simple.JSONArray) result.get("folders")).get(0)).get("name"));
 		assertEquals("test_folder2", ((Map) ((org.json.simple.JSONArray) result.get("folders")).get(1)).get("name"));
@@ -647,9 +652,9 @@ public class ApiTest {
 		try {
 			api.subFolders("test_folder", null);
 		} catch (Exception e) {
-			assertTrue(e instanceof com.cloudinary.Api.NotFound);
+			assertTrue(e instanceof NotFound);
 		}
-		api.deleteResourcesByPrefix("test_folder", Cloudinary.emptyMap());
+		api.deleteResourcesByPrefix("test_folder", ObjectUtils.emptyMap());
 	}
 	
 	private void assertContains(Object object, Collection list) {

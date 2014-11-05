@@ -13,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -21,8 +22,8 @@ import com.cloudinary.Api;
 import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
-import com.cloudinary.api.Response;
 import com.cloudinary.api.exceptions.GeneralError;
+import com.cloudinary.http42.api.Response;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -60,7 +61,9 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 				apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
 			}
 		}
-		DefaultHttpClient client = new DefaultHttpClient(api.connectionManager);
+		ClientConnectionManager connectionManager = (ClientConnectionManager) this.api.cloudinary.config.properties.get("connectionManager");
+
+		DefaultHttpClient client = new DefaultHttpClient(connectionManager);
 		URI apiUri = apiUrlBuilder.build();
 		HttpUriRequest request = null;
 		switch (method) {

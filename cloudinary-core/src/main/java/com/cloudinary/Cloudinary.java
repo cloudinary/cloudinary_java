@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-//import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.ClientConnectionManager;
-
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
@@ -36,22 +33,21 @@ public class Cloudinary {
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-	public final static String VERSION = "1.0.14";
+	public final static String VERSION = "1.0.15";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
 
 	public final Configuration config;
 	private AbstractUploaderStrategy uploaderStrategy;
 	private AbstractApiStrategy apiStrategy;
 	private AbstractUrlBuilderStrategy urlBuilderStrategy;
-	protected ClientConnectionManager connectionManager = null;
 
 	public Uploader uploader(){
-		return new Uploader(this,uploaderStrategy).withConnectionManager(connectionManager);
+		return new Uploader(this,uploaderStrategy);
 		
 	};
 
 	public Api api(){
-		return new Api(this,apiStrategy).withConnectionManager(connectionManager);
+		return new Api(this,apiStrategy);
 	};
 
 	public static void registerUploaderStrategy(String className){
@@ -232,12 +228,6 @@ public class Cloudinary {
 			}
 		}
 		return params;
-	}
-
-	
-	public Cloudinary withConnectionManager(ClientConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
-		return this;
 	}
 
 }

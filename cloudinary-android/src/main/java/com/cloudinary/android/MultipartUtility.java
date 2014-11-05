@@ -11,6 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 
+import com.cloudinary.Cloudinary;
+
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP
  * POST requests to a web server.
@@ -26,8 +28,7 @@ public class MultipartUtility {
 	private OutputStream outputStream;
 	private PrintWriter writer;
 	
-	public final static String VERSION = "1.0.2";
-	public final static String USER_AGENT = "cld-android-" + VERSION;
+	public final static String USER_AGENT = "cld-android-" + Cloudinary.VERSION;
 	
 
 	/**

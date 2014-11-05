@@ -1,4 +1,4 @@
-package com.cloudinary.api;
+package com.cloudinary.http42.api;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.RateLimit;
 import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings("rawtypes")

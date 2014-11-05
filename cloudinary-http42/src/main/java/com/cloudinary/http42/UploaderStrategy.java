@@ -10,6 +10,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -46,7 +47,8 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
 		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
-		HttpClient client = new DefaultHttpClient(uploader.connectionManager);
+		ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
+		HttpClient client = new DefaultHttpClient(connectionManager);
 
 		// If the configuration specifies a proxy then apply it to the client
 		if (uploader.cloudinary().config.proxyHost != null && uploader.cloudinary().config.proxyPort != 0) {

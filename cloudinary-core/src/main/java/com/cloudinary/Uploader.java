@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.conn.ClientConnectionManager;
 import org.json.JSONObject;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
@@ -23,7 +22,6 @@ public class Uploader {
 		return strategy.callApi(action,params,options,file);
 	}
 
-	public ClientConnectionManager connectionManager = null;
 	private Cloudinary cloudinary;
 	private AbstractUploaderStrategy strategy;
 
@@ -270,11 +268,6 @@ public class Uploader {
 	public void signRequestParams(Map<String, Object> params, Map options) {
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		cloudinary.signRequest(params, options);
-	}
-
-	public Uploader withConnectionManager(ClientConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
-		return this;
 	}
 
 	public String uploadTagParams(Map options) {

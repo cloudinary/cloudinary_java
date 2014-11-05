@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.conn.ClientConnectionManager;
-
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.AlreadyExists;
@@ -35,7 +33,6 @@ public class Api {
     }
 
 	public final Cloudinary cloudinary;
-	public ClientConnectionManager connectionManager = null;
 	private AbstractApiStrategy strategy;
     
     protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
@@ -229,11 +226,5 @@ public class Api {
 			options = ObjectUtils.emptyMap();
 		return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
 	}
-    
-    public Api withConnectionManager(ClientConnectionManager connectionManager) {
-		this.connectionManager = connectionManager;
-		return this;
-	}
-
     
 }

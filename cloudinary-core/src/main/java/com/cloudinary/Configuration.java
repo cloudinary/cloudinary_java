@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Map;
+import java.util.HashMap;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -32,6 +33,7 @@ public class Configuration {
 	public String callback;
 	public String proxyHost;
 	public int proxyPort;
+    public Map<String, Object> properties = new HashMap<String, Object>();
     public Configuration(){
     }
     

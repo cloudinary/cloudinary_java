@@ -15,3 +15,5 @@ test-output/
 *.iml
 
 appengine-web.xml
+
+cloudinary-android-test/src/main/AndroidManifest.xml

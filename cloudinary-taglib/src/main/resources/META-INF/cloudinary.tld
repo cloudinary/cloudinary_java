@@ -341,6 +341,11 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
+         <attribute>
+            <name>signed</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <name>named</name>
             <required>false</required>
@@ -389,6 +394,11 @@
         </attribute>
         <attribute>
             <name>cdnSubdomain</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>signed</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>

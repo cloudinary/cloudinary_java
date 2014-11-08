@@ -31,6 +31,7 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
 
     private Boolean secure = null;
     private Boolean cdnSubdomain = null;
+    private Boolean signed = null;
 
     private String namedTransformation = null;
 
@@ -64,6 +65,7 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
             url.secure(true);
         }
         if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
+        if (signed != null) url.signed(signed.booleanValue());
 
         out.println(url.generate());
     }
@@ -131,6 +133,14 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
 
     public void setCdnSubdomain(Boolean cdnSubdomain) {
         this.cdnSubdomain = cdnSubdomain;
+    }
+
+    public Boolean getSigned() {
+        return signed;
+    }
+
+    public void setSigned(Boolean signed) {
+        this.signed = signed;
     }
 
     public String getNamed() {

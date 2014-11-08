@@ -42,6 +42,7 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
 
     private Boolean secure = null;
     private Boolean cdnSubdomain = null;
+    private Boolean signed = null;
 
     private String namedTransformation = null;
 
@@ -87,6 +88,7 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
             url.secure(true);
         }
         if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
+        if (signed != null) url.signed(signed.booleanValue());
         
         out.println(url.imageTag(attributes));
     }
@@ -179,6 +181,14 @@ public class CloudinaryImageTag extends SimpleTagSupport implements DynamicAttri
 
     public void setCdnSubdomain(Boolean cdnSubdomain) {
         this.cdnSubdomain = cdnSubdomain;
+    }
+
+    public Boolean getSigned() {
+        return signed;
+    }
+
+    public void setSigned(Boolean signed) {
+        this.signed = signed;
     }
 
     public String getNamed() {

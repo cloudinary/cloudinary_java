@@ -12,7 +12,7 @@
 
 <div id="logo">
     <!-- This will render the image fetched from a remote HTTP URL using Cloudinary -->
-    <cl:image src="http://cloudinary.com/images/logo.png" type="fetch"/>
+    <cl:image src="http://cloudinary.com/images/logo.png" type="fetch" secure="true" signed="true" />
 </div>
 
 <div class="content">

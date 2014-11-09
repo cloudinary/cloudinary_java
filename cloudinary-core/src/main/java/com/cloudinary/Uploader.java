@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -27,6 +28,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
@@ -277,8 +279,14 @@ public class Uploader {
 		}
 
 		String apiUrl = cloudinary.cloudinaryApiUrl(action, options);
-
+                
 		HttpClient client = new DefaultHttpClient(connectionManager);
+                
+                // If the configuration specifies a proxy then apply it to the client
+                if (cloudinary.getStringConfig("proxy_host") != null && cloudinary.getIntegerConfig("proxy_port", null) != null) {
+                    HttpHost proxy = new HttpHost(cloudinary.getStringConfig("proxy_host"), cloudinary.getIntegerConfig("proxy_port", 8080));
+                    client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+                }
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);

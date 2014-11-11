@@ -66,7 +66,6 @@ public class UploaderTest extends InstrumentationTestCase {
 		to_sign.put("public_id", result.getString("public_id"));
 		to_sign.put("version", ObjectUtils.asString(result.get("version")));
 		Log.d("TestRunner",cloudinary.config.apiSecret);
-		
 		String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
 		assertEquals(result.get("signature"), expected_signature);
 	}
@@ -295,10 +294,8 @@ public class UploaderTest extends InstrumentationTestCase {
 		try {
 			cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("auto_tagging", 0.5f));
 		} catch (Exception e) {
-			Log.i("DANIEL",e.getMessage());
 			for (int i = 0; i < e.getStackTrace().length; i++) {
 				StackTraceElement x = e.getStackTrace()[i];
-				Log.i("DANIEL",x.getClassName()+"."+x.getMethodName()+" "+x.getLineNumber());
 			}
 			
 			

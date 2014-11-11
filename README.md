@@ -13,23 +13,23 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 For Java, Cloudinary provides a library for simplifying the integration even further.
 
-**Note:** This Java library is intended mainly for Web applications. For **Android** integration, there is a dedicated library with a similar interface: https://github.com/cloudinary/cloudinary_android
+**Note:** This readme intended mainly for Web applications. For **Android** specific instructions, see: https://github.com/cloudinary/cloudinary_java/cloudinary-android
 
 ## Getting started guide
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](http://cloudinary.com/documentation/java_integration#getting_started_guide)**.
 
 ## Setup ######################################################################
 
-The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml:
+The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml :
 
     <dependency>
         <groupId>com.cloudinary</groupId>
-        <artifactId>cloudinary</artifactId>
+        <artifactId>cloudinary-http42</artifactId>
         <version>1.0.14</version>
     </dependency>
 
-Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/tarball/master)
-and see [pom.xml](https://github.com/cloudinary/cloudinary_java/blob/master/pom.xml) for library dependencies.
+Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/cloudinary-http42/tarball/master)
+and see [pom.xml](https://github.com/cloudinary/cloudinary_java/cloudinary-http42/blob/master/pom.xml) for library dependencies.
 
 ## Try it right away
 
@@ -156,8 +156,8 @@ Returns an html input field for direct image upload, to be used in conjunction w
 
 Usage:
 
-    Map options = Cloudinary.asMap("resource_type", "auto");
-    Map htmlOptions = Cloudinary.asMap("alt", "sample");
+    Map options = ObjectUtils.asMap("resource_type", "auto");
+    Map htmlOptions = ObjectUtils.asMap("alt", "sample");
     String html = cloudinary.uploader().imageUploadTag("image_id", options, htmlOptions);
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload#direct_uploading_from_the_browser) for plenty more options of uploading directly from the browser**.
@@ -182,3 +182,4 @@ Or via Twitter: [@cloudinary](https://twitter.com/#!/cloudinary)
 ## License #######################################################################
 
 Released under the MIT license. 
+

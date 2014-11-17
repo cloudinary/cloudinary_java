@@ -229,5 +229,9 @@ public class Cloudinary {
 		}
 		return params;
 	}
-
+	
+	@Deprecated
+	public static Map asMap(Object... values) {
+		return ObjectUtils.asMap(values);
+	}
 }

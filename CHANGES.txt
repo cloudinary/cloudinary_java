@@ -1,2 +1,5 @@
 1.0.11 - 2014-03-04 - new update method. add listing by moderation kind and status. add moderation status in listing. add moderation flag in upload. add moderation_status in update. add ocr, raw_conversion, categorization, detection, similarity_search and auto_tagging parameters in update and upload. add support for uploading large raw files
 1.0.12 - 2014-03-04 - Fix handling of Booleans in uploader API
+1.0.13 - 2014-04-29 - Allow passing ClientConnectionManager. Add support for opacity. Support upload_presets. Support unsigned uploads. Support start_at for resource listing. Support phash for upload and resource details. Support rate limit header in Api calls. 
+1.0.14 - 2014-07-29 - Add background_removal. Support return_delete_token in upload/update params. Support responsive and hidpi. Support custom coordinates.
+1.1.0 - 2014-11-17 - Support folder listing API. Consolidate Android and Java client libraries. 

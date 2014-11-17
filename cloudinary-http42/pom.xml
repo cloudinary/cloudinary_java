@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.cloudinary</groupId>
-            <artifactId>cloudinary</artifactId>
+            <artifactId>cloudinary-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

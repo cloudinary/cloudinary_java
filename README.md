@@ -13,6 +13,8 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 For Java, Cloudinary provides a library for simplifying the integration even further.
 
+**Note:** Starting from version 1.1.0, you should depend on cloudinary-http42 for Java and cloudinary-android for Android. The artifact cloudinary is deprecated.
+
 **Note:** This readme intended mainly for Web applications. For **Android** specific instructions, see: https://github.com/cloudinary/cloudinary_java/cloudinary-android
 
 ## Getting started guide
@@ -25,7 +27,7 @@ The cloudinary_java library is available in [Maven Central](http://repo1.maven.o
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary-http42</artifactId>
-        <version>1.0.14</version>
+        <version>1.1.0</version>
     </dependency>
 
 Alternatively, download cloudinary_java from [here](https://github.com/cloudinary/cloudinary_java/cloudinary-http42/tarball/master)

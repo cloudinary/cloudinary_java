@@ -6,6 +6,7 @@ import cloudinary.models.PhotoUpload;
 import cloudinary.repositories.PhotoRepository;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Singleton;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class PhotoController {
         Map uploadResult = null;
         if (photoUpload.getFile() != null && !photoUpload.getFile().isEmpty()) {
             uploadResult = Singleton.getCloudinary().uploader().upload(photoUpload.getFile().getBytes(),
-                    Cloudinary.asMap("resource_type", "auto"));
+                    ObjectUtils.asMap("resource_type", "auto"));
             photoUpload.setPublicId((String) uploadResult.get("public_id"));
             photoUpload.setVersion((Long) uploadResult.get("version"));
             photoUpload.setSignature((String) uploadResult.get("signature"));
@@ -79,10 +80,10 @@ public class PhotoController {
         model.addAttribute("photoUpload", new PhotoUpload());
         model.addAttribute("unsigned", true);
         Cloudinary cld = Singleton.getCloudinary();
-        String preset = "sample_" + cld.apiSignRequest(Cloudinary.asMap("api_key", cld.getStringConfig("api_key")), cld.getStringConfig("api_secret")).substring(0, 10);
+        String preset = "sample_" + cld.apiSignRequest(ObjectUtils.asMap("api_key", cld.config.apiKey), cld.config.apiSecret).substring(0, 10);
         model.addAttribute("preset", preset);
         try {
-        	Singleton.getCloudinary().api().createUploadPreset(Cloudinary.asMap(
+        	Singleton.getCloudinary().api().createUploadPreset(ObjectUtils.asMap(
         			"name", preset, 
         			"unsigned", true,
         			"folder", "preset_folder"));

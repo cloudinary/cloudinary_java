@@ -1,14 +1,20 @@
 package com.cloudinary.taglib;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import com.cloudinary.*;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Singleton;
+import com.cloudinary.Transformation;
+import com.cloudinary.Uploader;
 
 public class CloudinaryUploadTag extends SimpleTagSupport {
 
@@ -60,7 +66,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         if (cloudinary == null) {
             throw new JspException("Cloudinary config could not be located");
         }
-        Uploader uploader = cloudinary.uploader();
+        Uploader uploader = (Uploader)cloudinary.uploader();
         
         Map<String, Object> htmlOptions = new HashMap<String, Object>();
         htmlOptions.put("type", "file");
@@ -421,7 +427,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 
     private void buildCallbackUrl(Map options) {
         String callback = (String) options.get("callback");
-        if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().getStringConfig("callback");
+        if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().config.callback;
         if (callback == null || callback.isEmpty()) callback = "/cloudinary_cors.html";
         if (!callback.matches("^https?://")) {
             PageContext context = (PageContext) getJspContext();

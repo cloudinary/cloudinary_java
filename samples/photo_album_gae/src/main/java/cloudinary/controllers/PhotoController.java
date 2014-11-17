@@ -3,6 +3,7 @@ package cloudinary.controllers;
 import cloudinary.lib.PhotoUploadValidator;
 import cloudinary.models.PhotoUpload;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Singleton;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -27,7 +28,8 @@ import org.esxx.js.protocol.GAEConnectionManager;
 @Controller
 @RequestMapping("/")
 public class PhotoController {
-	private final static GAEConnectionManager connectoinManager = new GAEConnectionManager();
+
+	private final static GAEConnectionManager connectionManager = new GAEConnectionManager();
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String listPhotos(ModelMap model) {
     	DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -47,9 +49,10 @@ public class PhotoController {
         validator.validate(photoUpload, result);
 
         Map uploadResult = null;
-        if (photoUpload.getFile() != null && !photoUpload.getFile().isEmpty()) {
-            uploadResult = Singleton.getCloudinary().uploader().withConnectionManager(connectoinManager).upload(photoUpload.getFile().getBytes(),
-                    Cloudinary.asMap("resource_type", "auto"));
+        if (photoUpload.getFile() != null && !photoUpload.getFile().isEmpty()) {            
+            Singleton.getCloudinary().config.properties.put("connectionManager", connectionManager);
+            uploadResult = Singleton.getCloudinary().uploader().upload(photoUpload.getFile().getBytes(),
+                    ObjectUtils.asMap("resource_type", "auto"));
             
             photoUpload.setPublicId((String) uploadResult.get("public_id"));
             photoUpload.setVersion((Long) uploadResult.get("version"));

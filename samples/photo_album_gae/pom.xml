@@ -38,7 +38,7 @@
         <dependency>
             <groupId>com.cloudinary</groupId>
             <artifactId>cloudinary-taglib</artifactId>
-            <version>1.0.13</version>
+            <version>1.1.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -121,7 +121,7 @@
             <version>1.9.0</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.appengine</groupId>
             <artifactId>appengine-testing</artifactId>
@@ -140,7 +140,7 @@
             <artifactId>hibernate-validator-annotation-processor</artifactId>
             <version>4.1.0.Final</version>
         </dependency>
-        
+
         <dependency>
             <groupId>gmultipart</groupId>
             <artifactId>gmultipart</artifactId>

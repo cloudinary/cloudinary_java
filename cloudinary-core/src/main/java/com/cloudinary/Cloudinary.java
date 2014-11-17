@@ -23,17 +23,17 @@ import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Cloudinary {
-	
+
 	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList("com.cloudinary.android.UploaderStrategy","com.cloudinary.http42.UploaderStrategy","com.cloudinary.http43.UploaderStrategy"));
 	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.ApiStrategy", "com.cloudinary.http42.ApiStrategy", "com.cloudinary.http43.ApiStrategy" ));
 	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.UrlBuilderStrategy", "com.cloudinary.http42.UrlBuilderStrategy", "com.cloudinary.http43.UrlBuilderStrategy" ));
-	
+
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-	public final static String VERSION = "1.0.15";
+	public final static String VERSION = "1.1.0";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
 
 	public final Configuration config;
@@ -43,7 +43,7 @@ public class Cloudinary {
 
 	public Uploader uploader(){
 		return new Uploader(this,uploaderStrategy);
-		
+
 	};
 
 	public Api api(){
@@ -54,33 +54,33 @@ public class Cloudinary {
 		if (!UPLOAD_STRATEGIES.contains(className)){
 			UPLOAD_STRATEGIES.add(className);
 		}
-		
+
 	}
-	
+
 	public static void registerAPIStrategy(String className){
 		if (!API_STRATEGIES.contains(className)){
 			API_STRATEGIES.add(className);
 		}
 	}
-	
+
 	public static void registerUrlBuilderStrategy(String className){
 		if (!URLBUILDER_STRATEGIES.contains(className)){
 			URLBUILDER_STRATEGIES.add(className);
 		}
 	}
-	
+
 	private void loadStrategies() {
 		uploaderStrategy= StrategyLoader.find(UPLOAD_STRATEGIES);
-		
+
 		if (uploaderStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(UPLOAD_STRATEGIES, ",") + "]");
 		}
-		
+
 		apiStrategy= StrategyLoader.find(API_STRATEGIES);
 		if (apiStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(API_STRATEGIES, ",") + "]");
 		}
-		
+
 		urlBuilderStrategy= StrategyLoader.find(URLBUILDER_STRATEGIES);
 		if (urlBuilderStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(URLBUILDER_STRATEGIES, ",") + "]");
@@ -179,7 +179,7 @@ public class Cloudinary {
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		signRequest(params, options);
 		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download", options));
-		
+
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			builder.addParam(param.getKey(), param.getValue().toString());
 		}
@@ -229,7 +229,7 @@ public class Cloudinary {
 		}
 		return params;
 	}
-	
+
 	@Deprecated
 	public static Map asMap(Object... values) {
 		return ObjectUtils.asMap(values);

@@ -18,8 +18,8 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Util;
@@ -100,11 +100,14 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 
 		Map result;
+		
 		try {
-			result = (Map) JSONValue.parseWithException(responseData);
-		} catch (ParseException e) {
+			JSONObject responseJSON = new JSONObject(responseData);
+			result= ObjectUtils.toMap(responseJSON);
+		} catch (JSONException e) {
 			throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
 		}
+		
 		if (result.containsKey("error")) {
 			Map error = (Map) result.get("error");
 			if (returnError) {

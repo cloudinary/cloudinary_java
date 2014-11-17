@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.cloudinary</groupId>
-            <artifactId>cloudinary</artifactId>
+            <artifactId>cloudinary-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -36,11 +36,6 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.2.1</version>
-        </dependency>
-        <dependency>
-          <groupId>com.googlecode.json-simple</groupId>
-          <artifactId>json-simple</artifactId>
-          <version>1.1.1</version>
         </dependency>
 
     </dependencies>

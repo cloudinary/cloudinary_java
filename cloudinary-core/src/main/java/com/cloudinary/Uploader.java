@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONObject;
+import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;

@@ -16,6 +16,12 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.cloudinary</groupId>
+      <artifactId>cloudinary-android</artifactId>
+      <type>jar</type>
+      <version>1.1.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <version>4.1.1.4</version>
@@ -27,18 +33,7 @@
       <version>2.3.1</version>
       <scope>provided</scope>
     </dependency>
-    <dependency>
-      <groupId>com.cloudinary</groupId>
-      <artifactId>cloudinary</artifactId>
-      <type>jar</type>
-      <version>1.1.0-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>com.cloudinary</groupId>
-      <artifactId>cloudinary-android</artifactId>
-      <type>jar</type>
-      <version>1.1.0-SNAPSHOT</version>
-    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

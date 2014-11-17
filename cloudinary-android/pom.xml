@@ -19,6 +19,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>com.cloudinary</groupId>
+      <artifactId>cloudinary-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <version>4.1.1.4</version>
@@ -29,11 +34,6 @@
       <artifactId>android-test</artifactId>
       <version>2.3.1</version>
       <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.cloudinary</groupId>
-      <artifactId>cloudinary</artifactId>
-      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

@@ -1,4 +1,4 @@
-package org.json;
+package org.cloudinary.json;
 
 /*
  Copyright (c) 2002 JSON.org

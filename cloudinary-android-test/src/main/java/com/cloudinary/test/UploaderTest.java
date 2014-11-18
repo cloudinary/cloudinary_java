@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.cloudinary.json.JSONArray;
+import org.cloudinary.json.JSONObject;
 
 import android.test.InstrumentationTestCase;
 import android.util.Log;
@@ -23,6 +23,7 @@ import com.cloudinary.utils.Rectangle;
 
 public class UploaderTest extends InstrumentationTestCase {
 
+	
 	private Cloudinary cloudinary;
 	private static boolean first = true;
 

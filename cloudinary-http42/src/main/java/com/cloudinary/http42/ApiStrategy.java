@@ -15,8 +15,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.Api;
 import com.cloudinary.Api.HttpMethod;
@@ -94,12 +94,14 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 			throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
 		}
 		Map result;
+		
 		try {
-			result = (Map) JSONValue.parseWithException(responseData);
-		} catch (ParseException e) {
+			JSONObject responseJSON = new JSONObject(responseData);
+			result= ObjectUtils.toMap(responseJSON);
+		} catch (JSONException e) {
 			throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
 		}
-
+		
 		if (code == 200) {
 			return new Response(response, result);
 		} else {

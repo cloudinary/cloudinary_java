@@ -8,8 +8,8 @@ import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;

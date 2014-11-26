@@ -109,4 +109,111 @@ The following example generates the url for accessing an uploaded `sample` image
 
     cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg")
 
-...
+Another example, emedding a smaller version of an uploaded image while generating a 90x90 face detection based thumbnail: 
+
+    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg")
+
+You can provide either a Facebook name or a numeric ID of a Facebook profile or a fan page.  
+             
+Embedding a Facebook profile to match your graphic design is very simple:
+
+    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg")
+                           
+Same goes for Twitter:
+
+    cloudinary.url().type("twitter_name").generate("billclinton.jpg")
+
+### Upload
+
+Assuming you have your Cloudinary configuration parameters defined (`cloud_name`, `api_key`, `api_secret`), uploading to Cloudinary is very simple.
+    
+The following example uploads a local JPG available as an InputStream to the cloud: 
+    
+    cloudinary.uploader().upload(inputStream, Cloudinary.emptyMap())
+        
+The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
+
+    cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg")
+        
+    http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
+
+You can also specify your own public ID:    
+    
+    cloudinary.uploader().upload("http://www.example.com/image.jpg", Cloudinary.asMap("public_id", "sample_remote"))
+
+    cloudinary.url().generate("sample_remote.jpg")
+
+    http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
+
+### Safe mobile uploading
+
+Android applications might prefer to avoid keeping the sensitive `api_secret` on the mobile device. It is recommended to generate the upload authentication signature on the server side.
+This way the `api_secret` is stored only on the much safer server-side.
+
+Cloudinary's Android SDK allows providing server-generated signature and any additional parameters that were generated on the server side (instead of signing using `api_secret` locally).
+
+The following example intializes Cloudinary without any authentication parameters:
+
+    Map config = new HashMap();
+    config.put("cloud_name", "n07t21i7");
+    Cloudinary mobileCloudinary = new Cloudinary(config);
+
+Alternatively replace your CLOUDINARY_URL meta-data property as follows:
+
+    <meta-data android:name="CLOUDINARY_URL" android:value="cloudinary://n07t21i7"/>
+
+Your server can use any Cloudinary libraries (Ruby on Rails, PHP, Python & Django, Java, Perl, .Net, etc.) for generating the signature. The following JSON in an example of a response of an upload authorization request to your server:
+
+	{
+	  "signature": "sgjfdoigfjdgfdogidf9g87df98gfdb8f7d6gfdg7gfd8",
+	  "public_id": "abdbasdasda76asd7sa789",
+	  "timestamp": 1346925631,
+	  "api_key": "123456789012345"
+	}
+
+The following code uploads an image to Cloudinary with the parameters generated safely on the server side (e.g., from a JSON as in the example above):
+
+    cloudinary.uploader().upload(inputStream, Cloudinary.asMap("public_id", publicId, "signature", signature, "timestamp", timestamp, "api_key", api_key))
+
+You might want to reference uploaded Cloudinary images and raw files using an identifier string of the following format:
+
+    resource_type:type:identifier.format
+
+The following example generates a Cloudinary URL based on an idenfier of the format mentioned above:
+
+    String imageIdentifier = "image:upload:dfhjghjkdisudgfds7iyf.jpg";
+    String[] components = imageIdentifier.split(":");
+
+    String url = cloudinary.url().resourceType(components[0]).type(components[1]).generate(components[2]);
+
+	// http://res.cloudinary.com/n07t21i7/image/upload/dfhjghjkdisudgfds7iyf.jpg
+
+Same can work for raw file uploads:
+
+    String rawIdentifier = "raw:upload:cguysfdsfuydsfyuds31.doc";
+    String[] components = rawIdentifier.split(":");
+
+    String url = cloudinary.url().resourceType(components[0]).type(components[1]).generate(components[2]);
+
+	// http://res.cloudinary.com/n07t21i7/raw/upload/cguysfdsfuydsfyuds31.doc
+        
+## Additional resources ##########################################################
+
+Additional resources are available at:
+
+* [Website](http://cloudinary.com)
+* [Documentation](http://cloudinary.com/documentation)
+* [Image transformations documentation](http://cloudinary.com/documentation/image_transformations)
+* [Upload API documentation](http://cloudinary.com/documentation/upload_images)
+
+## Support
+
+You can [open an issue through GitHub](https://github.com/cloudinary/cloudinary_android/issues).
+
+Contact us at [support@cloudinary.com](mailto:support@cloudinary.com)
+
+Or via Twitter: [@cloudinary](https://twitter.com/#!/cloudinary)
+
+## License #######################################################################
+
+Released under the MIT license. 

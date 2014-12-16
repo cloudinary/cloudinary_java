@@ -24,7 +24,7 @@ public class CloudinaryJsIncludeTag  extends SimpleTagSupport {
         }
         if (full) {
             String[] fullFiles = {"canvas-to-blob.min.js", "load-image.min.js", "jquery.fileupload-process.js", "uery.fileupload-image.js", "jquery.fileupload-validate.js"};
-            for (String file : basicFiles) {
+            for (String file : fullFiles) {
                 out.println("<script type='text/javascript' src='" + base + file + "'></script>");
             }
         }

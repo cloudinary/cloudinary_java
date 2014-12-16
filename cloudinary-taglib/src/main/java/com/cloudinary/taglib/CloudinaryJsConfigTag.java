@@ -1,15 +1,16 @@
 package com.cloudinary.taglib;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Singleton;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import java.io.IOException;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Singleton;
 
 public class CloudinaryJsConfigTag  extends SimpleTagSupport {
+	@SuppressWarnings("unused")
     public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
         if (cloudinary == null) {
@@ -18,7 +19,7 @@ public class CloudinaryJsConfigTag  extends SimpleTagSupport {
         JspWriter out = getJspContext().getOut();
         out.println("<script language='javascript' type='text/javascript'>$.cloudinary.config({");
         String[] keys = {"api_key", "cloud_name", "cdn_subdomain"};
-        String[] boolKeys = {"private_cdn", "secure_distribution"};
+		String[] boolKeys = {"private_cdn", "secure_distribution"};
         
         print(out,"api_key",cloudinary.config.apiKey);
         print(out,"cloud_name",cloudinary.config.cloudName);

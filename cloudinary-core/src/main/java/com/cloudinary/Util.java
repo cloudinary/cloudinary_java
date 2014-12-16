@@ -42,6 +42,9 @@ public class Util {
 		params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
 		params.put("moderation", options.get("moderation"));
 		params.put("upload_preset", options.get("upload_preset"));
+		if (options.get("tags") != null) {
+			params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
+		}
 
 		processWriteParameters(options, params);
 		return params;
@@ -125,5 +128,4 @@ public class Util {
 		}
 	}
 
-	
 }

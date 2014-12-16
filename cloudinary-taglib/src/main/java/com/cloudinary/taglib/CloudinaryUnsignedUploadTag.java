@@ -10,6 +10,7 @@ public class CloudinaryUnsignedUploadTag extends CloudinaryUploadTag {
 		this.unsigned = true;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected String uploadTag(Uploader uploader, Map options, Map htmlOptions) {
 		return uploader.unsignedImageUploadTag(fieldName, uploadPreset, options, htmlOptions);
 	}

@@ -961,6 +961,7 @@ public class JSONArray {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> ArrayList<T> toList(Class<T> type) {
 		ArrayList<T> listdata = new ArrayList<T>();
 		for (int i = 0; i < this.length(); i++) {

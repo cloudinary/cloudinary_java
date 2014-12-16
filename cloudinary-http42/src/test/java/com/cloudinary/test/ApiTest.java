@@ -20,7 +20,9 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
@@ -85,11 +87,16 @@ public class ApiTest {
 		cloudinary.uploader().upload("src/test/resources/logo.png", options);
 	}
 
+    @Rule public TestName currentTest = new TestName();
+
 	@Before
 	public void setUp() {
+		System.out.println("Running " +this.getClass().getName()+"."+ currentTest.getMethodName());
 		this.cloudinary = new Cloudinary();
 		assumeNotNull(cloudinary.config.apiSecret);
 		this.api = cloudinary.api();
+        
+
 	}
 
 	public Map findByAttr(List<Map> elements, String attr, Object value) {

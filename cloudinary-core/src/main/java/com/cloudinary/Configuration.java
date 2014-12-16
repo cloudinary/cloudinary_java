@@ -3,8 +3,8 @@ package com.cloudinary;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -34,10 +34,11 @@ public class Configuration {
 	public String proxyHost;
 	public int proxyPort;
     public Map<String, Object> properties = new HashMap<String, Object>();
+	public Boolean secureCdnSubdomain;
     public Configuration(){
     }
     
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback,String proxyHost,int proxyPort) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback,String proxyHost,int proxyPort,Boolean secureCdnSubdomain) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -51,6 +52,7 @@ public class Configuration {
         this.callback = callback;
         this.proxyHost = proxyHost;
         this.proxyPort = proxyPort;
+        this.secureCdnSubdomain = secureCdnSubdomain;
     }
 
     
@@ -74,6 +76,7 @@ public class Configuration {
 		this.callback = (String) config.get("callback");
 		this.proxyHost = (String) config.get("proxy_host");
 		this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"),0);
+		this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
 	}
 
 	
@@ -90,6 +93,9 @@ public class Configuration {
 		this.cdnSubdomain = other.cdnSubdomain;
 		this.shorten = other.shorten;
 		this.callback = other.callback;
+		this.proxyHost = other.proxyHost;
+		this.proxyPort = other.proxyPort;
+		this.secureCdnSubdomain = other.secureCdnSubdomain;
 	}
 
 
@@ -176,11 +182,13 @@ public class Configuration {
         private String callback;
         private String proxyHost;
         private int proxyPort;
+        private Boolean secureCdnSubdomain;
+		
 
         /**
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
-        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort); }
+        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain); }
 
         /**
          * The unique name of your cloud at Cloudinary
@@ -243,6 +251,12 @@ public class Configuration {
             return this;
         }
 
+        public Builder setSecureCdnSubdomain(Boolean secureCdnSubdomain) {
+            this.secureCdnSubdomain = secureCdnSubdomain;
+            return this;
+        }
+
+        
         /**
          * Whether to automatically build URLs with multiple CDN sub-domains.
          */
@@ -265,7 +279,7 @@ public class Configuration {
             this.uploadPrefix = uploadPrefix;
             return this;
         }
-
+      
         /**
          * Initialize builder from existing {@link Configuration}
          * @param other
@@ -283,7 +297,9 @@ public class Configuration {
             this.cdnSubdomain = other.cdnSubdomain;
             this.shorten    = other.shorten;
             this.callback = other.callback;
-
+            this.proxyHost = other.proxyHost;
+            this.proxyPort = other.proxyPort;
+            this.secureCdnSubdomain = other.secureCdnSubdomain;
             return this;
         }
 

@@ -421,11 +421,13 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
 		this.uploadPreset = uploadPreset;
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected String uploadTag(Uploader uploader, Map options, Map htmlOptions) {
 		return uploader.imageUploadTag(fieldName, options, htmlOptions);
 	}
 
-    private void buildCallbackUrl(Map options) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private void buildCallbackUrl(Map options) {
         String callback = (String) options.get("callback");
         if (callback == null || callback.isEmpty()) callback = Singleton.getCloudinary().config.callback;
         if (callback == null || callback.isEmpty()) callback = "/cloudinary_cors.html";

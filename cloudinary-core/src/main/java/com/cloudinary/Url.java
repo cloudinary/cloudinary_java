@@ -17,17 +17,18 @@ import com.cloudinary.utils.StringUtils;
 
 public class Url {
 	private final Configuration config;
-	boolean shorten;
 	String publicId = null;
-	String type = "upload";
+	String type = null;
 	String resourceType = "image";
 	String format = null;
 	String version = null;
 	Transformation transformation = null;
 	boolean signUrl;
 	String source = null;
+	private String urlSuffix;
+	private boolean useRootPath;
+	private String sourceToSign;
 	private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-
 
 	public Url(Cloudinary cloudinary) {
 		this.config = new Configuration(cloudinary.config);
@@ -110,6 +111,21 @@ public class Url {
 		return this;
 	}
 
+	public Url secureCdnSubdomain(boolean secureCdnSubdomain) {
+		this.config.secureCdnSubdomain = secureCdnSubdomain;
+		return this;
+	}
+
+	public Url urlSuffix(String urlSuffix) {
+		this.urlSuffix = urlSuffix;
+		return this;
+	}
+
+	public Url useRootPath(boolean useRootPath) {
+		this.useRootPath = useRootPath;
+		return this;
+	}
+
 	public Url cname(String cname) {
 		this.config.cname = cname;
 		return this;
@@ -161,14 +177,21 @@ public class Url {
 	}
 
 	public String generate(String source) {
-		if (type.equals("fetch") && !StringUtils.isEmpty(format)) {
-			transformation().fetchFormat(format);
-			this.format = null;
-		}
-		String transformationStr = transformation().generate();
+
 		if (StringUtils.isEmpty(this.config.cloudName)) {
 			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
 		}
+
+		if (!this.config.privateCdn) {
+			if (StringUtils.isNotBlank(urlSuffix)) {
+				throw new RuntimeException("URL Suffix only supported in private CDN");
+			}
+			if (useRootPath) {
+				throw new RuntimeException("Root path only supported in private CDN");
+			}
+		}
+
+		
 
 		if (source == null) {
 			if (publicId == null) {
@@ -176,45 +199,28 @@ public class Url {
 			}
 			source = publicId;
 		}
-		String original_source = source;
-
+		
+		
+		
 		if (source.toLowerCase(Locale.US).matches("^https?:/.*")) {
-			if ("upload".equals(type) || "asset".equals(type)) {
-				return original_source;
+			if (StringUtils.isEmpty(type) || "asset".equals(type) ) {
+				return source;
 			}
-			source = SmartUrlEncoder.encode(source);
-		} else {
-			try {
-				source = SmartUrlEncoder.encode(URLDecoder.decode(source.replace("+", "%2B"), "UTF-8"));
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException(e);
-			}
-			if (format != null)
-				source = source + "." + format;
 		}
-		String prefix;
-		boolean sharedDomain = !config.privateCdn;
-		if (config.secure) {
-			if (StringUtils.isEmpty(config.secureDistribution) || Cloudinary.OLD_AKAMAI_SHARED_CDN.equals(config.secureDistribution)) {
-				config.secureDistribution = config.privateCdn ? config.cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
-			}
-			sharedDomain = sharedDomain || Cloudinary.SHARED_CDN.equals(config.secureDistribution);
-			prefix = "https://" + config.secureDistribution;
-		} else {
-			CRC32 crc32 = new CRC32();
-			crc32.update(source.getBytes());
-			String subdomain = config.cdnSubdomain ? "a" + ((crc32.getValue() % 5 + 5) % 5 + 1) + "." : "";
-			String host = config.cname != null ? config.cname : (config.privateCdn ? config.cloudName + "-" : "") + "res.cloudinary.com";
-			prefix = "http://" + subdomain + host;
+		
+		if (type!=null && type.equals("fetch") && !StringUtils.isEmpty(format)) {
+			transformation().fetchFormat(format);
+			this.format = null;
 		}
-		if (sharedDomain)
-			prefix = prefix + "/" + config.cloudName;
-
-		if (config.shorten && resourceType.equals("image") && type.equals("upload")) {
-			resourceType = "iu";
-			type = "";
-		}
-
+		String transformationStr = transformation().generate();
+		String signature = "";
+		
+		
+		String[] finalizedSource = finalizeSource(source,format,urlSuffix);
+		source = finalizedSource[0];
+		sourceToSign = finalizedSource[1];
+		
+		
 		if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isEmpty(version)) {
 			version = "1";
 		}
@@ -224,9 +230,6 @@ public class Url {
 		else
 			version = "v" + version;
 
-		String rest = StringUtils.join(new String[] { transformationStr, version, source }, "/");
-		rest = rest.replaceAll("^/+", "").replaceAll("([^:])\\/+", "$1/");
-
 		if (signUrl) {
 			MessageDigest md = null;
 			try {
@@ -234,12 +237,133 @@ public class Url {
 			} catch (NoSuchAlgorithmException e) {
 				throw new RuntimeException("Unexpected exception", e);
 			}
-			byte[] digest = md.digest((rest + this.config.apiSecret).getBytes());
-			String signature = Base64Coder.encodeURLSafeString(digest);
-			rest = "s--" + signature.substring(0, 8) + "--/" + rest;
-		}
+			
+			String toSign = StringUtils.join(new String[] { transformationStr, sourceToSign }, "/");
+			toSign = toSign.replaceAll("^/+", "").replaceAll("([^:])\\/+", "$1/");
 
-		return StringUtils.join(new String[] { prefix, resourceType, type, rest }, "/").replaceAll("([^:])\\/+", "$1/");
+		    
+
+			byte[] digest = md.digest((toSign + this.config.apiSecret).getBytes());
+			signature = Base64Coder.encodeURLSafeString(digest);
+			signature = "s--" + signature.substring(0, 8) + "--/" ;
+		}
+		
+		String finalResourceType = finalizeResourceType(resourceType,type,urlSuffix,useRootPath,config.shorten);
+		String prefix = unsignedDownloadUrlPrefix(source,config.cloudName,config.privateCdn,config.cdnSubdomain,config.secureCdnSubdomain,config.cname,config.secure,config.secureDistribution);
+		
+		return StringUtils.join(new String[] { prefix, finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+	}
+
+	private String[] finalizeSource(String source, String format, String urlSuffix) {
+		String[] result = new String[2];
+		source = source.replaceAll("([^:])//", "\1/");
+
+		if (source.toLowerCase().matches("^https?:/")) {
+			source = SmartUrlEncoder.encode(source);
+			sourceToSign = source;
+		} else {
+			try {
+				source = SmartUrlEncoder.encode(URLDecoder.decode(source.replace("+", "%2B"), "UTF-8"));
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException(e);
+			}
+			sourceToSign = source;
+			if (StringUtils.isNotBlank(urlSuffix)) {
+				if (urlSuffix.matches("([\\./]))")) {
+					throw new RuntimeException("url_suffix should not include . or /");
+				}
+				source = source + "/" + urlSuffix;
+			}
+			if (StringUtils.isNotBlank(format)) {
+				source = source + "." + format;
+				sourceToSign = sourceToSign + "." + format;
+			}
+		}
+		result[0] = source;
+		result[1] = sourceToSign;
+		return result;
+	}
+
+	public String finalizeResourceType(String resourceType, String type, String urlSuffix, boolean useRootPath, boolean shorten) {
+		if (type == null) {
+			type = "upload";
+		}
+		if (!StringUtils.isBlank(urlSuffix)) {
+			if (resourceType.equals("image") && type.equals("upload")) {
+				resourceType = "images";
+				type = null;
+			} else if (resourceType.equals("raw") && type.equals("upload")) {
+				resourceType = "files";
+				type = null;
+			} else {
+				throw new RuntimeException("URL Suffix only supported for image/upload and raw/upload");
+			}
+		}
+		if (useRootPath) {
+			if ((resourceType.equals("image") && type.equals("upload")) || (resourceType.equals("images") && StringUtils.isBlank(type))) {
+				resourceType = null;
+				type = null;
+			} else {
+				throw new RuntimeException("Root path only supported for image/upload");
+			}
+		}
+		if (shorten && resourceType.equals("image") && type.equals("upload")) {
+			resourceType = "iu";
+			type = null;
+		}
+		String result = resourceType;
+		if (type!=null){
+			result+="/"+type;
+		}
+		return result;
+	}
+
+	public String unsignedDownloadUrlPrefix(String source, String cloudName, boolean privateCdn, boolean cdnSubdomain, Boolean secureCdnSubdomain, String cname, boolean secure, String secureDistribution) {
+		if (this.config.cloudName.startsWith("/")) {
+			return "/res" + this.config.cloudName;
+		}
+		boolean sharedDomain = !this.config.privateCdn;
+
+		String prefix;
+
+		if (this.config.secure) {
+			if (StringUtils.isEmpty(this.config.secureDistribution) || this.config.secureDistribution.equals(Cloudinary.OLD_AKAMAI_SHARED_CDN)) {
+				secureDistribution = this.config.privateCdn ? this.config.cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
+			}
+			if (!sharedDomain) {
+				sharedDomain = (secureDistribution == Cloudinary.SHARED_CDN);
+			}
+
+			if (secureCdnSubdomain == null && sharedDomain) {
+				secureCdnSubdomain = this.config.cdnSubdomain;
+			}
+
+			if (secureCdnSubdomain!=null && secureCdnSubdomain==true) {
+				secureDistribution = this.config.secureDistribution.replace("res.cloudinary.com", "res-" + shard(source) + ".cloudinary.com");
+			}
+
+			prefix = "https://" + secureDistribution;
+		} else if (StringUtils.isNotBlank(this.config.cname)) {
+			String subdomain = this.config.cdnSubdomain ? "a" + shard(source) + "." : "";
+			prefix = "http://" + subdomain + this.config.cname;
+		} else {
+			String protocol = "http://";
+			cloudName = this.config.privateCdn ? this.config.cloudName + "-" : "";
+			String res = "res";
+			String subdomain = this.config.cdnSubdomain ? "-" + shard(source) : "";
+			String domain = ".cloudinary.com";
+			prefix = StringUtils.join(new String[] { protocol, cloudName, res, subdomain, domain }, "");
+		}
+		if (sharedDomain) {
+			prefix += "/" + this.config.cloudName;
+		}
+		return prefix;
+	}
+
+	private String shard(String input) {
+		CRC32 crc32 = new CRC32();
+		crc32.update(input.getBytes());
+		return String.valueOf((crc32.getValue() % 5 + 5) % 5 + 1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -285,23 +409,6 @@ public class Url {
 		builder.append("/>");
 		return builder.toString();
 	}
-
-//	public String imageTag(String source, Map<String, String> attributes) {
-//		String url = generate(source);
-//		attributes = new TreeMap<String, String>(attributes); // Make sure they
-//																// are ordered.
-//		if (transformation().getHtmlHeight() != null)
-//			attributes.put("height", transformation().getHtmlHeight());
-//		if (transformation().getHtmlWidth() != null)
-//			attributes.put("width", transformation().getHtmlWidth());
-//		StringBuilder builder = new StringBuilder();
-//		builder.append("<img src='").append(url).append("'");
-//		for (Map.Entry<String, String> attr : attributes.entrySet()) {
-//			builder.append(" ").append(attr.getKey()).append("='").append(attr.getValue()).append("'");
-//		}
-//		builder.append("/>");
-//		return builder.toString();
-//	}
 
 	public String generateSpriteCss(String source) {
 		this.type = "sprite";

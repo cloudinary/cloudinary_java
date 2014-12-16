@@ -11,7 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
@@ -21,8 +23,11 @@ public class CloudinaryTest {
 
 	private Cloudinary cloudinary;
 
+    @Rule public TestName currentTest = new TestName();
+
 	@Before
 	public void setUp() {
+		System.out.println("Running " +this.getClass().getName()+"."+ currentTest.getMethodName());
 		this.cloudinary = new Cloudinary("cloudinary://a:b@test123");
 	}
 	
@@ -168,7 +173,6 @@ public class CloudinaryTest {
 		assertEquals("http://res.cloudinary.com/test123/image/facebook/test", result);
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testResourceType() {
 		// should use resource_type from options
@@ -440,12 +444,12 @@ public class CloudinaryTest {
 	@Test
 	public void testSignedUrl() {
 		// should correctly sign a url
-		String expected = "http://res.cloudinary.com/test123/image/upload/s--MaRXzoEC--/c_crop,h_20,w_10/v1234/image.jpg";
+		String expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/v1234/image.jpg";
 		String actual = cloudinary.url().version(1234).transformation(new Transformation().crop("crop").width(10).height(20)).signed(true)
 				.generate("image.jpg");
 		assertEquals(expected, actual);
 
-		expected = "http://res.cloudinary.com/test123/image/upload/s--ZlgFLQcO--/v1234/image.jpg";
+		expected = "http://res.cloudinary.com/test123/image/upload/s----SjmNDA--/v1234/image.jpg";
 		actual = cloudinary.url().version(1234).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
 

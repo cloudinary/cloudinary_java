@@ -117,7 +117,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
-        Map params = ObjectUtils.only(options, "keep_original", "next_cursor");
+        Map params = ObjectUtils.only(options, "keep_original","invalidate", "next_cursor");
         params.put("public_ids", publicIds);
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
@@ -126,7 +126,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
-        Map params = ObjectUtils.only(options, "keep_original", "next_cursor");
+        Map params = ObjectUtils.only(options, "keep_original","invalidate", "next_cursor");
         params.put("prefix", prefix);
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
@@ -134,14 +134,14 @@ public class Api {
     public ApiResponse deleteResourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "keep_original", "next_cursor"), options);
+        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "keep_original","invalidate", "next_cursor"), options);
     }
     
     public ApiResponse deleteAllResources(Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
-        Map filtered = ObjectUtils.only(options, "keep_original", "next_cursor");
+        Map filtered = ObjectUtils.only(options, "keep_original","invalidate", "next_cursor");
         filtered.put("all", true);
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), filtered, options);
     }

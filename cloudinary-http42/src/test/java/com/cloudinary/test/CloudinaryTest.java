@@ -475,38 +475,38 @@ public class CloudinaryTest {
 
 	@Test(expected = RuntimeException.class)
 	public void testDisallowUrlSuffixInSharedDistribution() {
-		cloudinary.url().urlSuffix("hello").generate("test");
+		cloudinary.url().suffix("hello").generate("test");
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testDisallowUrlSuffixInNonUploadTypes() {
-		cloudinary.url().urlSuffix("hello").privateCdn(true).type("facebook").generate("test");
+		cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
 
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testDisallowUrlSuffixWithSlash() {
-		cloudinary.url().urlSuffix("hello/world").privateCdn(true).generate("test");
+		cloudinary.url().suffix("hello/world").privateCdn(true).generate("test");
 	}
 
 	@Test(expected = RuntimeException.class)
 	public void testDisallowUrlSuffixWithDot() {
-		cloudinary.url().urlSuffix("hello.world").privateCdn(true).generate("test");
+		cloudinary.url().suffix("hello.world").privateCdn(true).generate("test");
 	}
 
 	@Test
 	public void testSupportUrlSuffixForPrivateCdn() {
-		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).generate("test");
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).generate("test");
 		assertEquals("http://test123-res.cloudinary.com/images/test/hello", actual);
 
-		actual = cloudinary.url().urlSuffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
+		actual = cloudinary.url().suffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
 		assertEquals("http://test123-res.cloudinary.com/images/a_0/test/hello", actual);
 
 	}
 
 	@Test
 	public void testPutFormatAfterUrlSuffix() {
-		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).format("jpg").generate("test");
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).format("jpg").generate("test");
 		assertEquals("http://test123-res.cloudinary.com/images/test/hello.jpg", actual);
 	}
 
@@ -519,7 +519,7 @@ public class CloudinaryTest {
 		matcher.find();
 		String expectedSignature = url.substring(matcher.start(), matcher.end());
 
-		String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).urlSuffix("hello").generate("test");
+		String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").generate("test");
 		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/test/hello.jpg", actual);
 
 		url = cloudinary.url().format("jpg").signed(true).transformation(new Transformation().angle(0)).generate("test");
@@ -527,14 +527,14 @@ public class CloudinaryTest {
 		matcher.find();
 		expectedSignature = url.substring(matcher.start(), matcher.end());
 
-		actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).urlSuffix("hello").transformation(new Transformation().angle(0)).generate("test");
+		actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").transformation(new Transformation().angle(0)).generate("test");
 
 		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/a_0/test/hello.jpg", actual);
 	}
 
 	@Test
 	public void testSupportUrlSuffixForRawUploads() {
-		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).resourceType("raw").generate("test");
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("raw").generate("test");
 		assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
 	}
 
@@ -555,7 +555,7 @@ public class CloudinaryTest {
 	@Test
 	public void testSupportUseRootPathTogetherWithUrlSuffixForPrivateCdn() {
 
-		String actual = cloudinary.url().privateCdn(true).urlSuffix("hello").useRootPath(true).generate("test");
+		String actual = cloudinary.url().privateCdn(true).suffix("hello").useRootPath(true).generate("test");
 		assertEquals("http://test123-res.cloudinary.com/test/hello", actual);
 
 	}

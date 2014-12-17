@@ -116,7 +116,7 @@ public class Url {
 		return this;
 	}
 
-	public Url urlSuffix(String urlSuffix) {
+	public Url suffix(String urlSuffix) {
 		this.urlSuffix = urlSuffix;
 		return this;
 	}

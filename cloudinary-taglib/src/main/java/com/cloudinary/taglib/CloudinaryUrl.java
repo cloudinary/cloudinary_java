@@ -32,8 +32,11 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
     private Boolean secure = null;
     private Boolean cdnSubdomain = null;
     private Boolean signed = null;
-
+    private Boolean useRootPath = null;
+    private Boolean secureCdnSubdomain = null;
+    
     private String namedTransformation = null;
+    private String urlSuffix = null;
 
     /** stores the dynamic attributes */
     private Map<String,Object> tagAttrs = new HashMap<String,Object>();
@@ -66,6 +69,10 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         }
         if (cdnSubdomain != null) url.cdnSubdomain(cdnSubdomain.booleanValue());
         if (signed != null) url.signed(signed.booleanValue());
+        if (useRootPath != null) url.useRootPath(useRootPath);
+        if (urlSuffix != null) url.suffix(urlSuffix);
+        if (secureCdnSubdomain != null) url.secureCdnSubdomain(secureCdnSubdomain);
+        
 
         out.println(url.generate());
     }
@@ -162,4 +169,28 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         ServletRequest request = context.getRequest();
         return request.getScheme().equals("https");
     }
+
+	public Boolean getUseRootPath() {
+		return useRootPath;
+	}
+
+	public void setUseRootPath(Boolean useRootPath) {
+		this.useRootPath = useRootPath;
+	}
+
+	public Boolean getSecureCdnSubdomain() {
+		return secureCdnSubdomain;
+	}
+
+	public void setSecureCdnSubdomain(Boolean secureCdnSubdomain) {
+		this.secureCdnSubdomain = secureCdnSubdomain;
+	}
+
+	public String getUrlSuffix() {
+		return urlSuffix;
+	}
+
+	public void setUrlSuffix(String urlSuffix) {
+		this.urlSuffix = urlSuffix;
+	}
 }

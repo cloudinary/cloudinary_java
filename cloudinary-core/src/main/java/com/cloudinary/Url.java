@@ -208,6 +208,15 @@ public class Url {
 			}
 		}
 		
+		if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isEmpty(version)) {
+			version = "1";
+		}
+
+		if (version == null)
+			version = "";
+		else
+			version = "v" + version;
+		
 		if (type!=null && type.equals("fetch") && !StringUtils.isEmpty(format)) {
 			transformation().fetchFormat(format);
 			this.format = null;
@@ -221,14 +230,6 @@ public class Url {
 		sourceToSign = finalizedSource[1];
 		
 		
-		if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isEmpty(version)) {
-			version = "1";
-		}
-
-		if (version == null)
-			version = "";
-		else
-			version = "v" + version;
 
 		if (signUrl) {
 			MessageDigest md = null;
@@ -258,7 +259,7 @@ public class Url {
 		String[] result = new String[2];
 		source = source.replaceAll("([^:])//", "\1/");
 
-		if (source.toLowerCase().matches("^https?:/")) {
+		if (source.toLowerCase().matches("^https?:/.*")) {
 			source = SmartUrlEncoder.encode(source);
 			sourceToSign = source;
 		} else {
@@ -269,7 +270,7 @@ public class Url {
 			}
 			sourceToSign = source;
 			if (StringUtils.isNotBlank(urlSuffix)) {
-				if (urlSuffix.matches("([\\./]))")) {
+				if (urlSuffix.matches("\\w*[\\./]\\w*")) {
 					throw new RuntimeException("url_suffix should not include . or /");
 				}
 				source = source + "/" + urlSuffix;

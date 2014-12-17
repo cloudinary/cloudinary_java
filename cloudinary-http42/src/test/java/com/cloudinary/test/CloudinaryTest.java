@@ -9,6 +9,8 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,14 +25,15 @@ public class CloudinaryTest {
 
 	private Cloudinary cloudinary;
 
-    @Rule public TestName currentTest = new TestName();
+	@Rule
+	public TestName currentTest = new TestName();
 
 	@Before
 	public void setUp() {
-		System.out.println("Running " +this.getClass().getName()+"."+ currentTest.getMethodName());
+		System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
 		this.cloudinary = new Cloudinary("cloudinary://a:b@test123");
 	}
-	
+
 	@Test
 	public void testCloudName() {
 		// should use cloud_name from config
@@ -71,8 +74,8 @@ public class CloudinaryTest {
 	public void testSecureAkamai() {
 		// should default to akamai if secure is given with private_cdn and no
 		// secure_distribution
-		cloudinary.config.secure = true; 
-		cloudinary.config.privateCdn =true;
+		cloudinary.config.secure = true;
+		cloudinary.config.privateCdn = true;
 		String result = cloudinary.url().generate("test");
 		assertEquals("https://test123-res.cloudinary.com/image/upload/test", result);
 	}
@@ -81,8 +84,8 @@ public class CloudinaryTest {
 	public void testSecureNonAkamai() {
 		// should not add cloud_name if private_cdn and secure non akamai
 		// secure_distribution
-		cloudinary.config.secure = true; 
-		cloudinary.config.privateCdn =true;
+		cloudinary.config.secure = true;
+		cloudinary.config.privateCdn = true;
 		cloudinary.config.secureDistribution = "something.cloudfront.net";
 		String result = cloudinary.url().generate("test");
 		assertEquals("https://something.cloudfront.net/image/upload/test", result);
@@ -91,7 +94,7 @@ public class CloudinaryTest {
 	@Test
 	public void testHttpPrivateCdn() {
 		// should not add cloud_name if private_cdn and not secure
-		cloudinary.config.privateCdn =true;
+		cloudinary.config.privateCdn = true;
 		String result = cloudinary.url().generate("test");
 		assertEquals("http://test123-res.cloudinary.com/image/upload/test", result);
 	}
@@ -151,8 +154,7 @@ public class CloudinaryTest {
 	@Test
 	public void testBaseTransformationArray() {
 		// should support array of base transformations
-		Transformation transformation = new Transformation().x(100).y(100).width(200).crop("fill").chain().radius(10).chain().crop("crop")
-				.width(100);
+		Transformation transformation = new Transformation().x(100).y(100).width(200).crop("fill").chain().radius(10).chain().crop("crop").width(100);
 		String result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("100", transformation.getHtmlWidth().toString());
 		assertEquals("http://res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test", result);
@@ -339,7 +341,7 @@ public class CloudinaryTest {
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc.def/test", result);
 	}
-	
+
 	@Test
 	public void testOpacity() {
 		// should support opacity
@@ -353,9 +355,7 @@ public class CloudinaryTest {
 	public void testImageTag() {
 		Transformation transformation = new Transformation().width(100).height(101).crop("crop");
 		String result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image"));
-		assertEquals(
-				"<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>",
-				result);
+		assertEquals("<img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image' height='101' width='100'/>", result);
 		transformation = new Transformation().width(0.9).height(0.9).crop("crop").responsiveWidth(true);
 		result = cloudinary.url().transformation(transformation).imageTag("test", ObjectUtils.asMap("alt", "my image"));
 		assertEquals(
@@ -457,22 +457,119 @@ public class CloudinaryTest {
 		actual = cloudinary.url().transformation(new Transformation().crop("crop").width(10).height(20)).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
 	}
-	
+
 	@Test
 	public void testResponsiveWidth() {
 		// should support responsive width
 		Transformation trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
 		String result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_limit,w_auto/test", result);  
-		Transformation.setResponsiveWidthTransformation(ObjectUtils.asMap("width", "auto", "crop", "pad")); 
+		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_limit,w_auto/test", result);
+		Transformation.setResponsiveWidthTransformation(ObjectUtils.asMap("width", "auto", "crop", "pad"));
 		trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
 		result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
 		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_pad,w_auto/test", result);
 		Transformation.setResponsiveWidthTransformation(null);
 	}
-	
+
+	@Test(expected = RuntimeException.class)
+	public void testDisallowUrlSuffixInSharedDistribution() {
+		cloudinary.url().urlSuffix("hello").generate("test");
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisallowUrlSuffixInNonUploadTypes() {
+		cloudinary.url().urlSuffix("hello").privateCdn(true).type("facebook").generate("test");
+
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisallowUrlSuffixWithSlash() {
+		cloudinary.url().urlSuffix("hello/world").privateCdn(true).generate("test");
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisallowUrlSuffixWithDot() {
+		cloudinary.url().urlSuffix("hello.world").privateCdn(true).generate("test");
+	}
+
+	@Test
+	public void testSupportUrlSuffixForPrivateCdn() {
+		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/test/hello", actual);
+
+		actual = cloudinary.url().urlSuffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/a_0/test/hello", actual);
+
+	}
+
+	@Test
+	public void testPutFormatAfterUrlSuffix() {
+		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).format("jpg").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/test/hello.jpg", actual);
+	}
+
+	@Test
+	public void testNotSignTheUrlSuffix() {
+
+		Pattern pattern = Pattern.compile("s--[0-9A-Za-z_-]{8}--");
+		String url = cloudinary.url().format("jpg").signed(true).generate("test");
+		Matcher matcher = pattern.matcher(url);
+		matcher.find();
+		String expectedSignature = url.substring(matcher.start(), matcher.end());
+
+		String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).urlSuffix("hello").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/test/hello.jpg", actual);
+
+		url = cloudinary.url().format("jpg").signed(true).transformation(new Transformation().angle(0)).generate("test");
+		matcher = pattern.matcher(url);
+		matcher.find();
+		expectedSignature = url.substring(matcher.start(), matcher.end());
+
+		actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).urlSuffix("hello").transformation(new Transformation().angle(0)).generate("test");
+
+		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/a_0/test/hello.jpg", actual);
+	}
+
+	@Test
+	public void testSupportUrlSuffixForRawUploads() {
+		String actual = cloudinary.url().urlSuffix("hello").privateCdn(true).resourceType("raw").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisllowUseRootPathInSharedDistribution() {
+		cloudinary.url().useRootPath(true).generate("test");
+	}
+
+	@Test
+	public void testSupportUseRootPathForPrivateCdn() {
+		String actual = cloudinary.url().privateCdn(true).useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/test", actual);
+
+		actual = cloudinary.url().privateCdn(true).transformation(new Transformation().angle(0)).useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/a_0/test", actual);
+	}
+
+	@Test
+	public void testSupportUseRootPathTogetherWithUrlSuffixForPrivateCdn() {
+
+		String actual = cloudinary.url().privateCdn(true).urlSuffix("hello").useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/test/hello", actual);
+
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisllowUseRootPathIfNotImageUploadForFacebook() {
+		cloudinary.url().useRootPath(true).privateCdn(true).type("facebook").generate("test");
+	}
+
+	@Test(expected = RuntimeException.class)
+	public void testDisllowUseRootPathIfNotImageUploadForRaw() {
+		cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
+	}
+
 	public void testUtils() {
 		assertEquals(ObjectUtils.asBoolean(true, null), true);
 		assertEquals(ObjectUtils.asBoolean(false, null), false);

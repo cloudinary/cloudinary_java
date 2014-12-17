@@ -35,10 +35,11 @@ public class Configuration {
 	public int proxyPort;
     public Map<String, Object> properties = new HashMap<String, Object>();
 	public Boolean secureCdnSubdomain;
+	public boolean useRootPath;
     public Configuration(){
     }
     
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback,String proxyHost,int proxyPort,Boolean secureCdnSubdomain) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback,String proxyHost,int proxyPort,Boolean secureCdnSubdomain,boolean useRootPath) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -53,6 +54,7 @@ public class Configuration {
         this.proxyHost = proxyHost;
         this.proxyPort = proxyPort;
         this.secureCdnSubdomain = secureCdnSubdomain;
+        this.useRootPath = useRootPath;
     }
 
     
@@ -77,6 +79,7 @@ public class Configuration {
 		this.proxyHost = (String) config.get("proxy_host");
 		this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"),0);
 		this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
+		this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
 	}
 
 	
@@ -96,6 +99,7 @@ public class Configuration {
 		this.proxyHost = other.proxyHost;
 		this.proxyPort = other.proxyPort;
 		this.secureCdnSubdomain = other.secureCdnSubdomain;
+		this.useRootPath = other.useRootPath;
 	}
 
 
@@ -183,12 +187,13 @@ public class Configuration {
         private String proxyHost;
         private int proxyPort;
         private Boolean secureCdnSubdomain;
+        private boolean useRootPath;
 		
 
         /**
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
-        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain); }
+        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain,useRootPath); }
 
         /**
          * The unique name of your cloud at Cloudinary
@@ -279,6 +284,13 @@ public class Configuration {
             this.uploadPrefix = uploadPrefix;
             return this;
         }
+        
+        public Builder setUseRootPath(boolean useRootPath) {
+            this.useRootPath = useRootPath;
+            return this;
+        }
+        
+        
       
         /**
          * Initialize builder from existing {@link Configuration}
@@ -300,6 +312,7 @@ public class Configuration {
             this.proxyHost = other.proxyHost;
             this.proxyPort = other.proxyPort;
             this.secureCdnSubdomain = other.secureCdnSubdomain;
+            this.useRootPath = other.useRootPath;
             return this;
         }
 

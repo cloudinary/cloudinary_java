@@ -26,8 +26,7 @@ public class Url {
 	boolean signUrl;
 	String source = null;
 	private String urlSuffix;
-	private boolean useRootPath;
-	private String sourceToSign;
+	private Boolean useRootPath;
 	private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 	public Url(Cloudinary cloudinary) {
@@ -177,17 +176,22 @@ public class Url {
 	}
 
 	public String generate(String source) {
-
+		
+		boolean useRootPath =this.config.useRootPath;
+		if (this.useRootPath!=null){
+			useRootPath = this.useRootPath;
+		}
+		
 		if (StringUtils.isEmpty(this.config.cloudName)) {
 			throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
 		}
 
 		if (!this.config.privateCdn) {
 			if (StringUtils.isNotBlank(urlSuffix)) {
-				throw new RuntimeException("URL Suffix only supported in private CDN");
+				throw new IllegalArgumentException("URL Suffix only supported in private CDN");
 			}
 			if (useRootPath) {
-				throw new RuntimeException("Root path only supported in private CDN");
+				throw new IllegalArgumentException("Root path only supported in private CDN");
 			}
 		}
 
@@ -201,21 +205,12 @@ public class Url {
 		}
 		
 		
-		
 		if (source.toLowerCase(Locale.US).matches("^https?:/.*")) {
 			if (StringUtils.isEmpty(type) || "asset".equals(type) ) {
 				return source;
 			}
 		}
 		
-		if (source.contains("/") && !source.matches("v[0-9]+.*") && !source.matches("https?:/.*") && StringUtils.isEmpty(version)) {
-			version = "1";
-		}
-
-		if (version == null)
-			version = "";
-		else
-			version = "v" + version;
 		
 		if (type!=null && type.equals("fetch") && !StringUtils.isEmpty(format)) {
 			transformation().fetchFormat(format);
@@ -227,10 +222,18 @@ public class Url {
 		
 		String[] finalizedSource = finalizeSource(source,format,urlSuffix);
 		source = finalizedSource[0];
-		sourceToSign = finalizedSource[1];
+		String sourceToSign = finalizedSource[1];
 		
-		
+		if (sourceToSign.contains("/") && !sourceToSign.matches("v[0-9]+.*") && !sourceToSign.matches("https?:/.*") && StringUtils.isEmpty(version)) {
+			version = "1";
+		}
 
+		if (version == null)
+			version = "";
+		else
+			version = "v" + version;
+
+		
 		if (signUrl) {
 			MessageDigest md = null;
 			try {
@@ -246,7 +249,7 @@ public class Url {
 
 			byte[] digest = md.digest((toSign + this.config.apiSecret).getBytes());
 			signature = Base64Coder.encodeURLSafeString(digest);
-			signature = "s--" + signature.substring(0, 8) + "--/" ;
+			signature = "s--" + signature.substring(0, 8) + "--" ;
 		}
 		
 		String finalResourceType = finalizeResourceType(resourceType,type,urlSuffix,useRootPath,config.shorten);
@@ -259,6 +262,7 @@ public class Url {
 		String[] result = new String[2];
 		source = source.replaceAll("([^:])//", "\1/");
 
+		String sourceToSign;
 		if (source.toLowerCase().matches("^https?:/.*")) {
 			source = SmartUrlEncoder.encode(source);
 			sourceToSign = source;
@@ -270,8 +274,10 @@ public class Url {
 			}
 			sourceToSign = source;
 			if (StringUtils.isNotBlank(urlSuffix)) {
-				if (urlSuffix.matches("\\w*[\\./]\\w*")) {
-					throw new RuntimeException("url_suffix should not include . or /");
+				Pattern pattern =  Pattern.compile("[\\./]");
+				Matcher matcher= pattern.matcher(urlSuffix);
+				if (matcher.find()) {
+					throw new IllegalArgumentException("url_suffix should not include . or /");
 				}
 				source = source + "/" + urlSuffix;
 			}
@@ -297,7 +303,7 @@ public class Url {
 				resourceType = "files";
 				type = null;
 			} else {
-				throw new RuntimeException("URL Suffix only supported for image/upload and raw/upload");
+				throw new IllegalArgumentException("URL Suffix only supported for image/upload and raw/upload");
 			}
 		}
 		if (useRootPath) {
@@ -305,7 +311,7 @@ public class Url {
 				resourceType = null;
 				type = null;
 			} else {
-				throw new RuntimeException("Root path only supported for image/upload");
+				throw new IllegalArgumentException("Root path only supported for image/upload");
 			}
 		}
 		if (shorten && resourceType.equals("image") && type.equals("upload")) {
@@ -332,7 +338,7 @@ public class Url {
 				secureDistribution = this.config.privateCdn ? this.config.cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
 			}
 			if (!sharedDomain) {
-				sharedDomain = (secureDistribution == Cloudinary.SHARED_CDN);
+				sharedDomain = secureDistribution.equals(Cloudinary.SHARED_CDN);
 			}
 
 			if (secureCdnSubdomain == null && sharedDomain) {

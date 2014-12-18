@@ -473,23 +473,23 @@ public class CloudinaryTest {
 		Transformation.setResponsiveWidthTransformation(null);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisallowUrlSuffixInSharedDistribution() {
 		cloudinary.url().suffix("hello").generate("test");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisallowUrlSuffixInNonUploadTypes() {
 		cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
 
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisallowUrlSuffixWithSlash() {
 		cloudinary.url().suffix("hello/world").privateCdn(true).generate("test");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisallowUrlSuffixWithDot() {
 		cloudinary.url().suffix("hello.world").privateCdn(true).generate("test");
 	}
@@ -538,7 +538,7 @@ public class CloudinaryTest {
 		assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisllowUseRootPathInSharedDistribution() {
 		cloudinary.url().useRootPath(true).generate("test");
 	}
@@ -560,12 +560,12 @@ public class CloudinaryTest {
 
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisllowUseRootPathIfNotImageUploadForFacebook() {
 		cloudinary.url().useRootPath(true).privateCdn(true).type("facebook").generate("test");
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void testDisllowUseRootPathIfNotImageUploadForRaw() {
 		cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
 	}

@@ -1,6 +1,8 @@
 package com.cloudinary.test;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.test.AndroidTestCase;
 
@@ -345,18 +347,143 @@ public class CloudinaryTest extends AndroidTestCase {
 
 	public void testSignedUrl() {
 		// should correctly sign a url
-		String expected = "http://res.cloudinary.com/test123/image/upload/s--MaRXzoEC--/c_crop,h_20,w_10/v1234/image.jpg";
+		String expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/v1234/image.jpg";
 		String actual = cloudinary.url().version(1234).transformation(new Transformation().crop("crop").width(10).height(20)).signed(true)
 				.generate("image.jpg");
 		assertEquals(expected, actual);
 
-		expected = "http://res.cloudinary.com/test123/image/upload/s--ZlgFLQcO--/v1234/image.jpg";
+		expected = "http://res.cloudinary.com/test123/image/upload/s----SjmNDA--/v1234/image.jpg";
 		actual = cloudinary.url().version(1234).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
 
 		expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
 		actual = cloudinary.url().transformation(new Transformation().crop("crop").width(10).height(20)).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
+	}
+
+	public void testDisallowUrlSuffixInSharedDistribution() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().suffix("hello").generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "URL Suffix only supported in private CDN");
+			thrown = true;
+		}
+		assertTrue(thrown);
+	}
+
+	public void testDisallowUrlSuffixInNonUploadTypes() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "URL Suffix only supported for image/upload and raw/upload");
+		}
+	}
+	
+	public void testDisallowUrlSuffixWithSlash() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().suffix("hello/world").privateCdn(true).generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "url_suffix should not include . or /");
+		}
+	}
+
+	public void testDisallowUrlSuffixWithDot() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().suffix("hello.world").privateCdn(true).generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "url_suffix should not include . or /");
+			thrown = true;
+		}
+		assertTrue(thrown);
+	}
+
+	public void testSupportUrlSuffixForPrivateCdn() {
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/test/hello", actual);
+
+		actual = cloudinary.url().suffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/a_0/test/hello", actual);
+	}
+
+	public void testPutFormatAfterUrlSuffix() {
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).format("jpg").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/test/hello.jpg", actual);
+	}
+
+	public void testNotSignTheUrlSuffix() {
+
+		Pattern pattern = Pattern.compile("s--[0-9A-Za-z_-]{8}--");
+		String url = cloudinary.url().format("jpg").signed(true).generate("test");
+		Matcher matcher = pattern.matcher(url);
+		matcher.find();
+		String expectedSignature = url.substring(matcher.start(), matcher.end());
+
+		String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/test/hello.jpg", actual);
+
+		url = cloudinary.url().format("jpg").signed(true).transformation(new Transformation().angle(0)).generate("test");
+		matcher = pattern.matcher(url);
+		matcher.find();
+		expectedSignature = url.substring(matcher.start(), matcher.end());
+
+		actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").transformation(new Transformation().angle(0)).generate("test");
+
+		assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/a_0/test/hello.jpg", actual);
+	}
+
+	public void testSupportUrlSuffixForRawUploads() {
+		String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("raw").generate("test");
+		assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
+	}
+
+	public void testDisllowUseRootPathInSharedDistribution() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().useRootPath(true).generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "Root path only supported in private CDN");
+			thrown = true;
+		}
+		assertTrue(thrown);
+	}
+
+	public void testSupportUseRootPathForPrivateCdn() {
+		String actual = cloudinary.url().privateCdn(true).useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/test", actual);
+
+		actual = cloudinary.url().privateCdn(true).transformation(new Transformation().angle(0)).useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/a_0/test", actual);
+	}
+
+	public void testSupportUseRootPathTogetherWithUrlSuffixForPrivateCdn() {
+		String actual = cloudinary.url().privateCdn(true).suffix("hello").useRootPath(true).generate("test");
+		assertEquals("http://test123-res.cloudinary.com/test/hello", actual);
+	}
+
+	public void testDisllowUseRootPathIfNotImageUploadForFacebook() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().useRootPath(true).privateCdn(true).type("facebook").generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "Root path only supported for image/upload");
+			thrown = true;
+		}
+		assertTrue(thrown);
+	}
+
+	public void testDisllowUseRootPathIfNotImageUploadForRaw() {
+		boolean thrown = false;
+		try {
+			cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
+		} catch (IllegalArgumentException e) {
+			assertEquals(e.getMessage(), "Root path only supported for image/upload");
+			thrown = true;
+		}
+		assertTrue(thrown);
 	}
 
 }

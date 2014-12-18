@@ -202,6 +202,8 @@ public class UploaderTest extends InstrumentationTestCase {
 	}
 
 	public void testUniqueFilename() throws Exception {
+		if (cloudinary.config.apiSecret == null)
+			return;
 
 		File f = new File(getInstrumentation().getContext().getCacheDir() + "/logo.png");
 
@@ -223,6 +225,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testFaceCoordinates() throws Exception {
 		// should allow sending face coordinates
+		if (cloudinary.config.apiSecret == null)
+			return;
 		Coordinates coordinates = new Coordinates();
 		Rectangle rect1 = new Rectangle(121, 31, 231, 182);
 		Rectangle rect2 = new Rectangle(120, 30, 229, 270);
@@ -250,6 +254,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testContext() throws Exception {
 		// should allow sending context
+		if (cloudinary.config.apiSecret == null)
+			return;
 		@SuppressWarnings("rawtypes")
 		Map context = ObjectUtils.asMap("caption", "some caption", "alt", "alternative");
 		cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("context", context));
@@ -257,6 +263,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testModerationRequest() throws Exception {
 		// should support requesting manual moderation
+		if (cloudinary.config.apiSecret == null)
+			return;
 		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("moderation", "manual")));
 		assertEquals("manual", result.getJSONArray("moderation").getJSONObject(0).getString("kind"));
 		assertEquals("pending", result.getJSONArray("moderation").getJSONObject(0).getString("status"));
@@ -264,6 +272,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testRawConvertRequest() {
 		// should support requesting raw conversion
+		if (cloudinary.config.apiSecret == null)
+			return;
 		try {
 			cloudinary.uploader().upload(getAssetStream("docx.docx"), ObjectUtils.asMap("raw_convert", "illegal", "resource_type", "raw"));
 		} catch (Exception e) {
@@ -273,6 +283,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testCategorizationRequest() {
 		// should support requesting categorization
+		if (cloudinary.config.apiSecret == null)
+			return;
 		try {
 			cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("categorization", "illegal"));
 		} catch (Exception e) {
@@ -282,6 +294,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testDetectionRequest() {
 		// should support requesting detection
+		if (cloudinary.config.apiSecret == null)
+			return;
 		try {
 			cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("detection", "illegal"));
 		} catch (Exception e) {
@@ -291,6 +305,8 @@ public class UploaderTest extends InstrumentationTestCase {
 
 	public void testAutoTaggingRequest() {
 		// should support requesting auto tagging
+		if (cloudinary.config.apiSecret == null)
+			return;
 		
 		try {
 			cloudinary.uploader().upload(getAssetStream("images/logo.png"), ObjectUtils.asMap("auto_tagging", 0.5f));
@@ -298,8 +314,6 @@ public class UploaderTest extends InstrumentationTestCase {
 			for (int i = 0; i < e.getStackTrace().length; i++) {
 				StackTraceElement x = e.getStackTrace()[i];
 			}
-			
-			
 			assertTrue(e.getMessage().matches("^Must use(.*)"));
 		}
 	}

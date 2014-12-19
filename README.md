@@ -15,7 +15,7 @@ For Java, Cloudinary provides a library for simplifying the integration even fur
 
 **Note:** Starting from version 1.1.0, you should depend on cloudinary-http42 for Java and cloudinary-android for Android. The artifact cloudinary is deprecated.
 
-**Note:** This readme intended mainly for Web applications. For **Android** specific instructions, see: https://github.com/cloudinary/cloudinary_java/cloudinary-android
+**Note:** This readme intended mainly for Web applications. For **Android** specific instructions, see: https://github.com/cloudinary/cloudinary_java/tree/master/cloudinary-android
 
 ## Getting started guide
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](http://cloudinary.com/documentation/java_integration#getting_started_guide)**.

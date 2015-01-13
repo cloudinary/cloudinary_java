@@ -34,7 +34,10 @@ public class Util {
 			if (value != null)
 				params.put(attr, value.toString());
 		}
-		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+    Object eagerObj = options.get("eager");
+    String eager  = eagerObj instanceof String ? eagerObj.toString() : buildEager((List<Transformation>) options.get("eager"));  
+
+		params.put("eager", eager);
 		params.put("notification_url", (String) options.get("notification_url"));
 		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("proxy", (String) options.get("proxy"));

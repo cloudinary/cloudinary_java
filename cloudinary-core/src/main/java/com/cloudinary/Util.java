@@ -18,13 +18,7 @@ public class Util {
 		if (options == null)
 			options = ObjectUtils.emptyMap();
 		Map<String, Object> params = new HashMap<String, Object>();
-		Object transformation = options.get("transformation");
-		if (transformation != null) {
-			if (transformation instanceof Transformation) {
-				transformation = ((Transformation) transformation).generate();
-			}
-			params.put("transformation", transformation.toString());
-		}
+
 		params.put("public_id", (String) options.get("public_id"));
 		params.put("callback", (String) options.get("callback"));
 		params.put("format", (String) options.get("format"));
@@ -34,7 +28,7 @@ public class Util {
 			if (value != null)
 				params.put(attr, value.toString());
 		}
-		params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+
 		params.put("notification_url", (String) options.get("notification_url"));
 		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("proxy", (String) options.get("proxy"));
@@ -42,11 +36,31 @@ public class Util {
 		params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
 		params.put("moderation", options.get("moderation"));
 		params.put("upload_preset", options.get("upload_preset"));
-		if (options.get("tags") != null) {
-			params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
-		}
 
-		processWriteParameters(options, params);
+		if (options.get("signature") == null) {
+			params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+			Object transformation = options.get("transformation");
+			if (transformation != null) {
+				if (transformation instanceof Transformation) {
+					transformation = ((Transformation) transformation).generate();
+				}
+				params.put("transformation", transformation.toString());
+			}
+			processWriteParameters(options, params);
+		} else {
+			params.put("eager", (String) options.get("eager"));
+			params.put("transformation", (String) options.get("transformation"));
+			params.put("headers", (String) options.get("headers"));
+			params.put("tags", (String) options.get("tags"));
+			params.put("face_coordinates", (String) options.get("face_coordinates"));
+			params.put("context", (String) options.get("context"));
+			params.put("ocr", (String) options.get("ocr"));
+			params.put("raw_convert", (String) options.get("raw_convert"));
+			params.put("categorization", (String) options.get("categorization"));
+			params.put("detection", (String) options.get("detection"));
+			params.put("similarity_search", (String) options.get("similarity_search"));
+			params.put("auto_tagging", (String) options.get("auto_tagging"));
+		}
 		return params;
 	}
 

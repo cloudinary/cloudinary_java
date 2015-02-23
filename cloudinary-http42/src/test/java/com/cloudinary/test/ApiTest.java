@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.conn.ConnectTimeoutException;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -36,7 +37,8 @@ import com.cloudinary.utils.ObjectUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ApiTest {
 
-	private Cloudinary cloudinary;
+    public static final String SRC_TEST_IMAGE = "src/test/resources/old_logo.png";
+    private Cloudinary cloudinary;
 	private Api api;
 	private static String uniqueTag = String.format("api_test_tag_%d", new java.util.Date().getTime());
 
@@ -82,9 +84,9 @@ public class ApiTest {
 		}
 		Map options = ObjectUtils.asMap("public_id", "api_test", "tags", new String[] { "api_test_tag", uniqueTag }, "context", "key=value", "eager",
 				Collections.singletonList(new Transformation().width(100).crop("scale")));
-		cloudinary.uploader().upload("src/test/resources/logo.png", options);
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
 		options.put("public_id", "api_test1");
-		cloudinary.uploader().upload("src/test/resources/logo.png", options);
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
 	}
 
     @Rule public TestName currentTest = new TestName();
@@ -115,16 +117,38 @@ public class ApiTest {
 		assertContains("image", (Collection) result.get("resource_types"));
 	}
 
-	@Test
-	public void test02Resources() throws Exception {
-		// should allow listing resources
-		Map result = api.resources(ObjectUtils.emptyMap());
-		Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
-		assertNotNull(resource);
-		assertEquals(resource.get("type"), "upload");
-	}
+    @Test
+    public void test02Resources() throws Exception {
+        // should allow listing resources
+        Map result = api.resources(ObjectUtils.emptyMap());
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        assertNotNull(resource);
+        assertEquals(resource.get("type"), "upload");
+    }
 
-	@Test
+    @Test
+    public void testTimeoutParameter() throws Exception {
+        // should allow listing resources
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("timeout", Integer.valueOf(5000));
+        Map result = api.resources(options);
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        assertNotNull(resource);
+        assertEquals(resource.get("type"), "upload");
+    }
+
+    @Test(expected = ConnectTimeoutException.class)
+    public void testTimeoutException() throws Exception {
+        // should allow listing resources
+        Map<String, Object> options = new HashMap<String, Object>();
+        options.put("timeout", Integer.valueOf(1));
+
+        Map result = api.resources(options);
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+
+    }
+
+    @Test
 	public void test03ResourcesCursor() throws Exception {
 		// should allow listing resources with cursor
 		Map options = new HashMap();
@@ -185,7 +209,7 @@ public class ApiTest {
 		Thread.sleep(2000L);
 		java.util.Date startAt = new java.util.Date();
 		Thread.sleep(2000L);
-		Map response = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+		Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 		ApiResponse listResources = api.resources(ObjectUtils.asMap("type", "upload", "start_at", startAt, "direction", "asc"));
 		List<Map> resources = (List<Map>) listResources.get("resources");
 		assertEquals(response.get("public_id"), resources.get(0).get("public_id"));
@@ -238,7 +262,7 @@ public class ApiTest {
 	@Test
 	public void test08DeleteDerived() throws Exception {
 		// should allow deleting derived resource
-		cloudinary.uploader().upload("src/test/resources/logo.png",
+		cloudinary.uploader().upload(SRC_TEST_IMAGE,
 				ObjectUtils.asMap("public_id", "api_test3", "eager", Collections.singletonList(new Transformation().width(101).crop("scale"))));
 		Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
 		assertNotNull(resource);
@@ -255,7 +279,7 @@ public class ApiTest {
 	@Test(expected = NotFound.class)
 	public void test09DeleteResources() throws Exception {
 		// should allow deleting resources
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test3"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "api_test3"));
 		Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
 		assertNotNull(resource);
 		api.deleteResources(Arrays.asList("apit_test", "api_test2", "api_test3"), ObjectUtils.emptyMap());
@@ -265,7 +289,7 @@ public class ApiTest {
 	@Test(expected = NotFound.class)
 	public void test09aDeleteResourcesByPrefix() throws Exception {
 		// should allow deleting resources
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "api_test_by_prefix"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "api_test_by_prefix"));
 		Map resource = api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
 		assertNotNull(resource);
 		api.deleteResourcesByPrefix("api_test_by", ObjectUtils.emptyMap());
@@ -275,7 +299,7 @@ public class ApiTest {
 	@Test(expected = NotFound.class)
 	public void test09aDeleteResourcesByTags() throws Exception {
 		// should allow deleting resources
-		cloudinary.uploader().upload("src/test/resources/logo.png",
+		cloudinary.uploader().upload(SRC_TEST_IMAGE,
 				ObjectUtils.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
 		Map resource = api.resource("api_test4", ObjectUtils.emptyMap());
 		assertNotNull(resource);
@@ -405,7 +429,7 @@ public class ApiTest {
 	// resources!
 	public void testDeleteAllResources() throws Exception {
 		// should allow deleting all resources
-		cloudinary.uploader().upload("src/test/resources/logo.png",
+		cloudinary.uploader().upload(SRC_TEST_IMAGE,
 				ObjectUtils.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
 		Map result = api.resource("api_test5", ObjectUtils.emptyMap());
 		assertEquals(1, ((org.cloudinary.json.JSONArray) result.get("derived")).length());
@@ -418,7 +442,7 @@ public class ApiTest {
 	@Test
 	public void testManualModeration() throws Exception {
 		// should support setting manual moderation status
-		Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("moderation", "manual"));
+		Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual"));
 		Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("moderation_status", "approved"));
 		assertEquals("approved", ((Map) ((List<Map>) apiResult.get("moderation")).get(0)).get("status"));
 	}
@@ -427,7 +451,7 @@ public class ApiTest {
 	public void testOcrUpdate() {
 		// should support requesting ocr info
 		try {
-			Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+			Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("ocr", "illegal"));
 		} catch (Exception e) {
 			assertTrue(e instanceof BadRequest);
@@ -439,7 +463,7 @@ public class ApiTest {
 	public void testRawConvertUpdate() {
 		// should support requesting raw conversion
 		try {
-			Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+			Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("raw_convert", "illegal"));
 		} catch (Exception e) {
 			assertTrue(e instanceof BadRequest);
@@ -451,7 +475,7 @@ public class ApiTest {
 	public void testCategorizationUpdate() {
 		// should support requesting categorization
 		try {
-			Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+			Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("categorization", "illegal"));
 		} catch (Exception e) {
 			assertTrue(e instanceof BadRequest);
@@ -463,7 +487,7 @@ public class ApiTest {
 	public void testDetectionUpdate() {
 		// should support requesting detection
 		try {
-			Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+			Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("detection", "illegal"));
 		} catch (Exception e) {
 			assertTrue(e instanceof BadRequest);
@@ -475,7 +499,7 @@ public class ApiTest {
 	public void testSimilaritySearchUpdate() {
 		// should support requesting similarity search
 		try {
-			Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+			Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 			api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("similarity_search", "illegal"));
 		} catch (Exception e) {
 			assertTrue(e instanceof BadRequest);
@@ -487,7 +511,7 @@ public class ApiTest {
 	public void testUpdateCustomCoordinates() throws IOException, Exception {
 		// should update custom coordinates
 		Coordinates coordinates = new Coordinates("121,31,110,151");
-		Map uploadResult = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.emptyMap());
+		Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 		cloudinary.api().update(uploadResult.get("public_id").toString(), ObjectUtils.asMap("custom_coordinates", coordinates));
 		Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
 		int[] expected =  new int[] { 121, 31, 110, 151};
@@ -586,9 +610,9 @@ public class ApiTest {
 	@Test
 	public void testListByModerationUpdate() throws Exception {
 		// "should support listing by moderation kind and value
-		Map result1 = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("moderation", "manual"));
-		Map result2 = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("moderation", "manual"));
-		Map result3 = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("moderation", "manual"));
+		Map result1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual"));
+		Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual"));
+		Map result3 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual"));
 		api.update((String) result1.get("public_id"), ObjectUtils.asMap("moderation_status", "approved"));
 		api.update((String) result2.get("public_id"), ObjectUtils.asMap("moderation_status", "rejected"));
 		Map approved = api.resourcesByModeration("manual", "approved", ObjectUtils.asMap("max_results", 1000));
@@ -611,10 +635,10 @@ public class ApiTest {
 	// @Test
 	public void testFolderApi() throws Exception {
 		// should allow deleting all resources
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder1/item"));
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder2/item"));
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder1/test_subfolder1/item"));
-		cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "test_folder1/test_subfolder2/item"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder1/item"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder2/item"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder1/test_subfolder1/item"));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder1/test_subfolder2/item"));
 		Map result = api.rootFolders(null);
 		assertEquals("test_folder1", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("name"));
 		assertEquals("test_folder2", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(1)).get("name"));

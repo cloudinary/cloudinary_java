@@ -36,10 +36,16 @@ public class Configuration {
     public Map<String, Object> properties = new HashMap<String, Object>();
 	public Boolean secureCdnSubdomain;
 	public boolean useRootPath;
+    public int timeout;
+
     public Configuration(){
     }
-    
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback,String proxyHost,int proxyPort,Boolean secureCdnSubdomain,boolean useRootPath) {
+
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath) {
+        this(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, 0);
+    }
+
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -55,6 +61,7 @@ public class Configuration {
         this.proxyPort = proxyPort;
         this.secureCdnSubdomain = secureCdnSubdomain;
         this.useRootPath = useRootPath;
+        this.timeout = 0;
     }
 
     
@@ -80,6 +87,7 @@ public class Configuration {
 		this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"),0);
 		this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
 		this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
+        this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
 	}
 
 	
@@ -100,6 +108,7 @@ public class Configuration {
 		this.proxyPort = other.proxyPort;
 		this.secureCdnSubdomain = other.secureCdnSubdomain;
 		this.useRootPath = other.useRootPath;
+        this.timeout = other.timeout;
 	}
 
 
@@ -188,7 +197,18 @@ public class Configuration {
         private int proxyPort;
         private Boolean secureCdnSubdomain;
         private boolean useRootPath;
-		
+        private int timeout;
+
+        /**
+         * Set the HTTP connection timeout.
+         * @param timeout time in milliseconds, or 0 to use the default platform value
+         * @return builder for chaining
+         */
+        public Builder setTimeout(int timeout) {
+            this.timeout = timeout;
+            return this;
+        }
+
 
         /**
          * Creates a {@link Configuration} with the arguments supplied to this builder
@@ -313,6 +333,7 @@ public class Configuration {
             this.proxyPort = other.proxyPort;
             this.secureCdnSubdomain = other.secureCdnSubdomain;
             this.useRootPath = other.useRootPath;
+            this.timeout = other.timeout;
             return this;
         }
 

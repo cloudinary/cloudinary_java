@@ -15,6 +15,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -43,11 +45,13 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 		String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
 		if (apiKey == null)
 			throw new IllegalArgumentException("Must supply api_key");
-		String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
-		if (apiSecret == null)
-			throw new IllegalArgumentException("Must supply api_secret");
+        String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
+        if (apiSecret == null)
+            throw new IllegalArgumentException("Must supply api_secret");
 
-		String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
+        int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
+
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
 		for (String component : uri) {
 			apiUrl = apiUrl + "/" + component;
 		}
@@ -63,7 +67,13 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 		}
 		ClientConnectionManager connectionManager = (ClientConnectionManager) this.api.cloudinary.config.properties.get("connectionManager");
 
-		DefaultHttpClient client = new DefaultHttpClient(connectionManager);
+        DefaultHttpClient client = new DefaultHttpClient(connectionManager);
+        if (timeout > 0) {
+            HttpParams httpParams = client.getParams();
+            HttpConnectionParams.setConnectionTimeout(httpParams, timeout );
+            HttpConnectionParams.setSoTimeout(httpParams, timeout );
+        }
+
 		URI apiUri = apiUrlBuilder.build();
 		HttpUriRequest request = null;
 		switch (method) {

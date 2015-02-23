@@ -238,8 +238,8 @@ public class CloudinaryTest extends AndroidTestCase {
 
 	public void testFetchFormat() {
 		// should support format for fetch urls
-		String result = cloudinary.url().format("jpg").type("fetch").generate("http://cloudinary.com/images/logo.png");
-		assertEquals("http://res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/logo.png", result);
+		String result = cloudinary.url().format("jpg").type("fetch").generate("http://cloudinary.com/images/old_logo.png");
+		assertEquals("http://res.cloudinary.com/test123/image/fetch/f_jpg/http://cloudinary.com/images/old_logo.png", result);
 	}
 
 	public void testEffect() {

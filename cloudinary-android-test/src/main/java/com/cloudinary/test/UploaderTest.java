@@ -219,9 +219,9 @@ public class UploaderTest extends InstrumentationTestCase {
 		fos.close();
 
 		JSONObject result = new JSONObject(cloudinary.uploader().upload(f, ObjectUtils.asMap("use_filename", true)));
-		assertTrue(result.getString("public_id").matches("logo_[a-z0-9]{6}"));
+		assertTrue(result.getString("public_id").matches("old_logo_[a-z0-9]{6}"));
 		result = new JSONObject(cloudinary.uploader().upload(f, ObjectUtils.asMap("use_filename", true, "unique_filename", false)));
-		assertEquals(result.getString("public_id"), "logo");
+		assertEquals(result.getString("public_id"), "old_logo");
 	}
 
 	public void testFaceCoordinates() throws Exception {

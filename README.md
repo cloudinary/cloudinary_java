@@ -27,10 +27,10 @@ The cloudinary_java library is available in [Maven Central](https://repo1.maven.
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary-http42</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.3</version>
     </dependency>
 
-Alternatively, download cloudinary_java from [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-core/1.1.0/cloudinary-core-1.1.0.jar) and [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-http42/1.1.0/cloudinary-http42-1.1.0.jar)
+Alternatively, download cloudinary_java from [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-core/1.1.3/cloudinary-core-1.1.3.jar) and [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-http42/1.1.3/cloudinary-http42-1.1.3.jar)
 and see [pom.xml](https://github.com/cloudinary/cloudinary_java/cloudinary-http42/blob/master/pom.xml) for library dependencies.
 
 ## Try it right away

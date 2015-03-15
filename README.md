@@ -9,6 +9,7 @@ Images are seamlessly delivered through a fast CDN, and much much more.
 
 Cloudinary offers comprehensive APIs and administration capabilities and is easy to integrate with any web application, existing or new.
 
+
 Cloudinary provides URL and HTTP based APIs that can be easily integrated with any Web development framework. 
 
 For Java, Cloudinary provides a library for simplifying the integration even further.
@@ -134,7 +135,7 @@ The uploaded image is assigned a randomly generated public ID. The image is imme
 
 You can also specify your own public ID:    
     
-    cloudinary.uploader().upload("http://www.example.com/image.jpg", Cloudinary.asMap("public_id", "sample_remote"))
+    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"))
 
     cloudinary.url().generate("sample_remote.jpg")
 

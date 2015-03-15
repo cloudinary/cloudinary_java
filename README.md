@@ -131,7 +131,7 @@ The uploaded image is assigned a randomly generated public ID. The image is imme
 
     cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg");
         
-    http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
+    # http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
 
 You can also specify your own public ID:    
     
@@ -139,7 +139,7 @@ You can also specify your own public ID:
 
     cloudinary.url().generate("sample_remote.jpg");
 
-    http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
+    # http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.        
 

@@ -101,21 +101,21 @@ Any image uploaded to Cloudinary can be transformed and embedded using powerful 
 
 The following example generates the url for accessing an uploaded `sample` image while transforming it to fill a 100x150 rectangle:
 
-    cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg")
+    cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg");
 
 Another example, emedding a smaller version of an uploaded image while generating a 90x90 face detection based thumbnail: 
 
-    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg")
+    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg");
 
 You can provide either a Facebook name or a numeric ID of a Facebook profile or a fan page.  
              
 Embedding a Facebook profile to match your graphic design is very simple:
 
-    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg")
+    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg");
                            
 Same goes for Twitter:
 
-    cloudinary.url().type("twitter_name").generate("billclinton.jpg")
+    cloudinary.url().type("twitter_name").generate("billclinton.jpg");
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_manipulation) for more information about displaying and transforming images in Java**.
 
@@ -125,19 +125,19 @@ Assuming you have your Cloudinary configuration parameters defined (`cloud_name`
     
 The following example uploads a local JPG to the cloud: 
     
-    cloudinary.uploader().upload("my_picture.jpg", Cloudinary.emptyMap())
+    cloudinary.uploader().upload("my_picture.jpg", Cloudinary.emptyMap());
         
 The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
 
-    cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg")
+    cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg");
         
     http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
 
 You can also specify your own public ID:    
     
-    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"))
+    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"));
 
-    cloudinary.url().generate("sample_remote.jpg")
+    cloudinary.url().generate("sample_remote.jpg");
 
     http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
 
@@ -149,7 +149,7 @@ Returns an html image tag pointing to Cloudinary.
 
 Usage:
 
-    cloudinary.url().format("png").transformation(new Transformation().width(100).height(100).crop("fill")).imageTag("sample")
+    cloudinary.url().format("png").transformation(new Transformation().width(100).height(100).crop("fill")).imageTag("sample");
 
     # <img src='http://res.cloudinary.com/cloud_name/image/upload/c_fill,h_100,w_100/sample.png' height='100' width='100'/>
 

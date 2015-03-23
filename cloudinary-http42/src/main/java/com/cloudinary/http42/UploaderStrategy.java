@@ -3,6 +3,7 @@ package com.cloudinary.http42;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -58,18 +59,19 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
+		Charset utf8 = Charset.forName("UTF-8");
 
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			if (param.getValue() instanceof Collection) {
 				for (Object value : (Collection) param.getValue()) {
-					multipart.addPart(param.getKey() + "[]", new StringBody(ObjectUtils.asString(value)));
+					multipart.addPart(param.getKey() + "[]", new StringBody(ObjectUtils.asString(value), utf8));
 				}
 			} else {
 				String value = param.getValue().toString();
 				if (StringUtils.isNotBlank(value)) {
-					multipart.addPart(param.getKey(), new StringBody(value));
+					multipart.addPart(param.getKey(), new StringBody(value, utf8));
 				}
 			}
 		}
@@ -80,7 +82,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		if (file instanceof File) {
 			multipart.addPart("file", new FileBody((File) file));
 		} else if (file instanceof String) {
-			multipart.addPart("file", new StringBody((String) file));
+			multipart.addPart("file", new StringBody((String) file, utf8));
 		} else if (file instanceof byte[]) {
 			multipart.addPart("file", new ByteArrayBody((byte[]) file, "file"));
 		} else if (file == null) {

@@ -85,6 +85,12 @@ public class UploaderTest {
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
     }
+    
+    @Test
+    public void testUploadUTF8() throws IOException {
+        Map result = cloudinary.uploader().upload("src/test/resources/logo.png", ObjectUtils.asMap("public_id", "Plattenkreiss_ñg-é"));
+        assertEquals(result.get("public_id"), "Plattenkreiss_ñg-é");
+    }
 
     @Test
 	public void testRename() throws Exception {

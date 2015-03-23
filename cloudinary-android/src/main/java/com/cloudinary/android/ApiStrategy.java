@@ -10,8 +10,8 @@ public class ApiStrategy extends AbstractApiStrategy {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
-		throw new Exception("not implemented");
+	public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+		throw new Exception("Administration API is not supported for mobile applications.");
 	}
 
 }

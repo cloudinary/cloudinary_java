@@ -24,9 +24,21 @@ import com.cloudinary.utils.StringUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Cloudinary {
 
-	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList("com.cloudinary.android.UploaderStrategy","com.cloudinary.http42.UploaderStrategy","com.cloudinary.http43.UploaderStrategy"));
-	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.ApiStrategy", "com.cloudinary.http42.ApiStrategy", "com.cloudinary.http43.ApiStrategy" ));
-	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.UrlBuilderStrategy", "com.cloudinary.http42.UrlBuilderStrategy", "com.cloudinary.http43.UrlBuilderStrategy" ));
+	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList(
+		"com.cloudinary.android.UploaderStrategy",
+		"com.cloudinary.http42.UploaderStrategy",
+		"com.cloudinary.http43.UploaderStrategy",
+		"com.cloudinary.http44.UploaderStrategy"));
+	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
+		"com.cloudinary.android.ApiStrategy", 
+		"com.cloudinary.http42.ApiStrategy", 
+		"com.cloudinary.http43.ApiStrategy",
+		"com.cloudinary.http44.ApiStrategy" ));
+	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( 
+		"com.cloudinary.android.UrlBuilderStrategy",
+		"com.cloudinary.http42.UrlBuilderStrategy",
+		"com.cloudinary.http43.UrlBuilderStrategy",
+		"com.cloudinary.http44.UrlBuilderStrategy" ));
 
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";

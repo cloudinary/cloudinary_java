@@ -10,4 +10,6 @@
     <artifactId>cloudinary-core</artifactId>
     <packaging>jar</packaging>
 
+    <name>Cloudinary Core Library</name>
+
 </project>

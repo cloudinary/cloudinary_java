@@ -1,6 +1,7 @@
 package com.cloudinary.http42.api;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class Response extends HashMap implements ApiResponse {
 	private static final DateFormat RFC1123 = new SimpleDateFormat(
 			RFC1123_PATTERN);
 
-	public Map<String, RateLimit> rateLimits() throws java.text.ParseException {
+	public Map<String, RateLimit> rateLimits() throws ParseException {
 		Header[] headers = this.response.getAllHeaders();
 		Map<String, RateLimit> limits = new HashMap<String, RateLimit>();
 		for (Header header : headers) {
@@ -63,7 +64,7 @@ public class Response extends HashMap implements ApiResponse {
 		return limits;
 	}
 
-	public RateLimit apiRateLimit() throws java.text.ParseException {
+	public RateLimit apiRateLimit() throws ParseException {
 		return rateLimits().get("Api");
 	}
 }

@@ -13,11 +13,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.conn.ConnectTimeoutException;
+import org.cloudinary.json.JSONArray;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -40,7 +42,7 @@ public class ApiTest {
     public static final String SRC_TEST_IMAGE = "src/test/resources/old_logo.png";
     private Cloudinary cloudinary;
 	private Api api;
-	private static String uniqueTag = String.format("api_test_tag_%d", new java.util.Date().getTime());
+	private static String uniqueTag = String.format("api_test_tag_%d", new Date().getTime());
 
 	@BeforeClass
 	public static void setUpClass() throws IOException {
@@ -207,7 +209,7 @@ public class ApiTest {
 		// should allow listing resources by start date - make sure your clock
 		// is set correctly!!!
 		Thread.sleep(2000L);
-		java.util.Date startAt = new java.util.Date();
+		Date startAt = new Date();
 		Thread.sleep(2000L);
 		Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 		ApiResponse listResources = api.resources(ObjectUtils.asMap("type", "upload", "start_at", startAt, "direction", "asc"));
@@ -432,7 +434,7 @@ public class ApiTest {
 		cloudinary.uploader().upload(SRC_TEST_IMAGE,
 				ObjectUtils.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
 		Map result = api.resource("api_test5", ObjectUtils.emptyMap());
-		assertEquals(1, ((org.cloudinary.json.JSONArray) result.get("derived")).length());
+		assertEquals(1, ((JSONArray) result.get("derived")).length());
 		api.deleteAllResources(ObjectUtils.asMap("keep_original", true));
 		result = api.resource("api_test5", ObjectUtils.emptyMap());
 		// assertEquals(0, ((org.cloudinary.json.JSONArray)
@@ -533,7 +535,7 @@ public class ApiTest {
 		assertTrue(result2.apiRateLimit().getLimit() > result2.apiRateLimit().getRemaining());
 		assertEquals(result1.apiRateLimit().getLimit(), result2.apiRateLimit().getLimit());
 		assertEquals(result1.apiRateLimit().getReset(), result2.apiRateLimit().getReset());
-		assertTrue(result2.apiRateLimit().getReset().after(new java.util.Date()));
+		assertTrue(result2.apiRateLimit().getReset().after(new Date()));
 	}
 
 	@Test
@@ -567,10 +569,10 @@ public class ApiTest {
 		assertEquals(Boolean.TRUE, preset.get("unsigned"));
 		Map settings = (Map) preset.get("settings");
 		assertEquals(settings.get("folder"), "folder");
-		Map outTransformation = (Map) ((java.util.ArrayList) settings.get("transformation")).get(0);
+		Map outTransformation = (Map) ((ArrayList) settings.get("transformation")).get(0);
 		assertEquals(outTransformation.get("width"), 100);
 		assertEquals(outTransformation.get("crop"), "scale");
-		Object[] outTags = ((java.util.ArrayList) settings.get("tags")).toArray();
+		Object[] outTags = ((ArrayList) settings.get("tags")).toArray();
 		assertArrayEquals(tags, outTags);
 		Map outContext = (Map) settings.get("context");
 		assertEquals(context, outContext);
@@ -640,11 +642,11 @@ public class ApiTest {
 		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder1/test_subfolder1/item"));
 		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "test_folder1/test_subfolder2/item"));
 		Map result = api.rootFolders(null);
-		assertEquals("test_folder1", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("name"));
-		assertEquals("test_folder2", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(1)).get("name"));
+		assertEquals("test_folder1", ((Map) ((JSONArray) result.get("folders")).get(0)).get("name"));
+		assertEquals("test_folder2", ((Map) ((JSONArray) result.get("folders")).get(1)).get("name"));
 		result = api.subFolders("test_folder1", null);
-		assertEquals("test_folder1/test_subfolder1", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("path"));
-		assertEquals("test_folder1/test_subfolder2", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(1)).get("path"));
+		assertEquals("test_folder1/test_subfolder1", ((Map) ((JSONArray) result.get("folders")).get(0)).get("path"));
+		assertEquals("test_folder1/test_subfolder2", ((Map) ((JSONArray) result.get("folders")).get(1)).get("path"));
 		try {
 			api.subFolders("test_folder", null);
 		} catch (Exception e) {

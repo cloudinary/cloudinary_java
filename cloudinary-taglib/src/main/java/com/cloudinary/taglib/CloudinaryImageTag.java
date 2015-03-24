@@ -14,15 +14,24 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import com.cloudinary.*;
 
 /**
- * <cl:img source='test' height='101' width='100' crop="crop" />
- * 
- * Transformation transformation = new Transformation().width(100).height(101).crop("crop");
- * String result = cloudinary.url().transformation(transformation).imageTag("test",
- * Cloudinary.asMap("alt", "my image"));
- * 
- * <img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image'
- * height='101' width='100'/>
- * 
+ * Generates an image html tag.<br>
+ * For example,<br>
+ * {@code <cl:img source='test' height='101' width='100' crop="crop" />}
+ * <br>is equivalent to:<br>
+ * <pre>{@code
+ * Transformation transformation = new Transformation()
+ *      .width(100)
+ *      .height(101)
+ *      .crop("crop");
+ * String result = cloudinary.url()
+ *      .transformation(transformation)
+ *      .imageTag("test", Cloudinary.asMap("alt", "my image"));
+ * }</pre>
+ * <br>
+ * Both code segments above produce the following tag:<br>
+ * {@code <img src='http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test' alt='my image'
+ * height='101' width='100'/> }
+ * <br>
  * @author jpollak
  * 
  */

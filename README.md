@@ -124,7 +124,7 @@ Assuming you have your Cloudinary configuration parameters defined (`cloud_name`
     
 The following example uploads a local JPG to the cloud: 
     
-    cloudinary.uploader().upload("my_picture.jpg", Cloudinary.emptyMap())
+    cloudinary.uploader().upload("my_picture.jpg", ObjectUtils.emptyMap())
         
 The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
 

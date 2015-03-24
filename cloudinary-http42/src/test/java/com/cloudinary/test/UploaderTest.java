@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -355,7 +356,7 @@ public class UploaderTest {
     public void testUploadLargeRawFiles()  throws Exception {
     	// support uploading large raw files
         Map response = cloudinary.uploader().uploadLargeRaw("src/test/resources/docx.docx", ObjectUtils.emptyMap());
-        assertEquals((int)(new java.io.File("src/test/resources/docx.docx").length()), response.get("bytes"));
+        assertEquals((int)(new File("src/test/resources/docx.docx").length()), response.get("bytes"));
         assertEquals(Boolean.TRUE, response.get("done"));
     }
 

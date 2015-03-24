@@ -70,7 +70,7 @@ public class Base64Coder {
 	/**
 	 * Encodes a byte array into Base 64 format and breaks the output into lines
 	 * of 76 characters. This method is compatible with
-	 * <code>sun.misc.BASE64Encoder.encodeBuffer(byte[])</code>.
+	 * {@code sun.misc.BASE64Encoder.encodeBuffer(byte[])}.
 	 * 
 	 * @param in
 	 *            An array containing the data bytes to be encoded.
@@ -87,10 +87,10 @@ public class Base64Coder {
 	 * @param in
 	 *            An array containing the data bytes to be encoded.
 	 * @param iOff
-	 *            Offset of the first byte in <code>in</code> to be processed.
+	 *            Offset of the first byte in {@code in} to be processed.
 	 * @param iLen
-	 *            Number of bytes to be processed in <code>in</code>, starting
-	 *            at <code>iOff</code>.
+	 *            Number of bytes to be processed in {@code in}, starting
+	 *            at {@code iOff}.
 	 * @param lineLen
 	 *            Line length for the output data. Should be a multiple of 4.
 	 * @param lineSeparator
@@ -134,7 +134,7 @@ public class Base64Coder {
 	 * @param in
 	 *            An array containing the data bytes to be encoded.
 	 * @param iLen
-	 *            Number of bytes to process in <code>in</code>.
+	 *            Number of bytes to process in {@code in}.
 	 * @return A character array containing the Base64 encoded data.
 	 */
 	public static char[] encode(byte[] in, int iLen) {
@@ -148,10 +148,10 @@ public class Base64Coder {
 	 * @param in
 	 *            An array containing the data bytes to be encoded.
 	 * @param iOff
-	 *            Offset of the first byte in <code>in</code> to be processed.
+	 *            Offset of the first byte in {@code in} to be processed.
 	 * @param iLen
-	 *            Number of bytes to process in <code>in</code>, starting at
-	 *            <code>iOff</code>.
+	 *            Number of bytes to process in {@code in}, starting at
+	 *            {@code iOff}.
 	 * @return A character array containing the Base64 encoded data.
 	 */
 	public static char[] encode(byte[] in, int iOff, int iLen) {
@@ -197,7 +197,7 @@ public class Base64Coder {
 	 * Decodes a byte array from Base64 format and ignores line separators, tabs
 	 * and blanks. CR, LF, Tab and Space characters are ignored in the input
 	 * data. This method is compatible with
-	 * <code>sun.misc.BASE64Decoder.decodeBuffer(String)</code>.
+	 * {@code sun.misc.BASE64Decoder.decodeBuffer(String)}.
 	 * 
 	 * @param s
 	 *            A Base64 String to be decoded.
@@ -251,11 +251,11 @@ public class Base64Coder {
 	 * @param in
 	 *            A character array containing the Base64 encoded data.
 	 * @param iOff
-	 *            Offset of the first character in <code>in</code> to be
+	 *            Offset of the first character in {@code in} to be
 	 *            processed.
 	 * @param iLen
-	 *            Number of characters to process in <code>in</code>, starting
-	 *            at <code>iOff</code>.
+	 *            Number of characters to process in {@code in}, starting
+	 *            at {@code iOff}.
 	 * @return An array containing the decoded data bytes.
 	 * @throws IllegalArgumentException
 	 *             If the input is not valid Base64 encoded data.

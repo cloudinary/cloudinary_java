@@ -115,7 +115,7 @@ public class Configuration {
 	/**
      * Create a new Configuration from an existing one
      * @param other
-     * @return
+     * @return a new configuration with the arguments supplied by another configuration object
      */
     public static Configuration from(Configuration other) {
         return new Builder().from(other).build();
@@ -127,7 +127,7 @@ public class Configuration {
      * Example url: cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7
      *
      * @param cloudinaryUrl configuration url
-     * @return
+     * @return a new configuration with the arguments supplied by the url
      */
     public static Configuration from(String cloudinaryUrl) {
         return from(parseConfigUrl(cloudinaryUrl));
@@ -314,8 +314,8 @@ public class Configuration {
       
         /**
          * Initialize builder from existing {@link Configuration}
-         * @param other
-         * @return
+         * @param other a different configuration object
+         * @return an initialized builder configured with <code>other</code>
          */
         public Builder from(Configuration other) {
             this.cloudName  = other.cloudName;

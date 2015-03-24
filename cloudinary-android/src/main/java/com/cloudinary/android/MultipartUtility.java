@@ -74,7 +74,7 @@ public class MultipartUtility {
 	 * Adds a upload file section to the request
 	 * 
 	 * @param fieldName
-	 *            name attribute in <input type="file" name="..." />
+	 *            name attribute in {@code <input type="file" name="..." />}
 	 * @param uploadFile
 	 *            a File to be uploaded
 	 * @throws IOException

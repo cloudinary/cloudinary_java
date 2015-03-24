@@ -36,9 +36,8 @@ public class Url {
 	private static Pattern identifierPattern = Pattern.compile("^(?:([^/]+)/)??(?:([^/]+)/)??(?:v(\\d+)/)?" + "(?:([^#/]+?)(?:\\.([^.#/]+))?)(?:#([^/]+))?$");
 
 	/**
-	 * Parses a cloudinary identifier of the form:
-	 * [<resource_type>/][<image_type
-	 * >/][v<version>/]<public_id>[.<format>][#<signature>]
+	 * Parses a cloudinary identifier of the form:<br>
+	 * {@code [<resource_type>/][<image_type>/][v<version>/]<public_id>[.<format>][#<signature>]}
 	 */
 	public Url fromIdentifier(String identifier) {
 		Matcher matcher = identifierPattern.matcher(identifier);

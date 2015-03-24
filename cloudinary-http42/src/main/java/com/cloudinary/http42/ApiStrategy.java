@@ -6,6 +6,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.cloudinary.strategies.AbstractApiStrategy;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -30,7 +31,7 @@ import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
-public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  {
+public class ApiStrategy extends AbstractApiStrategy  {
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })

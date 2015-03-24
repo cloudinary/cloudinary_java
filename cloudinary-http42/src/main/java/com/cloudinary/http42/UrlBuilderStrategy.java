@@ -1,8 +1,9 @@
 package com.cloudinary.http42;
 
+import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
 import org.apache.http.client.utils.URIBuilder;
 
-public class UrlBuilderStrategy extends com.cloudinary.strategies.AbstractUrlBuilderStrategy {
+public class UrlBuilderStrategy extends AbstractUrlBuilderStrategy {
 	
 	private URIBuilder builder;
 	@Override

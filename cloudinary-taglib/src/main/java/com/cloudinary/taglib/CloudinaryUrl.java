@@ -14,8 +14,10 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 import com.cloudinary.*;
 
 /**
- * <cl:url source='test' height='101' width='100' crop="crop" />
- * http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test
+ * Generates a cloudinary resource url
+ *
+ * <br>For example,<br> {@code <cl:url source='test' height='101' width='100' crop="crop" />}
+ * will produce<br> {@code http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test}
  *
  */
 public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes {

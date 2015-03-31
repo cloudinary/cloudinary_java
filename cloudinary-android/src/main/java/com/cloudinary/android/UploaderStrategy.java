@@ -45,7 +45,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			params.put("api_key", apiKey);
 		}
 		String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
-		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId());
+		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (String) options.get("content_range"));
 
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {

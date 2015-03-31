@@ -3,7 +3,6 @@ package com.cloudinary.http44;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
@@ -13,6 +12,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -70,21 +70,24 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
 		HttpPost postMethod = new HttpPost(apiUrl);
-		Charset utf8 = Charset.forName("UTF-8");
+		
+		if (options.get("content_range") != null) {
+			postMethod.setHeader("Content-Range", (String) options.get("content_range")); 
+		}
 
 		MultipartEntityBuilder multipart = MultipartEntityBuilder.create();
 		multipart.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
-		multipart.setCharset(utf8);
+		ContentType contentType = ContentType.MULTIPART_FORM_DATA.withCharset(MIME.UTF8_CHARSET);
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			if (param.getValue() instanceof Collection) {
 				for (Object value : (Collection) param.getValue()) {
-					multipart.addTextBody(param.getKey() + "[]", ObjectUtils.asString(value));
+					multipart.addTextBody(param.getKey() + "[]", ObjectUtils.asString(value), contentType);
 				}
 			} else {
 				String value = param.getValue().toString();
 				if (StringUtils.isNotBlank(value)) {
-					multipart.addTextBody(param.getKey(), value);
+					multipart.addTextBody(param.getKey(), value, contentType);
 				}
 			}
 		}

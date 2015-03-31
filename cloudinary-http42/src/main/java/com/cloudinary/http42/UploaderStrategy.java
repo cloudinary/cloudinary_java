@@ -59,6 +59,11 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
+		
+		if (options.get("content_range") != null) {
+			postMethod.setHeader("Content-Range", (String) options.get("content_range")); 
+		}
+		
 		Charset utf8 = Charset.forName("UTF-8");
 
 		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);

@@ -4,9 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
+import static org.junit.Assert.assertArrayEquals;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -358,11 +363,46 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-    public void testUploadLargeRawFiles()  throws Exception {
-    	// support uploading large raw files
-        Map response = cloudinary.uploader().uploadLargeRaw("../cloudinary-test-common/src/main/resources/docx.docx", ObjectUtils.emptyMap());
-        assertEquals((int)(new java.io.File("../cloudinary-test-common/src/main/resources/docx.docx").length()), response.get("bytes"));
-        assertEquals(Boolean.TRUE, response.get("done"));
+    public void testUploadLarge()  throws Exception {
+    	// support uploading large files
+        
+        File temp = File.createTempFile("cldupload.test.", "");
+        FileOutputStream out = new FileOutputStream(temp);
+        int[] header = new int[]{0x42,0x4D,0x4A,0xB9,0x59,0x00,0x00,0x00,0x00,0x00,0x8A,0x00,0x00,0x00,0x7C,0x00,0x00,0x00,0x78,0x05,0x00,0x00,0x78,0x05,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,0x00,0x00,0xC0,0xB8,0x59,0x00,0x61,0x0F,0x00,0x00,0x61,0x0F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x42,0x47,0x52,0x73,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x54,0xB8,0x1E,0xFC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x66,0x66,0x66,0xFC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xC4,0xF5,0x28,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x04,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+        byte[] byteHeader = new byte[138];
+        for (int i = 0; i <= 137; i++) byteHeader[i] = (byte) header[i];
+        byte[] piece = new byte[10];
+        Arrays.fill(piece, (byte) 0xff);
+        out.write(byteHeader);
+        for (int i = 1; i <= 588000; i++) {
+          out.write(piece);
+        }
+        out.close();
+        assertEquals(5880138, temp.length());
+        ArrayList<String> tags = new java.util.ArrayList<String>();
+        tags.add("upload_large_tag");
+        
+        Map resource = cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("resource_type", "raw", "chunk_size", 5243000, "tags", tags));
+        assertEquals(tags, resource.get("tags"));
+        assertEquals("raw", resource.get("resource_type"));
+        
+        resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), ObjectUtils.asMap("chunk_size", 5243000, "tags", tags));
+        assertEquals(tags, resource.get("tags"));
+        assertEquals("image", resource.get("resource_type"));
+        assertEquals(1400, resource.get("width"));
+        assertEquals(1400, resource.get("height"));
+        
+        resource = cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("chunk_size", 5880138, "tags", tags));
+        assertEquals(tags, resource.get("tags"));
+        assertEquals("image", resource.get("resource_type"));
+        assertEquals(1400, resource.get("width"));
+        assertEquals(1400, resource.get("height"));
+        
+        resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), ObjectUtils.asMap("chunk_size", 5880138, "tags", tags));
+        assertEquals(tags, resource.get("tags"));
+        assertEquals("image", resource.get("resource_type"));
+        assertEquals(1400, resource.get("width"));
+        assertEquals(1400, resource.get("height"));
     }
 
     @Test

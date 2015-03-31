@@ -3,6 +3,7 @@ package com.cloudinary;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -190,12 +191,7 @@ public class Cloudinary {
 		params.put("type", options.get("type"));
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		signRequest(params, options);
-		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download", options));
-
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParam(param.getKey(), param.getValue().toString());
-		}
-		return builder.url();
+		return buildUrl(cloudinaryApiUrl("download", options), params);
 	}
 
 	public String zipDownload(String tag, Map<String, Object> options) throws Exception {
@@ -211,11 +207,23 @@ public class Cloudinary {
 		}
 		params.put("transformation", transformation);
 		signRequest(params, options);
-		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download_tag.zip", options));
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParam(param.getKey(), param.getValue().toString());
+		return buildUrl(cloudinaryApiUrl("download_tag.zip", options), params);
+	}
+	
+	private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
+		StringBuilder urlBuilder = new StringBuilder();
+		urlBuilder.append(base);
+		if (!params.isEmpty()) {
+			urlBuilder.append("?");
 		}
-		return builder.url();
+		boolean first = true;
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			if (!first) urlBuilder.append("&");
+			urlBuilder.append(param.getKey()).append("=").append(
+				URLEncoder.encode(param.getValue().toString(), "UTF-8"));
+			first = false;
+		}
+		return urlBuilder.toString();
 	}
 
 	protected Map parseConfigUrl(String cloudinaryUrl) {

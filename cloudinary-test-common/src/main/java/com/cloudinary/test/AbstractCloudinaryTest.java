@@ -402,10 +402,10 @@ abstract public class AbstractCloudinaryTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testPrivateDownload() throws Exception {
-		String url = cloudinary.privateDownload("img", "jpg", ObjectUtils.emptyMap());
+		String url = cloudinary.privateDownload("imgÿ=&é", "jpg", ObjectUtils.emptyMap());
 		URI uri = new URI(url);
 		Map<String, String> parameters = getUrlParameters(uri);
-		assertEquals("img", parameters.get("public_id"));
+		assertEquals("imgÿ=&é", parameters.get("public_id"));
 		assertEquals("jpg", parameters.get("format"));
 		assertEquals("a", parameters.get("api_key"));
 		assertEquals("/v1_1/test123/image/download", uri.getPath());
@@ -577,7 +577,7 @@ abstract public class AbstractCloudinaryTest {
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();
-		for (String param : uri.getQuery().split("&")) {
+		for (String param : uri.getRawQuery().split("&")) {
 			String pair[] = param.split("=");
 			String key = URLDecoder.decode(pair[0], "UTF-8");
 			String value = "";

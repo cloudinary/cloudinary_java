@@ -59,7 +59,6 @@ public class Uploader {
 		return uploadLargeRaw(file, options, 20000000);
 	}
 
-	@SuppressWarnings("resource")
 	public Map uploadLargeRaw(Object file, Map options, int bufferSize) throws IOException {
 		Map sentOptions = new HashMap();
 		sentOptions.putAll(options);
@@ -72,6 +71,7 @@ public class Uploader {
 		return uploadLarge(file, options, bufferSize);
 	}
 	
+	@SuppressWarnings("resource")
 	public Map uploadLarge(Object file, Map options, int bufferSize) throws IOException {
 		InputStream input;
 		long length = -1;
@@ -177,6 +177,8 @@ public class Uploader {
 		params.put("callback", (String) options.get("callback"));
 		params.put("type", (String) options.get("type"));
 		params.put("eager", Util.buildEager((List<Transformation>) options.get("eager")));
+		params.put("eager_async", ObjectUtils.asBoolean(options.get("eager_async"), false).toString());
+		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("headers", Util.buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
 		if (options.get("face_coordinates") != null) {

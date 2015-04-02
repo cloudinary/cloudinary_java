@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -23,6 +25,8 @@ public class Transformation {
 
 	private static final Map DEFAULT_RESPONSIVE_WIDTH_TRANSFORMATION = ObjectUtils.asMap("width", "auto", "crop", "limit");
 	protected static Map responsiveWidthTransformation = null;
+	private static final Pattern RANGE_VALUE_RE = Pattern.compile("^((?:\\d+\\.)?\\d+)([%pP])?$");
+	private static final Pattern RANGE_RE =  Pattern.compile("^(\\d+\\.)?\\d+[%pP]?\\.\\.(\\d+\\.)?\\d+[%pP]?$");
 
 	public Transformation(Transformation transformation) {
 		this(dup(transformation.transformations));
@@ -172,6 +176,156 @@ public class Transformation {
 	public Transformation dpr(String value) {
 		return param("dpr", value);
 	}
+	
+	public Transformation duration(String value) {
+		return param("duration", value);
+	}
+	
+	public Transformation duration(float value) {
+		return param("duration", new Float(value));
+	}
+	
+	public Transformation duration(double value) {
+		return param("duration", new Double(value));
+	}
+
+	public Transformation durationPercent(float value) {
+		return param("duration", new Float(value).toString() + "p");
+	}
+	
+	public Transformation durationPercent(double value) {
+		return param("duration", new Double(value).toString() + "p");
+	}
+	
+	public Transformation startOffset(String value) {
+		return param("start_offset", value);
+	}
+	
+	public Transformation startOffset(float value) {
+		return param("start_offset", new Float(value));
+	}
+	
+	public Transformation startOffset(double value) {
+		return param("start_offset", new Double(value));
+	}
+	
+	public Transformation startOffsetPercent(float value) {
+		return param("start_offset", new Float(value).toString() + "p");
+	}
+	
+	public Transformation startOffsetPercent(double value) {
+		return param("start_offset", new Double(value).toString() + "p");
+	}
+
+	public Transformation endOffset(String value) {
+		return param("end_offset", value);
+	}
+	
+	public Transformation endOffset(float value) {
+		return param("end_offset", new Float(value));
+	}
+	
+	public Transformation endOffset(double value) {
+		return param("end_offset", new Double(value));
+	}
+
+	public Transformation endOffsetPercent(float value) {
+		return param("end_offset", new Float(value).toString() + "p");
+	}
+	
+	public Transformation endOffsetPercent(double value) {
+		return param("end_offset", new Double(value).toString() + "p");
+	}
+	
+	public Transformation offset(String value) {
+		return param("offset", value);
+	}
+	
+	public Transformation offset(String[] value) {
+		if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
+		return param("offset", value);
+	}
+	
+	public Transformation offset(float[] value) {
+		if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
+		Number[] numberArray = new Number[]{value[0], value[1]};
+		return offset(numberArray);
+	}
+	
+	public Transformation offset(double[] value) {
+		if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
+		Number[] numberArray = new Number[]{value[0], value[1]};
+		return offset(numberArray);
+	}
+	
+	public Transformation offset(Number[] value) {
+		if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
+		return param("offset", value);
+	}
+
+	public Transformation videoCodec(String value) {
+		return param("video_codec", value);
+	}
+
+	public Transformation videoCodec(Map<String, String> value) {
+		return param("video_codec", value);
+	}
+
+	public Transformation audioCodec(String value) {
+		return param("audio_codec", value);
+	}
+
+	public Transformation audioFrequency(String value) {
+		return param("audio_frequency", value);
+	}
+
+	public Transformation audioFrequency(int value) {
+		return param("audio_frequency", value);
+	}
+
+	public Transformation bitRate(String value) {
+		return param("bit_rate", value);
+	}
+
+	public Transformation bitRate(int value) {
+		return param("bit_rate", new Integer(value));
+	}
+	
+	public Transformation videoSampling(String value) {
+		return param("video_sampling", value);
+	}
+	
+	public Transformation videoSamplingFrames(int value) {
+		return param("video_sampling", value);
+	}
+	
+	public Transformation videoSamplingSeconds(Number value) {
+		return param("video_sampling", value.toString() + "s");
+	}
+	
+	public Transformation videoSamplingSeconds(int value) {
+		return videoSamplingSeconds(new Integer(value));
+	}
+	
+	public Transformation videoSamplingSeconds(float value) {
+		return videoSamplingSeconds(new Float(value));
+	}
+	
+	public Transformation videoSamplingSeconds(double value) {
+		return videoSamplingSeconds(new Double(value));
+	}
+	
+	public Transformation zoom(String value) {
+		return param("zoom", value);
+	}
+	
+	public Transformation zoom(float value) {
+		return param("zoom", new Float(value));
+	}
+	
+	public Transformation zoom(double value) {
+		return param("zoom", new Double(value));
+	}
 
 	public Transformation responsiveWidth(boolean value) {
 		return param("responsive_width", value);
@@ -279,22 +433,57 @@ public class Transformation {
 
 		String flags = StringUtils.join(ObjectUtils.asArray(options.get("flags")), ".");
 
-		SortedMap<String, String> params = new TreeMap<String, String>();
-		params.put("w", width);
-		params.put("h", height);
-		params.put("t", namedTransformation);
-		params.put("c", crop);
-		params.put("b", background);
-		params.put("co", color);
-		params.put("a", angle);
-		params.put("fl", flags);
-		String dpr = ObjectUtils.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
-		params.put("dpr", dpr);
+		String duration = normRangeValue(options.get("duration"));
+		String startOffset = normRangeValue(options.get("start_offset"));
+		String endOffset = normRangeValue(options.get("end_offset"));
+		String[] offset = splitRange(options.get("offset"));
+		if (offset != null) {
+			startOffset = normRangeValue(offset[0]);
+			endOffset = normRangeValue(offset[1]);  
+		}
 
-		String[] simple_params = new String[] { "x", "x", "y", "y", "r", "radius", "d", "default_image", "g",
-				"gravity", "cs", "color_space", "p", "prefix", "l", "overlay", "u", "underlay", "f", "fetch_format",
-				"dn", "density", "pg", "page", "dl", "delay", "e", "effect", "bo", "border", "q", "quality", "o",
-				"opacity" };
+		String videoCodec = processVideoCodecParam(options.get("video_codec"));
+		String dpr = ObjectUtils.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
+
+		SortedMap<String, String> params = new TreeMap<String, String>();
+		params.put("a", angle);
+		params.put("b", background);
+		params.put("c", crop);
+		params.put("co", color);
+		params.put("dpr", dpr);
+		params.put("du", duration);
+		params.put("eo", endOffset);
+		params.put("fl", flags);
+		params.put("h", height);
+		params.put("so", startOffset);
+		params.put("t", namedTransformation);
+		params.put("vc", videoCodec);
+		params.put("w", width);
+		
+		String[] simple_params = new String[] {
+				"ac", "audio_codec",
+				"af", "audio_frequency",
+				"bo", "border",
+				"br", "bit_rate",
+				"cs", "color_space", 
+				"d",  "default_image", 
+				"dl", "delay", 
+				"dn", "density", 
+				"e",  "effect", 
+				"f",  "fetch_format",
+				"g",  "gravity", 
+				"l",  "overlay", 
+				"o",  "opacity",
+				"p",  "prefix", 
+				"pg", "page", 
+				"q",  "quality", 
+				"r",  "radius", 
+				"u",  "underlay",
+				"vs", "video_sampling",
+				"x",  "x", 
+				"y",  "y",
+				"z",  "zoom" };
+				 
 		for (int i = 0; i < simple_params.length; i += 2) {
 			params.put(simple_params[i], ObjectUtils.asString(options.get(simple_params[i + 1])));
 		}
@@ -363,6 +552,55 @@ public class Transformation {
 
 	public static void setDefaultDPR(Object dpr) {
 		defaultDPR = dpr;
+	}
+	
+	private static String[] splitRange(Object range) {
+		if (range instanceof String[] && ((String[]) range).length >= 2) {
+			String[] stringArrayRange = ((String[]) range);
+			return new String[]{stringArrayRange[0], stringArrayRange[1]};
+		} else if (range instanceof Number[] && ((Number[]) range).length >= 2) {
+			Number[] numberArrayRange = ((Number[]) range);
+			return new String[]{numberArrayRange[0].toString(), numberArrayRange[1].toString()};
+		} else if (range instanceof String && RANGE_RE.matcher((String) range).matches()) {
+			return ((String) range).split("\\.\\.", 2);
+		} else {
+			return null;
+		}
+	}
+
+	private static String normRangeValue(Object objectValue) {
+		if (objectValue == null) return null;
+		String value = objectValue.toString();
+		if (StringUtils.isEmpty(value)) return null;
+
+		Matcher matcher = RANGE_VALUE_RE.matcher(value);
+
+		if (!matcher.matches()) {
+			return null;
+		}
+
+		String modifier = "";
+		if (matcher.groupCount() == 2 && !StringUtils.isEmpty(matcher.group(2))) {
+			modifier = "p";
+		}
+		return matcher.group(1) + modifier;
+	}
+
+	private static String processVideoCodecParam(Object param) {
+		StringBuilder outParam = new StringBuilder();
+		if (param instanceof String) {
+			outParam.append(param);
+		} if (param instanceof Map<?, ?>) {
+			Map<String, String> paramMap = ( Map<String, String> ) param;
+			outParam.append(paramMap.get("codec"));
+			if (paramMap.containsKey("profile")) {
+				outParam.append(":").append(paramMap.get("profile"));
+				if (paramMap.containsKey("level")) {
+					outParam.append(":").append(paramMap.get("level"));
+				}
+			}
+		}
+		return outParam.toString();
 	}
 
 }

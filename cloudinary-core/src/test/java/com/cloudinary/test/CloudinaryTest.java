@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,9 @@ import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 
 public class CloudinaryTest {
-
+	private static final String DEFAULT_ROOT_PATH = "http://res.cloudinary.com/test123/";
+	private static final String DEFAULT_UPLOAD_PATH = DEFAULT_ROOT_PATH + "image/upload/";
+    private static final String VIDEO_UPLOAD_PATH = DEFAULT_ROOT_PATH + "video/upload/";
 	private Cloudinary cloudinary;
 
 	@Rule
@@ -38,7 +41,7 @@ public class CloudinaryTest {
 	public void testCloudName() {
 		// should use cloud_name from config
 		String result = cloudinary.url().generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "test", result);
 	}
 
 	@Test
@@ -103,19 +106,19 @@ public class CloudinaryTest {
 	public void testFormat() {
 		// should use format from options
 		String result = cloudinary.url().format("jpg").generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/test.jpg", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "test.jpg", result);
 	}
 
 	@Test
 	public void testCrop() {
 		Transformation transformation = new Transformation().width(100).height(101);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/h_101,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "h_101,w_100/test", result);
 		assertEquals("101", transformation.getHtmlHeight().toString());
 		assertEquals("100", transformation.getHtmlWidth().toString());
 		transformation = new Transformation().width(100).height(101).crop("crop");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_101,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_101,w_100/test", result);
 	}
 
 	@Test
@@ -123,7 +126,7 @@ public class CloudinaryTest {
 		// should use x, y, radius, prefix, gravity and quality from options
 		Transformation transformation = new Transformation().x(1).y(2).radius(3).gravity("center").quality(0.4).prefix("a");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/g_center,p_a,q_0.4,r_3,x_1,y_2/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "g_center,p_a,q_0.4,r_3,x_1,y_2/test", result);
 	}
 
 	@Test
@@ -131,7 +134,7 @@ public class CloudinaryTest {
 		// should support named transformation
 		Transformation transformation = new Transformation().named("blip");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/t_blip/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "t_blip/test", result);
 	}
 
 	@Test
@@ -139,7 +142,7 @@ public class CloudinaryTest {
 		// should support array of named transformations
 		Transformation transformation = new Transformation().named("blip", "blop");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/t_blip.blop/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "t_blip.blop/test", result);
 	}
 
 	@Test
@@ -148,7 +151,7 @@ public class CloudinaryTest {
 		Transformation transformation = new Transformation().x(100).y(100).crop("fill").chain().crop("crop").width(100);
 		String result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("100", transformation.getHtmlWidth().toString());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/c_crop,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_fill,x_100,y_100/c_crop,w_100/test", result);
 	}
 
 	@Test
@@ -157,7 +160,7 @@ public class CloudinaryTest {
 		Transformation transformation = new Transformation().x(100).y(100).width(200).crop("fill").chain().radius(10).chain().crop("crop").width(100);
 		String result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals("100", transformation.getHtmlWidth().toString());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_fill,w_200,x_100,y_100/r_10/c_crop,w_100/test", result);
 	}
 
 	@Test
@@ -165,7 +168,7 @@ public class CloudinaryTest {
 		// should not include empty transformations
 		Transformation transformation = new Transformation().chain().x(100).y(100).crop("fill").chain();
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_fill,x_100,y_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_fill,x_100,y_100/test", result);
 	}
 
 	@Test
@@ -226,10 +229,10 @@ public class CloudinaryTest {
 		// should support background
 		Transformation transformation = new Transformation().background("red");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/b_red/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "b_red/test", result);
 		transformation = new Transformation().background("#112233");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/b_rgb:112233/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "b_rgb:112233/test", result);
 	}
 
 	@Test
@@ -237,7 +240,7 @@ public class CloudinaryTest {
 		// should support default_image
 		Transformation transformation = new Transformation().defaultImage("default");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/d_default/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "d_default/test", result);
 	}
 
 	@Test
@@ -245,10 +248,10 @@ public class CloudinaryTest {
 		// should support angle
 		Transformation transformation = new Transformation().angle(12);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/a_12/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "a_12/test", result);
 		transformation = new Transformation().angle("exif", "12");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/a_exif.12/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "a_exif.12/test", result);
 	}
 
 	@Test
@@ -256,26 +259,26 @@ public class CloudinaryTest {
 		// should support overlay
 		Transformation transformation = new Transformation().overlay("text:hello");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/l_text:hello/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "l_text:hello/test", result);
 		// should not pass width/height to html if overlay
 		transformation = new Transformation().overlay("text:hello").width(100).height(100);
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertNull(transformation.getHtmlHeight());
 		assertNull(transformation.getHtmlWidth());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/h_100,l_text:hello,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "h_100,l_text:hello,w_100/test", result);
 	}
 
 	@Test
 	public void testUnderlay() {
 		Transformation transformation = new Transformation().underlay("text:hello");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/u_text:hello/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "u_text:hello/test", result);
 		// should not pass width/height to html if underlay
 		transformation = new Transformation().underlay("text:hello").width(100).height(100);
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertNull(transformation.getHtmlHeight());
 		assertNull(transformation.getHtmlWidth());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/h_100,u_text:hello,w_100/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "h_100,u_text:hello,w_100/test", result);
 	}
 
 	@Test
@@ -290,7 +293,7 @@ public class CloudinaryTest {
 		// should support effect
 		Transformation transformation = new Transformation().effect("sepia");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/e_sepia/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "e_sepia/test", result);
 	}
 
 	@Test
@@ -298,7 +301,7 @@ public class CloudinaryTest {
 		// should support effect with param
 		Transformation transformation = new Transformation().effect("sepia", 10);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/e_sepia:10/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "e_sepia:10/test", result);
 	}
 
 	@Test
@@ -306,7 +309,7 @@ public class CloudinaryTest {
 		// should support density
 		Transformation transformation = new Transformation().density(150);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/dn_150/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "dn_150/test", result);
 	}
 
 	@Test
@@ -314,7 +317,7 @@ public class CloudinaryTest {
 		// should support page
 		Transformation transformation = new Transformation().page(5);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/pg_5/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "pg_5/test", result);
 	}
 
 	@Test
@@ -322,13 +325,13 @@ public class CloudinaryTest {
 		// should support border
 		Transformation transformation = new Transformation().border(5, "black");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/bo_5px_solid_black/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "bo_5px_solid_black/test", result);
 		transformation = new Transformation().border(5, "#ffaabbdd");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/bo_5px_solid_rgb:ffaabbdd/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "bo_5px_solid_rgb:ffaabbdd/test", result);
 		transformation = new Transformation().border("1px_solid_blue");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/bo_1px_solid_blue/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "bo_1px_solid_blue/test", result);
 	}
 
 	@Test
@@ -336,10 +339,10 @@ public class CloudinaryTest {
 		// should support flags
 		Transformation transformation = new Transformation().flags("abc");
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "fl_abc/test", result);
 		transformation = new Transformation().flags("abc", "def");
 		result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/fl_abc.def/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "fl_abc.def/test", result);
 	}
 
 	@Test
@@ -347,7 +350,7 @@ public class CloudinaryTest {
 		// should support opacity
 		Transformation transformation = new Transformation().opacity(50);
 		String result = cloudinary.url().transformation(transformation).generate("test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/o_50/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "o_50/test", result);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -380,16 +383,16 @@ public class CloudinaryTest {
 	public void testFolders() {
 		// should add version if public_id contains /
 		String result = cloudinary.url().generate("folder/test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/v1/folder/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
 		result = cloudinary.url().version(123).generate("folder/test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/v123/folder/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "v123/folder/test", result);
 	}
 
 	@Test
 	public void testFoldersWithVersion() {
 		// should not add version if public_id contains version already
 		String result = cloudinary.url().generate("v1234/test");
-		assertEquals("http://res.cloudinary.com/test123/image/upload/v1234/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "v1234/test", result);
 	}
 
 	@Test
@@ -437,23 +440,23 @@ public class CloudinaryTest {
 		Map<String, String> tests = ObjectUtils.asMap("a b", "a%20b", "a+b", "a%2Bb", "a%20b", "a%20b", "a-b", "a-b", "a??b", "a%3F%3Fb");
 		for (Map.Entry<String, String> entry : tests.entrySet()) {
 			String result = cloudinary.url().generate(entry.getKey());
-			assertEquals("http://res.cloudinary.com/test123/image/upload/" + entry.getValue(), result);
+			assertEquals(DEFAULT_UPLOAD_PATH + "" + entry.getValue(), result);
 		}
 	}
 
 	@Test
 	public void testSignedUrl() {
 		// should correctly sign a url
-		String expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/v1234/image.jpg";
+		String expected = DEFAULT_UPLOAD_PATH + "s--Ai4Znfl3--/c_crop,h_20,w_10/v1234/image.jpg";
 		String actual = cloudinary.url().version(1234).transformation(new Transformation().crop("crop").width(10).height(20)).signed(true)
 				.generate("image.jpg");
 		assertEquals(expected, actual);
 
-		expected = "http://res.cloudinary.com/test123/image/upload/s----SjmNDA--/v1234/image.jpg";
+		expected = DEFAULT_UPLOAD_PATH + "s----SjmNDA--/v1234/image.jpg";
 		actual = cloudinary.url().version(1234).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
 
-		expected = "http://res.cloudinary.com/test123/image/upload/s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
+		expected = DEFAULT_UPLOAD_PATH + "s--Ai4Znfl3--/c_crop,h_20,w_10/image.jpg";
 		actual = cloudinary.url().transformation(new Transformation().crop("crop").width(10).height(20)).signed(true).generate("image.jpg");
 		assertEquals(expected, actual);
 	}
@@ -464,12 +467,12 @@ public class CloudinaryTest {
 		Transformation trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
 		String result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_limit,w_auto/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_100,w_100/c_limit,w_auto/test", result);
 		Transformation.setResponsiveWidthTransformation(ObjectUtils.asMap("width", "auto", "crop", "pad"));
 		trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
 		result = cloudinary.url().transformation(trans).generate("test");
 		assertTrue(trans.isResponsive());
-		assertEquals("http://res.cloudinary.com/test123/image/upload/c_crop,h_100,w_100/c_pad,w_auto/test", result);
+		assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_100,w_100/c_pad,w_auto/test", result);
 		Transformation.setResponsiveWidthTransformation(null);
 	}
 
@@ -569,7 +572,139 @@ public class CloudinaryTest {
 	public void testDisllowUseRootPathIfNotImageUploadForRaw() {
 		cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
 	}
+	
+	@Test
+	public void testVideoCodec() {
+		// should support a string value
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().videoCodec("auto"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vc_auto/video_id", actual);
+		// should support a hash value
+		actual = cloudinary.url().resourceType("video")
+				.transformation(
+						new Transformation().videoCodec(ObjectUtils.asMap("codec", "h264", "profile", "basic", "level","3.1"))
+					).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1/video_id", actual);
+	}
 
+	@Test
+	public void testAudioCodec(){
+		// should support a string value
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().audioCodec("acc")).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "ac_acc/video_id", actual);
+	}
+
+	@Test
+	public void testBitRate() {
+		// should support a numeric value
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().bitRate(2048))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "br_2048/video_id", actual);
+		// should support a string value
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().bitRate("44k"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "br_44k/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().bitRate("1m"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "br_1m/video_id", actual);
+
+	}
+
+	@Test
+	public void testAudioFrequency() {
+		// should support an integer value
+		String actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().audioFrequency(44100)).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "af_44100/video_id", actual);
+		// should support a string value
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().audioFrequency("44100"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "af_44100/video_id", actual);
+	}
+
+	@Test
+	public void testVideoSampling() {
+		String actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().videoSamplingFrames(20)).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vs_20/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().videoSamplingSeconds(20))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vs_20s/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().videoSamplingSeconds(20.0))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vs_20.0s/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().videoSampling("2.3s"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "vs_2.3s/video_id", actual);
+	}
+
+	@Test
+	public void testStartOffset() {
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffset(2.63))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "so_2.63/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffset("2.63p"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "so_2.63p/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffset("2.63%"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "so_2.63p/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffsetPercent(2.63))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "so_2.63p/video_id", actual);
+	}
+	
+	@Test
+	public void testDuration() {
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().duration(2.63))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "du_2.63/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().duration("2.63p"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "du_2.63p/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().duration("2.63%"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "du_2.63p/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().durationPercent(2.63))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "du_2.63p/video_id", actual);
+	}
+
+	@Test
+	public void testOffset() {
+
+		String actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset("2.66..3.21")).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_3.21,so_2.66/video_id", actual);
+		actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset(new float[] { 2.67f, 3.22f })).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_3.22,so_2.67/video_id", actual);
+		actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset(new double[] { 2.67, 3.22 })).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_3.22,so_2.67/video_id", actual);
+		actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset(new String[] { "35%", "70%" })).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_70p,so_35p/video_id", actual);
+		actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset(new String[] { "36p", "71p" })).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_71p,so_36p/video_id", actual);
+		actual = cloudinary.url().resourceType("video")
+				.transformation(new Transformation().offset(new String[] { "35.5p", "70.5p" })).generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "eo_70.5p,so_35.5p/video_id", actual);
+
+	}
+	
+	@Test
+	public void testZoom() {
+		String actual = cloudinary.url().resourceType("video").transformation(new Transformation().zoom("1.5"))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "z_1.5/video_id", actual);
+		actual = cloudinary.url().resourceType("video").transformation(new Transformation().zoom(1.5))
+				.generate("video_id");
+		assertEquals(VIDEO_UPLOAD_PATH + "z_1.5/video_id", actual);
+	}
+	
+	@Test
 	public void testUtils() {
 		assertEquals(ObjectUtils.asBoolean(true, null), true);
 		assertEquals(ObjectUtils.asBoolean(false, null), false);

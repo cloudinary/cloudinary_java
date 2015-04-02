@@ -21,7 +21,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 
-abstract public class AbstractCloudinaryTest {
+public class CloudinaryTest {
 
 	private Cloudinary cloudinary;
 
@@ -31,7 +31,7 @@ abstract public class AbstractCloudinaryTest {
 	@Before
 	public void setUp() {
 		System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-		this.cloudinary = new Cloudinary("cloudinary://a:b@test123");
+		this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
 	}
 
 	@Test

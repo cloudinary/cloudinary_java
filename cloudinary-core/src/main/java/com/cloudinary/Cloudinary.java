@@ -17,7 +17,6 @@ import java.util.TreeMap;
 
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -35,11 +34,6 @@ public class Cloudinary {
 		"com.cloudinary.http42.ApiStrategy", 
 		"com.cloudinary.http43.ApiStrategy",
 		"com.cloudinary.http44.ApiStrategy" ));
-	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( 
-		"com.cloudinary.android.UrlBuilderStrategy",
-		"com.cloudinary.http42.UrlBuilderStrategy",
-		"com.cloudinary.http43.UrlBuilderStrategy",
-		"com.cloudinary.http44.UrlBuilderStrategy" ));
 
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
@@ -52,7 +46,6 @@ public class Cloudinary {
 	public final Configuration config;
 	private AbstractUploaderStrategy uploaderStrategy;
 	private AbstractApiStrategy apiStrategy;
-	private AbstractUrlBuilderStrategy urlBuilderStrategy;
 
 	public Uploader uploader(){
 		return new Uploader(this,uploaderStrategy);
@@ -76,13 +69,8 @@ public class Cloudinary {
 		}
 	}
 
-	public static void registerUrlBuilderStrategy(String className){
-		if (!URLBUILDER_STRATEGIES.contains(className)){
-			URLBUILDER_STRATEGIES.add(className);
-		}
-	}
-
 	private void loadStrategies() {
+		if (!this.config.loadStrategies) return;
 		uploaderStrategy= StrategyLoader.find(UPLOAD_STRATEGIES);
 
 		if (uploaderStrategy==null){
@@ -93,33 +81,26 @@ public class Cloudinary {
 		if (apiStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(API_STRATEGIES, ",") + "]");
 		}
-
-		urlBuilderStrategy= StrategyLoader.find(URLBUILDER_STRATEGIES);
-		if (urlBuilderStrategy==null){
-			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(URLBUILDER_STRATEGIES, ",") + "]");
-		}
 	}
 
 	public Cloudinary(Map config) {
-		loadStrategies();
 		this.config = new Configuration(config);
-
+		loadStrategies();
 	}
 
 	public Cloudinary(String cloudinaryUrl) {
-		loadStrategies();
 		this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+		loadStrategies();
 	}
 
 	public Cloudinary() {
-		loadStrategies();
 		String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
 		if (cloudinaryUrl != null) {
 			this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
 		}else {
 			this.config = new Configuration();
 		}
-
+		loadStrategies();
 	}
 
 	public Url url() {

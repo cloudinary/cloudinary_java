@@ -37,15 +37,16 @@ public class Configuration {
 	public Boolean secureCdnSubdomain;
 	public boolean useRootPath;
     public int timeout;
+    public boolean loadStrategies = true;
 
     public Configuration(){
     }
 
     private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath) {
-        this(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, 0);
+        this(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, 0, true);
     }
 
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -62,6 +63,7 @@ public class Configuration {
         this.secureCdnSubdomain = secureCdnSubdomain;
         this.useRootPath = useRootPath;
         this.timeout = 0;
+        this.loadStrategies = loadStrategies;
     }
 
     
@@ -87,6 +89,7 @@ public class Configuration {
 		this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"),0);
 		this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
 		this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
+		this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
 	}
 
@@ -167,8 +170,10 @@ public class Configuration {
                 }else if (key.equals("cdn_subdomain")){
                 	builder.setCdnSubdomain(ObjectUtils.asBoolean(val, false));
                 }else if (key.equals("shorten")){
-                	 builder.setShorten(ObjectUtils.asBoolean(val, false));
-                }else {
+                	builder.setShorten(ObjectUtils.asBoolean(val, false));
+                } else if (key.equals("load_strategies")){
+                	builder.setLoadStrategies(ObjectUtils.asBoolean(val, true));
+                } else {
 //                	Log.w("Cloudinary", "ignoring invalid parameter " + val);
                 }
                 
@@ -197,6 +202,7 @@ public class Configuration {
         private int proxyPort;
         private Boolean secureCdnSubdomain;
         private boolean useRootPath;
+        private boolean loadStrategies = true;
         private int timeout;
 
         /**
@@ -213,7 +219,7 @@ public class Configuration {
         /**
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
-        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain,useRootPath); }
+        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain,useRootPath, timeout, loadStrategies); }
 
         /**
          * The unique name of your cloud at Cloudinary
@@ -310,6 +316,11 @@ public class Configuration {
             return this;
         }
         
+        public Builder setLoadStrategies(boolean loadStrategies) {
+            this.loadStrategies = loadStrategies;
+            return this;
+        }
+        
         
       
         /**
@@ -333,6 +344,7 @@ public class Configuration {
             this.proxyPort = other.proxyPort;
             this.secureCdnSubdomain = other.secureCdnSubdomain;
             this.useRootPath = other.useRootPath;
+            this.loadStrategies = other.loadStrategies;
             this.timeout = other.timeout;
             return this;
         }

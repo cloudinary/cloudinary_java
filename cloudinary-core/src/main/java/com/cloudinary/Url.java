@@ -4,6 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,10 +19,11 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 public class Url {
+	private final Cloudinary cloudinary;
 	private final Configuration config;
 	String publicId = null;
 	String type = null;
-	String resourceType = "image";
+	String resourceType = null;
 	String format = null;
 	String version = null;
 	Transformation transformation = null;
@@ -27,10 +31,46 @@ public class Url {
 	String source = null;
 	private String urlSuffix;
 	private Boolean useRootPath;
+	Map<String, Transformation> sourceTransformation = null;
+	String[] sourceTypes = null;
+	String fallbackContent = null;
+	Transformation posterTransformation = null;
+	String posterSource = null;
+	Url posterUrl = null;
+	
 	private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+	public static final String[] DEFAULT_VIDEO_SOURCE_TYPES = {"webm", "mp4", "ogv"};
+	private static final Pattern VIDEO_EXTENSION_RE = Pattern.compile("\\.(" + StringUtils.join(DEFAULT_VIDEO_SOURCE_TYPES, "|") + ")$");
 
 	public Url(Cloudinary cloudinary) {
+		this.cloudinary = cloudinary;
 		this.config = new Configuration(cloudinary.config);
+	}
+	
+	public Url clone() {
+		Url cloned = cloudinary.url();
+		
+		cloned.fallbackContent = this.fallbackContent;
+		cloned.format = this.format;
+		cloned.posterSource = this.posterSource;
+		if (this.posterTransformation != null) cloned.posterTransformation = new Transformation(this.posterTransformation);
+		if (this.posterUrl != null) cloned.posterUrl = this.posterUrl.clone();
+		cloned.publicId = this.publicId;
+		cloned.resourceType = this.resourceType;
+		cloned.signUrl = this.signUrl;
+		cloned.source = this.source;
+		if (this.transformation != null) cloned.transformation = new Transformation(this.transformation);
+		if (this.sourceTransformation != null) {
+			cloned.sourceTransformation = new HashMap<String, Transformation>(); 
+			for (Map.Entry<String, Transformation> keyValuePair : this.sourceTransformation.entrySet()) {
+				cloned.sourceTransformation.put(keyValuePair.getKey(), keyValuePair.getValue());
+			};
+		}
+		cloned.sourceTypes = this.sourceTypes;
+		cloned.urlSuffix = this.urlSuffix;
+		cloned.useRootPath = this.useRootPath;
+		
+		return cloned;
 	}
 
 	private static Pattern identifierPattern = Pattern.compile("^(?:([^/]+)/)??(?:([^/]+)/)??(?:v(\\d+)/)?" + "(?:([^#/]+?)(?:\\.([^.#/]+))?)(?:#([^/]+))?$");
@@ -170,6 +210,78 @@ public class Url {
 		this.signUrl = signUrl;
 		return this;
 	}
+	
+	public Url sourceTransformation(Map<String, Transformation> sourceTransformation) {
+		this.sourceTransformation = sourceTransformation;
+		return this;
+	}
+	
+	public Url sourceTransformationFor(String source, Transformation transformation) {
+		if (this.sourceTransformation == null) {
+			this.sourceTransformation = new HashMap<String, Transformation>();
+		}
+		this.sourceTransformation.put(source, transformation);
+		return this;
+	}
+	
+	public Url sourceTypes(String[] sourceTypes) {
+		this.sourceTypes = sourceTypes;
+		return this;
+	}
+	
+	public Url fallbackContent(String fallbackContent) {
+		this.fallbackContent = fallbackContent;
+		return this;
+	}
+	
+	public Url posterTransformation(Transformation posterTransformation) {
+		this.posterTransformation = posterTransformation;
+		return this;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Url posterTransformation(List<Map> posterTransformations) {
+		this.posterTransformation = new Transformation(posterTransformations);
+		return this;
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Url posterTransformation(Map posterTransformations) {
+		List<Map> transformations = new ArrayList<Map>();
+		Map copy = new HashMap();
+		copy.putAll(posterTransformations);
+		transformations.add(copy);
+		this.posterTransformation = new Transformation(transformations);
+		return this;
+	}
+	
+	public Url posterSource(String posterSource) {
+		this.posterSource = posterSource;
+		return this;
+	}
+	
+	public Url posterUrl(Url posterUrl) {
+		this.posterUrl = posterUrl;
+		return this;
+	}
+	
+	public Url poster(Object poster) {
+		if (poster instanceof Transformation) {
+			return posterTransformation((Transformation) poster);
+		} else if (poster instanceof List) {
+			return posterTransformation((List) poster);
+		} else if (poster instanceof Map) {
+			return posterTransformation((Map) poster);
+		} else if (poster instanceof Url) {
+			return posterUrl((Url) poster);
+		} else if (poster instanceof String) {
+			return posterSource((String) poster);
+		} else if (poster == null || poster.equals(Boolean.FALSE)){
+			return posterSource("");
+		} else {
+			throw new IllegalArgumentException("Illegal value type supplied to poster. must be one of: <Transformation>, <List<Map>>, <Map>, <Url>, <String>");
+		}	
+	}
 
 	public String generate() {
 		return generate(null);
@@ -195,15 +307,16 @@ public class Url {
 			}
 		}
 
-		
-
 		if (source == null) {
 			if (publicId == null) {
-				return null;
+				if (this.source == null) {
+					return null;
+				}
+				source = this.source;
+			} else {
+				source = publicId;
 			}
-			source = publicId;
 		}
-		
 		
 		if (source.toLowerCase(Locale.US).matches("^https?:/.*")) {
 			if (StringUtils.isEmpty(type) || "asset".equals(type) ) {
@@ -252,6 +365,8 @@ public class Url {
 			signature = "s--" + signature.substring(0, 8) + "--" ;
 		}
 		
+		String resourceType = this.resourceType;
+		if (resourceType == null) resourceType = "image";
 		String finalResourceType = finalizeResourceType(resourceType,type,urlSuffix,useRootPath,config.shorten);
 		String prefix = unsignedDownloadUrlPrefix(source,config.cloudName,config.privateCdn,config.cdnSubdomain,config.secureCdnSubdomain,config.cname,config.secure,config.secureDistribution);
 		
@@ -379,7 +494,7 @@ public class Url {
 	}
 
 	public String imageTag(Map<String, String> attributes) {
-		return imageTag("", attributes);
+		return imageTag(null, attributes);
 	}
 
 	public String imageTag(String source, Map<String, String> attributes) {
@@ -415,6 +530,118 @@ public class Url {
 		}
 		builder.append("/>");
 		return builder.toString();
+	}
+	
+	public String videoTag() {
+		return videoTag("", new HashMap<String, String>());
+	}
+	
+	public String videoTag(Map<String, String> attributes) {
+		return videoTag("", attributes);
+	}
+	
+	private String finalizePosterUrl(String source) {
+		String posterUrl = null;
+		if (this.posterUrl != null) {
+			posterUrl = this.posterUrl.generate();
+		} else if (this.posterTransformation != null) {
+			posterUrl = this.clone().format("jpg").transformation(new Transformation(this.posterTransformation))
+					.generate(source);
+		} else if (this.posterSource != null) {
+			if (!StringUtils.isEmpty(this.posterSource))
+				posterUrl = this.clone().format("jpg").generate(this.posterSource);
+		} else {
+			posterUrl = this.clone().format("jpg").generate(source);
+		}
+		return posterUrl;
+	}
+	
+	private void appendVideoSources(StringBuilder html, String source, String sourceType ) {
+		Url sourceUrl = this.clone();
+		if (this.sourceTransformation != null) {
+			Transformation transformation = this.transformation;
+			Transformation sourceTransformation = null;
+			if (this.sourceTransformation.get(sourceType) != null)
+				sourceTransformation = new Transformation(this.sourceTransformation.get(sourceType));
+			if (transformation == null) {
+				transformation = sourceTransformation;
+			} else if (sourceTransformation != null) {
+				transformation = transformation.chainWith(sourceTransformation);
+			}
+			sourceUrl.transformation(transformation);
+		}
+		String src = sourceUrl.format(sourceType).generate(source);
+		String videoType = sourceType;
+		if (sourceType.equals("ogv"))
+			videoType = "ogg";
+		String mimeType = "video/" + videoType;
+		html.append("<source src='").append(src).append("' type='").append(mimeType).append("'>");
+	}
+	
+	public String videoTag(String source, Map<String, String> attributes) {
+		if (StringUtils.isEmpty(source))
+			source = this.source;
+		if (StringUtils.isEmpty(source))
+			source = publicId;
+		if (StringUtils.isEmpty(source))
+			throw new IllegalArgumentException("must supply source or public id");
+		source = VIDEO_EXTENSION_RE.matcher(source).replaceFirst("");
+		
+		if (this.resourceType == null) this.resourceType = "video";
+		attributes = new TreeMap<String, String>(attributes); // Make sure they are ordered.
+
+		String[] sourceTypes = this.sourceTypes;
+
+		if (sourceTypes == null) {
+			sourceTypes = DEFAULT_VIDEO_SOURCE_TYPES;
+		}
+		
+		String posterUrl = this.finalizePosterUrl(source);
+		
+		if (!StringUtils.isEmpty(posterUrl))
+			attributes.put("poster", posterUrl);
+
+		StringBuilder html = new StringBuilder().append("<video");
+
+		String url = null;
+
+		boolean multiSource = sourceTypes.length > 1;
+		if (!multiSource) {
+			url = generate(source + "." + sourceTypes[0]);
+			attributes.put("src", url);
+		} else {
+			generate(source);
+		}
+
+		if (this.transformation.getHtmlHeight() != null)
+			attributes.put("height", this.transformation.getHtmlHeight());
+		if (attributes.containsKey("html_height"))
+			attributes.put("height", attributes.remove("html_height"));
+		if (this.transformation.getHtmlWidth() != null)
+			attributes.put("width", this.transformation.getHtmlWidth());
+		if (attributes.containsKey("html_width"))
+			attributes.put("width", attributes.remove("html_width"));
+
+		for (Map.Entry<String, String> attr : attributes.entrySet()) {
+			html.append(" ").append(attr.getKey());
+			if (attr.getValue() != null) {
+				String value = ObjectUtils.asString(attr.getValue());
+				html.append("='").append(value).append("'");
+			}
+		}
+
+		html.append(">");
+
+		if (multiSource) {
+			for (String sourceType : sourceTypes) {
+				this.appendVideoSources(html, source, sourceType);
+			}
+		}
+
+		if (this.fallbackContent != null)
+			html.append(this.fallbackContent);
+		html.append("</video>");
+		return html.toString();
 	}
 
 	public String generateSpriteCss(String source) {

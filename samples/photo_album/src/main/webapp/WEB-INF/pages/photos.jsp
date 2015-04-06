@@ -145,7 +145,13 @@ requested transformations. This also shows how to chain transformations -->
                     </div>
                 </c:if>
                 <c:if test="${!photo.upload.isImage}">
-                    <a href="<cl:url storedSrc="${photo.upload}"/>" target="_blank">Non Image File</a>
+                    <c:if test="${photo.upload.isVideo}">
+                        <a href="<cl:url storedSrc="${photo.upload}"/>" target="_blank">Open in new Tab</a>
+                        <cl:video storedSrc="${photo.upload}" extraClasses="thumbnail inline" width="150" height="150" crop="fit" quality="80" mp4Transformation="q_60" ogvTransformation="q_70" owebTransformation="q_65" controls="true"/>
+                    </c:if>
+                    <c:if test="${!photo.upload.isVideo}">
+                        <a href="<cl:url storedSrc="${photo.upload}"/>" target="_blank">Non Image File</a>
+                    </c:if>
                 </c:if>
             </div>
         </c:forEach>

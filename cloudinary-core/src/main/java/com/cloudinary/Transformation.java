@@ -349,6 +349,12 @@ public class Transformation {
 	public Transformation chain() {
 		return params(new HashMap());
 	}
+	
+	public Transformation chainWith(Transformation transformation) {
+		List<Map> transformations = dup(this.transformations);
+		transformations.addAll(dup(transformation.transformations));
+		return new Transformation(transformations);
+	}
 
 	public Transformation param(String key, Object value) {
 		transformation.put(key, value);

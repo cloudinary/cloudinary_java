@@ -351,7 +351,11 @@ public class Uploader {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("<input type='file' name='file' data-url='").append(cloudinaryUploadUrl).append("' data-form-data='").append(tagParams)
-				.append("' data-cloudinary-field='").append(field).append("' class='cloudinary-fileupload");
+				.append("' data-cloudinary-field='").append(field).append("'");
+		if (options.containsKey("chunk_size")) 
+			builder.append(" data-max-chunk-size='").append(options.get("chunk_size")).append("'");
+		builder.append(" class='cloudinary-fileupload");
+		
 		if (htmlOptions.containsKey("class")) {
 			builder.append(" ").append(htmlOptions.get("class"));
 		}

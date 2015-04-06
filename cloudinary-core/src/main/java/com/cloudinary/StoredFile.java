@@ -20,6 +20,8 @@ public class StoredFile {
 
 	private static final String IMAGE_RESOURCE_TYPE = "image";
 
+	private static final String VIDEO_RESOURCE_TYPE = "video";
+
 	private static final String AUTO_RESOURCE_TYPE = "auto";
 
 	private static final Pattern PRELOADED_PATTERN = Pattern.compile("^([^\\/]+)\\/([^\\/]+)\\/v(\\d+)\\/([^#]+)#?([^\\/]+)?$");
@@ -118,5 +120,9 @@ public class StoredFile {
 
 	public boolean getIsImage() {
 		return IMAGE_RESOURCE_TYPE.equals(resourceType) || AUTO_RESOURCE_TYPE.equals(resourceType);
+	}
+
+	public boolean getIsVideo() {
+		return VIDEO_RESOURCE_TYPE.equals(resourceType);
 	}
 }

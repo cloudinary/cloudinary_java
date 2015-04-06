@@ -41,7 +41,13 @@ public class PhotoController {
             uploadResult = Singleton.getCloudinary().uploader().upload(photoUpload.getFile().getBytes(),
                     ObjectUtils.asMap("resource_type", "auto"));
             photoUpload.setPublicId((String) uploadResult.get("public_id"));
-            photoUpload.setVersion((Long) uploadResult.get("version"));
+            Object version = uploadResult.get("version");
+            if (version instanceof Integer) {
+                photoUpload.setVersion(new Long((Integer) version));    
+            } else {
+                photoUpload.setVersion((Long) version);
+            }
+            
             photoUpload.setSignature((String) uploadResult.get("signature"));
             photoUpload.setFormat((String) uploadResult.get("format"));
             photoUpload.setResourceType((String) uploadResult.get("resource_type"));

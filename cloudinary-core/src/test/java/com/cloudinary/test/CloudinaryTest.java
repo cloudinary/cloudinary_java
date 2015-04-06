@@ -709,6 +709,180 @@ public class CloudinaryTest {
 		assertEquals(ObjectUtils.asBoolean(true, null), true);
 		assertEquals(ObjectUtils.asBoolean(false, null), false);
 	}
+	
+	@Test
+	public void testVideoTag() {
+		String expectedUrl = VIDEO_UPLOAD_PATH + "movie";
+		String expectedTag = "<video poster='%s.jpg'>" + "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" 
+				+ "<source src='%s.ogv' type='video/ogg'>" 
+				+ "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
+		assertEquals(expectedTag, cloudinary.url().videoTag("movie", ObjectUtils.emptyMap()));
+		assertEquals(expectedTag, cloudinary.url().publicId("movie").videoTag());
+	}
+
+	@Test
+	public void testVideoTagWithAttributes() {
+		Map attributes = ObjectUtils.asMap(
+				"autoplay", true, 
+				"controls", null, 
+				"loop", null, 
+				"muted", "true", 
+				"preload", null, 
+				"style", "border: 1px");
+		String expectedUrl = VIDEO_UPLOAD_PATH + "movie";
+		String expectedTag = "<video autoplay='true' controls loop muted='true' poster='%s.jpg' preload style='border: 1px'>"
+				+ "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>"
+				+ "<source src='%s.ogv' type='video/ogg'>" + "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
+		assertEquals(expectedTag, cloudinary.url().videoTag("movie", attributes));
+	}
+
+	@Test
+	public void testVideoTagWithTransformation() {
+		Transformation transformation = new Transformation().videoCodec(ObjectUtils.asMap("codec", "h264"))
+				.audioCodec("acc").startOffset(3);
+		String expectedUrl = VIDEO_UPLOAD_PATH + "ac_acc,so_3.0,vc_h264/movie";
+		String expectedTag = "<video height='100' poster='%s.jpg' src='%s.mp4' width='200'></video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl);
+		String actualTag = cloudinary.url().transformation(transformation).sourceTypes(new String[] { "mp4" })
+				.videoTag("movie", ObjectUtils.asMap("html_height", "100", "html_width", "200"));
+		assertEquals(expectedTag, actualTag);
+
+		expectedTag = "<video height='100' poster='%s.jpg' width='200'>" 
+				+ "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" 
+				+ "<source src='%s.ogv' type='video/ogg'>" 
+				+ "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
+		actualTag = cloudinary.url().transformation(transformation)
+				.videoTag("movie", ObjectUtils.asMap("html_height", "100", "html_width", "200"));
+		assertEquals(expectedTag, actualTag);
+
+		transformation.width(250);
+		expectedUrl = VIDEO_UPLOAD_PATH + "ac_acc,so_3.0,vc_h264,w_250/movie";
+		expectedTag = "<video poster='%s.jpg' width='250'>" 
+				+ "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" 
+				+ "<source src='%s.ogv' type='video/ogg'>" 
+				+ "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
+		actualTag = cloudinary.url().transformation(transformation)
+				.videoTag("movie", ObjectUtils.asMap());
+		assertEquals(expectedTag, actualTag);
+
+		transformation.crop("fit");
+		expectedUrl = VIDEO_UPLOAD_PATH + "ac_acc,c_fit,so_3.0,vc_h264,w_250/movie";
+		expectedTag = "<video poster='%s.jpg'>" 
+				+ "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>"
+				+ "<source src='%s.ogv' type='video/ogg'>" 
+				+ "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
+		actualTag = cloudinary.url().transformation(transformation)
+				.videoTag("movie", ObjectUtils.asMap());
+		assertEquals(expectedTag, actualTag);
+	}
+
+	@Test
+	public void testVideoTagWithFallback() {
+		String expectedUrl = VIDEO_UPLOAD_PATH + "movie";
+		String fallback = "<span id='spanid'>Cannot display video</span>";
+		String expectedTag = "<video poster='%s.jpg' src='%s.mp4'>%s</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, fallback);
+		String actualTag = cloudinary.url().fallbackContent(fallback).sourceTypes(new String[] { "mp4" })
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+
+		expectedTag = "<video poster='%s.jpg'>" + "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" + "<source src='%s.ogv' type='video/ogg'>%s" + "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl, fallback);
+		actualTag = cloudinary.url().fallbackContent(fallback).videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+	}
+
+	@Test
+	public void testVideoTagWithSourceTypes() {
+		String expectedUrl = VIDEO_UPLOAD_PATH + "movie";
+		String expectedTag = "<video poster='%s.jpg'>" + "<source src='%s.ogv' type='video/ogg'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" + "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl);
+		String actualTag = cloudinary.url().sourceTypes(new String[] { "ogv", "mp4" })
+				.videoTag("movie.mp4", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+	}
+
+	@Test
+	public void testVideoTagWithSourceTransformation() {
+		String expectedUrl = VIDEO_UPLOAD_PATH + "q_50/w_100/movie";
+		String expectedOgvUrl = VIDEO_UPLOAD_PATH + "q_50/w_100/q_70/movie";
+		String expectedMp4Url = VIDEO_UPLOAD_PATH + "q_50/w_100/q_30/movie";
+		String expectedTag = "<video poster='%s.jpg' width='100'>" 
+				+ "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" 
+				+ "<source src='%s.ogv' type='video/ogg'>"
+				+ "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedMp4Url, expectedOgvUrl);
+		String actualTag = cloudinary.url().transformation(new Transformation().quality(50).chain().width(100))
+				.sourceTransformationFor("mp4", new Transformation().quality(30))
+				.sourceTransformationFor("ogv", new Transformation().quality(70))
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+
+		expectedTag = "<video poster='%s.jpg' width='100'>" + "<source src='%s.webm' type='video/webm'>"
+				+ "<source src='%s.mp4' type='video/mp4'>" + "</video>";
+		expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedMp4Url);
+		actualTag = cloudinary.url().transformation(new Transformation().quality(50).chain().width(100))
+				.sourceTransformationFor("mp4", new Transformation().quality(30))
+				.sourceTransformationFor("ogv", new Transformation().quality(70))
+				.sourceTypes(new String[] { "webm", "mp4" }).videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+	}
+	
+	@Test
+	public void testVideoTagWithPoster() {
+		String expectedUrl = VIDEO_UPLOAD_PATH + "movie";
+		String posterUrl = "http://image/somewhere.jpg";
+		String expectedTag = "<video poster='%s' src='%s.mp4'></video>";
+		expectedTag = String.format(expectedTag, posterUrl, expectedUrl);
+		String actualTag = cloudinary.url().sourceTypes(new String[]{"mp4"}).poster(posterUrl)
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+		
+		posterUrl = VIDEO_UPLOAD_PATH + "g_north/movie.jpg";
+		expectedTag = "<video poster='%s' src='%s.mp4'></video>";
+		expectedTag = String.format(expectedTag, posterUrl, expectedUrl);
+		actualTag = cloudinary.url().sourceTypes(new String[]{"mp4"})
+				.poster(new Transformation().gravity("north"))
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+		
+		posterUrl = DEFAULT_UPLOAD_PATH + "g_north/my_poster.jpg";
+		expectedTag = "<video poster='%s' src='%s.mp4'></video>";
+		expectedTag = String.format(expectedTag, posterUrl, expectedUrl);
+		actualTag = cloudinary.url().sourceTypes(new String[]{"mp4"})
+				.poster(cloudinary.url()
+							.publicId("my_poster")
+							.format("jpg")
+							.transformation(new Transformation().gravity("north")))
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+		
+		expectedTag = "<video src='%s.mp4'></video>";
+		expectedTag = String.format(expectedTag, expectedUrl);
+		actualTag = cloudinary.url().sourceTypes(new String[]{"mp4"})
+				.poster(null)
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+		
+		actualTag = cloudinary.url().sourceTypes(new String[]{"mp4"})
+				.poster(false)
+				.videoTag("movie", ObjectUtils.emptyMap());
+		assertEquals(expectedTag, actualTag);
+
+	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();

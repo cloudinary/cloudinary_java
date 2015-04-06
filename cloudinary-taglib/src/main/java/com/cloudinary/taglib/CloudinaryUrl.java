@@ -20,7 +20,7 @@ import com.cloudinary.*;
  */
 public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes {
 
-    private String src = null;
+    protected String src = null;
     private StoredFile storedSrc = null;
 
     private String type = null;
@@ -39,17 +39,15 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
     private String urlSuffix = null;
 
     /** stores the dynamic attributes */
-    private Map<String,Object> tagAttrs = new HashMap<String,Object>();
-
-    public void doTag() throws JspException, IOException {
-        Cloudinary cloudinary = Singleton.getCloudinary();
+    protected Map<String,Object> tagAttrs = new HashMap<String,Object>();
+    
+    protected Url prepareUrl() throws JspException {
+    	Cloudinary cloudinary = Singleton.getCloudinary();
         if (cloudinary == null) {
             throw new JspException("Cloudinary config could not be located");
         }
-
-        JspWriter out = getJspContext().getOut();
-
-        Url url = cloudinary.url();
+        
+    	Url url = cloudinary.url();
         if (storedSrc != null) {
             url.source(storedSrc);
         } else {
@@ -72,8 +70,12 @@ public class CloudinaryUrl extends SimpleTagSupport implements DynamicAttributes
         if (useRootPath != null) url.useRootPath(useRootPath);
         if (urlSuffix != null) url.suffix(urlSuffix);
         if (secureCdnSubdomain != null) url.secureCdnSubdomain(secureCdnSubdomain);
-        
-
+        return url;
+    }
+    
+    public void doTag() throws JspException, IOException {
+        JspWriter out = getJspContext().getOut();
+        Url url = this.prepareUrl();
         out.println(url.generate());
     }
 

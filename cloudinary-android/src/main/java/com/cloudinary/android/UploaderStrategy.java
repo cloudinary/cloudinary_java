@@ -1,5 +1,6 @@
 package com.cloudinary.android;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,8 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			multipart.addFormField("file", (String) file);
 		} else if (file instanceof InputStream) {
 			multipart.addFilePart("file", (InputStream) file);
+		} else if (file instanceof byte[]) {
+			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file));
 		}
 		HttpURLConnection connection = multipart.execute();
 		int code;

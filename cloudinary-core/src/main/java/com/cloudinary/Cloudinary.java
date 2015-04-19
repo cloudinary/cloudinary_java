@@ -3,6 +3,7 @@ package com.cloudinary;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -16,7 +17,6 @@ import java.util.TreeMap;
 
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.strategies.AbstractUrlBuilderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -24,22 +24,28 @@ import com.cloudinary.utils.StringUtils;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class Cloudinary {
 
-	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList("com.cloudinary.android.UploaderStrategy","com.cloudinary.http42.UploaderStrategy","com.cloudinary.http43.UploaderStrategy"));
-	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.ApiStrategy", "com.cloudinary.http42.ApiStrategy", "com.cloudinary.http43.ApiStrategy" ));
-	private static List<String> URLBUILDER_STRATEGIES = new ArrayList<String>(Arrays.asList( "com.cloudinary.android.UrlBuilderStrategy", "com.cloudinary.http42.UrlBuilderStrategy", "com.cloudinary.http43.UrlBuilderStrategy" ));
+	private static List<String> UPLOAD_STRATEGIES  = new ArrayList<String>(Arrays.asList(
+		"com.cloudinary.android.UploaderStrategy",
+		"com.cloudinary.http42.UploaderStrategy",
+		"com.cloudinary.http43.UploaderStrategy",
+		"com.cloudinary.http44.UploaderStrategy"));
+	private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
+		"com.cloudinary.android.ApiStrategy", 
+		"com.cloudinary.http42.ApiStrategy", 
+		"com.cloudinary.http43.ApiStrategy",
+		"com.cloudinary.http44.ApiStrategy" ));
 
 	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
 	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-	public final static String VERSION = "1.1.3";
+	public final static String VERSION = "1.2.0";
 	public final static String USER_AGENT = "cld-java-" + VERSION;
 
 	public final Configuration config;
 	private AbstractUploaderStrategy uploaderStrategy;
 	private AbstractApiStrategy apiStrategy;
-	private AbstractUrlBuilderStrategy urlBuilderStrategy;
 
 	public Uploader uploader(){
 		return new Uploader(this,uploaderStrategy);
@@ -63,13 +69,8 @@ public class Cloudinary {
 		}
 	}
 
-	public static void registerUrlBuilderStrategy(String className){
-		if (!URLBUILDER_STRATEGIES.contains(className)){
-			URLBUILDER_STRATEGIES.add(className);
-		}
-	}
-
 	private void loadStrategies() {
+		if (!this.config.loadStrategies) return;
 		uploaderStrategy= StrategyLoader.find(UPLOAD_STRATEGIES);
 
 		if (uploaderStrategy==null){
@@ -80,33 +81,26 @@ public class Cloudinary {
 		if (apiStrategy==null){
 			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(API_STRATEGIES, ",") + "]");
 		}
-
-		urlBuilderStrategy= StrategyLoader.find(URLBUILDER_STRATEGIES);
-		if (urlBuilderStrategy==null){
-			throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(URLBUILDER_STRATEGIES, ",") + "]");
-		}
 	}
 
 	public Cloudinary(Map config) {
-		loadStrategies();
 		this.config = new Configuration(config);
-
+		loadStrategies();
 	}
 
 	public Cloudinary(String cloudinaryUrl) {
-		loadStrategies();
 		this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+		loadStrategies();
 	}
 
 	public Cloudinary() {
-		loadStrategies();
 		String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
 		if (cloudinaryUrl != null) {
 			this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
 		}else {
 			this.config = new Configuration();
 		}
-
+		loadStrategies();
 	}
 
 	public Url url() {
@@ -178,12 +172,7 @@ public class Cloudinary {
 		params.put("type", options.get("type"));
 		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
 		signRequest(params, options);
-		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download", options));
-
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParam(param.getKey(), param.getValue().toString());
-		}
-		return builder.url();
+		return buildUrl(cloudinaryApiUrl("download", options), params);
 	}
 
 	public String zipDownload(String tag, Map<String, Object> options) throws Exception {
@@ -199,11 +188,23 @@ public class Cloudinary {
 		}
 		params.put("transformation", transformation);
 		signRequest(params, options);
-		AbstractUrlBuilderStrategy builder=  urlBuilderStrategy.init(cloudinaryApiUrl("download_tag.zip", options));
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			builder.addParam(param.getKey(), param.getValue().toString());
+		return buildUrl(cloudinaryApiUrl("download_tag.zip", options), params);
+	}
+	
+	private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
+		StringBuilder urlBuilder = new StringBuilder();
+		urlBuilder.append(base);
+		if (!params.isEmpty()) {
+			urlBuilder.append("?");
 		}
-		return builder.url();
+		boolean first = true;
+		for (Map.Entry<String, Object> param : params.entrySet()) {
+			if (!first) urlBuilder.append("&");
+			urlBuilder.append(param.getKey()).append("=").append(
+				URLEncoder.encode(param.getValue().toString(), "UTF-8"));
+			first = false;
+		}
+		return urlBuilder.toString();
 	}
 
 	protected Map parseConfigUrl(String cloudinaryUrl) {

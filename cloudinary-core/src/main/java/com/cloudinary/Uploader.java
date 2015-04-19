@@ -59,61 +59,93 @@ public class Uploader {
 		return uploadLargeRaw(file, options, 20000000);
 	}
 
-	@SuppressWarnings("resource")
 	public Map uploadLargeRaw(Object file, Map options, int bufferSize) throws IOException {
+		Map sentOptions = new HashMap();
+		sentOptions.putAll(options);
+		sentOptions.put("resource_type", "raw");
+		return uploadLarge(file, sentOptions, bufferSize);
+	}
+	
+	public Map uploadLarge(Object file, Map options) throws IOException {
+		int bufferSize = ObjectUtils.asInteger(options.get("chunk_size"), 20000000);
+		return uploadLarge(file, options, bufferSize);
+	}
+	
+	@SuppressWarnings("resource")
+	public Map uploadLarge(Object file, Map options, int bufferSize) throws IOException {
 		InputStream input;
+		long length = -1;
 		if (file instanceof InputStream) {
 			input = (InputStream) file;
 		} else if (file instanceof File) {
+			length = ((File) file).length();
 			input = new FileInputStream((File) file);
 		} else if (file instanceof byte[]) {
+			length = ( (byte[]) file ).length;
 			input = new ByteArrayInputStream((byte[]) file);
 		} else {
-			input = new FileInputStream(new File(file.toString()));
+			File f = new File(file.toString());
+			length = f.length();
+			input = new FileInputStream(f);
 		}
 		try {
-			Map result = uploadLargeRawParts(input, options, bufferSize);
+			Map result = uploadLargeParts(input, options, bufferSize, length);
 			return result;
 		} finally {
 			input.close();
 		}
 	}
 
-	private Map uploadLargeRawParts(InputStream input, Map options, int bufferSize) throws IOException {
-		Map params = ObjectUtils.only(options, "public_id", "backup", "type");
+	private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length) throws IOException {
+		Map params = buildUploadParams(options);
 		Map nextParams = new HashMap();
 		nextParams.putAll(params);
 		Map sentParams = new HashMap();
 
 		Map sentOptions = new HashMap();
 		sentOptions.putAll(options);
-		sentOptions.put("resource_type", "raw");
 
 		byte[] buffer = new byte[bufferSize];
+		byte[] nibbleBuffer = new byte[1];
 		int bytesRead = 0;
 		int currentBufferSize = 0;
-		int partNumber = 1;
-		while ((bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize)) != -1) {
-			if (bytesRead + currentBufferSize == bufferSize) {
-				nextParams.put("part_number", Integer.toString(partNumber));
+		int partNumber = 0;
+		long totalBytes = 0;
+		Map response = null;
+		while (true) {
+			bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize);
+			boolean atEnd = bytesRead == -1;
+			boolean fullBuffer = !atEnd && (bytesRead + currentBufferSize) == bufferSize;
+			if (!atEnd) currentBufferSize += bytesRead;
+
+			if (atEnd || fullBuffer) {
+				totalBytes += currentBufferSize;
 				sentParams.clear();
 				sentParams.putAll(nextParams);
-				Map response = callApi("upload_large", sentParams, sentOptions, buffer);
-				if (partNumber == 1) {
-					nextParams.put("public_id", response.get("public_id"));
-					nextParams.put("upload_id", response.get("upload_id"));
+				int currentLoc = bufferSize * partNumber;
+				if (!atEnd) {
+					//verify not on end - try read another byte
+					bytesRead = input.read(nibbleBuffer, 0, 1);
+					atEnd = bytesRead == -1;
 				}
-				currentBufferSize = 0;
+				if (atEnd) {
+					if (length == -1) length = totalBytes;
+					byte[] finalBuffer = new byte[currentBufferSize];
+					System.arraycopy(buffer, 0, finalBuffer, 0, currentBufferSize);
+					buffer = finalBuffer;
+				}
+				String range = String.format("bytes %d-%d/%d", currentLoc, currentLoc + currentBufferSize - 1, length);  
+				sentOptions.put("content_range", range);
+				response = callApi("upload", sentParams, sentOptions, buffer);
+				nextParams.put("public_id", response.get("public_id"));
+				nextParams.put("upload_id", response.get("upload_id"));
+				if (atEnd) break;
+				buffer[0] = nibbleBuffer[0];
+				currentBufferSize = 1;
 				partNumber++;
-			} else {
-				currentBufferSize += bytesRead;
 			}
 		}
-		byte[] finalBuffer = new byte[currentBufferSize];
-		System.arraycopy(buffer, 0, finalBuffer, 0, currentBufferSize);
-		nextParams.put("final", true);
-		nextParams.put("part_number", Integer.toString(partNumber));
-		return callApi("upload_large", nextParams, sentOptions, finalBuffer);
+		return response;
 	}
 
 	public Map destroy(String publicId, Map options) throws IOException {
@@ -145,6 +177,8 @@ public class Uploader {
 		params.put("callback", (String) options.get("callback"));
 		params.put("type", (String) options.get("type"));
 		params.put("eager", Util.buildEager((List<Transformation>) options.get("eager")));
+		params.put("eager_async", ObjectUtils.asBoolean(options.get("eager_async"), false).toString());
+		params.put("eager_notification_url", (String) options.get("eager_notification_url"));
 		params.put("headers", Util.buildCustomHeaders(options.get("headers")));
 		params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
 		if (options.get("face_coordinates") != null) {
@@ -317,7 +351,11 @@ public class Uploader {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("<input type='file' name='file' data-url='").append(cloudinaryUploadUrl).append("' data-form-data='").append(tagParams)
-				.append("' data-cloudinary-field='").append(field).append("' class='cloudinary-fileupload");
+				.append("' data-cloudinary-field='").append(field).append("'");
+		if (options.containsKey("chunk_size")) 
+			builder.append(" data-max-chunk-size='").append(options.get("chunk_size")).append("'");
+		builder.append(" class='cloudinary-fileupload");
+		
 		if (htmlOptions.containsKey("class")) {
 			builder.append(" ").append(htmlOptions.get("class"));
 		}

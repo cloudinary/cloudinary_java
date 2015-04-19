@@ -1,35 +1,56 @@
-package com.cloudinary.http42;
+package com.cloudinary.http44;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ByteArrayBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.entity.mime.MIME;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Uploader;
 import com.cloudinary.Util;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
-
+	
+	private CloseableHttpClient client = null;
+	@Override 
+	public void init(Uploader uploader) {
+		super.init(uploader);
+		
+		HttpClientBuilder clientBuilder = HttpClients.custom();
+		clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT);
+		
+		// If the configuration specifies a proxy then apply it to the client
+		if (cloudinary().config.proxyHost != null && cloudinary().config.proxyPort != 0) {
+			HttpHost proxy = new HttpHost(cloudinary().config.proxyHost, cloudinary().config.proxyPort);
+			clientBuilder.setProxy(proxy);
+		}
+		
+		HttpClientConnectionManager connectionManager = (HttpClientConnectionManager) cloudinary().config.properties.get("connectionManager");
+		if (connectionManager != null) {
+			clientBuilder.setConnectionManager(connectionManager);
+		}
+		
+		this.client = clientBuilder.build();
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
@@ -48,35 +69,25 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
 		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
-		ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
-		HttpClient client = new DefaultHttpClient(connectionManager);
-
-		// If the configuration specifies a proxy then apply it to the client
-		if (uploader.cloudinary().config.proxyHost != null && uploader.cloudinary().config.proxyPort != 0) {
-			HttpHost proxy = new HttpHost(uploader.cloudinary().config.proxyHost, uploader.cloudinary().config.proxyPort);
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-		}
-
 		HttpPost postMethod = new HttpPost(apiUrl);
-		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
 		
 		if (options.get("content_range") != null) {
 			postMethod.setHeader("Content-Range", (String) options.get("content_range")); 
 		}
-		
-		Charset utf8 = Charset.forName("UTF-8");
 
-		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+		MultipartEntityBuilder multipart = MultipartEntityBuilder.create();
+		multipart.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+		ContentType contentType = ContentType.MULTIPART_FORM_DATA.withCharset(MIME.UTF8_CHARSET);
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {
 			if (param.getValue() instanceof Collection) {
 				for (Object value : (Collection) param.getValue()) {
-					multipart.addPart(param.getKey() + "[]", new StringBody(ObjectUtils.asString(value), utf8));
+					multipart.addTextBody(param.getKey() + "[]", ObjectUtils.asString(value), contentType);
 				}
 			} else {
 				String value = param.getValue().toString();
 				if (StringUtils.isNotBlank(value)) {
-					multipart.addPart(param.getKey(), new StringBody(value, utf8));
+					multipart.addTextBody(param.getKey(), value, contentType);
 				}
 			}
 		}
@@ -85,17 +96,17 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			file = new File((String) file);
 		}
 		if (file instanceof File) {
-			multipart.addPart("file", new FileBody((File) file));
+			multipart.addBinaryBody("file", (File) file);
 		} else if (file instanceof String) {
-			multipart.addPart("file", new StringBody((String) file, utf8));
+			multipart.addTextBody("file", (String) file);
 		} else if (file instanceof byte[]) {
-			multipart.addPart("file", new ByteArrayBody((byte[]) file, "file"));
+			multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, "file");
 		} else if (file == null) {
 			// no-problem
 		} else {
 			throw new IOException("Uprecognized file parameter " + file);
 		}
-		postMethod.setEntity(multipart);
+		postMethod.setEntity(multipart.build());
 
 		HttpResponse response = client.execute(postMethod);
 		int code = response.getStatusLine().getStatusCode();

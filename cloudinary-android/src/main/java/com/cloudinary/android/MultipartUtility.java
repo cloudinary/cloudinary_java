@@ -39,7 +39,7 @@ public class MultipartUtility {
 	 * @param charset
 	 * @throws IOException
 	 */
-	public MultipartUtility(String requestURL, String charset, String boundary) throws IOException {
+	public MultipartUtility(String requestURL, String charset, String boundary, String contentRange) throws IOException {
 		this.charset = charset;
 		this.boundary = boundary;
 
@@ -47,10 +47,15 @@ public class MultipartUtility {
 		httpConn = (HttpURLConnection) url.openConnection();
 		httpConn.setDoOutput(true); // indicates POST method
 		httpConn.setDoInput(true);
+		if (contentRange != null) httpConn.setRequestProperty("Content-Range", contentRange);
 		httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 		httpConn.setRequestProperty("User-Agent", USER_AGENT);
 		outputStream = httpConn.getOutputStream();
 		writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+	}
+	
+	public MultipartUtility(String requestURL, String charset, String boundary) throws IOException {
+		this(requestURL, charset, boundary, null);
 	}
 
 	/**

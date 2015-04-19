@@ -9,7 +9,7 @@
 
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-parent</artifactId>
-    <version>1.1.4-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Cloudinary Java Client Library Parent Project</name>
 
@@ -17,7 +17,9 @@
         <module>cloudinary-core</module>
         <module>cloudinary-android</module>
         <module>cloudinary-taglib</module>
+        <module>cloudinary-test-common</module>
         <module>cloudinary-http42</module>
+        <module>cloudinary-http44</module>
         <module>cloudinary-android-test</module>
     </modules>
 

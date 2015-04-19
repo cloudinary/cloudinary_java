@@ -1,5 +1,6 @@
 package com.cloudinary.android;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			params.put("api_key", apiKey);
 		}
 		String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
-		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId());
+		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (String) options.get("content_range"));
 
 		// Remove blank parameters
 		for (Map.Entry<String, Object> param : params.entrySet()) {
@@ -60,7 +61,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			}
 		}
 
-		if (file instanceof String && !((String) file).matches("https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
 		if (file instanceof File) {
@@ -69,6 +70,8 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			multipart.addFormField("file", (String) file);
 		} else if (file instanceof InputStream) {
 			multipart.addFilePart("file", (InputStream) file);
+		} else if (file instanceof byte[]) {
+			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file));
 		}
 		HttpURLConnection connection = multipart.execute();
 		int code;

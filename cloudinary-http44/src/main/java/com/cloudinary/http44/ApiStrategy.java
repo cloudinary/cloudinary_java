@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -118,12 +118,17 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 		}
 		
 		request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
-
-		HttpResponse response = client.execute(request);
-
-		int code = response.getStatusLine().getStatusCode();
-		InputStream responseStream = response.getEntity().getContent();
-		String responseData = StringUtils.read(responseStream);
+		
+		String responseData = null;
+		int code = 0;
+		CloseableHttpResponse response = client.execute(request);
+		try {
+			code = response.getStatusLine().getStatusCode();
+			InputStream responseStream = response.getEntity().getContent();
+			responseData = StringUtils.read(responseStream);
+		} finally {
+			response.close();
+		}
 
 		Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
 		if (code != 200 && exceptionClass == null) {
@@ -146,5 +151,4 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 			throw exceptionConstructor.newInstance(message);
 		}
 	}
-
 }

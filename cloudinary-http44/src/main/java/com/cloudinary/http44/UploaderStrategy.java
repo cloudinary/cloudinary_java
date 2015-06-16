@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ContentType;
@@ -108,10 +108,16 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 		postMethod.setEntity(multipart.build());
 
-		HttpResponse response = client.execute(postMethod);
-		int code = response.getStatusLine().getStatusCode();
-		InputStream responseStream = response.getEntity().getContent();
-		String responseData = StringUtils.read(responseStream);
+		String responseData = null;
+		int code = 0;
+		CloseableHttpResponse response = client.execute(postMethod);
+		try {
+			code = response.getStatusLine().getStatusCode();
+			InputStream responseStream = response.getEntity().getContent();
+			responseData = StringUtils.read(responseStream);
+		} finally {
+			response.close();
+		}
 
 		if (code != 200 && code != 400 && code != 500) {
 			throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);

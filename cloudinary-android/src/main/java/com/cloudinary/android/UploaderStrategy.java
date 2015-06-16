@@ -27,23 +27,24 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-
 		if (Boolean.TRUE.equals(options.get("unsigned"))) {
 			// Nothing to do
-		} else if (options.containsKey("signature") && options.containsKey("timestamp")) {
-			params.put("timestamp", options.get("timestamp"));
-			params.put("signature", options.get("signature"));
-			params.put("api_key", apiKey);
 		} else {
-			String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().config.apiSecret);
-			if (apiSecret == null)
-				throw new IllegalArgumentException("Must supply api_secret");
-			params.put("timestamp", Long.valueOf(System.currentTimeMillis() / 1000L).toString());
-			params.put("signature", this.cloudinary().apiSignRequest(params, apiSecret));
-			params.put("api_key", apiKey);
+			String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
+			if (apiKey == null)
+				throw new IllegalArgumentException("Must supply api_key");
+			if (options.containsKey("signature") && options.containsKey("timestamp")) {
+				params.put("timestamp", options.get("timestamp"));
+				params.put("signature", options.get("signature"));
+				params.put("api_key", apiKey);
+			} else {
+				String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().config.apiSecret);
+				if (apiSecret == null)
+					throw new IllegalArgumentException("Must supply api_secret");
+				params.put("timestamp", Long.valueOf(System.currentTimeMillis() / 1000L).toString());
+				params.put("signature", this.cloudinary().apiSignRequest(params, apiSecret));
+				params.put("api_key", apiKey);
+			}
 		}
 		String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
 		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (String) options.get("content_range"));

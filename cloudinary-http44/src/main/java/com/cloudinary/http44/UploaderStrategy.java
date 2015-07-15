@@ -104,7 +104,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		} else if (file == null) {
 			// no-problem
 		} else {
-			throw new IOException("Uprecognized file parameter " + file);
+			throw new IOException("Unrecognized file parameter " + file);
 		}
 		postMethod.setEntity(multipart.build());
 

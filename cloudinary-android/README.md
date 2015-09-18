@@ -128,7 +128,7 @@ Assuming you have your Cloudinary configuration parameters defined (`cloud_name`
     
 The following example uploads a local JPG available as an InputStream to the cloud: 
     
-    cloudinary.uploader().upload(inputStream, Cloudinary.emptyMap())
+    cloudinary.uploader().upload(inputStream, ObjectUtils.emptyMap())
         
 The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
 
@@ -138,7 +138,7 @@ The uploaded image is assigned a randomly generated public ID. The image is imme
 
 You can also specify your own public ID:    
     
-    cloudinary.uploader().upload("http://www.example.com/image.jpg", Cloudinary.asMap("public_id", "sample_remote"))
+    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"))
 
     cloudinary.url().generate("sample_remote.jpg")
 
@@ -172,7 +172,7 @@ Your server can use any Cloudinary libraries (Ruby on Rails, PHP, Python & Djang
 
 The following code uploads an image to Cloudinary with the parameters generated safely on the server side (e.g., from a JSON as in the example above):
 
-    cloudinary.uploader().upload(inputStream, Cloudinary.asMap("public_id", publicId, "signature", signature, "timestamp", timestamp, "api_key", api_key))
+    cloudinary.uploader().upload(inputStream, ObjectUtils.asMap("public_id", publicId, "signature", signature, "timestamp", timestamp, "api_key", api_key))
 
 You might want to reference uploaded Cloudinary images and raw files using an identifier string of the following format:
 

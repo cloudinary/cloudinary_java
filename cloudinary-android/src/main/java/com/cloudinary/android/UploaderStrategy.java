@@ -65,14 +65,15 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
+		String filename = (String) options.get("filename");
 		if (file instanceof File) {
-			multipart.addFilePart("file", (File) file);
+			multipart.addFilePart("file", (File) file, filename);
 		} else if (file instanceof String) {
 			multipart.addFormField("file", (String) file);
 		} else if (file instanceof InputStream) {
-			multipart.addFilePart("file", (InputStream) file);
+			multipart.addFilePart("file", (InputStream) file, filename);
 		} else if (file instanceof byte[]) {
-			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file));
+			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
 		}
 		HttpURLConnection connection = multipart.execute();
 		int code;

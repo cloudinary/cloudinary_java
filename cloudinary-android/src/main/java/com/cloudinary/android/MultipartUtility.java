@@ -84,13 +84,18 @@ public class MultipartUtility {
 	 *            a File to be uploaded
 	 * @throws IOException
 	 */
-	public void addFilePart(String fieldName, File uploadFile) throws IOException {
-		String fileName = uploadFile.getName();
+	public void addFilePart(String fieldName, File uploadFile, String fileName) throws IOException {
+		if (fileName == null) fileName = uploadFile.getName();
 		FileInputStream inputStream = new FileInputStream(uploadFile);
 		addFilePart(fieldName, inputStream, fileName);
 	}
+	
+	public void addFilePart(String fieldName, File uploadFile) throws IOException {
+		addFilePart(fieldName, uploadFile, "file");
+	}
 
 	public void addFilePart(String fieldName, InputStream inputStream, String fileName) throws IOException {
+		if (fileName == null) fileName = "file";
 		writer.append("--" + boundary).append(LINE_FEED);
 		writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
 		writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);

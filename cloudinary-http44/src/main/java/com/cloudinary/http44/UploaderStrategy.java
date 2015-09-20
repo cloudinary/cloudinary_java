@@ -95,12 +95,15 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
+		String filename = (String) options.get("filename");
 		if (file instanceof File) {
-			multipart.addBinaryBody("file", (File) file);
+			if (filename == null) filename = ((File) file).getName();
+			multipart.addBinaryBody("file", (File) file, ContentType.APPLICATION_OCTET_STREAM, filename);
 		} else if (file instanceof String) {
 			multipart.addTextBody("file", (String) file);
 		} else if (file instanceof byte[]) {
-			multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, "file");
+			if (filename == null) filename = "file";
+			multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, filename);
 		} else if (file == null) {
 			// no-problem
 		} else {

@@ -413,5 +413,11 @@ abstract public class AbstractUploaderTest {
         assertTrue(result.get("public_id").toString().matches("^upload_folder\\/[a-z0-9]+$"));
         cloudinary.api().deleteUploadPreset(preset.get("name").toString(), ObjectUtils.emptyMap());
     }
+    
+    @Test
+    public void testFilenameOption() throws Exception {
+    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif"));
+    	assertEquals("emanelif", result.get("original_filename"));
+    }
 
 }

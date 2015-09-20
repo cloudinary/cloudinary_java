@@ -6,10 +6,10 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import org.apache.http.conn.ConnectTimeoutException;
+import java.net.SocketTimeoutException;
 
 public class ApiTest extends AbstractApiTest {
-	@Test(expected = ConnectTimeoutException.class)
+	@Test(expected = SocketTimeoutException.class)
     public void testTimeoutException() throws Exception {
         // should allow listing resources
         Map<String, Object> options = new HashMap<String, Object>();

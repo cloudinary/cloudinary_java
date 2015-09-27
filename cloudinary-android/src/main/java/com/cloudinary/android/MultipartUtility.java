@@ -23,6 +23,7 @@ import com.cloudinary.Cloudinary;
 public class MultipartUtility {
 	private final String boundary;
 	private static final String LINE_FEED = "\r\n";
+	private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 	private HttpURLConnection httpConn;
 	private String charset;
 	private OutputStream outputStream;
@@ -98,7 +99,7 @@ public class MultipartUtility {
 		if (fileName == null) fileName = "file";
 		writer.append("--" + boundary).append(LINE_FEED);
 		writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
-		writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
+		writer.append("Content-Type: ").append(APPLICATION_OCTET_STREAM).append(LINE_FEED);
 		writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
 		writer.append(LINE_FEED);
 		writer.flush();

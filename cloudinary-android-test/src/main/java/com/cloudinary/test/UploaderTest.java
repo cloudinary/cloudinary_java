@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.cloudinary.json.JSONArray;
 import org.cloudinary.json.JSONObject;
+import org.junit.Test;
 
 import android.test.InstrumentationTestCase;
 import android.util.Log;
@@ -321,6 +322,19 @@ public class UploaderTest extends InstrumentationTestCase {
 			}
 			assertTrue(e.getMessage().matches("^Must use(.*)"));
 		}
+	}
+	
+	@Test
+	public void testFilenameOption() throws Exception {
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif")));
+		assertEquals("emanelif", result.getString("original_filename"));
+	}
+	
+	@Test
+	public void testComplexFilenameOption() throws Exception {
+		String complexFilename = "Universal Image Loader @#&=+-_.,!()~'%20.png";
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(TEST_IMAGE, ObjectUtils.asMap("filename", complexFilename)));
+		assertEquals(complexFilename, result.getString("original_filename"));
 	}
 	
 	@SuppressWarnings("unchecked")

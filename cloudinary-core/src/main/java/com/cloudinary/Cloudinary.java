@@ -148,7 +148,7 @@ public class Cloudinary {
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Unexpected exception", e);
 		}
-		byte[] digest = md.digest((to_sign + apiSecret).getBytes());
+		byte[] digest = md.digest(getUTF8Bytes(to_sign + apiSecret));
 		return StringUtils.encodeHexString(digest);
 	}
 
@@ -229,6 +229,14 @@ public class Cloudinary {
 			}
 		}
 		return params;
+	}
+
+	byte[] getUTF8Bytes(String string) {
+		try {
+			return string.getBytes("UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException("Unexpected exception", e);
+		}		
 	}
 
 	@Deprecated

@@ -303,7 +303,7 @@ abstract public class AbstractUploaderTest {
     @Test
     public void testContext() throws Exception {
     	//should allow sending context
-    	Map context = ObjectUtils.asMap("caption", "some caption", "alt", "alternative");
+    	Map context = ObjectUtils.asMap("caption", "some cäption", "alt", "alternativè");
     	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("context", context));
     	Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
     	assertEquals(ObjectUtils.asMap("custom", context), info.get("context"));

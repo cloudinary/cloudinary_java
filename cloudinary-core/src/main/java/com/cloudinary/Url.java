@@ -360,7 +360,7 @@ public class Url {
 
 		    
 
-			byte[] digest = md.digest((toSign + this.config.apiSecret).getBytes());
+			byte[] digest = md.digest(cloudinary.getUTF8Bytes(toSign + this.config.apiSecret));
 			signature = Base64Coder.encodeURLSafeString(digest);
 			signature = "s--" + signature.substring(0, 8) + "--" ;
 		}
@@ -484,7 +484,7 @@ public class Url {
 
 	private String shard(String input) {
 		CRC32 crc32 = new CRC32();
-		crc32.update(input.getBytes());
+		crc32.update(cloudinary.getUTF8Bytes(input));
 		return String.valueOf((crc32.getValue() % 5 + 5) % 5 + 1);
 	}
 

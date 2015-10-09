@@ -29,7 +29,7 @@ public class MultipartUtility {
 	private OutputStream outputStream;
 	private PrintWriter writer;
 	
-	public final static String USER_AGENT = "cld-android-" + Cloudinary.VERSION;
+	public final static String USER_AGENT = "CloudinaryAndroid/" + Cloudinary.VERSION;
 	
 
 	/**

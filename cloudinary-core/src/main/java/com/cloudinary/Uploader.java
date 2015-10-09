@@ -166,6 +166,7 @@ public class Uploader {
 		params.put("overwrite", ObjectUtils.asBoolean(options.get("overwrite"), false).toString());
 		params.put("from_public_id", fromPublicId);
 		params.put("to_public_id", toPublicId);
+		params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
 		return callApi("rename", params, options, null);
 	}
 
@@ -190,6 +191,7 @@ public class Uploader {
 		if (options.get("context") != null) {
 			params.put("context", ObjectUtils.encodeMap(options.get("context")));
 		}
+		params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
 		return callApi("explicit", params, options, null);
 	}
 

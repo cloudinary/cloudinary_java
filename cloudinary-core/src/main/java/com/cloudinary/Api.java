@@ -226,5 +226,15 @@ public class Api {
 			options = ObjectUtils.emptyMap();
 		return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
 	}
+
+	public ApiResponse restore(Iterable<String> publicIds, Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+		String type = ObjectUtils.asString(options.get("type"), "upload");
+		Map params = new HashMap<String, Object>();
+		params.put("public_ids", publicIds);
+		return callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, "restore"), params, options);
+	}
     
 }

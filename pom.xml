@@ -19,6 +19,7 @@
         <module>cloudinary-taglib</module>
         <module>cloudinary-test-common</module>
         <module>cloudinary-http42</module>
+        <module>cloudinary-http43</module>
         <module>cloudinary-http44</module>
         <module>cloudinary-android-test</module>
     </modules>

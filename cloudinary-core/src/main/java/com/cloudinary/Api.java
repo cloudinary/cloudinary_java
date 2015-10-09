@@ -236,5 +236,42 @@ public class Api {
 		params.put("public_ids", publicIds);
 		return callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, "restore"), params, options);
 	}
+	
+	public ApiResponse uploadMappings(Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		return callApi(HttpMethod.GET, Arrays.asList("upload_mappings"),
+				ObjectUtils.only(options, "next_cursor", "max_results"), options);
+	}
+
+	public ApiResponse uploadMapping(String name, Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		return callApi(HttpMethod.GET, Arrays.asList("upload_mappings"), ObjectUtils.asMap("folder", name), options);
+	}
+
+	public ApiResponse deleteUploadMapping(String name, Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		return callApi(HttpMethod.DELETE, Arrays.asList("upload_mappings"), ObjectUtils.asMap("folder", name), options);
+	}
+
+	public ApiResponse updateUploadMapping(String name, Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		Map params = new HashMap<String, Object>();
+		params.put("folder", name);
+		params.putAll(ObjectUtils.only(options, "template"));
+		return callApi(HttpMethod.PUT, Arrays.asList("upload_mappings"), params, options);
+	}
+
+	public ApiResponse createUploadMapping(String name, Map options) throws Exception {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		Map params = new HashMap<String, Object>();
+		params.put("folder", name);
+		params.putAll(ObjectUtils.only(options, "template"));
+		return callApi(HttpMethod.POST, Arrays.asList("upload_mappings"), params, options);
+	}
     
 }

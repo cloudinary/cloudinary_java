@@ -326,6 +326,18 @@ public class Transformation {
 	public Transformation zoom(double value) {
 		return param("zoom", new Double(value));
 	}
+	
+	public Transformation aspectRatio(double value) {
+		return param("aspect_ratio", new Double(value));
+	}
+	
+	public Transformation aspectRatio(String value) {
+		return param("aspect_ratio", value);
+	}
+	
+	public Transformation aspectRatio(int nom, int denom) {
+		return aspectRatio(Integer.toString(nom) + ":" + Integer.toString(denom));
+	}
 
 	public Transformation responsiveWidth(boolean value) {
 		return param("responsive_width", value);
@@ -469,6 +481,7 @@ public class Transformation {
 		String[] simple_params = new String[] {
 				"ac", "audio_codec",
 				"af", "audio_frequency",
+				"ar", "aspect_ratio",
 				"bo", "border",
 				"br", "bit_rate",
 				"cs", "color_space", 

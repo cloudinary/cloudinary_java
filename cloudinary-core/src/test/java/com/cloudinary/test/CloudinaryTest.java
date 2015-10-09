@@ -883,6 +883,19 @@ public class CloudinaryTest {
 		assertEquals(expectedTag, actualTag);
 
 	}
+	
+	@Test
+	public void testAspectRatio() {
+		String actual = cloudinary.url().transformation(new Transformation().aspectRatio("1.5"))
+				.generate("test");
+		assertEquals(DEFAULT_UPLOAD_PATH + "ar_1.5/test", actual);
+		actual = cloudinary.url().transformation(new Transformation().aspectRatio(1.5))
+				.generate("test");
+		assertEquals(DEFAULT_UPLOAD_PATH + "ar_1.5/test", actual);
+		actual = cloudinary.url().transformation(new Transformation().aspectRatio(3,2))
+				.generate("test");
+		assertEquals(DEFAULT_UPLOAD_PATH + "ar_3:2/test", actual);
+	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
 		Map<String, String> params = new HashMap<String, String>();

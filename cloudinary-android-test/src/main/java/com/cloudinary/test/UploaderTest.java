@@ -326,14 +326,14 @@ public class UploaderTest extends InstrumentationTestCase {
 	
 	@Test
 	public void testFilenameOption() throws Exception {
-		JSONObject result = new JSONObject(cloudinary.uploader().upload(TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif")));
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("filename", "emanelif")));
 		assertEquals("emanelif", result.getString("original_filename"));
 	}
 	
 	@Test
 	public void testComplexFilenameOption() throws Exception {
 		String complexFilename = "Universal Image Loader @#&=+-_.,!()~'%20.png";
-		JSONObject result = new JSONObject(cloudinary.uploader().upload(TEST_IMAGE, ObjectUtils.asMap("filename", complexFilename)));
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("filename", complexFilename)));
 		assertEquals(complexFilename, result.getString("original_filename"));
 	}
 	

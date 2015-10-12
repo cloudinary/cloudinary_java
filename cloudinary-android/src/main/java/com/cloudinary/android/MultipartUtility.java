@@ -23,12 +23,13 @@ import com.cloudinary.Cloudinary;
 public class MultipartUtility {
 	private final String boundary;
 	private static final String LINE_FEED = "\r\n";
+	private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 	private HttpURLConnection httpConn;
 	private String charset;
 	private OutputStream outputStream;
 	private PrintWriter writer;
 	
-	public final static String USER_AGENT = "cld-android-" + Cloudinary.VERSION;
+	public final static String USER_AGENT = "CloudinaryAndroid/" + Cloudinary.VERSION;
 	
 
 	/**
@@ -84,16 +85,21 @@ public class MultipartUtility {
 	 *            a File to be uploaded
 	 * @throws IOException
 	 */
-	public void addFilePart(String fieldName, File uploadFile) throws IOException {
-		String fileName = uploadFile.getName();
+	public void addFilePart(String fieldName, File uploadFile, String fileName) throws IOException {
+		if (fileName == null) fileName = uploadFile.getName();
 		FileInputStream inputStream = new FileInputStream(uploadFile);
 		addFilePart(fieldName, inputStream, fileName);
 	}
+	
+	public void addFilePart(String fieldName, File uploadFile) throws IOException {
+		addFilePart(fieldName, uploadFile, "file");
+	}
 
 	public void addFilePart(String fieldName, InputStream inputStream, String fileName) throws IOException {
+		if (fileName == null) fileName = "file";
 		writer.append("--" + boundary).append(LINE_FEED);
 		writer.append("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"").append(LINE_FEED);
-		writer.append("Content-Type: " + URLConnection.guessContentTypeFromName(fileName)).append(LINE_FEED);
+		writer.append("Content-Type: ").append(APPLICATION_OCTET_STREAM).append(LINE_FEED);
 		writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
 		writer.append(LINE_FEED);
 		writer.flush();

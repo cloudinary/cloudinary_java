@@ -27,23 +27,24 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-		String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
-		if (apiKey == null)
-			throw new IllegalArgumentException("Must supply api_key");
-
 		if (Boolean.TRUE.equals(options.get("unsigned"))) {
 			// Nothing to do
-		} else if (options.containsKey("signature") && options.containsKey("timestamp")) {
-			params.put("timestamp", options.get("timestamp"));
-			params.put("signature", options.get("signature"));
-			params.put("api_key", apiKey);
 		} else {
-			String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().config.apiSecret);
-			if (apiSecret == null)
-				throw new IllegalArgumentException("Must supply api_secret");
-			params.put("timestamp", Long.valueOf(System.currentTimeMillis() / 1000L).toString());
-			params.put("signature", this.cloudinary().apiSignRequest(params, apiSecret));
-			params.put("api_key", apiKey);
+			String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
+			if (apiKey == null)
+				throw new IllegalArgumentException("Must supply api_key");
+			if (options.containsKey("signature") && options.containsKey("timestamp")) {
+				params.put("timestamp", options.get("timestamp"));
+				params.put("signature", options.get("signature"));
+				params.put("api_key", apiKey);
+			} else {
+				String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary().config.apiSecret);
+				if (apiSecret == null)
+					throw new IllegalArgumentException("Must supply api_secret");
+				params.put("timestamp", Long.valueOf(System.currentTimeMillis() / 1000L).toString());
+				params.put("signature", this.cloudinary().apiSignRequest(params, apiSecret));
+				params.put("api_key", apiKey);
+			}
 		}
 		String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
 		MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (String) options.get("content_range"));
@@ -64,14 +65,15 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
+		String filename = (String) options.get("filename");
 		if (file instanceof File) {
-			multipart.addFilePart("file", (File) file);
+			multipart.addFilePart("file", (File) file, filename);
 		} else if (file instanceof String) {
 			multipart.addFormField("file", (String) file);
 		} else if (file instanceof InputStream) {
-			multipart.addFilePart("file", (InputStream) file);
+			multipart.addFilePart("file", (InputStream) file, filename);
 		} else if (file instanceof byte[]) {
-			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file));
+			multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
 		}
 		HttpURLConnection connection = multipart.execute();
 		int code;

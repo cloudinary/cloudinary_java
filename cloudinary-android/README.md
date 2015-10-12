@@ -14,8 +14,7 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 For Android, Cloudinary provides a library for simplifying the integration even further. The library requires Android 2.3 or higher.
 
 ## Manual Setup ######################################################################
-Download cloudinary-core-1.1.0.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary/1.1.0/cloudinary-core-1.1.0.jar) and cloudinary-android-1.1.0.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary/1.1.0/cloudinary-android-1.1.0.jar)
-and put them in your libs folder.
+Download cloudinary-core-1.2.2.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-core/1.2.2/cloudinary-core-1.2.2.jar) and cloudinary-android-1.2.2.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-android/1.2.2/cloudinary-android-1.2.2.jar) and put them in your libs folder.
 
 ## Maven Integration ######################################################################
 The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml:
@@ -23,7 +22,7 @@ The cloudinary_java library is available in [Maven Central](http://repo1.maven.o
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary-android</artifactId>
-        <version>1.1.0</version>
+        <version>1.2.2</version>
     </dependency>
 
 
@@ -129,7 +128,7 @@ Assuming you have your Cloudinary configuration parameters defined (`cloud_name`
     
 The following example uploads a local JPG available as an InputStream to the cloud: 
     
-    cloudinary.uploader().upload(inputStream, Cloudinary.emptyMap())
+    cloudinary.uploader().upload(inputStream, ObjectUtils.emptyMap())
         
 The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
 
@@ -139,7 +138,7 @@ The uploaded image is assigned a randomly generated public ID. The image is imme
 
 You can also specify your own public ID:    
     
-    cloudinary.uploader().upload("http://www.example.com/image.jpg", Cloudinary.asMap("public_id", "sample_remote"))
+    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"))
 
     cloudinary.url().generate("sample_remote.jpg")
 
@@ -173,7 +172,7 @@ Your server can use any Cloudinary libraries (Ruby on Rails, PHP, Python & Djang
 
 The following code uploads an image to Cloudinary with the parameters generated safely on the server side (e.g., from a JSON as in the example above):
 
-    cloudinary.uploader().upload(inputStream, Cloudinary.asMap("public_id", publicId, "signature", signature, "timestamp", timestamp, "api_key", api_key))
+    cloudinary.uploader().upload(inputStream, ObjectUtils.asMap("public_id", publicId, "signature", signature, "timestamp", timestamp, "api_key", api_key))
 
 You might want to reference uploaded Cloudinary images and raw files using an identifier string of the following format:
 

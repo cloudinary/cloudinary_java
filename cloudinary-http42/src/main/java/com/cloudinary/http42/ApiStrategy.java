@@ -92,7 +92,7 @@ public class ApiStrategy extends AbstractApiStrategy  {
 			break;
 		}
 		request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
-		request.setHeader("User-Agent", Cloudinary.USER_AGENT);
+		request.setHeader("User-Agent", Cloudinary.USER_AGENT + " Apache HTTP Components/4.2");
 
 		HttpResponse response = client.execute(request);
 

@@ -40,8 +40,8 @@ public class Cloudinary {
 	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
 	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-	public final static String VERSION = "1.2.0";
-	public final static String USER_AGENT = "cld-java-" + VERSION;
+	public final static String VERSION = "1.2.2";
+	public final static String USER_AGENT = "CloudinaryJava/" + VERSION;
 
 	public final Configuration config;
 	private AbstractUploaderStrategy uploaderStrategy;
@@ -148,7 +148,7 @@ public class Cloudinary {
 		} catch (NoSuchAlgorithmException e) {
 			throw new RuntimeException("Unexpected exception", e);
 		}
-		byte[] digest = md.digest((to_sign + apiSecret).getBytes());
+		byte[] digest = md.digest(getUTF8Bytes(to_sign + apiSecret));
 		return StringUtils.encodeHexString(digest);
 	}
 
@@ -229,6 +229,14 @@ public class Cloudinary {
 			}
 		}
 		return params;
+	}
+
+	byte[] getUTF8Bytes(String string) {
+		try {
+			return string.getBytes("UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+			throw new RuntimeException("Unexpected exception", e);
+		}		
 	}
 
 	@Deprecated

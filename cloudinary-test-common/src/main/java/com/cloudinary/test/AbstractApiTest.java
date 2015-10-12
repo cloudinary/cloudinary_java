@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.junit.Before;
@@ -640,6 +641,66 @@ abstract public class AbstractApiTest {
 		}
 		api.deleteResourcesByPrefix("test_folder", ObjectUtils.emptyMap());
 	}
+	
+	@Test
+	public void testRestore() throws Exception {
+		// should support restoring resources
+		cloudinary.uploader().upload(SRC_TEST_IMAGE,
+				ObjectUtils.asMap("public_id", "api_test_restore", "backup", true));
+		Map resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+		assertEquals(resource.get("bytes"), 3381);
+		api.deleteResources(Arrays.asList("api_test_restore"), ObjectUtils.emptyMap());
+		resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+		assertEquals(resource.get("bytes"), 0);
+		assertTrue((Boolean) resource.get("placeholder"));
+		Map response = api.restore(Arrays.asList("api_test_restore"), ObjectUtils.emptyMap());
+		Map info = (Map) response.get("api_test_restore");
+		assertNotNull(info);
+		assertEquals(info.get("bytes"), 3381);
+		resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+		assertEquals(resource.get("bytes"), 3381);
+	}
+
+	@Test
+	public void testUploadMapping() throws Exception {
+		try {
+			api.deleteUploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+		} catch (Exception e) {
+
+		}
+		api.createUploadMapping("api_test_upload_mapping", ObjectUtils.asMap("template", "http://cloudinary.com"));
+		Map result = api.uploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+		assertEquals(result.get("template"), "http://cloudinary.com");
+		api.updateUploadMapping("api_test_upload_mapping", ObjectUtils.asMap("template", "http://res.cloudinary.com"));
+		result = api.uploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+		assertEquals(result.get("template"), "http://res.cloudinary.com");
+		result = api.uploadMappings(ObjectUtils.emptyMap());
+		ListIterator mappings = ((ArrayList) result.get("mappings")).listIterator();
+		boolean found = false;
+		while (mappings.hasNext()) {
+			Map mapping = (Map) mappings.next();
+			if (mapping.get("folder").equals("api_test_upload_mapping")
+					&& mapping.get("template").equals("http://res.cloudinary.com")) {
+				found = true;
+				break;
+			}
+		}
+		assertTrue(found);
+		api.deleteUploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+		result = api.uploadMappings(ObjectUtils.emptyMap());
+		found = false;
+		while (mappings.hasNext()) {
+			Map mapping = (Map) mappings.next();
+			if (mapping.get("folder").equals("api_test_upload_mapping")
+					&& mapping.get("template").equals("http://res.cloudinary.com")) {
+				found = true;
+				break;
+			}
+		}
+		assertTrue(!found);
+	}
+
+
 
 	private void assertContains(Object object, Collection list) {
 		assertTrue(list.contains(object));

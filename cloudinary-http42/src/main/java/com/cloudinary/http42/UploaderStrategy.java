@@ -58,7 +58,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		}
 
 		HttpPost postMethod = new HttpPost(apiUrl);
-		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT);
+		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT + " Apache HTTP Components/4.2");
 		
 		if (options.get("content_range") != null) {
 			postMethod.setHeader("Content-Range", (String) options.get("content_range")); 
@@ -84,12 +84,14 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
 			file = new File((String) file);
 		}
+		String filename = (String) options.get("filename");
 		if (file instanceof File) {
-			multipart.addPart("file", new FileBody((File) file));
+			multipart.addPart("file", new FileBody((File) file, filename, "application/octet-stream", null));
 		} else if (file instanceof String) {
 			multipart.addPart("file", new StringBody((String) file, utf8));
 		} else if (file instanceof byte[]) {
-			multipart.addPart("file", new ByteArrayBody((byte[]) file, "file"));
+			if (filename == null) filename = "file";
+			multipart.addPart("file", new ByteArrayBody((byte[]) file, filename));
 		} else if (file == null) {
 			// no-problem
 		} else {

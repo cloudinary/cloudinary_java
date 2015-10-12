@@ -9,7 +9,7 @@
 
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-parent</artifactId>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Cloudinary Java Client Library Parent Project</name>
 
@@ -19,6 +19,7 @@
         <module>cloudinary-taglib</module>
         <module>cloudinary-test-common</module>
         <module>cloudinary-http42</module>
+        <module>cloudinary-http43</module>
         <module>cloudinary-http44</module>
         <module>cloudinary-android-test</module>
     </modules>
@@ -146,6 +147,24 @@
                     <url>http://localhost:8081/nexus/content/repositories/releases</url>
                 </repository>
             </distributionManagement>
+        </profile>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <configuration>
+                            <additionalparam>-Xdoclint:none</additionalparam>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

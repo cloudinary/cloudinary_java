@@ -1,4 +1,4 @@
-package com.cloudinary.http44;
+package com.cloudinary.http43;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -29,7 +29,7 @@ import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.http44.api.Response;
+import com.cloudinary.http43.api.Response;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -42,7 +42,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 		super.init(api);
 		
 		HttpClientBuilder clientBuilder = HttpClients.custom();
-		clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " Apache HTTP Components/4.4");
+		clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " Apache HTTP Components/4.3");
 		
 		// If the configuration specifies a proxy then apply it to the client
 		if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {

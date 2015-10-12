@@ -71,7 +71,7 @@ public class StringUtils {
 	}
 
 	public static String escapeHtml(String input) {
-		return HtmlEscape.escape(input);
+		return HtmlEscape.escapeTextArea(input);
 	}
 
 	public static boolean isNotBlank(Object input) {

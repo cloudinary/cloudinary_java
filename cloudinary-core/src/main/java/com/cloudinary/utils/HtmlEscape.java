@@ -26,7 +26,7 @@ public class HtmlEscape {
    */ 
   public static String escapeTextArea(String original) 
   { 
-    return escapeSpecial(escapeTags(original));     
+    return escapeTags(escapeSpecial(original));     
   } 
    
   /** 
@@ -36,7 +36,7 @@ public class HtmlEscape {
    */ 
   public static String escape(String original) 
   { 
-    return escapeSpecial(escapeBr(escapeTags(original))); 
+    return escapeBr(escapeTags(escapeSpecial(original))); 
   } 
    
   public static String escapeTags(String original) 

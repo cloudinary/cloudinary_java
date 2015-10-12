@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.cloudinary.transformation.AbstractLayerBuilder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -132,8 +133,16 @@ public class Transformation {
 	public Transformation overlay(String value) {
 		return param("overlay", value);
 	}
+	
+	public Transformation overlay(AbstractLayerBuilder<?> value) {
+		return param("overlay", value);
+	}
 
-	public Transformation underlay(String value) {
+	public Transformation underlay(Object value) {
+		return param("underlay", value);
+	}
+	
+	public Transformation underlay(AbstractLayerBuilder<?> value) {
 		return param("underlay", value);
 	}
 
@@ -326,6 +335,18 @@ public class Transformation {
 	public Transformation zoom(double value) {
 		return param("zoom", new Double(value));
 	}
+	
+	public Transformation aspectRatio(double value) {
+		return param("aspect_ratio", new Double(value));
+	}
+	
+	public Transformation aspectRatio(String value) {
+		return param("aspect_ratio", value);
+	}
+	
+	public Transformation aspectRatio(int nom, int denom) {
+		return aspectRatio(Integer.toString(nom) + ":" + Integer.toString(denom));
+	}
 
 	public Transformation responsiveWidth(boolean value) {
 		return param("responsive_width", value);
@@ -384,8 +405,8 @@ public class Transformation {
 		}
 		String width = this.htmlWidth = ObjectUtils.asString(options.get("width"));
 		String height = this.htmlHeight = ObjectUtils.asString(options.get("height"));
-		boolean hasLayer = StringUtils.isNotBlank((String) options.get("overlay"))
-				|| StringUtils.isNotBlank((String) options.get("underlay"));
+		boolean hasLayer = options.get("overlay") != null && StringUtils.isNotBlank(options.get("overlay").toString())
+				|| options.get("underlay") != null && StringUtils.isNotBlank(options.get("underlay").toString());
 
 		String crop = (String) options.get("crop");
 		String angle = StringUtils.join(ObjectUtils.asArray(options.get("angle")), ".");
@@ -469,6 +490,7 @@ public class Transformation {
 		String[] simple_params = new String[] {
 				"ac", "audio_codec",
 				"af", "audio_frequency",
+				"ar", "aspect_ratio",
 				"bo", "border",
 				"br", "bit_rate",
 				"cs", "color_space", 

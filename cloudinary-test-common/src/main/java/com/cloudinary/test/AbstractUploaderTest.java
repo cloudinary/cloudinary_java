@@ -303,7 +303,7 @@ abstract public class AbstractUploaderTest {
     @Test
     public void testContext() throws Exception {
     	//should allow sending context
-    	Map context = ObjectUtils.asMap("caption", "some caption", "alt", "alternative");
+    	Map context = ObjectUtils.asMap("caption", "some cäption", "alt", "alternativè");
     	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("context", context));
     	Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
     	assertEquals(ObjectUtils.asMap("custom", context), info.get("context"));
@@ -412,6 +412,12 @@ abstract public class AbstractUploaderTest {
         Map result = cloudinary.uploader().unsignedUpload(SRC_TEST_IMAGE, preset.get("name").toString(), ObjectUtils.emptyMap());
         assertTrue(result.get("public_id").toString().matches("^upload_folder\\/[a-z0-9]+$"));
         cloudinary.api().deleteUploadPreset(preset.get("name").toString(), ObjectUtils.emptyMap());
+    }
+    
+    @Test
+    public void testFilenameOption() throws Exception {
+    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif"));
+    	assertEquals("emanelif", result.get("original_filename"));
     }
 
 }

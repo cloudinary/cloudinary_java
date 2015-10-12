@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import java.util.Map;
 
 import org.cloudinary.json.JSONArray;
 import org.cloudinary.json.JSONObject;
+import org.junit.Test;
 
 import android.test.InstrumentationTestCase;
 import android.util.Log;
@@ -321,6 +324,21 @@ public class UploaderTest extends InstrumentationTestCase {
 			}
 			assertTrue(e.getMessage().matches("^Must use(.*)"));
 		}
+	}
+	
+	@Test
+	public void testFilenameOption() throws Exception {
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("filename", "emanelif")));
+		assertEquals("emanelif", result.getString("original_filename"));
+	}
+	
+	@Test
+	public void testComplexFilenameOption() throws Exception {
+		String complexFilename = "Universal Image Loader @#&=+-_.,!()~'%20.png";
+		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("filename", complexFilename)));
+		complexFilename = URLEncoder.encode(URLDecoder.decode(complexFilename, "ASCII"), "UTF-8").replace("+", " ").replace(".png", "");
+
+		assertEquals(complexFilename, result.getString("original_filename"));
 	}
 	
 	@SuppressWarnings("unchecked")

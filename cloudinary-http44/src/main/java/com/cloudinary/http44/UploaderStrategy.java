@@ -35,7 +35,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 		super.init(uploader);
 		
 		HttpClientBuilder clientBuilder = HttpClients.custom();
-		clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " Apache HTTP Components/4.4");
+		clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.4");
 		
 		// If the configuration specifies a proxy then apply it to the client
 		if (cloudinary().config.proxyHost != null && cloudinary().config.proxyPort != 0) {

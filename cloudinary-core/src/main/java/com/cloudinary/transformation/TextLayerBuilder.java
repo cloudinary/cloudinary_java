@@ -107,17 +107,17 @@ public class TextLayerBuilder extends AbstractLayerBuilder<TextLayerBuilder> {
 	protected String textStyleIdentifier() {
 		ArrayList<String> components = new ArrayList<String>();
 
-		if (this.fontWeight != null && !this.fontWeight.equals("normal"))
+		if (StringUtils.isNotBlank(this.fontWeight) && !this.fontWeight.equals("normal"))
 			components.add(this.fontWeight);
-		if (this.fontStyle != null && !this.fontStyle.equals("normal"))
+		if (StringUtils.isNotBlank(this.fontStyle) && !this.fontStyle.equals("normal"))
 			components.add(this.fontStyle);
-		if (this.textDecoration != null && !this.textDecoration.equals("none"))
+		if (StringUtils.isNotBlank(this.textDecoration) && !this.textDecoration.equals("none"))
 			components.add(this.textDecoration);
-		if (this.textAlign != null)
+		if (StringUtils.isNotBlank(this.textAlign))
 			components.add(this.textAlign);
-		if (this.stroke != null && !this.stroke.equals("none"))
+		if (StringUtils.isNotBlank(this.stroke) && !this.stroke.equals("none"))
 			components.add(this.stroke);
-		if (this.letterSpacing != null)
+		if (StringUtils.isNotBlank(this.letterSpacing))
 			components.add("letter_spacing_" + this.letterSpacing);
 
 		if (this.fontFamily == null && this.fontSize == null && components.isEmpty()) {

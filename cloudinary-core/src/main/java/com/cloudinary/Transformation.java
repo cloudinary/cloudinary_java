@@ -138,7 +138,7 @@ public class Transformation {
 		return param("overlay", value);
 	}
 
-	public Transformation underlay(Object value) {
+	public Transformation underlay(String value) {
 		return param("underlay", value);
 	}
 	

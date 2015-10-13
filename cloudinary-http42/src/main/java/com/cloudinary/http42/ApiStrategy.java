@@ -91,7 +91,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy  
 			break;
 		}
 		request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
-		request.setHeader("User-Agent", Cloudinary.USER_AGENT + " Apache HTTP Components/4.2");
+		request.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
 
 		HttpResponse response = client.execute(request);
 

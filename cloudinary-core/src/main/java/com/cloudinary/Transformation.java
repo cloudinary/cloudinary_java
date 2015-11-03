@@ -9,7 +9,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.cloudinary.transformation.AbstractLayerBuilder;
+import com.cloudinary.transformation.AbstractLayer;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -134,7 +134,7 @@ public class Transformation {
 		return param("overlay", value);
 	}
 	
-	public Transformation overlay(AbstractLayerBuilder<?> value) {
+	public Transformation overlay(AbstractLayer<?> value) {
 		return param("overlay", value);
 	}
 
@@ -142,7 +142,7 @@ public class Transformation {
 		return param("underlay", value);
 	}
 	
-	public Transformation underlay(AbstractLayerBuilder<?> value) {
+	public Transformation underlay(AbstractLayer<?> value) {
 		return param("underlay", value);
 	}
 

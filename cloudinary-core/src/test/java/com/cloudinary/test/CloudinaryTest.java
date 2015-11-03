@@ -9,7 +9,6 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -268,7 +267,7 @@ public class CloudinaryTest {
 		assertNull(transformation.getHtmlWidth());
 		assertEquals(DEFAULT_UPLOAD_PATH + "h_100,l_text:hello,w_100/test", result);
 		
-		transformation = new Transformation().overlay(new TextLayerBuilder().text("goodbye"));
+		transformation = new Transformation().overlay(new TextLayer().text("goodbye"));
 		result = cloudinary.url().transformation(transformation).generate("test");
 		assertEquals(DEFAULT_UPLOAD_PATH + "l_text:goodbye/test", result);
 	}
@@ -905,23 +904,23 @@ public class CloudinaryTest {
 	@Test
 	public void testOverlayOptions() {
 		Object tests[] = {
-				new LayerBuilder().publicId("logo"),
+				new Layer().publicId("logo"),
 				"logo",
-				new LayerBuilder().publicId("folder/logo"),
+				new Layer().publicId("folder/logo"),
 				"folder:logo",
-				new LayerBuilder().publicId("logo").type("private"),
+				new Layer().publicId("logo").type("private"),
 				"private:logo",
-				new LayerBuilder().publicId("logo").format("png"),
+				new Layer().publicId("logo").format("png"),
 				"logo.png",
-				new LayerBuilder().resourceType("video").publicId("cat"),
+				new Layer().resourceType("video").publicId("cat"),
 				"video:cat",
-				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
+				new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
 				"text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
-				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
+				new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
 						.fontWeight("bold").fontStyle("italic").letterSpacing("4"),
 				"text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
-				new SubtitlesLayerBuilder().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
-				new SubtitlesLayerBuilder().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
+				new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
+				new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
 				"subtitles:Arial_40:sample_sub_he.srt" };
 
 		for (int i = 0; i < tests.length; i += 2) {
@@ -934,13 +933,13 @@ public class CloudinaryTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void testOverlayError1() {
 		// Must supply font_family for text in overlay
-		cloudinary.url().transformation(new Transformation().overlay(new TextLayerBuilder().fontStyle("italic"))).generate("test");
+		cloudinary.url().transformation(new Transformation().overlay(new TextLayer().fontStyle("italic"))).generate("test");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testOverlayError2() {
 		// Must supply public_id for for non-text underlay
-		cloudinary.url().transformation(new Transformation().underlay(new LayerBuilder().resourceType("video"))).generate("test");
+		cloudinary.url().transformation(new Transformation().underlay(new Layer().resourceType("video"))).generate("test");
 	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

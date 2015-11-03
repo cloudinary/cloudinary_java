@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.cloudinary.SmartUrlEncoder;
 import com.cloudinary.utils.StringUtils;
 
-public class TextLayerBuilder extends AbstractLayerBuilder<TextLayerBuilder> {
+public class TextLayer extends AbstractLayer<TextLayer> {
 	protected String resourceType = "text";
 	protected String fontFamily = null;
 	protected Integer fontSize = null;
@@ -18,65 +18,65 @@ public class TextLayerBuilder extends AbstractLayerBuilder<TextLayerBuilder> {
 	protected String text = null;
 
 	@Override
-	TextLayerBuilder self() {
+	TextLayer getThis() {
 		return this;
 	}
 
-	public TextLayerBuilder resourceType(String resourceType) {
+	public TextLayer resourceType(String resourceType) {
 		throw new UnsupportedOperationException("Cannot modify resourceType for text layers");
 	}
 
-	public TextLayerBuilder type(String type) {
+	public TextLayer type(String type) {
 		throw new UnsupportedOperationException("Cannot modify type for text layers");
 	}
 
-	public TextLayerBuilder format(String format) {
+	public TextLayer format(String format) {
 		throw new UnsupportedOperationException("Cannot modify format for text layers");
 	}
 
-	public TextLayerBuilder fontFamily(String fontFamily) {
+	public TextLayer fontFamily(String fontFamily) {
 		this.fontFamily = fontFamily;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder fontSize(int fontSize) {
+	public TextLayer fontSize(int fontSize) {
 		this.fontSize = fontSize;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder fontWeight(String fontWeight) {
+	public TextLayer fontWeight(String fontWeight) {
 		this.fontWeight = fontWeight;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder fontStyle(String fontStyle) {
+	public TextLayer fontStyle(String fontStyle) {
 		this.fontStyle = fontStyle;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder textDecoration(String textDecoration) {
+	public TextLayer textDecoration(String textDecoration) {
 		this.textDecoration = textDecoration;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder textAlign(String textAlign) {
+	public TextLayer textAlign(String textAlign) {
 		this.textAlign = textAlign;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder stroke(String stroke) {
+	public TextLayer stroke(String stroke) {
 		this.stroke = stroke;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder letterSpacing(String letterSpacing) {
+	public TextLayer letterSpacing(String letterSpacing) {
 		this.letterSpacing = letterSpacing;
-		return self();
+		return getThis();
 	}
 
-	public TextLayerBuilder text(String text) {
+	public TextLayer text(String text) {
 		this.text = SmartUrlEncoder.encode(text).replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
-		return self();
+		return getThis();
 	}
 
 	@Override

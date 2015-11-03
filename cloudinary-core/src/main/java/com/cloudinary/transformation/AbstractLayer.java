@@ -4,32 +4,32 @@ import java.util.ArrayList;
 
 import com.cloudinary.utils.StringUtils;
 
-public abstract class AbstractLayerBuilder<SELF extends AbstractLayerBuilder<SELF>> {
-	abstract SELF self();
+public abstract class AbstractLayer<T extends AbstractLayer<T>> {
+	abstract T getThis();
 
 	protected String resourceType = null;
 	protected String type = null;
 	protected String publicId = null;
 	protected String format = null;
 
-	public SELF resourceType(String resourceType) {
+	public T resourceType(String resourceType) {
 		this.resourceType = resourceType;
-		return self();
+		return getThis();
 	}
 
-	public SELF type(String type) {
+	public T type(String type) {
 		this.type = type;
-		return self();
+		return getThis();
 	}
 
-	public SELF publicId(String publicId) {
+	public T publicId(String publicId) {
 		this.publicId = publicId.replace('/', ':');
-		return self();
+		return getThis();
 	}
 
-	public SELF format(String format) {
+	public T format(String format) {
 		this.format = format;
-		return self();
+		return getThis();
 	}
 	
 	@Override

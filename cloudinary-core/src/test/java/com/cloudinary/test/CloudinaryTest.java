@@ -919,8 +919,8 @@ public class CloudinaryTest {
 				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
 				"text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
 				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
-						.fontWeight("bold").fontStyle("italic").letterSpacing("4"),
-				"text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
+						.fontWeight("bold").fontStyle("italic").letterSpacing("4").lineSpacing(3),
+				"text:Arial_18_bold_italic_letter_spacing_4_line_spacing_3:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
 				new SubtitlesLayerBuilder().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
 				new SubtitlesLayerBuilder().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
 				"subtitles:Arial_40:sample_sub_he.srt" };

@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.ResponsiveBreakpoints;
 import com.cloudinary.Transformation;
 import com.cloudinary.transformation.*;
 import com.cloudinary.utils.ObjectUtils;
@@ -941,6 +942,37 @@ public class CloudinaryTest {
 	public void testOverlayError2() {
 		// Must supply public_id for for non-text underlay
 		cloudinary.url().transformation(new Transformation().underlay(new LayerBuilder().resourceType("video"))).generate("test");
+	}
+	
+	@Test
+	public void testResponsiveBreakpointsToJson() {
+		assertEquals(
+				"[{\"create_derived\":true}]",
+				ResponsiveBreakpoints.toJsonString(
+						new ResponsiveBreakpoints()
+				));
+		
+		assertEquals(
+				"[{\"create_derived\":false,\"max_width\":500,\"min_width\":100,\"max_images\":5,\"transformation\":\"a_45\"}]",
+				ResponsiveBreakpoints.toJsonString(
+						new ResponsiveBreakpoints().createDerived(false)
+												   .transformation(new Transformation().angle(45))
+												   .maxWidth(500)
+												   .minWidth(100)
+												   .maxImages(5)
+				));
+		assertEquals(
+				"[{\"create_derived\":false,\"max_width\":500,\"min_width\":100,\"max_images\":5,\"transformation\":\"a_45\"},{\"create_derived\":true}]",
+				ResponsiveBreakpoints.toJsonString(
+					new ResponsiveBreakpoints[]{
+						new ResponsiveBreakpoints().createDerived(false)
+												   .transformation(new Transformation().angle(45))
+												   .maxWidth(500)
+												   .minWidth(100)
+												   .maxImages(5),
+					    new ResponsiveBreakpoints()
+					}
+				));
 	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

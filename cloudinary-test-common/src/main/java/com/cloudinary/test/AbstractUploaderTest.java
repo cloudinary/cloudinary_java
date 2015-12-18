@@ -25,6 +25,7 @@ import org.junit.rules.TestName;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
+import com.cloudinary.ResponsiveBreakpoints;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
@@ -418,6 +419,16 @@ abstract public class AbstractUploaderTest {
     public void testFilenameOption() throws Exception {
     	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif"));
     	assertEquals("emanelif", result.get("original_filename"));
+    }
+    
+    @Test
+    public void testResponsiveBreakpoints() throws Exception {
+    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints", 
+    			new ResponsiveBreakpoints().maxImages(2).createDerived(false)
+    		));
+    	java.util.ArrayList breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+    	java.util.ArrayList breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
+    	assertEquals(2, breakpoints.size());
     }
 
 }

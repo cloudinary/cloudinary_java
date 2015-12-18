@@ -191,6 +191,9 @@ public class Uploader {
 		if (options.get("context") != null) {
 			params.put("context", ObjectUtils.encodeMap(options.get("context")));
 		}
+		if (options.get("responsive_breakpoints") != null) {
+			params.put("responsive_breakpoints", ResponsiveBreakpoints.toJsonString(options.get("responsive_breakpoints")));
+		}
 		params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
 		return callApi("explicit", params, options, null);
 	}

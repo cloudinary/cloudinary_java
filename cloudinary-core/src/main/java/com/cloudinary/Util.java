@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudinary.json.JSONArray;
+
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -35,6 +37,7 @@ public class Util {
 		params.put("folder", (String) options.get("folder"));
 		params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
 		params.put("moderation", options.get("moderation"));
+		params.put("responsive_breakpoints", ResponsiveBreakpoints.toJsonString(options.get("responsive_breakpoints")));
 		params.put("upload_preset", options.get("upload_preset"));
 
 		if (options.get("signature") == null) {

@@ -135,6 +135,8 @@ public class Cloudinary {
 		for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
 			if (param.getValue() instanceof Collection) {
 				params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
+			} else if (param.getValue() instanceof Object[]) {
+				params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
 			} else {
 				if (StringUtils.isNotBlank(param.getValue())) {
 					params.add(param.getKey() + "=" + param.getValue().toString());
@@ -170,14 +172,14 @@ public class Cloudinary {
 		params.put("format", format);
 		params.put("attachment", options.get("attachment"));
 		params.put("type", options.get("type"));
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		params.put("timestamp", Util.timestamp());
 		signRequest(params, options);
 		return buildUrl(cloudinaryApiUrl("download", options), params);
 	}
 
 	public String zipDownload(String tag, Map<String, Object> options) throws Exception {
 		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		params.put("timestamp", Util.timestamp());
 		params.put("tag", tag);
 		Object transformation = options.get("transformation");
 		if (transformation != null) {
@@ -191,6 +193,22 @@ public class Cloudinary {
 		return buildUrl(cloudinaryApiUrl("download_tag.zip", options), params);
 	}
 	
+	public String downloadArchive(Map<String, Object> options, String targetFormat) throws UnsupportedEncodingException {
+		Map params = Util.buildArchiveParams(options, targetFormat);
+		params.put("mode", ArchiveParams.MODE_DOWNLOAD);
+		signRequest(params, options);
+		return buildUrl(cloudinaryApiUrl("generate_archive", options), params);
+	}
+	
+	public String downloadArchive(ArchiveParams params) throws UnsupportedEncodingException {
+		return downloadArchive(params.toMap(), params.targetFormat());
+	}
+	
+	public String downloadZip(Map<String, Object> options) throws UnsupportedEncodingException {
+		return downloadArchive(options, "zip");
+	}
+	
+	
 	private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
 		StringBuilder urlBuilder = new StringBuilder();
 		urlBuilder.append(base);
@@ -199,9 +217,23 @@ public class Cloudinary {
 		}
 		boolean first = true;
 		for (Map.Entry<String, Object> param : params.entrySet()) {
+			String keyValue = null;
+			Object value = param.getValue();
 			if (!first) urlBuilder.append("&");
-			urlBuilder.append(param.getKey()).append("=").append(
-				URLEncoder.encode(param.getValue().toString(), "UTF-8"));
+			if (value instanceof Object[])
+				value = Arrays.asList(value);
+			if (value instanceof Collection) {
+				String key = param.getKey() + "[]=";
+				Collection<Object> items = (Collection) value;
+				List<String> encodedItems = new ArrayList<String>();
+				for (Object item : items)
+					encodedItems.add(URLEncoder.encode(item.toString(), "UTF-8"));
+				keyValue = key + StringUtils.join(encodedItems, "&" + key);
+			} else {
+				keyValue = param.getKey() + "=" + 
+						URLEncoder.encode(value.toString(), "UTF-8");
+			}
+			urlBuilder.append(keyValue);
 			first = false;
 		}
 		return urlBuilder.toString();

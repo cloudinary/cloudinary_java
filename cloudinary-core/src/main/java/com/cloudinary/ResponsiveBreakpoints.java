@@ -81,7 +81,7 @@ public class ResponsiveBreakpoints {
 		
 		JSONArray arr = new JSONArray();
 		if (breakpoints instanceof ResponsiveBreakpoints) {
-			arr.put(0, ((ResponsiveBreakpoints) breakpoints).toJson());
+			arr.put(((ResponsiveBreakpoints) breakpoints).toJson());
 		} else if (breakpoints instanceof ResponsiveBreakpoints[]) {
 			for (ResponsiveBreakpoints i : (ResponsiveBreakpoints[]) breakpoints) {
 				arr.put(i.toJson());

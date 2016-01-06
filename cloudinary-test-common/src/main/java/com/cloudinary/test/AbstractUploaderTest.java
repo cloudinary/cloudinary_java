@@ -4,8 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
-import static org.junit.Assert.assertArrayEquals;
-
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -16,13 +15,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipInputStream;
+import java.net.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
+import com.cloudinary.ArchiveParams;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.ResponsiveBreakpoints;
@@ -35,15 +38,27 @@ abstract public class AbstractUploaderTest {
 
     public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
     public static final String REMOTE_TEST_IMAGE = "http://cloudinary.com/images/old_logo.png";
+    private static final String ARCHIVE_TAG = "archive_tag_" + String.valueOf(System.currentTimeMillis()); 
     private Cloudinary cloudinary;
 
 	@BeforeClass
-	public static void setUpClass() {
-    	Cloudinary cloudinary = new Cloudinary();
-        if (cloudinary.config.apiSecret == null) {
-          System.err.println("Please setup environment for Upload test to run");
-        }
-    }
+	public static void setUpClass() throws IOException {
+		Cloudinary cloudinary = new Cloudinary();
+		if (cloudinary.config.apiSecret == null) {
+			System.err.println("Please setup environment for Upload test to run");
+		}
+
+		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", ARCHIVE_TAG));
+		cloudinary.uploader().upload(SRC_TEST_IMAGE,
+				ObjectUtils.asMap("tags", ARCHIVE_TAG, 
+								  "transformation", new Transformation().crop("scale").width(10)));
+	}
+	
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+		Cloudinary cloudinary = new Cloudinary();
+		cloudinary.api().deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
+	}
 
     @Rule public TestName currentTest = new TestName();
 
@@ -62,7 +77,7 @@ abstract public class AbstractUploaderTest {
         assertNotNull(result.get("colors"));
         assertNotNull(result.get("predominant"));
         Map<String, Object> to_sign = new HashMap<String, Object>();
-        to_sign.put("public_id", (String) result.get("public_id"));
+        to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
@@ -74,7 +89,7 @@ abstract public class AbstractUploaderTest {
         assertEquals(result.get("width"), 241);
         assertEquals(result.get("height"), 51);
         Map<String, Object> to_sign = new HashMap<String, Object>();
-        to_sign.put("public_id", (String) result.get("public_id"));
+        to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
@@ -86,7 +101,7 @@ abstract public class AbstractUploaderTest {
         assertEquals(result.get("width"), 16);
         assertEquals(result.get("height"), 16);
         Map<String, Object> to_sign = new HashMap<String, Object>();
-        to_sign.put("public_id", (String) result.get("public_id"));
+        to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
@@ -122,7 +137,7 @@ abstract public class AbstractUploaderTest {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("use_filename", true));
 	assertTrue(((String) result.get("public_id")).matches("old_logo_[a-z0-9]{6}"));
         result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("use_filename", true, "unique_filename", false));
-	assertEquals((String) result.get("public_id"), "old_logo");
+	assertEquals(result.get("public_id"), "old_logo");
 	}
     @Test
 	public void testExplicit() throws IOException {
@@ -318,8 +333,8 @@ abstract public class AbstractUploaderTest {
     public void testModerationRequest() throws Exception {
     	//should support requesting manual moderation
     	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("moderation", "manual"));
-    	assertEquals("manual", ((Map) ((List<Map>) result.get("moderation")).get(0)).get("kind"));
-    	assertEquals("pending", ((Map) ((List<Map>) result.get("moderation")).get(0)).get("status"));
+    	assertEquals("manual", ((List<Map>) result.get("moderation")).get(0).get("kind"));
+    	assertEquals("pending", ((List<Map>) result.get("moderation")).get(0).get("status"));
     }
 
 
@@ -430,5 +445,32 @@ abstract public class AbstractUploaderTest {
     	java.util.ArrayList breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
     	assertEquals(2, breakpoints.size());
     }
+    
+	@Test
+	public void testCreateArchive() throws Exception {
+		Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[] { ARCHIVE_TAG }));
+		assertEquals(2, result.get("file_count"));
+		result = cloudinary.uploader().createArchive(
+				new ArchiveParams().tags(new String[] { ARCHIVE_TAG }).transformations(
+						new Transformation[] { new Transformation().width(0.5), new Transformation().width(2.0) }));
+		assertEquals(4, result.get("file_count"));
+	}
+
+	@Test
+	public void testDownloadArchive() throws Exception {
+		String result = cloudinary.downloadArchive(new ArchiveParams().tags(new String[] { ARCHIVE_TAG }));
+		URL url = new java.net.URL(result);
+		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+		ZipInputStream in = new ZipInputStream(new BufferedInputStream(urlConnection.getInputStream()));
+		int files = 0;
+		try {
+			while ((in.getNextEntry()) != null) {
+				files += 1;
+			}
+		} finally {
+			in.close();
+		}
+		assertEquals(2, files);
+	}
 
 }

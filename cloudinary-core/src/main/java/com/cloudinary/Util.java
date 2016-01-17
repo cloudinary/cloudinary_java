@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudinary.json.JSONArray;
+
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -35,6 +37,7 @@ public class Util {
 		params.put("folder", (String) options.get("folder"));
 		params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
 		params.put("moderation", options.get("moderation"));
+		params.put("responsive_breakpoints", ResponsiveBreakpoints.toJsonString(options.get("responsive_breakpoints")));
 		params.put("upload_preset", options.get("upload_preset"));
 
 		if (options.get("signature") == null) {
@@ -142,4 +145,39 @@ public class Util {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static final Map<String, Object> buildArchiveParams(Map options, String targetFormat) {
+		if (options == null)
+			options = ObjectUtils.emptyMap();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("type", options.get("type"));
+		params.put("mode", options.get("mode"));
+		params.put("target_format", targetFormat);
+		params.put("target_public_id", options.get("target_public_id"));
+		params.put("flatten_folders", ObjectUtils.asBoolean(options.get("flatten_folders"), false));
+		params.put("flatten_transformations", ObjectUtils.asBoolean(options.get("flatten_transformations"), false));
+		params.put("use_original_filename", ObjectUtils.asBoolean(options.get("use_original_filename"), false));
+		params.put("async", ObjectUtils.asBoolean(options.get("async"), false));
+		params.put("keep_derived", ObjectUtils.asBoolean(options.get("keep_derived"), false));
+		params.put("notification_url", options.get("notification_url"));
+		if (options.get("target_tags") != null)
+			params.put("target_tags", ObjectUtils.asArray(options.get("target_tags")));
+		if (options.get("tags") != null)
+			params.put("tags", ObjectUtils.asArray(options.get("tags")));
+		if (options.get("public_ids") != null)
+			params.put("public_ids", ObjectUtils.asArray(options.get("public_ids")));
+		if (options.get("prefixes") != null)
+			params.put("prefixes", ObjectUtils.asArray(options.get("prefixes")));
+		if (options.get("transformations") != null)
+			params.put("transformations", buildEager((List<Transformation>) options.get("transformations")));
+		if (options.get("timestamp") != null)
+			params.put("timestamp", options.get("timestamp"));
+		else
+			params.put("timestamp", Util.timestamp());
+		return params;
+	}
+	
+	protected static String timestamp() {
+		return new Long(System.currentTimeMillis() / 1000L).toString();
+	}
 }

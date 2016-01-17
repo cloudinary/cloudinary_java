@@ -191,11 +191,19 @@ public class Uploader {
 		if (options.get("context") != null) {
 			params.put("context", ObjectUtils.encodeMap(options.get("context")));
 		}
+		if (options.get("responsive_breakpoints") != null) {
+			params.put("responsive_breakpoints", ResponsiveBreakpoints.toJsonString(options.get("responsive_breakpoints")));
+		}
 		params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
 		return callApi("explicit", params, options, null);
 	}
-
+	
+	@Deprecated
 	public Map generate_sprite(String tag, Map options) throws IOException {
+		return generateSprite(tag, options);
+	}
+	
+	public Map generateSprite(String tag, Map options) throws IOException {
 		if (options == null)
 			options = ObjectUtils.emptyMap();
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -300,9 +308,23 @@ public class Uploader {
 		}
 		return callApi("text", params, options, null);
 	}
+	
+	public Map createArchive(Map options, String targetFormat) throws IOException {
+		Map params = Util.buildArchiveParams(options, targetFormat);
+		return callApi("generate_archive", params, options, null);
+	}
+		
+	public Map createZip(Map options) throws IOException {
+		return createArchive(options, "zip");
+	}
+	
+	public Map createArchive(ArchiveParams params) throws IOException {
+		return createArchive(params.toMap(), params.targetFormat());
+	}
 
 	public void signRequestParams(Map<String, Object> params, Map options) {
-		params.put("timestamp", new Long(System.currentTimeMillis() / 1000L).toString());
+		if (!params.containsKey("timestamp"))
+			params.put("timestamp", Util.timestamp());
 		cloudinary.signRequest(params, options);
 	}
 

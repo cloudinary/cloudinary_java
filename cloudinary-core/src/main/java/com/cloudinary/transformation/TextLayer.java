@@ -15,6 +15,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
 	protected String textAlign = null;
 	protected String stroke = null;
 	protected String letterSpacing = null;
+	protected Integer lineSpacing = null;
 	protected String text = null;
 
 	@Override
@@ -73,6 +74,11 @@ public class TextLayer extends AbstractLayer<TextLayer> {
 		this.letterSpacing = letterSpacing;
 		return getThis();
 	}
+	
+	public TextLayerBuilder lineSpacing(Integer lineSpacing) {
+		this.lineSpacing = lineSpacing;
+		return self();
+	}
 
 	public TextLayer text(String text) {
 		this.text = SmartUrlEncoder.encode(text).replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
@@ -119,6 +125,8 @@ public class TextLayer extends AbstractLayer<TextLayer> {
 			components.add(this.stroke);
 		if (StringUtils.isNotBlank(this.letterSpacing))
 			components.add("letter_spacing_" + this.letterSpacing);
+		if (this.lineSpacing != null)
+			components.add("line_spacing_" + this.lineSpacing.toString());
 
 		if (this.fontFamily == null && this.fontSize == null && components.isEmpty()) {
 			return null;

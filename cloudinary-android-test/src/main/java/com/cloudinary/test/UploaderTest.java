@@ -1,6 +1,16 @@
 package com.cloudinary.test;
 
-import static org.junit.Assert.assertEquals;
+import android.test.InstrumentationTestCase;
+import android.util.Log;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Coordinates;
+import com.cloudinary.Transformation;
+import com.cloudinary.android.Utils;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.Rectangle;
+import org.cloudinary.json.JSONArray;
+import org.cloudinary.json.JSONObject;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -13,25 +23,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudinary.json.JSONArray;
-import org.cloudinary.json.JSONObject;
-import org.junit.Test;
-
-import android.test.InstrumentationTestCase;
-import android.util.Log;
-
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Coordinates;
-import com.cloudinary.Transformation;
-import com.cloudinary.android.Utils;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.Rectangle;
-
 public class UploaderTest extends InstrumentationTestCase {
 
 
     public static final String TEST_IMAGE = "images/old_logo.png";
-    private Cloudinary cloudinary;
+	public static final String TEST_PRESET = "cloudinary_java_test";
+	private Cloudinary cloudinary;
 	private static boolean first = true;
 
 	public void setUp() throws Exception {
@@ -67,7 +64,7 @@ public class UploaderTest extends InstrumentationTestCase {
 	public void testUnsignedUpload() throws Exception {
 		if (cloudinary.config.apiSecret == null)
 			return;
-		JSONObject result = new JSONObject(cloudinary.uploader().unsignedUpload(getAssetStream(TEST_IMAGE), "sample_preset_dhfjhriu",
+		JSONObject result = new JSONObject(cloudinary.uploader().unsignedUpload(getAssetStream(TEST_IMAGE), TEST_PRESET,
 				ObjectUtils.emptyMap()));
 		assertEquals(result.getLong("width"), 241L);
 		assertEquals(result.getLong("height"), 51L);

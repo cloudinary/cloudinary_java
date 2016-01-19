@@ -246,7 +246,9 @@ public class Cloudinary {
 		if (cloudinaryUri.getUserInfo() != null) {
 			String[] creds = cloudinaryUri.getUserInfo().split(":");
 			params.put("api_key", creds[0]);
-			params.put("api_secret", creds[1]);
+			if (creds.length > 1) {
+				params.put("api_secret", creds[1]);
+			}
 		}
 		params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
 		params.put("secure_distribution", cloudinaryUri.getPath());

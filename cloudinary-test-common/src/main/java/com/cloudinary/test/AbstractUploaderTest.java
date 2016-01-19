@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.zip.ZipInputStream;
 import java.net.*;
 
+import com.cloudinary.*;
+import org.cloudinary.json.JSONArray;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
@@ -25,11 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import com.cloudinary.ArchiveParams;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Coordinates;
-import com.cloudinary.ResponsiveBreakpoints;
-import com.cloudinary.Transformation;
+import com.cloudinary.ResponsiveBreakpoint;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 
@@ -438,11 +436,31 @@ abstract public class AbstractUploaderTest {
     
     @Test
     public void testResponsiveBreakpoints() throws Exception {
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints", 
-    			new ResponsiveBreakpoints().maxImages(2).createDerived(false)
+        ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint().maxImages(2).createDerived(false);
+
+        // A single breakpoint
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints",
+                breakpoint
     		));
     	java.util.ArrayList breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
     	java.util.ArrayList breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
+    	assertEquals(2, breakpoints.size());
+
+        // an array of breakpoints
+    	result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints",
+                new ResponsiveBreakpoint [] {breakpoint}
+    		));
+    	breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+    	breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
+    	assertEquals(2, breakpoints.size());
+
+        // a JSONArray of breakpoints
+        JSONArray array = new JSONArray();
+        array.put(breakpoint);
+    	result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints", array
+    		));
+    	breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+    	breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
     	assertEquals(2, breakpoints.size());
     }
     

@@ -75,9 +75,9 @@ public class TextLayer extends AbstractLayer<TextLayer> {
 		return getThis();
 	}
 	
-	public TextLayerBuilder lineSpacing(Integer lineSpacing) {
+	public TextLayer lineSpacing(Integer lineSpacing) {
 		this.lineSpacing = lineSpacing;
-		return self();
+		return getThis();
 	}
 
 	public TextLayer text(String text) {

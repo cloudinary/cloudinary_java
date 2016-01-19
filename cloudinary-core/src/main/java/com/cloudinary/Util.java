@@ -6,10 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.cloudinary.json.JSONArray;
-
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
+import org.cloudinary.json.JSONObject;
 
 public class Util {
 	static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[] { "backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
@@ -37,7 +36,9 @@ public class Util {
 		params.put("folder", (String) options.get("folder"));
 		params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
 		params.put("moderation", options.get("moderation"));
-		params.put("responsive_breakpoints", ResponsiveBreakpoints.toJsonString(options.get("responsive_breakpoints")));
+		Object responsive_breakpoints = options.get("responsive_breakpoints");
+		if (responsive_breakpoints != null){
+			params.put("responsive_breakpoints", JSONObject.wrap(responsive_breakpoints));}
 		params.put("upload_preset", options.get("upload_preset"));
 
 		if (options.get("signature") == null) {

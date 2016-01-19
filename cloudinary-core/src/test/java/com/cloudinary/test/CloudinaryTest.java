@@ -932,6 +932,36 @@ public class CloudinaryTest {
 		}
 	}
 
+
+	@Test
+	public void testBackwardCampatibleOverlayOptions() {
+		Object tests[] = {
+				new LayerBuilder().publicId("logo"),
+				"logo",
+				new LayerBuilder().publicId("folder/logo"),
+				"folder:logo",
+				new LayerBuilder().publicId("logo").type("private"),
+				"private:logo",
+				new LayerBuilder().publicId("logo").format("png"),
+				"logo.png",
+				new LayerBuilder().resourceType("video").publicId("cat"),
+				"video:cat",
+				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
+				"text:Arial_18:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
+				new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
+						.fontWeight("bold").fontStyle("italic").letterSpacing("4"),
+				"text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
+				new SubtitlesLayerBuilder().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
+				new SubtitlesLayerBuilder().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
+				"subtitles:Arial_40:sample_sub_he.srt" };
+
+		for (int i = 0; i < tests.length; i += 2) {
+			Object layer = tests[i];
+			String expected = (String) tests[i + 1];
+			assertEquals(expected, layer.toString());
+		}
+	}
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testOverlayError1() {
 		// Must supply font_family for text in overlay

@@ -3,9 +3,7 @@ package com.cloudinary.test;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -977,28 +975,20 @@ public class CloudinaryTest {
 	@Test
 	public void testResponsiveBreakpointsToJson() {
 		assertEquals("an empty ResponsiveBreakpoint should have create_derived=true",
-				"[{\"create_derived\":true}]",
+				"{\"create_derived\":true}",
 				new ResponsiveBreakpoint().toString()
 				);
-		JSONObject expected = new JSONObject("{\"create_derived\":false,\"max_width\":500,\"min_width\":100,\"max_images\":5,\"transformation\":\"a_45\"}");
+		String[] expectedArr = "{\"create_derived\":false,\"max_width\":500,\"min_width\":100,\"max_images\":5,\"transformation\":\"a_45\"}".split("[{}]")[1].split(",(?=\")");
+		Arrays.sort(expectedArr);
 		JSONObject actual = new ResponsiveBreakpoint().createDerived(false)
 						.transformation(new Transformation().angle(45))
 						.maxWidth(500)
 						.minWidth(100)
 						.maxImages(5)
 		;
-		assertTrue(actual.similar(expected));
-
-		JSONArray actualArray = new JSONArray(Arrays.asList(
-				new ResponsiveBreakpoint().createDerived(false)
-						.transformation(new Transformation().angle(45))
-						.maxWidth(500)
-						.minWidth(100)
-						.maxImages(5),
-				new ResponsiveBreakpoint()
-		));;
-		JSONArray expectedArray = new JSONArray("[{\"create_derived\":false,\"max_width\":500,\"min_width\":100,\"max_images\":5,\"transformation\":\"a_45\"},{\"create_derived\":true}]");
-		assertTrue(actualArray.similar(expectedArray));
+		String[] actualArr = actual.toString().split("[{}]")[1].split(",(?=\")");
+		Arrays.sort(actualArr);
+		assertArrayEquals(expectedArr, actualArr);
 	}
 
 	public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

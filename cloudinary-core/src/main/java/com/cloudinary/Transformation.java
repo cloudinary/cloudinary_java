@@ -382,8 +382,21 @@ public class Transformation {
 		return this;
 	}
 
+	/**
+	 * Serialize this transformation object as a string
+	 *
+	 * {@code
+	 * Transformation().width(100).height(101).generate(); // produces "h_101,w_100"
+	 * }
+	 * @return a String representation of the transformation
+	 */
 	public String generate() {
 		return generate(transformations);
+	}
+
+	@Override
+	public String toString() {
+		return generate();
 	}
 
 	public String generate(Iterable<Map> optionsList) {

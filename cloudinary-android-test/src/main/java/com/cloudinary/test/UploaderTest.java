@@ -333,7 +333,7 @@ public class UploaderTest extends InstrumentationTestCase {
 	public void testComplexFilenameOption() throws Exception {
 		String complexFilename = "Universal Image Loader @#&=+-_.,!()~'%20.png";
 		JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("filename", complexFilename)));
-		complexFilename = URLEncoder.encode(URLDecoder.decode(complexFilename, "ASCII"), "UTF-8").replace("+", " ").replace(".png", "");
+		complexFilename = complexFilename.replace(".png", "");
 
 		assertEquals(complexFilename, result.getString("original_filename"));
 	}

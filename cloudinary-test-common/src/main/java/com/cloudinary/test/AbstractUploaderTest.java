@@ -109,6 +109,7 @@ abstract public class AbstractUploaderTest {
     public void testUploadUTF8() throws IOException {
         Map result = cloudinary.uploader().upload("../cloudinary-test-common/src/main/resources/old_logo.png", ObjectUtils.asMap("public_id", "Plattenkreiss_ñg-é"));
         assertEquals(result.get("public_id"), "Plattenkreiss_ñg-é");
+        cloudinary.uploader().upload(result.get("url"), ObjectUtils.emptyMap());
     }
 
     @Test

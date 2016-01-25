@@ -100,7 +100,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 			if (filename == null) filename = ((File) file).getName();
 			multipart.addBinaryBody("file", (File) file, ContentType.APPLICATION_OCTET_STREAM, filename);
 		} else if (file instanceof String) {
-			multipart.addTextBody("file", (String) file);
+			multipart.addTextBody("file", (String) file, contentType);
 		} else if (file instanceof byte[]) {
 			if (filename == null) filename = "file";
 			multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, filename);

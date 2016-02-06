@@ -71,8 +71,11 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
 		HttpPost postMethod = new HttpPost(apiUrl);
 		
-		if (options.get("content_range") != null) {
-			postMethod.setHeader("Content-Range", (String) options.get("content_range")); 
+		Map<String,String> extraHeaders = (Map<String,String>) options.get("extra_headers");
+		if (extraHeaders != null) {
+			for (Map.Entry<String,String> header : extraHeaders.entrySet()) {
+				postMethod.setHeader(header.getKey(), header.getValue());
+			}
 		}
 
 		MultipartEntityBuilder multipart = MultipartEntityBuilder.create();

@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
 import com.cloudinary.Cloudinary;
 
@@ -40,7 +41,7 @@ public class MultipartUtility {
 	 * @param charset
 	 * @throws IOException
 	 */
-	public MultipartUtility(String requestURL, String charset, String boundary, String contentRange) throws IOException {
+	public MultipartUtility(String requestURL, String charset, String boundary, Map<String,String> headers) throws IOException {
 		this.charset = charset;
 		this.boundary = boundary;
 
@@ -48,7 +49,11 @@ public class MultipartUtility {
 		httpConn = (HttpURLConnection) url.openConnection();
 		httpConn.setDoOutput(true); // indicates POST method
 		httpConn.setDoInput(true);
-		if (contentRange != null) httpConn.setRequestProperty("Content-Range", contentRange);
+		if (headers != null) {
+			for (Map.Entry<String,String> header : headers.entrySet()) {
+				httpConn.setRequestProperty(header.getKey(), header.getValue());
+			}
+		}
 		httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 		httpConn.setRequestProperty("User-Agent", USER_AGENT);
 		outputStream = httpConn.getOutputStream();

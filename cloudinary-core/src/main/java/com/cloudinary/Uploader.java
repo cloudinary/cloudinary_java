@@ -98,12 +98,12 @@ public class Uploader {
 
 	private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length) throws IOException {
 		Map params = buildUploadParams(options);
-		Map nextParams = new HashMap();
-		nextParams.putAll(params);
-		Map sentParams = new HashMap();
 
 		Map sentOptions = new HashMap();
 		sentOptions.putAll(options);
+		Map extraHeaders = new HashMap();
+		extraHeaders.put("X-Unique-Upload-Id", cloudinary().randomPublicId());
+		sentOptions.put("extra_headers", extraHeaders);
 
 		byte[] buffer = new byte[bufferSize];
 		byte[] nibbleBuffer = new byte[1];
@@ -120,8 +120,6 @@ public class Uploader {
 
 			if (atEnd || fullBuffer) {
 				totalBytes += currentBufferSize;
-				sentParams.clear();
-				sentParams.putAll(nextParams);
 				int currentLoc = bufferSize * partNumber;
 				if (!atEnd) {
 					//verify not on end - try read another byte
@@ -135,10 +133,10 @@ public class Uploader {
 					buffer = finalBuffer;
 				}
 				String range = String.format("bytes %d-%d/%d", currentLoc, currentLoc + currentBufferSize - 1, length);  
-				sentOptions.put("content_range", range);
+				extraHeaders.put("Content-Range", range);
+				Map sentParams = new HashMap();
+				sentParams.putAll(params);
 				response = callApi("upload", sentParams, sentOptions, buffer);
-				nextParams.put("public_id", response.get("public_id"));
-				nextParams.put("upload_id", response.get("upload_id"));
 				if (atEnd) break;
 				buffer[0] = nibbleBuffer[0];
 				currentBufferSize = 1;

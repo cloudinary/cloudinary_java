@@ -79,7 +79,7 @@ public class LayerTest {
                 "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%E2%80%9A%20Nice%20to%20meet%20you%3F",
                 new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
                 new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
-                "subtitles:Arial_40:sample_sub_he.srt" };
+                "subtitles:Arial_40:sample_sub_he.srt"};
 
         for (int i = 0; i < tests.length; i += 2) {
             Object layer = tests[i];

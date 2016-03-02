@@ -10,16 +10,16 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 /**
-* Configuration object for a {@link Cloudinary} instance
-*/
+ * Configuration object for a {@link Cloudinary} instance
+ */
 public class Configuration {
-	public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
-	public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
-	public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
-	public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
-	public final static String VERSION = "1.0.2";
-	public final static String USER_AGENT = "cld-android-" + VERSION;
-	
+    public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
+    public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
+    public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
+    public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
+    public final static String VERSION = "1.0.2";
+    public final static String USER_AGENT = "cld-android-" + VERSION;
+
     public String cloudName;
     public String apiKey;
     public String apiSecret;
@@ -30,16 +30,16 @@ public class Configuration {
     public boolean privateCdn;
     public boolean cdnSubdomain;
     public boolean shorten;
-	public String callback;
-	public String proxyHost;
-	public int proxyPort;
+    public String callback;
+    public String proxyHost;
+    public int proxyPort;
     public Map<String, Object> properties = new HashMap<String, Object>();
-	public Boolean secureCdnSubdomain;
-	public boolean useRootPath;
+    public Boolean secureCdnSubdomain;
+    public boolean useRootPath;
     public int timeout;
     public boolean loadStrategies = true;
 
-    public Configuration(){
+    public Configuration() {
     }
 
     private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath) {
@@ -66,57 +66,54 @@ public class Configuration {
         this.loadStrategies = loadStrategies;
     }
 
-    
     @SuppressWarnings("rawtypes")
-	public Configuration(Map config) {
-		update(config);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	public void update(Map config) {
-		this.cloudName = (String) config.get("cloud_name");
-		this.apiKey = (String) config.get("api_key");
-		this.apiSecret = (String) config.get("api_secret");
-		this.secureDistribution = (String) config.get("secure_distribution");
-		this.cname = (String) config.get("cname");
-		this.secure = ObjectUtils.asBoolean(config.get("secure"), false);
-		this.privateCdn = ObjectUtils.asBoolean(config.get("private_cdn"), false);
-		this.cdnSubdomain = ObjectUtils.asBoolean(config.get("cdn_subdomain"), false);
-		this.shorten = ObjectUtils.asBoolean(config.get("shorten"), false);			
-		this.uploadPrefix = (String) config.get("upload_prefix");
-		this.callback = (String) config.get("callback");
-		this.proxyHost = (String) config.get("proxy_host");
-		this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"),0);
-		this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
-		this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
-		this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
+    public Configuration(Map config) {
+        update(config);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public void update(Map config) {
+        this.cloudName = (String) config.get("cloud_name");
+        this.apiKey = (String) config.get("api_key");
+        this.apiSecret = (String) config.get("api_secret");
+        this.secureDistribution = (String) config.get("secure_distribution");
+        this.cname = (String) config.get("cname");
+        this.secure = ObjectUtils.asBoolean(config.get("secure"), false);
+        this.privateCdn = ObjectUtils.asBoolean(config.get("private_cdn"), false);
+        this.cdnSubdomain = ObjectUtils.asBoolean(config.get("cdn_subdomain"), false);
+        this.shorten = ObjectUtils.asBoolean(config.get("shorten"), false);
+        this.uploadPrefix = (String) config.get("upload_prefix");
+        this.callback = (String) config.get("callback");
+        this.proxyHost = (String) config.get("proxy_host");
+        this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"), 0);
+        this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
+        this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
+        this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
-	}
+    }
 
-	
-
-	public Configuration(Configuration other) {
-		this.cloudName = other.cloudName;
-		this.apiKey = other.apiKey;
-		this.apiSecret = other.apiSecret;
-		this.secureDistribution = other.secureDistribution;
-		this.cname = other.cname;
-		this.uploadPrefix = other.uploadPrefix;
-		this.secure = other.secure;
-		this.privateCdn = other.privateCdn;
-		this.cdnSubdomain = other.cdnSubdomain;
-		this.shorten = other.shorten;
-		this.callback = other.callback;
-		this.proxyHost = other.proxyHost;
-		this.proxyPort = other.proxyPort;
-		this.secureCdnSubdomain = other.secureCdnSubdomain;
-		this.useRootPath = other.useRootPath;
+    public Configuration(Configuration other) {
+        this.cloudName = other.cloudName;
+        this.apiKey = other.apiKey;
+        this.apiSecret = other.apiSecret;
+        this.secureDistribution = other.secureDistribution;
+        this.cname = other.cname;
+        this.uploadPrefix = other.uploadPrefix;
+        this.secure = other.secure;
+        this.privateCdn = other.privateCdn;
+        this.cdnSubdomain = other.cdnSubdomain;
+        this.shorten = other.shorten;
+        this.callback = other.callback;
+        this.proxyHost = other.proxyHost;
+        this.proxyPort = other.proxyPort;
+        this.secureCdnSubdomain = other.secureCdnSubdomain;
+        this.useRootPath = other.useRootPath;
         this.timeout = other.timeout;
-	}
+    }
 
-
-	/**
+    /**
      * Create a new Configuration from an existing one
+     *
      * @param other
      * @return a new configuration with the arguments supplied by another configuration object
      */
@@ -126,7 +123,7 @@ public class Configuration {
 
     /**
      * Create a Configuration from a cloudinary url
-     *
+     * <p>
      * Example url: cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7
      *
      * @param cloudinaryUrl configuration url
@@ -136,7 +133,6 @@ public class Configuration {
         return from(parseConfigUrl(cloudinaryUrl));
     }
 
-    
     private static Configuration parseConfigUrl(String cloudinaryUrl) {
         Builder builder = new Builder();
 
@@ -159,40 +155,38 @@ public class Configuration {
                 } catch (UnsupportedEncodingException e) {
                     throw new IllegalArgumentException("Error decoding cloudinaryUrl", e);
                 }
-                
+
                 String key = keyValue[0];
-                if (key.equals("cname")){
+                if (key.equals("cname")) {
                     builder.setCname(val);
-                }else if (key.equals("upload_prefix")){
-                	builder.setUploadPrefix(val);
-                }else if (key.equals("secure")){
-                	builder.setSecure(ObjectUtils.asBoolean(val, false));
-                }else if (key.equals("cdn_subdomain")){
-                	builder.setCdnSubdomain(ObjectUtils.asBoolean(val, false));
-                }else if (key.equals("shorten")){
-                	builder.setShorten(ObjectUtils.asBoolean(val, false));
-                } else if (key.equals("load_strategies")){
-                	builder.setLoadStrategies(ObjectUtils.asBoolean(val, true));
+                } else if (key.equals("upload_prefix")) {
+                    builder.setUploadPrefix(val);
+                } else if (key.equals("secure")) {
+                    builder.setSecure(ObjectUtils.asBoolean(val, false));
+                } else if (key.equals("cdn_subdomain")) {
+                    builder.setCdnSubdomain(ObjectUtils.asBoolean(val, false));
+                } else if (key.equals("shorten")) {
+                    builder.setShorten(ObjectUtils.asBoolean(val, false));
+                } else if (key.equals("load_strategies")) {
+                    builder.setLoadStrategies(ObjectUtils.asBoolean(val, true));
                 } else {
 //                	Log.w("Cloudinary", "ignoring invalid parameter " + val);
                 }
-                
             }
         }
         return builder.build();
     }
 
-
     /**
      * Build a new {@link Configuration}
      */
     public static class Builder {
-        private String  cloudName;
-        private String  apiKey;
-        private String  apiSecret;
-        private String  secureDistribution;
-        private String  cname;
-        private String  uploadPrefix;
+        private String cloudName;
+        private String apiKey;
+        private String apiSecret;
+        private String secureDistribution;
+        private String cname;
+        private String uploadPrefix;
         private boolean secure;
         private boolean privateCdn;
         private boolean cdnSubdomain;
@@ -207,6 +201,7 @@ public class Configuration {
 
         /**
          * Set the HTTP connection timeout.
+         *
          * @param timeout time in milliseconds, or 0 to use the default platform value
          * @return builder for chaining
          */
@@ -215,11 +210,12 @@ public class Configuration {
             return this;
         }
 
-
         /**
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
-        public Configuration build() { return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten,callback,proxyHost,proxyPort,secureCdnSubdomain,useRootPath, timeout, loadStrategies); }
+        public Configuration build() {
+            return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies);
+        }
 
         /**
          * The unique name of your cloud at Cloudinary
@@ -287,7 +283,7 @@ public class Configuration {
             return this;
         }
 
-        
+
         /**
          * Whether to automatically build URLs with multiple CDN sub-domains.
          */
@@ -300,7 +296,7 @@ public class Configuration {
             this.shorten = shorten;
             return this;
         }
-        
+
         public Builder setCallback(String callback) {
             this.callback = callback;
             return this;
@@ -310,35 +306,34 @@ public class Configuration {
             this.uploadPrefix = uploadPrefix;
             return this;
         }
-        
+
         public Builder setUseRootPath(boolean useRootPath) {
             this.useRootPath = useRootPath;
             return this;
         }
-        
+
         public Builder setLoadStrategies(boolean loadStrategies) {
             this.loadStrategies = loadStrategies;
             return this;
         }
-        
-        
-      
+
         /**
          * Initialize builder from existing {@link Configuration}
+         *
          * @param other a different configuration object
          * @return an initialized builder configured with <code>other</code>
          */
         public Builder from(Configuration other) {
-            this.cloudName  = other.cloudName;
-            this.apiKey     = other.apiKey;
-            this.apiSecret  = other.apiSecret;
+            this.cloudName = other.cloudName;
+            this.apiKey = other.apiKey;
+            this.apiSecret = other.apiSecret;
             this.secureDistribution = other.secureDistribution;
-            this.cname      = other.cname;
+            this.cname = other.cname;
             this.uploadPrefix = other.uploadPrefix;
-            this.secure     = other.secure;
+            this.secure = other.secure;
             this.privateCdn = other.privateCdn;
             this.cdnSubdomain = other.cdnSubdomain;
-            this.shorten    = other.shorten;
+            this.shorten = other.shorten;
             this.callback = other.callback;
             this.proxyHost = other.proxyHost;
             this.proxyPort = other.proxyPort;
@@ -348,6 +343,5 @@ public class Configuration {
             this.timeout = other.timeout;
             return this;
         }
-
     }
 }

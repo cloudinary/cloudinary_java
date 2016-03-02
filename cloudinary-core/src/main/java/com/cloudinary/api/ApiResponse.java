@@ -5,6 +5,7 @@ import java.util.Map;
 
 @SuppressWarnings("rawtypes")
 public interface ApiResponse extends Map {
-	Map<String, RateLimit> rateLimits() throws ParseException;
-	RateLimit apiRateLimit() throws ParseException;
+    Map<String, RateLimit> rateLimits() throws ParseException;
+
+    RateLimit apiRateLimit() throws ParseException;
 }

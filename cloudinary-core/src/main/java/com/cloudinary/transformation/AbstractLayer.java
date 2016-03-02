@@ -5,61 +5,61 @@ import java.util.ArrayList;
 import com.cloudinary.utils.StringUtils;
 
 public abstract class AbstractLayer<T extends AbstractLayer<T>> {
-	abstract T getThis();
+    abstract T getThis();
 
-	protected String resourceType = null;
-	protected String type = null;
-	protected String publicId = null;
-	protected String format = null;
+    protected String resourceType = null;
+    protected String type = null;
+    protected String publicId = null;
+    protected String format = null;
 
-	public T resourceType(String resourceType) {
-		this.resourceType = resourceType;
-		return getThis();
-	}
+    public T resourceType(String resourceType) {
+        this.resourceType = resourceType;
+        return getThis();
+    }
 
-	public T type(String type) {
-		this.type = type;
-		return getThis();
-	}
+    public T type(String type) {
+        this.type = type;
+        return getThis();
+    }
 
-	public T publicId(String publicId) {
-		this.publicId = publicId.replace('/', ':');
-		return getThis();
-	}
+    public T publicId(String publicId) {
+        this.publicId = publicId.replace('/', ':');
+        return getThis();
+    }
 
-	public T format(String format) {
-		this.format = format;
-		return getThis();
-	}
-	
-	@Override
-	public String toString() {
-		ArrayList<String> components = new ArrayList<String>();
+    public T format(String format) {
+        this.format = format;
+        return getThis();
+    }
 
-		if (this.resourceType != null && !this.resourceType.equals("image")) {
-			components.add(this.resourceType);
-		}
+    @Override
+    public String toString() {
+        ArrayList<String> components = new ArrayList<String>();
 
-		if (this.type != null && !this.type.equals("upload")) {
-			components.add(this.type);
-		}
+        if (this.resourceType != null && !this.resourceType.equals("image")) {
+            components.add(this.resourceType);
+        }
 
-		if (this.publicId == null) {
-			throw new IllegalArgumentException("Must supply publicId");
-		}
+        if (this.type != null && !this.type.equals("upload")) {
+            components.add(this.type);
+        }
 
-		components.add(formattedPublicId());
+        if (this.publicId == null) {
+            throw new IllegalArgumentException("Must supply publicId");
+        }
 
-		return StringUtils.join(components, ":");
-	}
+        components.add(formattedPublicId());
 
-	protected String formattedPublicId() {
-		String transientPublicId = this.publicId;
+        return StringUtils.join(components, ":");
+    }
 
-		if (this.format != null) {
-			transientPublicId = transientPublicId + "." + this.format;
-		}
+    protected String formattedPublicId() {
+        String transientPublicId = this.publicId;
 
-		return transientPublicId;
-	}
+        if (this.format != null) {
+            transientPublicId = transientPublicId + "." + this.format;
+        }
+
+        return transientPublicId;
+    }
 }

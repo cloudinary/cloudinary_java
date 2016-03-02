@@ -30,105 +30,105 @@ import com.cloudinary.utils.StringUtils;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Override
-	public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
-		// initialize options if passed as null
-		if (options == null) {
-			options = ObjectUtils.emptyMap();
-		}
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    @Override
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
+        // initialize options if passed as null
+        if (options == null) {
+            options = ObjectUtils.emptyMap();
+        }
 
-		boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
+        boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-		if (options.get("unsigned") == null || Boolean.FALSE.equals(options.get("unsigned"))) {
-			uploader.signRequestParams(params, options);
-		} else {
-			Util.clearEmpty(params);
-		}
+        if (options.get("unsigned") == null || Boolean.FALSE.equals(options.get("unsigned"))) {
+            uploader.signRequestParams(params, options);
+        } else {
+            Util.clearEmpty(params);
+        }
 
-		String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
+        String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
-		ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
-		HttpClient client = new DefaultHttpClient(connectionManager);
+        ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
+        HttpClient client = new DefaultHttpClient(connectionManager);
 
-		// If the configuration specifies a proxy then apply it to the client
-		if (uploader.cloudinary().config.proxyHost != null && uploader.cloudinary().config.proxyPort != 0) {
-			HttpHost proxy = new HttpHost(uploader.cloudinary().config.proxyHost, uploader.cloudinary().config.proxyPort);
-			client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-		}
+        // If the configuration specifies a proxy then apply it to the client
+        if (uploader.cloudinary().config.proxyHost != null && uploader.cloudinary().config.proxyPort != 0) {
+            HttpHost proxy = new HttpHost(uploader.cloudinary().config.proxyHost, uploader.cloudinary().config.proxyPort);
+            client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
 
-		HttpPost postMethod = new HttpPost(apiUrl);
-		postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
-		
-		Map<String,String> extraHeaders = (Map<String,String>) options.get("extra_headers");
-		if (extraHeaders != null) {
-			for (Map.Entry<String,String> header : extraHeaders.entrySet()) {
-				postMethod.setHeader(header.getKey(), header.getValue());
-			}
-		}
-		
-		Charset utf8 = Charset.forName("UTF-8");
+        HttpPost postMethod = new HttpPost(apiUrl);
+        postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
 
-		MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
-		// Remove blank parameters
-		for (Map.Entry<String, Object> param : params.entrySet()) {
-			if (param.getValue() instanceof Collection) {
-				for (Object value : (Collection) param.getValue()) {
-					multipart.addPart(param.getKey() + "[]", new StringBody(ObjectUtils.asString(value), utf8));
-				}
-			} else {
-				String value = param.getValue().toString();
-				if (StringUtils.isNotBlank(value)) {
-					multipart.addPart(param.getKey(), new StringBody(value, utf8));
-				}
-			}
-		}
+        Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");
+        if (extraHeaders != null) {
+            for (Map.Entry<String, String> header : extraHeaders.entrySet()) {
+                postMethod.setHeader(header.getKey(), header.getValue());
+            }
+        }
 
-		if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
-			file = new File((String) file);
-		}
-		String filename = (String) options.get("filename");
-		if (file instanceof File) {
-			multipart.addPart("file", new FileBody((File) file, filename, "application/octet-stream", null));
-		} else if (file instanceof String) {
-			multipart.addPart("file", new StringBody((String) file, utf8));
-		} else if (file instanceof byte[]) {
-			if (filename == null) filename = "file";
-			multipart.addPart("file", new ByteArrayBody((byte[]) file, filename));
-		} else if (file == null) {
-			// no-problem
-		} else {
-			throw new IOException("Uprecognized file parameter " + file);
-		}
-		postMethod.setEntity(multipart);
+        Charset utf8 = Charset.forName("UTF-8");
 
-		HttpResponse response = client.execute(postMethod);
-		int code = response.getStatusLine().getStatusCode();
-		InputStream responseStream = response.getEntity().getContent();
-		String responseData = StringUtils.read(responseStream);
+        MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+        // Remove blank parameters
+        for (Map.Entry<String, Object> param : params.entrySet()) {
+            if (param.getValue() instanceof Collection) {
+                for (Object value : (Collection) param.getValue()) {
+                    multipart.addPart(param.getKey() + "[]", new StringBody(ObjectUtils.asString(value), utf8));
+                }
+            } else {
+                String value = param.getValue().toString();
+                if (StringUtils.isNotBlank(value)) {
+                    multipart.addPart(param.getKey(), new StringBody(value, utf8));
+                }
+            }
+        }
 
-		if (code != 200 && code != 400 && code != 500) {
-			throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
-		}
+        if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+            file = new File((String) file);
+        }
+        String filename = (String) options.get("filename");
+        if (file instanceof File) {
+            multipart.addPart("file", new FileBody((File) file, filename, "application/octet-stream", null));
+        } else if (file instanceof String) {
+            multipart.addPart("file", new StringBody((String) file, utf8));
+        } else if (file instanceof byte[]) {
+            if (filename == null) filename = "file";
+            multipart.addPart("file", new ByteArrayBody((byte[]) file, filename));
+        } else if (file == null) {
+            // no-problem
+        } else {
+            throw new IOException("Uprecognized file parameter " + file);
+        }
+        postMethod.setEntity(multipart);
 
-		Map result;
-		
-		try {
-			JSONObject responseJSON = new JSONObject(responseData);
-			result= ObjectUtils.toMap(responseJSON);
-		} catch (JSONException e) {
-			throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
-		}
-		
-		if (result.containsKey("error")) {
-			Map error = (Map) result.get("error");
-			if (returnError) {
-				error.put("http_code", code);
-			} else {
-				throw new RuntimeException((String) error.get("message"));
-			}
-		}
-		return result;
-	}
+        HttpResponse response = client.execute(postMethod);
+        int code = response.getStatusLine().getStatusCode();
+        InputStream responseStream = response.getEntity().getContent();
+        String responseData = StringUtils.read(responseStream);
+
+        if (code != 200 && code != 400 && code != 500) {
+            throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
+        }
+
+        Map result;
+
+        try {
+            JSONObject responseJSON = new JSONObject(responseData);
+            result = ObjectUtils.toMap(responseJSON);
+        } catch (JSONException e) {
+            throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
+        }
+
+        if (result.containsKey("error")) {
+            Map error = (Map) result.get("error");
+            if (returnError) {
+                error.put("http_code", code);
+            } else {
+                throw new RuntimeException((String) error.get("message"));
+            }
+        }
+        return result;
+    }
 
 }

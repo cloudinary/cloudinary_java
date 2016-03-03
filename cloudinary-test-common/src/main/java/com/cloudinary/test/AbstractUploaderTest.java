@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeNotNull;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,42 +37,45 @@ abstract public class AbstractUploaderTest {
 
     public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
     public static final String REMOTE_TEST_IMAGE = "http://cloudinary.com/images/old_logo.png";
-    private static final String ARCHIVE_TAG = "archive_tag_" + String.valueOf(System.currentTimeMillis()); 
+    private static final String ARCHIVE_TAG = "archive_tag_" + String.valueOf(System.currentTimeMillis());
+    public static final int SRC_TEST_IMAGE_W = 241;
+    public static final int SRC_TEST_IMAGE_H = 51;
     private Cloudinary cloudinary;
 
-	@BeforeClass
-	public static void setUpClass() throws IOException {
-		Cloudinary cloudinary = new Cloudinary();
-		if (cloudinary.config.apiSecret == null) {
-			System.err.println("Please setup environment for Upload test to run");
-		}
+    @BeforeClass
+    public static void setUpClass() throws IOException {
+        Cloudinary cloudinary = new Cloudinary();
+        if (cloudinary.config.apiSecret == null) {
+            System.err.println("Please setup environment for Upload test to run");
+        }
 
-		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", ARCHIVE_TAG));
-		cloudinary.uploader().upload(SRC_TEST_IMAGE,
-				ObjectUtils.asMap("tags", ARCHIVE_TAG, 
-								  "transformation", new Transformation().crop("scale").width(10)));
-	}
-	
-	@AfterClass
-	public static void tearDownClass() throws Exception {
-		Cloudinary cloudinary = new Cloudinary();
-		cloudinary.api().deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
-	}
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", ARCHIVE_TAG));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap("tags", ARCHIVE_TAG,
+                        "transformation", new Transformation().crop("scale").width(10)));
+    }
 
-    @Rule public TestName currentTest = new TestName();
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+        Cloudinary cloudinary = new Cloudinary();
+        cloudinary.api().deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
+    }
 
-	@Before
-	public void setUp() {
-		System.out.println("Running " +this.getClass().getName()+"."+ currentTest.getMethodName());
-    	this.cloudinary = new Cloudinary();
-    	assumeNotNull(cloudinary.config.apiSecret);
+    @Rule
+    public TestName currentTest = new TestName();
+
+    @Before
+    public void setUp() {
+        System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
+        this.cloudinary = new Cloudinary();
+        assumeNotNull(cloudinary.config.apiSecret);
     }
 
     @Test
-	public void testUpload() throws IOException {
+    public void testUpload() throws IOException {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("colors", true));
-        assertEquals(result.get("width"), 241);
-        assertEquals(result.get("height"), 51);
+        assertEquals(result.get("width"), SRC_TEST_IMAGE_W);
+        assertEquals(result.get("height"), SRC_TEST_IMAGE_H);
         assertNotNull(result.get("colors"));
         assertNotNull(result.get("predominant"));
         Map<String, Object> to_sign = new HashMap<String, Object>();
@@ -82,10 +86,10 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-	public void testUploadUrl() throws IOException {
+    public void testUploadUrl() throws IOException {
         Map result = cloudinary.uploader().upload(REMOTE_TEST_IMAGE, ObjectUtils.emptyMap());
-        assertEquals(result.get("width"), 241);
-        assertEquals(result.get("height"), 51);
+        assertEquals(result.get("width"), SRC_TEST_IMAGE_W);
+        assertEquals(result.get("height"), SRC_TEST_IMAGE_H);
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
@@ -94,7 +98,7 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-	public void testUploadDataUri() throws IOException {
+    public void testUploadDataUri() throws IOException {
         Map result = cloudinary.uploader().upload("data:image/png;base64,iVBORw0KGgoAA\nAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAD///+l2Z/dAAAAM0l\nEQVR4nGP4/5/h/1+G/58ZDrAz3D/McH8yw83NDDeNGe4Ug9C9zwz3gVLMDA/A6\nP9/AFGGFyjOXZtQAAAAAElFTkSuQmCC", ObjectUtils.emptyMap());
         assertEquals(result.get("width"), 16);
         assertEquals(result.get("height"), 16);
@@ -104,7 +108,7 @@ abstract public class AbstractUploaderTest {
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertEquals(result.get("signature"), expected_signature);
     }
-    
+
     @Test
     public void testUploadUTF8() throws IOException {
         Map result = cloudinary.uploader().upload("../cloudinary-test-common/src/main/resources/old_logo.png", ObjectUtils.asMap("public_id", "Plattenkreiss_ñg-é"));
@@ -113,7 +117,7 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-	public void testRename() throws Exception {
+    public void testRename() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 
         Object publicId = result.get("public_id");
@@ -134,34 +138,35 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-	public void testUniqueFilename() throws Exception {
+    public void testUniqueFilename() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("use_filename", true));
-	assertTrue(((String) result.get("public_id")).matches("old_logo_[a-z0-9]{6}"));
+        assertTrue(((String) result.get("public_id")).matches("old_logo_[a-z0-9]{6}"));
         result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("use_filename", true, "unique_filename", false));
-	assertEquals(result.get("public_id"), "old_logo");
-	}
+        assertEquals(result.get("public_id"), "old_logo");
+    }
+
     @Test
-	public void testExplicit() throws IOException {
+    public void testExplicit() throws IOException {
         Map result = cloudinary.uploader().explicit("cloudinary", ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name"));
         String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png").version(result.get("version")).generate("cloudinary");
-        String eagerUrl = (String) ((Map) ((List)result.get("eager")).get(0)).get("url");
+        String eagerUrl = (String) ((Map) ((List) result.get("eager")).get(0)).get("url");
         String cloudName = cloudinary.config.cloudName;
         assertEquals(eagerUrl.substring(eagerUrl.indexOf(cloudName)), url.substring(url.indexOf(cloudName)));
     }
 
     @Test
-	public void testEager() throws IOException {
+    public void testEager() throws IOException {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
     }
 
     @Test
-	public void testHeaders() throws IOException {
+    public void testHeaders() throws IOException {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("headers", new String[]{"Link: 1"}));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("headers", ObjectUtils.asMap("Link", "1")));
     }
 
     @Test
-	public void testText() throws IOException {
+    public void testText() throws IOException {
         Map result = cloudinary.uploader().text("hello world", ObjectUtils.emptyMap());
         assertTrue(((Integer) result.get("width")) > 1);
         assertTrue(((Integer) result.get("height")) > 1);
@@ -169,13 +174,13 @@ abstract public class AbstractUploaderTest {
 
     @Test
     public void testImageUploadTag() {
-    	String tag = cloudinary.uploader().imageUploadTag("test-field", ObjectUtils.asMap("callback", "http://localhost/cloudinary_cors.html"), ObjectUtils.asMap("htmlattr", "htmlvalue"));
-    	assertTrue(tag.contains("type='file'"));
-    	assertTrue(tag.contains("data-cloudinary-field='test-field'"));
-    	assertTrue(tag.contains("class='cloudinary-fileupload'"));
-    	assertTrue(tag.contains("htmlattr='htmlvalue'"));
-    	tag = cloudinary.uploader().imageUploadTag("test-field", ObjectUtils.asMap("callback", "http://localhost/cloudinary_cors.html"), ObjectUtils.asMap("class", "myclass"));
-    	assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+        String tag = cloudinary.uploader().imageUploadTag("test-field", ObjectUtils.asMap("callback", "http://localhost/cloudinary_cors.html"), ObjectUtils.asMap("htmlattr", "htmlvalue"));
+        assertTrue(tag.contains("type='file'"));
+        assertTrue(tag.contains("data-cloudinary-field='test-field'"));
+        assertTrue(tag.contains("class='cloudinary-fileupload'"));
+        assertTrue(tag.contains("htmlattr='htmlvalue'"));
+        tag = cloudinary.uploader().imageUploadTag("test-field", ObjectUtils.asMap("callback", "http://localhost/cloudinary_cors.html"), ObjectUtils.asMap("class", "myclass"));
+        assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
     }
 
     @Test
@@ -206,9 +211,9 @@ abstract public class AbstractUploaderTest {
     @Test
     public void testTags() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
-        String public_id = (String)result.get("public_id");
+        String public_id = (String) result.get("public_id");
         Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
-        String public_id2 = (String)result2.get("public_id");
+        String public_id2 = (String) result2.get("public_id");
         cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, ObjectUtils.emptyMap());
         cloudinary.uploader().addTag("tag2", new String[]{public_id}, ObjectUtils.emptyMap());
         List<String> tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
@@ -225,196 +230,196 @@ abstract public class AbstractUploaderTest {
 
     @Test
     public void testAllowedFormats() throws Exception {
-    	//should allow whitelisted formats if allowed_formats
-    	String[] formats = {"png"};
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats));
-    	assertEquals(result.get("format"), "png");
+        //should allow whitelisted formats if allowed_formats
+        String[] formats = {"png"};
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats));
+        assertEquals(result.get("format"), "png");
     }
 
     @Test
     public void testAllowedFormatsWithIllegalFormat() throws Exception {
-    	//should prevent non whitelisted formats from being uploaded if allowed_formats is specified
-    	boolean errorFound = false;
-    	String[] formats = {"jpg"};
-    	try{
-    		cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats));
-    	} catch(Exception e) {
-        	errorFound=true;
+        //should prevent non whitelisted formats from being uploaded if allowed_formats is specified
+        boolean errorFound = false;
+        String[] formats = {"jpg"};
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats));
+        } catch (Exception e) {
+            errorFound = true;
         }
         assertTrue(errorFound);
     }
 
     @Test
     public void testAllowedFormatsWithFormat() throws Exception {
-    	//should allow non whitelisted formats if type is specified and convert to that type
-    	String[] formats = {"jpg"};
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats, "format", "jpg"));
-    	assertEquals("jpg", result.get("format"));
+        //should allow non whitelisted formats if type is specified and convert to that type
+        String[] formats = {"jpg"};
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("allowed_formats", formats, "format", "jpg"));
+        assertEquals("jpg", result.get("format"));
     }
 
     @Test
     public void testFaceCoordinates() throws Exception {
-    	//should allow sending face coordinates
-    	Coordinates coordinates = new Coordinates();
-    	Rectangle rect1 = new Rectangle(121,31,110,151);
-    	Rectangle rect2 = new Rectangle(120,30,109,150);
-    	coordinates.addRect(rect1);
-    	coordinates.addRect(rect2);
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("face_coordinates", coordinates, "faces", true));
-    	ArrayList resultFaces = ((ArrayList) result.get("faces"));
-    	assertEquals(2, resultFaces.size());
+        //should allow sending face coordinates
+        Coordinates coordinates = new Coordinates();
+        Rectangle rect1 = new Rectangle(121, 31, 110, 151);
+        Rectangle rect2 = new Rectangle(120, 30, 109, 150);
+        coordinates.addRect(rect1);
+        coordinates.addRect(rect2);
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("face_coordinates", coordinates, "faces", true));
+        ArrayList resultFaces = ((ArrayList) result.get("faces"));
+        assertEquals(2, resultFaces.size());
 
-    	Object[] resultCoordinates = ((ArrayList) resultFaces.get(0)).toArray();
+        Object[] resultCoordinates = ((ArrayList) resultFaces.get(0)).toArray();
 
-    	assertEquals(rect1.x, resultCoordinates[0]);
-    	assertEquals(rect1.y, resultCoordinates[1]);
-    	assertEquals(rect1.width, resultCoordinates[2]);
-    	assertEquals(rect1.height, resultCoordinates[3]);
+        assertEquals(rect1.x, resultCoordinates[0]);
+        assertEquals(rect1.y, resultCoordinates[1]);
+        assertEquals(rect1.width, resultCoordinates[2]);
+        assertEquals(rect1.height, resultCoordinates[3]);
 
-    	resultCoordinates =((ArrayList)resultFaces.get(1)).toArray();
+        resultCoordinates = ((ArrayList) resultFaces.get(1)).toArray();
 
-    	assertEquals(rect2.x, resultCoordinates[0]);
-    	assertEquals(rect2.y, resultCoordinates[1]);
-    	assertEquals(rect2.width, resultCoordinates[2]);
-    	assertEquals(rect2.height, resultCoordinates[3]);
+        assertEquals(rect2.x, resultCoordinates[0]);
+        assertEquals(rect2.y, resultCoordinates[1]);
+        assertEquals(rect2.width, resultCoordinates[2]);
+        assertEquals(rect2.height, resultCoordinates[3]);
 
-    	Coordinates differentCoordinates = new Coordinates();
-    	Rectangle rect3 = new Rectangle(122,32,111,152);
-    	differentCoordinates.addRect(rect3);
-    	cloudinary.uploader().explicit((String) result.get("public_id"), ObjectUtils.asMap("face_coordinates", differentCoordinates, "faces", true, "type", "upload"));
-    	Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("faces", true));
+        Coordinates differentCoordinates = new Coordinates();
+        Rectangle rect3 = new Rectangle(122, 32, 111, 152);
+        differentCoordinates.addRect(rect3);
+        cloudinary.uploader().explicit((String) result.get("public_id"), ObjectUtils.asMap("face_coordinates", differentCoordinates, "faces", true, "type", "upload"));
+        Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("faces", true));
 
-    	resultFaces = (ArrayList) info.get("faces");
-    	assertEquals(1, resultFaces.size());
-    	resultCoordinates = ((ArrayList) resultFaces.get(0)).toArray();
+        resultFaces = (ArrayList) info.get("faces");
+        assertEquals(1, resultFaces.size());
+        resultCoordinates = ((ArrayList) resultFaces.get(0)).toArray();
 
-    	assertEquals(rect3.x, resultCoordinates[0]);
-    	assertEquals(rect3.y, resultCoordinates[1]);
-    	assertEquals(rect3.width, resultCoordinates[2]);
-    	assertEquals(rect3.height, resultCoordinates[3]);
+        assertEquals(rect3.x, resultCoordinates[0]);
+        assertEquals(rect3.y, resultCoordinates[1]);
+        assertEquals(rect3.width, resultCoordinates[2]);
+        assertEquals(rect3.height, resultCoordinates[3]);
 
     }
 
     @Test
     public void testCustomCoordinates() throws Exception {
-    	//should allow sending face coordinates
-    	Coordinates coordinates = new Coordinates("121,31,110,151");
-    	Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("custom_coordinates", coordinates));
-    	Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
-    	int[] expected = new int[]{121,31,110,151};
-    	Object[] actual = ((ArrayList)((ArrayList)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
-    	for (int i = 0; i < expected.length; i++){
-    		assertEquals(expected[i], actual[i]);
-    	}
+        //should allow sending face coordinates
+        Coordinates coordinates = new Coordinates("121,31,300,151");
+        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("custom_coordinates", coordinates));
+        Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
+        int[] expected = new int[]{121, 31, SRC_TEST_IMAGE_W, SRC_TEST_IMAGE_H};
+        Object[] actual = ((ArrayList) ((ArrayList) ((Map) result.get("coordinates")).get("custom")).get(0)).toArray();
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], actual[i]);
+        }
 
-    	coordinates = new Coordinates(new int[]{122,32,110,152});
-    	cloudinary.uploader().explicit((String) uploadResult.get("public_id"), ObjectUtils.asMap("custom_coordinates", coordinates, "coordinates", true, "type", "upload"));
-    	result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
-    	expected = new int[]{122,32,110,152};
-    	actual = ((ArrayList)((ArrayList)((Map)result.get("coordinates")).get("custom")).get(0)).toArray();
-    	for (int i = 0; i < expected.length; i++){
-    		assertEquals(expected[i], actual[i]);
-    	}
+        coordinates = new Coordinates(new int[]{122, 32, SRC_TEST_IMAGE_W + 100, SRC_TEST_IMAGE_H + 100});
+        cloudinary.uploader().explicit((String) uploadResult.get("public_id"), ObjectUtils.asMap("custom_coordinates", coordinates, "coordinates", true, "type", "upload"));
+        result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
+        expected = new int[]{122, 32, SRC_TEST_IMAGE_W + 100, SRC_TEST_IMAGE_H + 100};
+        actual = ((ArrayList) ((ArrayList) ((Map) result.get("coordinates")).get("custom")).get(0)).toArray();
+        for (int i = 0; i < expected.length; i++) {
+            assertEquals(expected[i], actual[i]);
+        }
     }
 
     @Test
     public void testContext() throws Exception {
-    	//should allow sending context
-    	Map context = ObjectUtils.asMap("caption", "some cäption", "alt", "alternativè");
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("context", context));
-    	Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
-    	assertEquals(ObjectUtils.asMap("custom", context), info.get("context"));
-    	Map differentContext = ObjectUtils.asMap("caption", "different caption", "alt2", "alternative alternative");
-    	cloudinary.uploader().explicit((String) result.get("public_id"), ObjectUtils.asMap("type", "upload", "context", differentContext));
-    	info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
-    	assertEquals(ObjectUtils.asMap("custom", differentContext), info.get("context"));
+        //should allow sending context
+        Map context = ObjectUtils.asMap("caption", "some cäption", "alt", "alternativè");
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("context", context));
+        Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
+        assertEquals(ObjectUtils.asMap("custom", context), info.get("context"));
+        Map differentContext = ObjectUtils.asMap("caption", "different caption", "alt2", "alternative alternative");
+        cloudinary.uploader().explicit((String) result.get("public_id"), ObjectUtils.asMap("type", "upload", "context", differentContext));
+        info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
+        assertEquals(ObjectUtils.asMap("custom", differentContext), info.get("context"));
     }
 
     @Test
     public void testModerationRequest() throws Exception {
-    	//should support requesting manual moderation
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("moderation", "manual"));
-    	assertEquals("manual", ((List<Map>) result.get("moderation")).get(0).get("kind"));
-    	assertEquals("pending", ((List<Map>) result.get("moderation")).get(0).get("status"));
+        //should support requesting manual moderation
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual"));
+        assertEquals("manual", ((List<Map>) result.get("moderation")).get(0).get("kind"));
+        assertEquals("pending", ((List<Map>) result.get("moderation")).get(0).get("status"));
     }
 
 
     @Test
     public void testRawConvertRequest() {
-    	//should support requesting raw conversion
-    	try {
-    		cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("raw_convert", "illegal"));
-    	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+        //should support requesting raw conversion
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("raw_convert", "illegal"));
+        } catch (Exception e) {
+            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
 
     @Test
     public void testCategorizationRequest() {
-    	//should support requesting categorization
-    	try {
-    		cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("categorization", "illegal"));
-    	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+        //should support requesting categorization
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("categorization", "illegal"));
+        } catch (Exception e) {
+            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
 
     @Test
     public void testDetectionRequest() {
-    	//should support requesting detection
-    	try {
-    		cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("detection", "illegal"));
-    	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+        //should support requesting detection
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("detection", "illegal"));
+        } catch (Exception e) {
+            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
         }
     }
 
     @Test
     public void testAutoTaggingRequest() {
-    	//should support requesting auto tagging
-    	try {
-    		cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("auto_tagging", 0.5f));
-    	} catch(Exception e) {
-    		assertTrue(e.getMessage().matches("^Must use(.*)"));
+        //should support requesting auto tagging
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("auto_tagging", 0.5f));
+        } catch (Exception e) {
+            assertTrue(e.getMessage().matches("^Must use(.*)"));
         }
     }
 
     @Test
-    public void testUploadLarge()  throws Exception {
-    	// support uploading large files
-        
+    public void testUploadLarge() throws Exception {
+        // support uploading large files
+
         File temp = File.createTempFile("cldupload.test.", "");
         FileOutputStream out = new FileOutputStream(temp);
-        int[] header = new int[]{0x42,0x4D,0x4A,0xB9,0x59,0x00,0x00,0x00,0x00,0x00,0x8A,0x00,0x00,0x00,0x7C,0x00,0x00,0x00,0x78,0x05,0x00,0x00,0x78,0x05,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,0x00,0x00,0xC0,0xB8,0x59,0x00,0x61,0x0F,0x00,0x00,0x61,0x0F,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x42,0x47,0x52,0x73,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x54,0xB8,0x1E,0xFC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x66,0x66,0x66,0xFC,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xC4,0xF5,0x28,0xFF,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x04,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};
+        int[] header = new int[]{0x42, 0x4D, 0x4A, 0xB9, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x00, 0x00, 0x00, 0x7C, 0x00, 0x00, 0x00, 0x78, 0x05, 0x00, 0x00, 0x78, 0x05, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0xB8, 0x59, 0x00, 0x61, 0x0F, 0x00, 0x00, 0x61, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x42, 0x47, 0x52, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0xB8, 0x1E, 0xFC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x66, 0x66, 0x66, 0xFC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC4, 0xF5, 0x28, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         byte[] byteHeader = new byte[138];
         for (int i = 0; i <= 137; i++) byteHeader[i] = (byte) header[i];
         byte[] piece = new byte[10];
         Arrays.fill(piece, (byte) 0xff);
         out.write(byteHeader);
         for (int i = 1; i <= 588000; i++) {
-          out.write(piece);
+            out.write(piece);
         }
         out.close();
         assertEquals(5880138, temp.length());
         ArrayList<String> tags = new java.util.ArrayList<String>();
         tags.add("upload_large_tag");
-        
+
         Map resource = cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("resource_type", "raw", "chunk_size", 5243000, "tags", tags));
         assertEquals(tags, resource.get("tags"));
         assertEquals("raw", resource.get("resource_type"));
-        
+
         resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), ObjectUtils.asMap("chunk_size", 5243000, "tags", tags));
         assertEquals(tags, resource.get("tags"));
         assertEquals("image", resource.get("resource_type"));
         assertEquals(1400, resource.get("width"));
         assertEquals(1400, resource.get("height"));
-        
+
         resource = cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("chunk_size", 5880138, "tags", tags));
         assertEquals(tags, resource.get("tags"));
         assertEquals("image", resource.get("resource_type"));
         assertEquals(1400, resource.get("width"));
         assertEquals(1400, resource.get("height"));
-        
+
         resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), ObjectUtils.asMap("chunk_size", 5880138, "tags", tags));
         assertEquals(tags, resource.get("tags"));
         assertEquals("image", resource.get("resource_type"));
@@ -423,20 +428,20 @@ abstract public class AbstractUploaderTest {
     }
 
     @Test
-    public void testUnsignedUpload()  throws Exception {
-    	// should support unsigned uploading using presets
+    public void testUnsignedUpload() throws Exception {
+        // should support unsigned uploading using presets
         Map preset = cloudinary.api().createUploadPreset(ObjectUtils.asMap("folder", "upload_folder", "unsigned", true));
         Map result = cloudinary.uploader().unsignedUpload(SRC_TEST_IMAGE, preset.get("name").toString(), ObjectUtils.emptyMap());
         assertTrue(result.get("public_id").toString().matches("^upload_folder\\/[a-z0-9]+$"));
         cloudinary.api().deleteUploadPreset(preset.get("name").toString(), ObjectUtils.emptyMap());
     }
-    
+
     @Test
     public void testFilenameOption() throws Exception {
-    	Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif"));
-    	assertEquals("emanelif", result.get("original_filename"));
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("filename", "emanelif"));
+        assertEquals("emanelif", result.get("original_filename"));
     }
-    
+
     @Test
     public void testResponsiveBreakpoints() throws Exception {
         ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint().maxImages(2).createDerived(false);
@@ -444,54 +449,54 @@ abstract public class AbstractUploaderTest {
         // A single breakpoint
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints",
                 breakpoint
-    		));
-    	java.util.ArrayList breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
-    	java.util.ArrayList breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
-    	assertEquals(2, breakpoints.size());
+        ));
+        java.util.ArrayList breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+        java.util.ArrayList breakpoints = (java.util.ArrayList) ((Map) breakpointsResponse.get(0)).get("breakpoints");
+        assertEquals(2, breakpoints.size());
 
         // an array of breakpoints
-    	result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints",
-                new ResponsiveBreakpoint [] {breakpoint}
-    		));
-    	breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
-    	breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
-    	assertEquals(2, breakpoints.size());
+        result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints",
+                new ResponsiveBreakpoint[]{breakpoint}
+        ));
+        breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+        breakpoints = (java.util.ArrayList) ((Map) breakpointsResponse.get(0)).get("breakpoints");
+        assertEquals(2, breakpoints.size());
 
         // a JSONArray of breakpoints
         JSONArray array = new JSONArray();
         array.put(breakpoint);
-    	result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints", array
-    		));
-    	breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
-    	breakpoints = (java.util.ArrayList)((Map) breakpointsResponse.get(0)).get("breakpoints");
-    	assertEquals(2, breakpoints.size());
+        result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("responsive_breakpoints", array
+        ));
+        breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
+        breakpoints = (java.util.ArrayList) ((Map) breakpointsResponse.get(0)).get("breakpoints");
+        assertEquals(2, breakpoints.size());
     }
-    
-	@Test
-	public void testCreateArchive() throws Exception {
-		Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[] { ARCHIVE_TAG }));
-		assertEquals(2, result.get("file_count"));
-		result = cloudinary.uploader().createArchive(
-				new ArchiveParams().tags(new String[] { ARCHIVE_TAG }).transformations(
-						new Transformation[] { new Transformation().width(0.5), new Transformation().width(2.0) }));
-		assertEquals(4, result.get("file_count"));
-	}
 
-	@Test
-	public void testDownloadArchive() throws Exception {
-		String result = cloudinary.downloadArchive(new ArchiveParams().tags(new String[] { ARCHIVE_TAG }));
-		URL url = new java.net.URL(result);
-		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-		ZipInputStream in = new ZipInputStream(new BufferedInputStream(urlConnection.getInputStream()));
-		int files = 0;
-		try {
-			while ((in.getNextEntry()) != null) {
-				files += 1;
-			}
-		} finally {
-			in.close();
-		}
-		assertEquals(2, files);
-	}
+    @Test
+    public void testCreateArchive() throws Exception {
+        Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[]{ARCHIVE_TAG}));
+        assertEquals(2, result.get("file_count"));
+        result = cloudinary.uploader().createArchive(
+                new ArchiveParams().tags(new String[]{ARCHIVE_TAG}).transformations(
+                        new Transformation[]{new Transformation().width(0.5), new Transformation().width(2.0)}));
+        assertEquals(4, result.get("file_count"));
+    }
+
+    @Test
+    public void testDownloadArchive() throws Exception {
+        String result = cloudinary.downloadArchive(new ArchiveParams().tags(new String[]{ARCHIVE_TAG}));
+        URL url = new java.net.URL(result);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        ZipInputStream in = new ZipInputStream(new BufferedInputStream(urlConnection.getInputStream()));
+        int files = 0;
+        try {
+            while ((in.getNextEntry()) != null) {
+                files += 1;
+            }
+        } finally {
+            in.close();
+        }
+        assertEquals(2, files);
+    }
 
 }

@@ -1,7 +1,7 @@
 <taglib xmlns="http://java.sun.com/xml/ns/j2ee"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
-    version="2.0">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
     <tlib-version>1.1</tlib-version>
     <jsp-version>2.0</jsp-version>
     <short-name>Cloudinary Taglib</short-name>
@@ -341,7 +341,7 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-         <attribute>
+        <attribute>
             <name>signed</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
@@ -412,7 +412,7 @@
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
-         <attribute>
+        <attribute>
             <name>signed</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
@@ -514,19 +514,19 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-          <name>urlSuffix</name>
-          <required>false</required>
-          <rtexprvalue>true</rtexprvalue>
+            <name>urlSuffix</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-          <name>secureCdnSubdomain</name>
-          <required>false</required>
-          <rtexprvalue>true</rtexprvalue>
+            <name>secureCdnSubdomain</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-          <name>useRootPath</name>
-          <required>false</required>
-          <rtexprvalue>true</rtexprvalue>
+            <name>useRootPath</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
         </attribute>
         <dynamic-attributes>true</dynamic-attributes>
     </tag>

@@ -118,9 +118,11 @@ public class Uploader {
 		int partNumber = 0;
 		long totalBytes = 0;
 		int totalPossibleParts = 0;
+		float callbackMultiplier = 0.0f;
 		Map response = null;
 		if (length != -1) {
 			totalPossibleParts = (int) Math.ceil((float) length / (float) bufferSize);
+			callbackMultiplier = 100.0f/totalPossibleParts;
 		}
 		while (true) {
 			bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize);
@@ -153,10 +155,11 @@ public class Uploader {
 				partNumber++;
 				if (callback!=null) {
 					if (totalPossibleParts > 0)
-						callback.uploadListener((partNumber * 100) / totalPossibleParts);
+						callback.uploadListener((int) Math.ceil(partNumber * callbackMultiplier));
 				}
 			}
 		}
+		this.callback = null;
 		return response;
 	}
 

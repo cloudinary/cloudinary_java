@@ -1,7 +1,7 @@
 package com.cloudinary;
 
 /**
- * glider-android / com.cloudinary.utils / UploadCallback
+ * cloudinary-core / com.cloudinary.utils / UploadCallback
  * Created by chandra on 3/9/16.
  */
 public interface UploadCallback {

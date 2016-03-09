@@ -24,6 +24,7 @@ public class Uploader {
 
 	private Cloudinary cloudinary;
 	private AbstractUploaderStrategy strategy;
+	UploadCallback callback;
 
 	public Uploader(Cloudinary cloudinary,AbstractUploaderStrategy strategy) {
 		this.cloudinary = cloudinary;
@@ -70,7 +71,12 @@ public class Uploader {
 		int bufferSize = ObjectUtils.asInteger(options.get("chunk_size"), 20000000);
 		return uploadLarge(file, options, bufferSize);
 	}
-	
+
+	public Map uploadLarge(UploadCallback callback, Object file, Map options, int bufferSize) throws IOException {
+		this.callback = callback;
+		return uploadLarge(file, options, bufferSize);
+	}
+
 	@SuppressWarnings("resource")
 	public Map uploadLarge(Object file, Map options, int bufferSize) throws IOException {
 		InputStream input;
@@ -111,7 +117,13 @@ public class Uploader {
 		int currentBufferSize = 0;
 		int partNumber = 0;
 		long totalBytes = 0;
+		int totalPossibleParts = 0;
+		float callbackMultiplier = 0.0f;
 		Map response = null;
+		if (length != -1) {
+			totalPossibleParts = (int) Math.ceil((float) length / (float) bufferSize);
+			callbackMultiplier = 100.0f/totalPossibleParts;
+		}
 		while (true) {
 			bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize);
 			boolean atEnd = bytesRead == -1;
@@ -141,8 +153,13 @@ public class Uploader {
 				buffer[0] = nibbleBuffer[0];
 				currentBufferSize = 1;
 				partNumber++;
+				if (callback!=null) {
+					if (totalPossibleParts > 0)
+						callback.uploadListener((int) Math.ceil(partNumber * callbackMultiplier));
+				}
 			}
 		}
+		this.callback = null;
 		return response;
 	}
 

@@ -110,6 +110,149 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testType() {
+        // should use type from options
+        String result = cloudinary.url().type("facebook").generate("test");
+        assertEquals("http://res.cloudinary.com/test123/image/facebook/test", result);
+    }
+
+    @Test
+    public void testResourceType() {
+        // should use resource_type from options
+        String result = cloudinary.url().resourcType("raw").generate("test");
+        assertEquals("http://res.cloudinary.com/test123/raw/upload/test", result);
+    }
+
+    @Test
+    public void testIgnoreHttp() {
+        // should ignore http links only if type is not given or is asset
+        String result = cloudinary.url().generate("http://test");
+        assertEquals("http://test", result);
+        result = cloudinary.url().type("asset").generate("http://test");
+        assertEquals("http://test", result);
+        result = cloudinary.url().type("fetch").generate("http://test");
+        assertEquals("http://res.cloudinary.com/test123/image/fetch/http://test", result);
+    }
+
+    @Test
+    public void testFetch() {
+        // should escape fetch urls
+        String result = cloudinary.url().type("fetch").generate("http://blah.com/hello?a=b");
+        assertEquals("http://res.cloudinary.com/test123/image/fetch/http://blah.com/hello%3Fa%3Db", result);
+    }
+
+    @Test
+    public void testCname() {
+        // should support external cname
+        String result = cloudinary.url().cname("hello.com").generate("test");
+        assertEquals("http://hello.com/test123/image/upload/test", result);
+    }
+
+    @Test
+    public void testCnameSubdomain() {
+        // should support external cname with cdn_subdomain on
+        String result = cloudinary.url().cname("hello.com").cdnSubdomain(true).generate("test");
+        assertEquals("http://a2.hello.com/test123/image/upload/test", result);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisallowUrlSuffixInSharedDistribution() {
+        cloudinary.url().suffix("hello").generate("test");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisallowUrlSuffixInNonUploadTypes() {
+        cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisallowUrlSuffixWithSlash() {
+        cloudinary.url().suffix("hello/world").privateCdn(true).generate("test");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisallowUrlSuffixWithDot() {
+        cloudinary.url().suffix("hello.world").privateCdn(true).generate("test");
+    }
+
+    @Test
+    public void testSupportUrlSuffixForPrivateCdn() {
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).generate("test");
+        assertEquals("http://test123-res.cloudinary.com/images/test/hello", actual);
+
+        actual = cloudinary.url().suffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
+        assertEquals("http://test123-res.cloudinary.com/images/a_0/test/hello", actual);
+
+    }
+
+    @Test
+    public void testPutFormatAfterUrlSuffix() {
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).format("jpg").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/images/test/hello.jpg", actual);
+    }
+
+    @Test
+    public void testNotSignTheUrlSuffix() {
+
+        Pattern pattern = Pattern.compile("s--[0-9A-Za-z_-]{8}--");
+        String url = cloudinary.url().format("jpg").signed(true).generate("test");
+        Matcher matcher = pattern.matcher(url);
+        matcher.find();
+        String expectedSignature = url.substring(matcher.start(), matcher.end());
+
+        String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/test/hello.jpg", actual);
+
+        url = cloudinary.url().format("jpg").signed(true).transformation(new Transformation().angle(0)).generate("test");
+        matcher = pattern.matcher(url);
+        matcher.find();
+        expectedSignature = url.substring(matcher.start(), matcher.end());
+
+        actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").transformation(new Transformation().angle(0)).generate("test");
+
+        assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/a_0/test/hello.jpg", actual);
+    }
+
+    @Test
+    public void testSupportUrlSuffixForRawUploads() {
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("raw").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisllowUseRootPathInSharedDistribution() {
+        cloudinary.url().useRootPath(true).generate("test");
+    }
+
+    @Test
+    public void testSupportUseRootPathForPrivateCdn() {
+        String actual = cloudinary.url().privateCdn(true).useRootPath(true).generate("test");
+        assertEquals("http://test123-res.cloudinary.com/test", actual);
+
+        actual = cloudinary.url().privateCdn(true).transformation(new Transformation().angle(0)).useRootPath(true).generate("test");
+        assertEquals("http://test123-res.cloudinary.com/a_0/test", actual);
+    }
+
+    @Test
+    public void testSupportUseRootPathTogetherWithUrlSuffixForPrivateCdn() {
+
+        String actual = cloudinary.url().privateCdn(true).suffix("hello").useRootPath(true).generate("test");
+        assertEquals("http://test123-res.cloudinary.com/test/hello", actual);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisllowUseRootPathIfNotImageUploadForFacebook() {
+        cloudinary.url().useRootPath(true).privateCdn(true).type("facebook").generate("test");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testDisllowUseRootPathIfNotImageUploadForRaw() {
+        cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
+    }
+
+    @Test
     public void testCrop() {
         Transformation transformation = new Transformation().width(100).height(101);
         String result = cloudinary.url().transformation(transformation).generate("test");
@@ -169,52 +312,6 @@ public class CloudinaryTest {
         Transformation transformation = new Transformation().chain().x(100).y(100).crop("fill").chain();
         String result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "c_fill,x_100,y_100/test", result);
-    }
-
-    @Test
-    public void testType() {
-        // should use type from options
-        String result = cloudinary.url().type("facebook").generate("test");
-        assertEquals("http://res.cloudinary.com/test123/image/facebook/test", result);
-    }
-
-    @Test
-    public void testResourceType() {
-        // should use resource_type from options
-        String result = cloudinary.url().resourcType("raw").generate("test");
-        assertEquals("http://res.cloudinary.com/test123/raw/upload/test", result);
-    }
-
-    @Test
-    public void testIgnoreHttp() {
-        // should ignore http links only if type is not given or is asset
-        String result = cloudinary.url().generate("http://test");
-        assertEquals("http://test", result);
-        result = cloudinary.url().type("asset").generate("http://test");
-        assertEquals("http://test", result);
-        result = cloudinary.url().type("fetch").generate("http://test");
-        assertEquals("http://res.cloudinary.com/test123/image/fetch/http://test", result);
-    }
-
-    @Test
-    public void testFetch() {
-        // should escape fetch urls
-        String result = cloudinary.url().type("fetch").generate("http://blah.com/hello?a=b");
-        assertEquals("http://res.cloudinary.com/test123/image/fetch/http://blah.com/hello%3Fa%3Db", result);
-    }
-
-    @Test
-    public void testCname() {
-        // should support external cname
-        String result = cloudinary.url().cname("hello.com").generate("test");
-        assertEquals("http://hello.com/test123/image/upload/test", result);
-    }
-
-    @Test
-    public void testCnameSubdomain() {
-        // should support external cname with cdn_subdomain on
-        String result = cloudinary.url().cname("hello.com").cdnSubdomain(true).generate("test");
-        assertEquals("http://a2.hello.com/test123/image/upload/test", result);
     }
 
     @Test
@@ -478,103 +575,6 @@ public class CloudinaryTest {
         assertTrue(trans.isResponsive());
         assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_100,w_100/c_pad,w_auto/test", result);
         Transformation.setResponsiveWidthTransformation(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisallowUrlSuffixInSharedDistribution() {
-        cloudinary.url().suffix("hello").generate("test");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisallowUrlSuffixInNonUploadTypes() {
-        cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
-
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisallowUrlSuffixWithSlash() {
-        cloudinary.url().suffix("hello/world").privateCdn(true).generate("test");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisallowUrlSuffixWithDot() {
-        cloudinary.url().suffix("hello.world").privateCdn(true).generate("test");
-    }
-
-    @Test
-    public void testSupportUrlSuffixForPrivateCdn() {
-        String actual = cloudinary.url().suffix("hello").privateCdn(true).generate("test");
-        assertEquals("http://test123-res.cloudinary.com/images/test/hello", actual);
-
-        actual = cloudinary.url().suffix("hello").privateCdn(true).transformation(new Transformation().angle(0)).generate("test");
-        assertEquals("http://test123-res.cloudinary.com/images/a_0/test/hello", actual);
-
-    }
-
-    @Test
-    public void testPutFormatAfterUrlSuffix() {
-        String actual = cloudinary.url().suffix("hello").privateCdn(true).format("jpg").generate("test");
-        assertEquals("http://test123-res.cloudinary.com/images/test/hello.jpg", actual);
-    }
-
-    @Test
-    public void testNotSignTheUrlSuffix() {
-
-        Pattern pattern = Pattern.compile("s--[0-9A-Za-z_-]{8}--");
-        String url = cloudinary.url().format("jpg").signed(true).generate("test");
-        Matcher matcher = pattern.matcher(url);
-        matcher.find();
-        String expectedSignature = url.substring(matcher.start(), matcher.end());
-
-        String actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").generate("test");
-        assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/test/hello.jpg", actual);
-
-        url = cloudinary.url().format("jpg").signed(true).transformation(new Transformation().angle(0)).generate("test");
-        matcher = pattern.matcher(url);
-        matcher.find();
-        expectedSignature = url.substring(matcher.start(), matcher.end());
-
-        actual = cloudinary.url().format("jpg").privateCdn(true).signed(true).suffix("hello").transformation(new Transformation().angle(0)).generate("test");
-
-        assertEquals("http://test123-res.cloudinary.com/images/" + expectedSignature + "/a_0/test/hello.jpg", actual);
-    }
-
-    @Test
-    public void testSupportUrlSuffixForRawUploads() {
-        String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("raw").generate("test");
-        assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisllowUseRootPathInSharedDistribution() {
-        cloudinary.url().useRootPath(true).generate("test");
-    }
-
-    @Test
-    public void testSupportUseRootPathForPrivateCdn() {
-        String actual = cloudinary.url().privateCdn(true).useRootPath(true).generate("test");
-        assertEquals("http://test123-res.cloudinary.com/test", actual);
-
-        actual = cloudinary.url().privateCdn(true).transformation(new Transformation().angle(0)).useRootPath(true).generate("test");
-        assertEquals("http://test123-res.cloudinary.com/a_0/test", actual);
-    }
-
-    @Test
-    public void testSupportUseRootPathTogetherWithUrlSuffixForPrivateCdn() {
-
-        String actual = cloudinary.url().privateCdn(true).suffix("hello").useRootPath(true).generate("test");
-        assertEquals("http://test123-res.cloudinary.com/test/hello", actual);
-
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisllowUseRootPathIfNotImageUploadForFacebook() {
-        cloudinary.url().useRootPath(true).privateCdn(true).type("facebook").generate("test");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisllowUseRootPathIfNotImageUploadForRaw() {
-        cloudinary.url().useRootPath(true).privateCdn(true).resourceType("raw").generate("test");
     }
 
     @Test

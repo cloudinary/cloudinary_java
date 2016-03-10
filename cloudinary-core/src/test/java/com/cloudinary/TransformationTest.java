@@ -1,0 +1,144 @@
+package com.cloudinary;
+
+import com.cloudinary.utils.ObjectUtils;
+import org.cloudinary.json.JSONArray;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.*;
+
+/**
+ *
+ */
+@SuppressWarnings("unchecked")
+public class TransformationTest {
+
+    @Before
+    public void setUp() throws Exception {
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+    }
+
+    @Test
+    public void withLiteral() throws Exception {
+        Transformation transformation = new Transformation().ifCondition("w_lt_200").crop("fill").height(120).width(80);
+        assertEquals("should include the if parameter as the first component in the transformation string", "if_w_lt_200,c_fill,h_120,w_80", transformation.toString());
+
+        transformation = new Transformation().crop("fill").height(120).ifCondition("w_lt_200").width(80);
+        assertEquals("should include the if parameter as the first component in the transformation string", "if_w_lt_200,c_fill,h_120,w_80", transformation.toString());
+
+        String chained = "[{if: \"w_lt_200\",crop: \"fill\",height: 120, width: 80}, {if: \"w_gt_400\",crop: \"fit\",width: 150,height: 150},{effect: \"sepia\"}]";
+        List transformations = ObjectUtils.toList(new JSONArray(chained));
+
+        transformation = new Transformation(transformations);
+        assertEquals("should allow multiple conditions when chaining transformations", "if_w_lt_200,c_fill,h_120,w_80/if_w_gt_400,c_fit,h_150,w_150/e_sepia", transformation.toString());
+    }
+
+    @Test
+    public void literalWithSpaces() throws Exception {
+        Map map = ObjectUtils.asMap("if", "w < 200", "crop", "fill", "height", 120, "width", 80);
+        List<Map> list = new ArrayList<Map>();
+        list.add(map);
+        Transformation transformation = new Transformation(list);
+
+        assertEquals("should translate operators", "if_w_lt_200,c_fill,h_120,w_80", transformation.toString());
+    }
+
+    @Test
+    public void endIf() throws Exception {
+        String chained = "[{if: \"w_lt_200\"},\n" +
+                "          {crop: \"fill\", height: 120, width: 80,effect: \"sharpen\"},\n" +
+                "          {effect: \"brightness:50\"},\n" +
+                "          {effect: \"shadow\",color: \"red\"}, {if: \"end\"}]";
+        List transformations = ObjectUtils.toList(new JSONArray(chained));
+
+        Transformation transformation = new Transformation(transformations);
+        assertEquals("should include the if_end as the last parameter in its component", "if_w_lt_200/c_fill,e_sharpen,h_120,w_80/e_brightness:50/co_red,e_shadow/if_end", transformation.toString());
+
+    }
+
+    @Test
+    public void ifElse() throws Exception {
+        String chained = "[{if: \"w_lt_200\",crop: \"fill\",height: 120,width: 80},\n" +
+                "          {if: \"else\",crop: \"fill\",height: 90, width: 100}]";
+        List transformations = ObjectUtils.toList(new JSONArray(chained));
+
+        Transformation transformation = new Transformation(transformations);
+
+        assertEquals("should support if_else with transformation parameters", "if_w_lt_200,c_fill,h_120,w_80/if_else,c_fill,h_90,w_100", transformation.toString());
+
+        chained = "[{if: \"w_lt_200\"},\n" +
+                "          {crop: \"fill\",height: 120,width: 80},\n" +
+                "          {if: \"else\"},\n" +
+                "          {crop: \"fill\",height: 90,width: 100}]";
+        transformations = ObjectUtils.toList(new JSONArray(chained));
+
+        transformation = new Transformation(transformations);
+        assertEquals("if_else should be without any transformation parameters", "if_w_lt_200/c_fill,h_120,w_80/if_else/c_fill,h_90,w_100", transformation.toString());
+    }
+
+    @Test
+    public void chainedConditions() throws Exception {
+        Transformation transformation = new Transformation().ifCondition().aspectRatio("gt", "3:4").then().width(100).crop("scale");
+        assertEquals("passing an operator and a value adds a condition", "if_ar_gt_3:4,c_scale,w_100", transformation.toString());
+        transformation = new Transformation().ifCondition().aspectRatio("gt", "3:4").and().width("gt", 100).then().width(50).crop("scale");
+        assertEquals("should chaining condition with `and`", "if_ar_gt_3:4_and_w_gt_100,c_scale,w_50", transformation.toString());
+        transformation = new Transformation().ifCondition().aspectRatio("gt", "3:4").and().width("gt", 100).or().width("gt", 200).then().width(50).crop("scale");
+        assertEquals("should chain conditions with `or`", "if_ar_gt_3:4_and_w_gt_100_or_w_gt_200,c_scale,w_50", transformation.toString());
+        transformation = new Transformation().ifCondition().aspectRatio(">", "3:4").and().width("<=", 100).or().width("gt", 200).then().width(50).crop("scale");
+        assertEquals("should translate operators", "if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50", transformation.toString());
+        transformation = new Transformation().ifCondition().aspectRatio(">", "3:4").and().width("<=", 100).or().width(">", 200).then().width(50).crop("scale");
+        assertEquals("should translate operators", "if_ar_gt_3:4_and_w_lte_100_or_w_gt_200,c_scale,w_50", transformation.toString());
+        transformation = new Transformation().ifCondition().aspectRatio(">=", "3:4").and().pages(">=", 100).or().pages("!=", 0).then().width(50).crop("scale");
+        assertEquals("should translate operators", "if_ar_gte_3:4_and_pg_gte_100_or_pg_ne_0,c_scale,w_50", transformation.toString());
+
+    }
+
+    @Test
+    public void shouldSupportAndTranslateOperators() {
+
+        String allOperators =
+                "if_" +
+                        "w_eq_0_and" +
+                        "_w_ne_0_or" +
+                        "_w_lt_0_and" +
+                        "_w_gt_0_and" +
+                        "_w_lte_0_and" +
+                        "_w_gte_0" +
+                        ",e_grayscale";
+        assertEquals("should support and translate operators:  '=', '!=', '<', '>', '<=', '>=', '&&', '||'",
+                allOperators, new Transformation().ifCondition()
+                        .width("=", 0).and()
+                        .width("!=", 0).or()
+                        .width("<", 0).and()
+                        .width(">", 0).and()
+                        .width("<=", 0).and()
+                        .width(">=", 0)
+                        .then().effect("grayscale").toString());
+
+        assertEquals(allOperators, new Transformation().ifCondition("w = 0 && w != 0 || w < 0 and w > 0 and w <= 0 and w >= 0")
+                .effect("grayscale")
+                .toString());
+    }
+
+    @Test
+    public void endIf2() throws Exception {
+        Transformation transformation = new Transformation().ifCondition().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf();
+        assertEquals("should serialize to 'if_end'", "if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end", transformation.toString());
+        transformation = new Transformation().ifCondition().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").endIf();
+        assertEquals("force the if clause to be chained", "if_w_gt_100_and_w_lt_200/c_scale,w_50/if_end", transformation.toString());
+        transformation = new Transformation().ifCondition().width("gt", 100).and().width("lt", 200).then().width(50).crop("scale").ifElse().width(100).crop("crop").endIf();
+        assertEquals("force the if_else clause to be chained", "if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end", transformation.toString());
+
+    }
+
+}

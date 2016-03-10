@@ -1,15 +1,11 @@
 package com.cloudinary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.cloudinary.transformation.AbstractLayer;
+import com.cloudinary.transformation.Condition;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -352,6 +348,41 @@ public class Transformation {
         return param("responsive_width", value);
     }
 
+    public Condition ifCondition() {
+        return new Condition().setParent(this);
+    }
+    public Transformation ifCondition(String condition) {
+        return param("if", condition);
+    }
+    public Transformation ifElse() {
+        chain();
+        return param("if", "else");
+    }
+
+    public Transformation endIf() {
+
+        chain();
+        int transSize = this.transformations.size();
+        for (int i = transSize - 1; i >= 0; i--) {
+            Map segment = this.transformations.get(i); // [..., {if: "w_gt_1000",c: "fill", w: 500}, ...]
+            Object value = segment.get("if");
+            if (value != null) { // if: "w_gt_1000"
+                String ifValue = value.toString();
+                if (ifValue.equals("end")) break;
+                if (segment.size() > 1) {
+                    segment.remove("if"); // {c: fill, w: 500}
+                    transformations.set(i, segment); // [..., {c: fill, w: 500}, ...]
+                    transformations.add(i, ObjectUtils.asMap("if", value)); // // [..., "if_w_gt_1000", {c: fill, w: 500}, ...]
+                }
+                if (!"else".equals(ifValue)) break; // otherwise keep looking for if_condition
+            }
+        }
+
+        param("if", "end");
+        return chain();
+    }
+
+
     public boolean isResponsive() {
         return this.isResponsive;
     }
@@ -403,7 +434,9 @@ public class Transformation {
     public String generate(Iterable<Map> optionsList) {
         List<String> components = new ArrayList<String>();
         for (Map options : optionsList) {
-            components.add(generate(options));
+            if(options.size() > 0){
+                components.add(generate(options));
+            }
         }
         return StringUtils.join(components, "/");
     }
@@ -539,6 +572,12 @@ public class Transformation {
         if (raw_transformation != null) {
             components.add(raw_transformation);
         }
+
+        String ifValue = (String) options.get("if");
+        if(ifValue != null){
+            components.add(0, "if_" + new Condition(ifValue).toString());
+        }
+
         if (!components.isEmpty()) {
             transformations.add(StringUtils.join(components, ","));
         }

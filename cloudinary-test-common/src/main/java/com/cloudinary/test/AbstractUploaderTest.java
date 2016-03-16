@@ -116,19 +116,21 @@ abstract public class AbstractUploaderTest {
 	public void testRename() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
 
-        cloudinary.uploader().rename((String) result.get("public_id"), result.get("public_id")+"2", ObjectUtils.emptyMap());
-        assertNotNull(cloudinary.api().resource(result.get("public_id")+"2", ObjectUtils.emptyMap()));
+        Object publicId = result.get("public_id");
+        String publicId2 = "folder/" + publicId + "2";
+        cloudinary.uploader().rename((String) publicId, publicId2, ObjectUtils.emptyMap());
+        assertNotNull(cloudinary.api().resource(publicId2, ObjectUtils.emptyMap()));
 
         Map result2 = cloudinary.uploader().upload("../cloudinary-test-common/src/main/resources/favicon.ico", ObjectUtils.emptyMap());
         boolean error_found=false;
         try {
-        	cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id")+"2", ObjectUtils.emptyMap());
+        	cloudinary.uploader().rename((String) result2.get("public_id"), publicId2, ObjectUtils.emptyMap());
         } catch(Exception e) {
         	error_found=true;
         }
         assertTrue(error_found);
-        cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id")+"2", ObjectUtils.asMap("overwrite", Boolean.TRUE));
-        assertEquals(cloudinary.api().resource(result.get("public_id")+"2", ObjectUtils.emptyMap()).get("format"), "ico");
+        cloudinary.uploader().rename((String) result2.get("public_id"), publicId2, ObjectUtils.asMap("overwrite", true));
+        assertEquals(cloudinary.api().resource(publicId2, ObjectUtils.emptyMap()).get("format"), "ico");
     }
 
     @Test

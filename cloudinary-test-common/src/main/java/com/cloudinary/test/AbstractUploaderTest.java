@@ -360,7 +360,7 @@ abstract public class AbstractUploaderTest {
         try {
             cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("categorization", "illegal"));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid|invalid)(.*)"));
         }
     }
 

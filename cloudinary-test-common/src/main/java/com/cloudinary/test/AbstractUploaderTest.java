@@ -147,8 +147,8 @@ abstract public class AbstractUploaderTest {
 
     @Test
     public void testExplicit() throws IOException {
-        Map result = cloudinary.uploader().explicit("cloudinary", ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name"));
-        String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png").version(result.get("version")).generate("cloudinary");
+        Map result = cloudinary.uploader().explicit("sample", ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "upload"));
+        String url = cloudinary.url().transformation(new Transformation().crop("scale").width(2.0)).format("jpg").version(result.get("version")).generate("sample");
         String eagerUrl = (String) ((Map) ((List) result.get("eager")).get(0)).get("url");
         String cloudName = cloudinary.config.cloudName;
         assertEquals(eagerUrl.substring(eagerUrl.indexOf(cloudName)), url.substring(url.indexOf(cloudName)));

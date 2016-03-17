@@ -149,11 +149,11 @@ public class UploaderTest extends InstrumentationTestCase {
     public void testExplicit() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
-        JSONObject result = new JSONObject(cloudinary.uploader().explicit("cloudinary",
-                ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "twitter_name")));
-        String url = cloudinary.url().type("twitter_name").transformation(new Transformation().crop("scale").width(2.0)).format("png")
-                .version(result.get("version")).generate("cloudinary");
-        assertEquals(result.getJSONArray("eager").getJSONObject(0).get("url"), url);
+        JSONObject result = new JSONObject(cloudinary.uploader().explicit("sample",
+                ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "upload")));
+        String url = cloudinary.url().transformation(new Transformation().crop("scale").width(2.0)).format("jpg")
+                .version(result.get("version")).generate("sample");
+        assertEquals(url, result.getJSONArray("eager").getJSONObject(0).get("url"));
     }
 
     public void testEager() throws Exception {
@@ -293,7 +293,7 @@ public class UploaderTest extends InstrumentationTestCase {
         try {
             cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("categorization", "illegal"));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches(".*illegal is not a valid.*"));
+            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid|invalid)(.*)"));
         }
     }
 
@@ -304,7 +304,7 @@ public class UploaderTest extends InstrumentationTestCase {
         try {
             cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("detection", "illegal"));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches(".*illegal is not a valid.*"));
+            assertTrue(e.getMessage().matches(".*(Illegal value|not a valid|invalid).*"));
         }
     }
 

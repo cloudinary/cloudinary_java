@@ -100,6 +100,10 @@ public class Condition {
         return this;
     }
 
+    public Condition faces(String operator, Object value) {
+        predicateList.add("faces_"+ operator + "_" + value);
+        return this;
+    }
 
     public Condition pages(String operator, Object value) {
         predicateList.add("pg_"+ operator + "_" + value);

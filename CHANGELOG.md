@@ -1,3 +1,13 @@
+cloudinary-parent-1.4.0 / 2016-01-19
+====================================
+  * Add Condition builder for faces
+  * Modify explicit test - don't use twitter
+  * Modify categorization test result value
+  * Add Conditional Transformations
+  * Cleanup Whitespace 
+  * Use variables for public_id's in rename tests
+  * Fix uploadLarge to use X-Unique-Upload-Id instead of updating params. Solves #18
+  * Fix support for non-ascii chars in upload URL
 
 cloudinary-parent-1.3.0 / 2016-01-19
 ====================================

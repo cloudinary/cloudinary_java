@@ -20,7 +20,7 @@ public class Transformation {
     protected static boolean defaultIsResponsive = false;
     protected static Object defaultDPR = null;
 
-    private static final Map DEFAULT_RESPONSIVE_WIDTH_TRANSFORMATION = ObjectUtils.asMap("width", "auto", "crop", "limit");
+    private static final Map<String, String> DEFAULT_RESPONSIVE_WIDTH_TRANSFORMATION = ObjectUtils.asMap("width", "auto", "crop", "limit");
     protected static Map responsiveWidthTransformation = null;
     private static final Pattern RANGE_VALUE_RE = Pattern.compile("^((?:\\d+\\.)?\\d+)([%pP])?$");
     private static final Pattern RANGE_RE = Pattern.compile("^(\\d+\\.)?\\d+[%pP]?\\.\\.(\\d+\\.)?\\d+[%pP]?$");
@@ -348,19 +348,29 @@ public class Transformation {
         return param("responsive_width", value);
     }
 
+    /**
+     * Start defining a condition, which will be completed with a call {@link Condition#then()}
+     * @return condition
+     */
     public Condition ifCondition() {
         return new Condition().setParent(this);
     }
+
+    /**
+     * Define a conditional transformation defined by the condition string
+     * @param condition a condition string
+     * @return the transformation for chaining
+     */
     public Transformation ifCondition(String condition) {
         return param("if", condition);
     }
+
     public Transformation ifElse() {
         chain();
         return param("if", "else");
     }
 
     public Transformation endIf() {
-
         chain();
         int transSize = this.transformations.size();
         for (int i = transSize - 1; i >= 0; i--) {

@@ -1,4 +1,9 @@
-cloudinary-parent-1.4.0 / 2016-01-19
+cloudinary-parent-1.4.1 / 2016-03-23
+====================================
+  * Rename conditional parameters `faces` and `pages` to `faceCount` and `pageCount`
+
+
+cloudinary-parent-1.4.0 / 2016-03-19
 ====================================
   * Add Condition builder for faces
   * Modify explicit test - don't use twitter

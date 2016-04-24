@@ -38,6 +38,11 @@ import com.cloudinary.utils.ObjectUtils;
 abstract public class AbstractApiTest {
 
     public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
+    public static final String API_TEST = "api_test";
+    public static final String API_TEST_1 = "api_test1";
+    public static final String API_TEST_2 = "api_test2";
+    public static final String API_TEST_3 = "api_test3";
+    public static final String API_TEST_5 = "api_test5";
     private Cloudinary cloudinary;
     protected Api api;
     private static String uniqueTag = String.format("api_test_tag_%d", new java.util.Date().getTime());
@@ -51,7 +56,7 @@ abstract public class AbstractApiTest {
         }
         Api api = cloudinary.api();
         try {
-            api.deleteResources(Arrays.asList("api_test", "api_test1", "api_test2", "api_test3", "api_test5"), ObjectUtils.emptyMap());
+            api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
         try {
@@ -82,10 +87,10 @@ abstract public class AbstractApiTest {
             api.deleteUploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
         } catch (Exception e) {
         }
-        Map options = ObjectUtils.asMap("public_id", "api_test", "tags", new String[]{"api_test_tag", uniqueTag}, "context", "key=value", "eager",
+        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{"api_test_tag", uniqueTag}, "context", "key=value", "eager",
                 Collections.singletonList(new Transformation().width(100).crop("scale")));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options.put("public_id", "api_test1");
+        options.put("public_id", API_TEST_1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 
@@ -122,7 +127,7 @@ abstract public class AbstractApiTest {
     public void test02Resources() throws Exception {
         // should allow listing resources
         Map result = api.resources(ObjectUtils.emptyMap());
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
         assertNotNull(resource);
         assertEquals(resource.get("type"), "upload");
     }
@@ -133,7 +138,7 @@ abstract public class AbstractApiTest {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("timeout", Integer.valueOf(5000));
         Map result = api.resources(options);
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
         assertNotNull(resource);
         assertEquals(resource.get("type"), "upload");
     }
@@ -161,17 +166,17 @@ abstract public class AbstractApiTest {
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
         Map result = api.resources(ObjectUtils.asMap("type", "upload"));
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
         assertNotNull(resource);
     }
 
     @Test
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
-        Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", "api_test", "tags", true, "context", true));
+        Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", API_TEST, "tags", true, "context", true));
         List<Map> resources = (List<Map>) result.get("resources");
-        assertNotNull(findByAttr(resources, "public_id", "api_test"));
-        assertNotNull(findByAttr(resources, "public_id", "api_test1"));
+        assertNotNull(findByAttr(resources, "public_id", API_TEST));
+        assertNotNull(findByAttr(resources, "public_id", API_TEST_1));
         assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value"))));
         boolean found = false;
         for (Map r : resources) {
@@ -208,11 +213,11 @@ abstract public class AbstractApiTest {
     @Test
     public void testResourcesByPublicIds() throws Exception {
         // should allow listing resources by public ids
-        Map result = api.resourcesByIds(Arrays.asList("api_test", "api_test1", "bogus"), ObjectUtils.asMap("type", "upload", "tags", true, "context", true));
+        Map result = api.resourcesByIds(Arrays.asList(API_TEST, API_TEST_1, "bogus"), ObjectUtils.asMap("type", "upload", "tags", true, "context", true));
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(2, resources.size());
-        assertNotNull(findByAttr(resources, "public_id", "api_test"));
-        assertNotNull(findByAttr(resources, "public_id", "api_test1"));
+        assertNotNull(findByAttr(resources, "public_id", API_TEST));
+        assertNotNull(findByAttr(resources, "public_id", API_TEST_1));
         assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value"))));
         boolean found = false;
         for (Map r : resources) {
@@ -226,7 +231,7 @@ abstract public class AbstractApiTest {
     public void test06ResourcesTag() throws Exception {
         // should allow listing resources by tag
         Map result = api.resourcesByTag("api_test_tag", ObjectUtils.asMap("tags", true, "context", true));
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", "api_test");
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
         assertNotNull(resource);
         resource = findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")));
         assertNotNull(resource);
@@ -242,9 +247,9 @@ abstract public class AbstractApiTest {
     @Test
     public void test07ResourceMetadata() throws Exception {
         // should allow get resource metadata
-        Map resource = api.resource("api_test", ObjectUtils.emptyMap());
+        Map resource = api.resource(API_TEST, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        assertEquals(resource.get("public_id"), "api_test");
+        assertEquals(resource.get("public_id"), API_TEST);
         assertEquals(resource.get("bytes"), 3381);
         assertEquals(((List) resource.get("derived")).size(), 1);
     }
@@ -253,14 +258,14 @@ abstract public class AbstractApiTest {
     public void test08DeleteDerived() throws Exception {
         // should allow deleting derived resource
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", "api_test3", "eager", Collections.singletonList(new Transformation().width(101).crop("scale"))));
-        Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
+                ObjectUtils.asMap("public_id", API_TEST_3, "eager", Collections.singletonList(new Transformation().width(101).crop("scale"))));
+        Map resource = api.resource(API_TEST_3, ObjectUtils.emptyMap());
         assertNotNull(resource);
         List<Map> derived = (List<Map>) resource.get("derived");
         assertEquals(derived.size(), 1);
         String derived_resource_id = (String) derived.get(0).get("id");
         api.deleteDerivedResources(Arrays.asList(derived_resource_id), ObjectUtils.emptyMap());
-        resource = api.resource("api_test3", ObjectUtils.emptyMap());
+        resource = api.resource(API_TEST_3, ObjectUtils.emptyMap());
         assertNotNull(resource);
         derived = (List<Map>) resource.get("derived");
         assertEquals(derived.size(), 0);
@@ -269,11 +274,12 @@ abstract public class AbstractApiTest {
     @Test(expected = NotFound.class)
     public void test09DeleteResources() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "api_test3"));
-        Map resource = api.resource("api_test3", ObjectUtils.emptyMap());
+        String public_id = "api_,test3";
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id));
+        Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResources(Arrays.asList("apit_test", "api_test2", "api_test3"), ObjectUtils.emptyMap());
-        api.resource("api_test3", ObjectUtils.emptyMap());
+        api.deleteResources(Arrays.asList(API_TEST, API_TEST_2, public_id), ObjectUtils.emptyMap());
+        api.resource(public_id, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
@@ -308,7 +314,7 @@ abstract public class AbstractApiTest {
     @Test
     public void test11TagsPrefix() throws Exception {
         // should allow listing tag by prefix
-        Map result = api.tags(ObjectUtils.asMap("prefix", "api_test"));
+        Map result = api.tags(ObjectUtils.asMap("prefix", API_TEST));
         List<String> tags = (List<String>) result.get("tags");
         assertContains("api_test_tag", tags);
         result = api.tags(ObjectUtils.asMap("prefix", "api_test_no_such_tag"));
@@ -420,11 +426,11 @@ abstract public class AbstractApiTest {
     public void testDeleteAllResources() throws Exception {
         // should allow deleting all resources
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", "api_test5", "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
-        Map result = api.resource("api_test5", ObjectUtils.emptyMap());
+                ObjectUtils.asMap("public_id", API_TEST_5, "eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
+        Map result = api.resource(API_TEST_5, ObjectUtils.emptyMap());
         assertEquals(1, ((org.cloudinary.json.JSONArray) result.get("derived")).length());
         api.deleteAllResources(ObjectUtils.asMap("keep_original", true));
-        result = api.resource("api_test5", ObjectUtils.emptyMap());
+        result = api.resource(API_TEST_5, ObjectUtils.emptyMap());
         // assertEquals(0, ((org.cloudinary.json.JSONArray)
         // result.get("derived")).size());
     }

@@ -1,30 +1,30 @@
 package com.cloudinary.http44;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
-import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.Api;
-import com.cloudinary.Uploader;
 import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
@@ -70,6 +70,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
+        URI apiUri;
         if (options == null)
             options = ObjectUtils.emptyMap();
 
@@ -87,29 +88,26 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             apiUrl = apiUrl + "/" + component;
         }
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
-        for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (String single : (Iterable<String>) param.getValue()) {
-                    apiUrlBuilder.addParameter(param.getKey() + "[]", single);
-                }
-            } else {
-                apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
-            }
-        }
-
-        URI apiUri = apiUrlBuilder.build();
         HttpUriRequest request = null;
+
         switch (method) {
             case GET:
+                apiUri = prepareUrlParams(apiUrlBuilder, params);
                 request = new HttpGet(apiUri);
                 break;
             case PUT:
-                request = new HttpPut(apiUri);
+                apiUri = apiUrlBuilder.build();
+                HttpEntityEnclosingRequestBase put = new HttpPut(apiUri);
+                request = perpareEntityParams(put, params);
+
                 break;
             case POST:
-                request = new HttpPost(apiUri);
+                apiUri = apiUrlBuilder.build();
+                HttpEntityEnclosingRequestBase post = new HttpPost(apiUri);
+                request = perpareEntityParams(post, params);
                 break;
             case DELETE:
+                apiUri = prepareUrlParams(apiUrlBuilder, params);
                 request = new HttpDelete(apiUri);
                 break;
         }
@@ -147,5 +145,36 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
             throw exceptionConstructor.newInstance(message);
         }
+    }
+
+    private HttpUriRequest perpareEntityParams(HttpEntityEnclosingRequestBase put, Map<String, ? extends Object> params) throws UnsupportedEncodingException {
+        HttpUriRequest request;List<NameValuePair> entities = new ArrayList<NameValuePair>(params.size());
+        for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
+            if (param.getValue() instanceof Iterable) {
+                for (String single : (Iterable<String>) param.getValue()) {
+                    entities.add(new BasicNameValuePair(param.getKey() + "[]", single));
+                }
+            } else {
+                entities.add(new BasicNameValuePair(param.getKey(), ObjectUtils.asString(param.getValue())));
+            }
+        }
+        put.setEntity(new UrlEncodedFormEntity(entities));
+        request = put;
+        return request;
+    }
+
+    private URI prepareUrlParams(URIBuilder urlBuilder, Map<String, ? extends Object> params) throws URISyntaxException {
+        URI apiUri;
+        for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
+            if (param.getValue() instanceof Iterable) {
+                for (String single : (Iterable<String>) param.getValue()) {
+                    urlBuilder.addParameter(param.getKey() + "[]", single);
+                }
+            } else {
+                urlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
+            }
+        }
+        apiUri = urlBuilder.build();
+        return apiUri;
     }
 }

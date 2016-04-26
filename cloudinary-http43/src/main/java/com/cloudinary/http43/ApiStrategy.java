@@ -1,30 +1,6 @@
 package com.cloudinary.http43;
 
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.http.HttpHost;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
-
 import com.cloudinary.Api;
-import com.cloudinary.Uploader;
 import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
@@ -33,6 +9,29 @@ import com.cloudinary.http43.api.Response;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.*;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
+
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Constructor;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
@@ -69,8 +68,9 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
-        if (options == null) options = ObjectUtils.emptyMap();
+    public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
 
         String prefix = ObjectUtils.asString(options.get("upload_prefix"), ObjectUtils.asString(this.api.cloudinary.config.uploadPrefix, "https://api.cloudinary.com"));
         String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
@@ -85,33 +85,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         for (String component : uri) {
             apiUrl = apiUrl + "/" + component;
         }
-        URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
-        for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (String single : (Iterable<String>) param.getValue()) {
-                    apiUrlBuilder.addParameter(param.getKey() + "[]", single);
-                }
-            } else {
-                apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
-            }
-        }
-
-        URI apiUri = apiUrlBuilder.build();
-        HttpUriRequest request = null;
-        switch (method) {
-            case GET:
-                request = new HttpGet(apiUri);
-                break;
-            case PUT:
-                request = new HttpPut(apiUri);
-                break;
-            case POST:
-                request = new HttpPost(apiUri);
-                break;
-            case DELETE:
-                request = new HttpDelete(apiUri);
-                break;
-        }
+        HttpUriRequest request = prepareRequest(method, apiUrl, params);
 
         request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
 
@@ -146,5 +120,60 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
             throw exceptionConstructor.newInstance(message);
         }
+    }
+
+    /**
+     * Prepare a request with the URL and parameters based on the HTTP method used
+     * @param method the HTTP method: GET, PUT, POST, DELETE
+     * @param apiUrl the cloudinary API URI
+     * @param params the parameters to pass to the server
+     * @return an HTTP request
+     * @throws URISyntaxException
+     * @throws UnsupportedEncodingException
+     */
+    private HttpUriRequest prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params) throws URISyntaxException, UnsupportedEncodingException {
+        URI apiUri;
+        URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
+        List<NameValuePair> parameters;
+        HttpUriRequest request;
+        parameters = prepareParams(params);
+        if(method == HttpMethod.GET) {
+            apiUrlBuilder.setParameters(parameters);
+            apiUri = apiUrlBuilder.build();
+            request = new HttpGet(apiUri);
+        } else {
+            apiUri = apiUrlBuilder.build();
+            switch (method) {
+                case PUT:
+                    request = new HttpPut(apiUri);
+                    break;
+                case DELETE: //uses HttpPost instead of HttpDelete
+                    parameters.add(new BasicNameValuePair("_method", "delete"));
+                    //continue with POST
+                case POST:
+                    request = new HttpPost(apiUri);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown HTTP method");
+            }
+            ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parameters));
+        }
+        return request;
+    }
+
+    private List<NameValuePair> prepareParams(Map<String, ?> params) {
+        List<NameValuePair> requestParams = new ArrayList<NameValuePair>(params.size());
+        for (Map.Entry<String, ?> param : params.entrySet()) {
+            if (param.getValue() instanceof Iterable) {
+                for (Object single : (Iterable<?>) param.getValue()) {
+                    requestParams.add(new BasicNameValuePair(param.getKey() + "[]", ObjectUtils.asString(single)));
+                }
+            } else {
+                requestParams.add(new BasicNameValuePair(param.getKey(), ObjectUtils.asString(param.getValue())));
+            }
+        }
+
+
+        return requestParams;
     }
 }

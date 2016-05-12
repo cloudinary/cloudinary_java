@@ -518,21 +518,6 @@ abstract public class AbstractApiTest {
     }
 
     @Test
-    public void testApiLimits() throws Exception {
-        // should support reporting the current API limits found in the response
-        // header
-        ApiResponse result1 = api.transformations(ObjectUtils.emptyMap());
-        ApiResponse result2 = api.transformations(ObjectUtils.emptyMap());
-        assertNotNull(result1.apiRateLimit());
-        assertNotNull(result2.apiRateLimit());
-        assertEquals(result1.apiRateLimit().getRemaining() - 1, result2.apiRateLimit().getRemaining());
-        assertTrue(result2.apiRateLimit().getLimit() > result2.apiRateLimit().getRemaining());
-        assertEquals(result1.apiRateLimit().getLimit(), result2.apiRateLimit().getLimit());
-        assertEquals(result1.apiRateLimit().getReset(), result2.apiRateLimit().getReset());
-        assertTrue(result2.apiRateLimit().getReset().after(new java.util.Date()));
-    }
-
-    @Test
     public void testListUploadPresets() throws Exception {
         // should allow creating and listing upload_presets
         api.createUploadPreset(ObjectUtils.asMap("name", "api_test_upload_preset", "folder", "folder"));

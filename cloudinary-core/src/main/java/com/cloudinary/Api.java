@@ -165,7 +165,7 @@ public class Api {
 
     public ApiResponse transformation(String transformation, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.GET, Arrays.asList("transformations", transformation), ObjectUtils.only(options, "max_results"), options);
+        return callApi(HttpMethod.GET, Arrays.asList("transformations", transformation), ObjectUtils.only(options, "next_cursor", "max_results"), options);
     }
 
     public ApiResponse deleteTransformation(String transformation, Map options) throws Exception {

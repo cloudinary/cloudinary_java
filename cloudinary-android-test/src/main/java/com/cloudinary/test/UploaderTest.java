@@ -181,13 +181,14 @@ public class UploaderTest extends InstrumentationTestCase {
     public void testSprite() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
-        cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_1"));
-        cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", "sprite_test_tag", "public_id", "sprite_test_tag_2"));
-        JSONObject result = new JSONObject(cloudinary.uploader().generate_sprite("sprite_test_tag", ObjectUtils.emptyMap()));
+        final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime()) ;
+        cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", sprite_test_tag, "public_id", "sprite_test_tag_1"));
+        cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", sprite_test_tag, "public_id", "sprite_test_tag_2"));
+        JSONObject result = new JSONObject(cloudinary.uploader().generateSprite(sprite_test_tag, ObjectUtils.emptyMap()));
         assertEquals(2, result.getJSONObject("image_infos").length());
-        result = new JSONObject(cloudinary.uploader().generate_sprite("sprite_test_tag", ObjectUtils.asMap("transformation", "w_100")));
+        result = new JSONObject(cloudinary.uploader().generateSprite(sprite_test_tag, ObjectUtils.asMap("transformation", "w_100")));
         assertTrue((result.getString("css_url")).contains("w_100"));
-        result = new JSONObject(cloudinary.uploader().generate_sprite("sprite_test_tag",
+        result = new JSONObject(cloudinary.uploader().generateSprite(sprite_test_tag,
                 ObjectUtils.asMap("transformation", new Transformation().width(100), "format", "jpg")));
         assertTrue((result.getString("css_url")).contains("f_jpg,w_100"));
     }

@@ -1,3 +1,15 @@
+
+cloudinary-parent-1.4.2 / 2016-05-16
+====================================
+
+  * Sent params as entities for PUT, POST
+  * Use "_method" with "delete" instead of HttpDelete.
+  * Add `next_cursor` to `Api#transformation()`
+  * Add script to create unsigned upload preset for the Android test
+  * Use dynamic tag in sprites test
+  * Add SDK_TEST_TAG to all resources being created.
+  * Remove API limits test
+
 cloudinary-parent-1.4.1 / 2016-03-23
 ====================================
   * Rename conditional parameters `faces` and `pages` to `faceCount` and `pageCount`

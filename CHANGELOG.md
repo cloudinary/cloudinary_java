@@ -5,6 +5,7 @@ cloudinary-parent-1.4.2 / 2016-05-16
   * Sent params as entities for PUT, POST
   * Use "_method" with "delete" instead of HttpDelete.
   * Add `next_cursor` to `Api#transformation()`
+  * Update Google App Engine demo
   * Add script to create unsigned upload preset for the Android test
   * Use dynamic tag in sprites test
   * Add SDK_TEST_TAG to all resources being created.

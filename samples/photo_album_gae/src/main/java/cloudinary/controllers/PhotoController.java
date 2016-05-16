@@ -55,7 +55,7 @@ public class PhotoController {
                     ObjectUtils.asMap("resource_type", "auto"));
             
             photoUpload.setPublicId((String) uploadResult.get("public_id"));
-            photoUpload.setVersion((Long) uploadResult.get("version"));
+            photoUpload.setVersion(((Integer) uploadResult.get("version")).longValue());
             photoUpload.setSignature((String) uploadResult.get("signature"));
             photoUpload.setFormat((String) uploadResult.get("format"));
             photoUpload.setResourceType((String) uploadResult.get("resource_type"));

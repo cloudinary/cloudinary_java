@@ -9,7 +9,7 @@
 
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-parent</artifactId>
-    <version>1.4.2-SNAPSHOT</version>
+    <version>1.4.2</version>
     <packaging>pom</packaging>
     <name>Cloudinary Java Client Library Parent Project</name>
 
@@ -52,7 +52,7 @@
         <connection>scm:git:git://github.com/cloudinary/cloudinary_java.git</connection>
         <developerConnection>scm:git:git@github.com:cloudinary/cloudinary_java.git</developerConnection>
         <url>http://github.com/cloudinary/cloudinary_java</url>
-      <tag>HEAD</tag>
+      <tag>1.4.2</tag>
   </scm>
 
     <properties>

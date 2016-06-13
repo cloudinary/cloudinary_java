@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Map;
@@ -75,21 +76,37 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         } else if (file instanceof byte[]) {
             multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
         }
+
         HttpURLConnection connection = multipart.execute();
         int code;
+
+        OutputStream outputStream = null;
+
         try {
             code = connection.getResponseCode();
-        } catch (IOException e) {
+            outputStream = connection.getOutputStream();
+        } catch (Exception e) {
             if (e.getMessage().equals("No authentication challenges found")) {
                 // Android trying to be clever...
                 code = 401;
             } else {
                 throw e;
             }
+        } finally {
+            if (outputStream != null) {
+                try {
+                    outputStream.close();
+                } catch (Exception e) {}
+            }
         }
+
         InputStream responseStream = code >= 400 ? connection.getErrorStream() : connection.getInputStream();
         String responseData = readFully(responseStream);
         connection.disconnect();
+
+        try {
+            responseStream.close();
+        } catch (Exception e) {}
 
         if (code != 200 && code != 400 && code != 404 && code != 500) {
             throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);

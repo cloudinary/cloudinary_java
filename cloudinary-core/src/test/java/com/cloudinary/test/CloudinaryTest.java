@@ -273,6 +273,20 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testQuality() {
+        // should use x, y, radius, prefix, gravity and quality from options
+        Transformation transformation = new Transformation().quality(0.4);
+        String result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "q_0.4/test", result);
+        transformation = new Transformation().quality("auto");
+        result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "q_auto/test", result);
+        transformation = new Transformation().quality("auto:good");
+        result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "q_auto:good/test", result);
+    }
+
+    @Test
     public void testTransformationSimple() {
         // should support named transformation
         Transformation transformation = new Transformation().named("blip");
@@ -575,6 +589,28 @@ public class CloudinaryTest {
         assertTrue(trans.isResponsive());
         assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_100,w_100/c_pad,w_auto/test", result);
         Transformation.setResponsiveWidthTransformation(null);
+    }
+    @Test
+    public void testShouldSupportAutoWidth(){
+        String trans;
+
+    trans = new Transformation().width("auto:20").crop("fill").generate();
+    assertEquals("c_fill,w_auto:20", trans);
+    trans = new Transformation().width("auto:20:350").crop("fill").generate();
+    assertEquals("c_fill,w_auto:20:350", trans);
+    trans = new Transformation().width("auto:breakpoints").crop("fill").generate();
+    assertEquals("c_fill,w_auto:breakpoints", trans);
+    trans = new Transformation().width("auto:breakpoints_100_1900_20_15").crop("fill").generate();
+    assertEquals("c_fill,w_auto:breakpoints_100_1900_20_15", trans);
+    trans = new Transformation().width("auto:breakpoints:json").crop("fill").generate();
+    assertEquals("c_fill,w_auto:breakpoints:json", trans);
+    }
+
+
+    @Test
+    public void testShouldSupportOhOw(){
+        String trans = new Transformation().width("ow").height("oh").crop("crop").generate();
+        assertEquals("c_crop,h_oh,w_ow", trans);
     }
 
     @Test

@@ -469,10 +469,10 @@ public class Transformation {
         String angle = StringUtils.join(ObjectUtils.asArray(options.get("angle")), ".");
 
         boolean noHtmlSizes = hasLayer || StringUtils.isNotBlank(angle) || "fit".equals(crop) || "limit".equals(crop);
-        if (width != null && (width.equals("auto") || Float.parseFloat(width) < 1 || noHtmlSizes || isResponsive)) {
+        if (width != null && (width.startsWith("auto") || !isValidAttrValue(width) || noHtmlSizes || isResponsive)) {
             this.htmlWidth = null;
         }
-        if (height != null && (Float.parseFloat(height) < 1 || noHtmlSizes || isResponsive)) {
+        if (height != null && (!isValidAttrValue(height) || noHtmlSizes || isResponsive)) {
             this.htmlHeight = null;
         }
 
@@ -605,6 +605,21 @@ public class Transformation {
         }
 
         return StringUtils.join(transformations, "/");
+    }
+
+    /**
+     * Check if the value is a float >= 1
+     * @param value
+     * @return true if the value is a float >= 1
+     */
+    private boolean isValidAttrValue(String value) {
+        final float parseFloat;
+        try {
+            parseFloat = Float.parseFloat(value);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return parseFloat >= 1;
     }
 
     public String getHtmlWidth() {

@@ -38,6 +38,7 @@ public class Configuration {
     public boolean useRootPath;
     public int timeout;
     public boolean loadStrategies = true;
+    public boolean clientHints = false;
 
     public Configuration() {
     }
@@ -90,7 +91,33 @@ public class Configuration {
         this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
+        this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
     }
+
+    @SuppressWarnings("rawtypes")
+    public Map<String, Object> asMap() {
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put("cloud_name", cloudName);
+        map.put("api_key", apiKey);
+        map.put("api_secret", apiSecret);
+        map.put("secure_distribution", secureDistribution);
+        map.put("cname", cname);
+        map.put("secure", secure);
+        map.put("private_cdn", privateCdn);
+        map.put("cdn_subdomain", cdnSubdomain);
+        map.put("shorten", shorten);
+        map.put("upload_prefix", uploadPrefix);
+        map.put("callback", callback);
+        map.put("proxy_host", proxyHost);
+        map.put("proxy_port", proxyPort);
+        map.put("secure_cdn_subdomain", secureCdnSubdomain);
+        map.put("use_root_path", useRootPath);
+        map.put("load_strategies", loadStrategies);
+        map.put("timeout", timeout);
+        map.put("client_hints", clientHints);
+        return map;
+    }
+
 
     public Configuration(Configuration other) {
         this.cloudName = other.cloudName;
@@ -109,6 +136,7 @@ public class Configuration {
         this.secureCdnSubdomain = other.secureCdnSubdomain;
         this.useRootPath = other.useRootPath;
         this.timeout = other.timeout;
+        this.clientHints = other.clientHints;
     }
 
     /**
@@ -198,6 +226,7 @@ public class Configuration {
         private boolean useRootPath;
         private boolean loadStrategies = true;
         private int timeout;
+        private boolean clientHints = false;
 
         /**
          * Set the HTTP connection timeout.
@@ -214,7 +243,9 @@ public class Configuration {
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
         public Configuration build() {
-            return new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies);
+            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies);
+            configuration.clientHints = clientHints;
+            return configuration;
         }
 
         /**
@@ -317,6 +348,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setClientHints(boolean clientHints) {
+            this.clientHints = clientHints;
+            return this;
+        }
+
         /**
          * Initialize builder from existing {@link Configuration}
          *
@@ -341,6 +377,7 @@ public class Configuration {
             this.useRootPath = other.useRootPath;
             this.loadStrategies = other.loadStrategies;
             this.timeout = other.timeout;
+            this.clientHints = other.clientHints;
             return this;
         }
     }

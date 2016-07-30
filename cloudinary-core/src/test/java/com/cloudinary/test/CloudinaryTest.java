@@ -495,6 +495,26 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testClientHints() {
+        String testTag;
+        String message = "should not implement responsive behaviour if client hints is true";
+        cloudinary.config.clientHints = true;
+        Transformation trans = new Transformation()
+                .crop("scale")
+                .width("auto")
+                .dpr("auto");
+        testTag = cloudinary.url().transformation(trans).imageTag("sample.jpg");
+        assertTrue(testTag.startsWith("<img") );
+        assertFalse(testTag.contains("class="));
+        assertFalse(testTag.contains("data-src"));
+        assertTrue(testTag.contains("src='http://res.cloudinary.com/test123/image/upload/c_scale,dpr_auto,w_auto/sample.jpg'"));
+        testTag = cloudinary.url().transformation(trans).imageTag("sample.jpg");
+        assertTrue(testTag.startsWith("<img") );
+        assertFalse(testTag.contains("class="));
+        assertFalse(testTag.contains("data-src"));
+        assertTrue(testTag.contains("src='http://res.cloudinary.com/test123/image/upload/c_scale,dpr_auto,w_auto/sample.jpg'"));
+}
+    @Test
     public void testFolders() {
         // should add version if public_id contains /
         String result = cloudinary.url().generate("folder/test");

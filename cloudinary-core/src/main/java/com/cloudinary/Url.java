@@ -506,7 +506,7 @@ public class Url {
         boolean hiDPI = transformation().isHiDPI();
         boolean responsive = transformation().isResponsive();
 
-        if (hiDPI || responsive) {
+        if (!config.clientHints && (hiDPI || responsive)) {
             attributes.put("data-src", url);
             String extraClass = responsive ? "cld-responsive" : "cld-hidpi";
             attributes.put("class", (StringUtils.isBlank(attributes.get("class")) ? "" : attributes.get("class") + " ") + extraClass);

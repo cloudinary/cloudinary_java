@@ -8,28 +8,41 @@ import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.equalTo;
 import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
 import java.util.*;
 
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
 abstract public class AbstractApiTest {
 
-    public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
-    public static final String API_TEST = "api_test";
-    public static final String API_TEST_1 = "api_test1";
-    public static final String API_TEST_2 = "api_test2";
-    public static final String API_TEST_3 = "api_test3";
-    public static final String API_TEST_5 = "api_test5";
-    public static final String SDK_TEST_TAG = "cloudinary_java_test";
+    private static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
+    private static final int SUFFIX = new Random().nextInt(99999);
+    private static final String API_TEST = "api_test_" + SUFFIX;
+    private static final String API_TEST_1 = API_TEST + "_1";
+    private static final String API_TEST_2 = API_TEST + "_2";
+    private static final String API_TEST_3 = API_TEST + "_3";
+    private static final String API_TEST_5 = API_TEST + "_5";
+    private static final String SDK_TEST_TAG = "cloudinary_java_test_" + SUFFIX;
+    public static final String API_TEST_TRANSFORMATION = "api_test_transformation_" + SUFFIX;
+    public static final String API_TEST_TRANSFORMATION_2 = API_TEST_TRANSFORMATION + "2";
+    public static final String API_TEST_TRANSFORMATION_3 = API_TEST_TRANSFORMATION + "3";
+    public static final String API_TEST_UPLOAD_PRESET = "api_test_upload_preset_" + SUFFIX;
+    public static final String API_TEST_UPLOAD_PRESET_2 = API_TEST_UPLOAD_PRESET + "2";
+    public static final String API_TEST_UPLOAD_PRESET_3 = API_TEST_UPLOAD_PRESET + "3";
+    public static final String API_TEST_UPLOAD_PRESET_4 = API_TEST_UPLOAD_PRESET + "4";
     private Cloudinary cloudinary;
     protected Api api;
-    private static String uniqueTag = SDK_TEST_TAG + (new java.util.Date().getTime());
+    private static final String uniqueTag = SDK_TEST_TAG + (new java.util.Date().getTime());
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -38,39 +51,6 @@ abstract public class AbstractApiTest {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
-        Api api = cloudinary.api();
-        try {
-            api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteTransformation("api_test_transformation", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteTransformation("api_test_transformation2", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteTransformation("api_test_transformation3", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteUploadPreset("api_test_upload_preset", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteUploadPreset("api_test_upload_preset2", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteUploadPreset("api_test_upload_preset3", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
-        try {
-            api.deleteUploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
-        } catch (Exception e) {
-        }
         Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "key=value", "eager",
                 Collections.singletonList(new Transformation().width(100).crop("scale")));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
@@ -78,6 +58,44 @@ abstract public class AbstractApiTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 
+    @AfterClass
+    public static void tearDownClass() {
+        Cloudinary cloudinary = new Cloudinary();
+        Api api = cloudinary.api();
+        try {
+            api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteTransformation(API_TEST_TRANSFORMATION, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteTransformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteTransformation(API_TEST_TRANSFORMATION_3, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteUploadPreset(API_TEST_UPLOAD_PRESET, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_2, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_3, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_4, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+
+    }
     @Rule
     public TestName currentTest = new TestName();
 
@@ -104,16 +122,15 @@ abstract public class AbstractApiTest {
     public void test01ResourceTypes() throws Exception {
         // should allow listing resource_types
         Map result = api.resourceTypes(ObjectUtils.emptyMap());
-        assertContains("image", (Collection) result.get("resource_types"));
+        assertThat( (Collection) result.get("resource_types"), hasItem("image"));
     }
 
     @Test
     public void test02Resources() throws Exception {
         // should allow listing resources
         Map result = api.resources(ObjectUtils.emptyMap());
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
-        assertNotNull(resource);
-        assertEquals(resource.get("type"), "upload");
+        final List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
     }
 
     @Test
@@ -122,9 +139,8 @@ abstract public class AbstractApiTest {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("timeout", Integer.valueOf(5000));
         Map result = api.resources(options);
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
-        assertNotNull(resource);
-        assertEquals(resource.get("type"), "upload");
+        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
     }
 
     @Test
@@ -150,24 +166,22 @@ abstract public class AbstractApiTest {
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
         Map result = api.resources(ObjectUtils.asMap("type", "upload"));
-        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
-        assertNotNull(resource);
+        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        assertThat(resources, hasItem(hasEntry("public_id", API_TEST)));
     }
 
     @Test
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
         Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", API_TEST, "tags", true, "context", true));
-        List<Map> resources = (List<Map>) result.get("resources");
-        assertNotNull(findByAttr(resources, "public_id", API_TEST));
-        assertNotNull(findByAttr(resources, "public_id", API_TEST_1));
-        assertNotNull(findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value"))));
-        boolean found = false;
-        for (Map r : resources) {
-            ArrayList tags = (ArrayList) r.get("tags");
-            found = found || tags.contains(SDK_TEST_TAG);
-        }
-        assertTrue(found);
+        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        System.out.println(resources);
+        assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST)));
+        assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST_1)));
+//        resources = (List<Map<? extends String, ?>>) result.get("resources");
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
+        assertThat(resources, hasItem(hasEntry("context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")))));
+        assertThat(resources, hasItem(hasEntry(equalTo("tags"),  hasItem( SDK_TEST_TAG))));
     }
 
     @Test
@@ -248,7 +262,7 @@ abstract public class AbstractApiTest {
         List<Map> derived = (List<Map>) resource.get("derived");
         assertEquals(derived.size(), 1);
         String derived_resource_id = (String) derived.get(0).get("id");
-        api.deleteDerivedResources(Arrays.asList(derived_resource_id), ObjectUtils.emptyMap());
+        api.deleteDerivedResources(Collections.singletonList(derived_resource_id), ObjectUtils.emptyMap());
         resource = api.resource(API_TEST_3, ObjectUtils.emptyMap());
         assertNotNull(resource);
         derived = (List<Map>) resource.get("derived");
@@ -280,19 +294,19 @@ abstract public class AbstractApiTest {
     public void test09aDeleteResourcesByTags() throws Exception {
         // should allow deleting resources
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", "api_test4", "tags", Arrays.asList("api_test_tag_for_delete")));
-        Map resource = api.resource("api_test4", ObjectUtils.emptyMap());
+                ObjectUtils.asMap("public_id", API_TEST + "_4", "tags", Collections.singletonList("api_test_tag_for_delete")));
+        Map resource = api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
         assertNotNull(resource);
         api.deleteResourcesByTag("api_test_tag_for_delete", ObjectUtils.emptyMap());
-        api.resource("api_test4", ObjectUtils.emptyMap());
+        api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
     }
 
     @Test
     public void test10Tags() throws Exception {
         // should allow listing tags
-        Map result = api.tags(ObjectUtils.emptyMap());
+        Map result = api.tags(ObjectUtils.asMap("max_results", 500));
         List<String> tags = (List<String>) result.get("tags");
-        assertContains(SDK_TEST_TAG, tags);
+        assertThat( tags, hasItem(SDK_TEST_TAG));
     }
 
     @Test
@@ -300,7 +314,7 @@ abstract public class AbstractApiTest {
         // should allow listing tag by prefix
         Map result = api.tags(ObjectUtils.asMap("prefix", SDK_TEST_TAG.substring(0,SDK_TEST_TAG.length()-1)));
         List<String> tags = (List<String>) result.get("tags");
-        assertContains(SDK_TEST_TAG, tags);
+        assertThat( tags, hasItem(SDK_TEST_TAG));
         result = api.tags(ObjectUtils.asMap("prefix", "api_test_no_such_tag"));
         tags = (List<String>) result.get("tags");
         assertEquals(0, tags.size());
@@ -340,8 +354,8 @@ abstract public class AbstractApiTest {
     @Test
     public void test15TransformationCreate() throws Exception {
         // should allow creating named transformation
-        api.createTransformation("api_test_transformation", new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
-        Map transformation = api.transformation("api_test_transformation", ObjectUtils.emptyMap());
+        api.createTransformation(API_TEST_TRANSFORMATION, new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
+        Map transformation = api.transformation(API_TEST_TRANSFORMATION, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(102).generate());
@@ -351,10 +365,10 @@ abstract public class AbstractApiTest {
     @Test
     public void test15aTransformationUnsafeUpdate() throws Exception {
         // should allow unsafe update of named transformation
-        api.createTransformation("api_test_transformation3", new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
-        api.updateTransformation("api_test_transformation3", ObjectUtils.asMap("unsafe_update", new Transformation().crop("scale").width(103).generate()),
+        api.createTransformation(API_TEST_TRANSFORMATION_3, new Transformation().crop("scale").width(102).generate(), ObjectUtils.emptyMap());
+        api.updateTransformation(API_TEST_TRANSFORMATION_3, ObjectUtils.asMap("unsafe_update", new Transformation().crop("scale").width(103).generate()),
                 ObjectUtils.emptyMap());
-        Map transformation = api.transformation("api_test_transformation3", ObjectUtils.emptyMap());
+        Map transformation = api.transformation(API_TEST_TRANSFORMATION_3, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(103).generate());
         assertEquals(transformation.get("used"), false);
@@ -363,14 +377,14 @@ abstract public class AbstractApiTest {
     @Test
     public void test16aTransformationDelete() throws Exception {
         // should allow deleting named transformation
-        api.createTransformation("api_test_transformation2", new Transformation().crop("scale").width(103).generate(), ObjectUtils.emptyMap());
-        api.transformation("api_test_transformation2", ObjectUtils.emptyMap());
-        api.deleteTransformation("api_test_transformation2", ObjectUtils.emptyMap());
+        api.createTransformation(API_TEST_TRANSFORMATION_2, new Transformation().crop("scale").width(103).generate(), ObjectUtils.emptyMap());
+        api.transformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
+        api.deleteTransformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
     public void test16bTransformationDelete() throws Exception {
-        api.transformation("api_test_transformation2", ObjectUtils.emptyMap());
+        api.transformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -504,17 +518,17 @@ abstract public class AbstractApiTest {
     @Test
     public void testListUploadPresets() throws Exception {
         // should allow creating and listing upload_presets
-        api.createUploadPreset(ObjectUtils.asMap("name", "api_test_upload_preset", "folder", "folder"));
-        api.createUploadPreset(ObjectUtils.asMap("name", "api_test_upload_preset2", "folder", "folder2"));
-        api.createUploadPreset(ObjectUtils.asMap("name", "api_test_upload_preset3", "folder", "folder3"));
+        api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET, "folder", "folder"));
+        api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET_2, "folder", "folder2"));
+        api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET_3, "folder", "folder3"));
 
         ArrayList presets = (ArrayList) (api.uploadPresets(ObjectUtils.emptyMap()).get("presets"));
-        assertEquals(((Map) presets.get(0)).get("name"), "api_test_upload_preset3");
-        assertEquals(((Map) presets.get(1)).get("name"), "api_test_upload_preset2");
-        assertEquals(((Map) presets.get(2)).get("name"), "api_test_upload_preset");
-        api.deleteUploadPreset("api_test_upload_preset", ObjectUtils.emptyMap());
-        api.deleteUploadPreset("api_test_upload_preset2", ObjectUtils.emptyMap());
-        api.deleteUploadPreset("api_test_upload_preset3", ObjectUtils.emptyMap());
+        assertEquals(((Map) presets.get(0)).get("name"), API_TEST_UPLOAD_PRESET_3);
+        assertEquals(((Map) presets.get(1)).get("name"), API_TEST_UPLOAD_PRESET_2);
+        assertEquals(((Map) presets.get(2)).get("name"), API_TEST_UPLOAD_PRESET);
+        api.deleteUploadPreset(API_TEST_UPLOAD_PRESET, ObjectUtils.emptyMap());
+        api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_2, ObjectUtils.emptyMap());
+        api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_3, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -544,12 +558,12 @@ abstract public class AbstractApiTest {
     @Test
     public void testDeleteUploadPreset() throws Exception {
         // should allow deleting upload_presets", :upload_preset => true do
-        api.createUploadPreset(ObjectUtils.asMap("name", "api_test_upload_preset4", "folder", "folder"));
-        api.uploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
-        api.deleteUploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
+        api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET_4, "folder", "folder"));
+        api.uploadPreset(API_TEST_UPLOAD_PRESET_4, ObjectUtils.emptyMap());
+        api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_4, ObjectUtils.emptyMap());
         boolean error = false;
         try {
-            api.uploadPreset("api_test_upload_preset4", ObjectUtils.emptyMap());
+            api.uploadPreset(API_TEST_UPLOAD_PRESET_4, ObjectUtils.emptyMap());
         } catch (Exception e) {
             error = true;
         }
@@ -575,6 +589,8 @@ abstract public class AbstractApiTest {
     @Test
     public void testListByModerationUpdate() throws Exception {
         // "should support listing by moderation kind and value
+        List resources;
+
         Map result1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual", "tags", SDK_TEST_TAG));
         Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual", "tags", SDK_TEST_TAG));
         Map result3 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual", "tags", SDK_TEST_TAG));
@@ -583,15 +599,21 @@ abstract public class AbstractApiTest {
         Map approved = api.resourcesByModeration("manual", "approved", ObjectUtils.asMap("max_results", 1000));
         Map rejected = api.resourcesByModeration("manual", "rejected", ObjectUtils.asMap("max_results", 1000));
         Map pending = api.resourcesByModeration("manual", "pending", ObjectUtils.asMap("max_results", 1000));
-        assertNotNull(findByAttr((List<Map>) approved.get("resources"), "public_id", (String) result1.get("public_id")));
-        assertNull(findByAttr((List<Map>) approved.get("resources"), "public_id", (String) result2.get("public_id")));
-        assertNull(findByAttr((List<Map>) approved.get("resources"), "public_id", (String) result2.get("public_id")));
-        assertNotNull(findByAttr((List<Map>) rejected.get("resources"), "public_id", (String) result2.get("public_id")));
-        assertNull(findByAttr((List<Map>) rejected.get("resources"), "public_id", (String) result1.get("public_id")));
-        assertNull(findByAttr((List<Map>) rejected.get("resources"), "public_id", (String) result3.get("public_id")));
-        assertNotNull(findByAttr((List<Map>) pending.get("resources"), "public_id", (String) result3.get("public_id")));
-        assertNull(findByAttr((List<Map>) pending.get("resources"), "public_id", (String) result1.get("public_id")));
-        assertNull(findByAttr((List<Map>) pending.get("resources"), "public_id", (String) result2.get("public_id")));
+
+        resources = (List<Map<? extends String, ?>>) approved.get("resources");
+        assertThat(resources, hasItem(hasEntry("public_id", result1.get("public_id"))));
+        assertThat(resources, not(hasItem(hasEntry("public_id", result2.get("public_id")))));
+        assertThat(resources, not(hasItem(hasEntry("public_id", result3.get("public_id")))));
+
+        resources = (List<Map<? extends String, ?>>) rejected.get("resources");
+        assertThat(resources, not(hasItem(hasEntry("public_id", result1.get("public_id")))));
+        assertThat(resources, hasItem(hasEntry("public_id", result2.get("public_id"))));
+        assertThat(resources, not(hasItem(hasEntry("public_id", result3.get("public_id")))));
+
+        resources = (List<Map<? extends String, ?>>) pending.get("resources");
+        assertThat(resources, not(hasItem(hasEntry("public_id", result1.get("public_id")))));
+        assertThat(resources, not(hasItem(hasEntry("public_id", result2.get("public_id")))));
+        assertThat(resources, hasItem(hasEntry("public_id", result3.get("public_id"))));
     }
 
     // For this test to work, "Auto-create folders" should be enabled in the
@@ -625,11 +647,11 @@ abstract public class AbstractApiTest {
                 ObjectUtils.asMap("public_id", "api_test_restore", "backup", true, "tags", SDK_TEST_TAG));
         Map resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
         assertEquals(resource.get("bytes"), 3381);
-        api.deleteResources(Arrays.asList("api_test_restore"), ObjectUtils.emptyMap());
+        api.deleteResources(Collections.singletonList("api_test_restore"), ObjectUtils.emptyMap());
         resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
         assertEquals(resource.get("bytes"), 0);
         assertTrue((Boolean) resource.get("placeholder"));
-        Map response = api.restore(Arrays.asList("api_test_restore"), ObjectUtils.emptyMap());
+        Map response = api.restore(Collections.singletonList("api_test_restore"), ObjectUtils.emptyMap());
         Map info = (Map) response.get("api_test_restore");
         assertNotNull(info);
         assertEquals(info.get("bytes"), 3381);
@@ -641,7 +663,7 @@ abstract public class AbstractApiTest {
     public void testUploadMapping() throws Exception {
         try {
             api.deleteUploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         api.createUploadMapping("api_test_upload_mapping", ObjectUtils.asMap("template", "http://cloudinary.com"));
@@ -674,10 +696,5 @@ abstract public class AbstractApiTest {
             }
         }
         assertTrue(!found);
-    }
-
-
-    private void assertContains(Object object, Collection list) {
-        assertTrue(list.contains(object));
     }
 }

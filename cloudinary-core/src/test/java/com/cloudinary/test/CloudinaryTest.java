@@ -1,27 +1,32 @@
 package com.cloudinary.test;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.cloudinary.Cloudinary;
 import com.cloudinary.ResponsiveBreakpoint;
-import org.cloudinary.json.JSONArray;
+import com.cloudinary.Transformation;
+import com.cloudinary.transformation.*;
+import com.cloudinary.utils.ObjectUtils;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import junitparams.naming.TestCaseName;
 import org.cloudinary.json.JSONObject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.runner.RunWith;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Transformation;
-import com.cloudinary.transformation.*;
-import com.cloudinary.utils.ObjectUtils;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
+@RunWith(JUnitParamsRunner.class)
 public class CloudinaryTest {
     private static final String DEFAULT_ROOT_PATH = "http://res.cloudinary.com/test123/";
     private static final String DEFAULT_UPLOAD_PATH = DEFAULT_ROOT_PATH + "image/upload/";
@@ -257,8 +262,8 @@ public class CloudinaryTest {
         Transformation transformation = new Transformation().width(100).height(101);
         String result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "h_101,w_100/test", result);
-        assertEquals("101", transformation.getHtmlHeight().toString());
-        assertEquals("100", transformation.getHtmlWidth().toString());
+        assertEquals("101", transformation.getHtmlHeight());
+        assertEquals("100", transformation.getHtmlWidth());
         transformation = new Transformation().width(100).height(101).crop("crop");
         result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_101,w_100/test", result);
@@ -273,18 +278,21 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testQuality() {
-        // should use x, y, radius, prefix, gravity and quality from options
-        Transformation transformation = new Transformation().quality(0.4);
-        String result = cloudinary.url().transformation(transformation).generate("test");
-        assertEquals(DEFAULT_UPLOAD_PATH + "q_0.4/test", result);
-        transformation = new Transformation().quality("auto");
-        result = cloudinary.url().transformation(transformation).generate("test");
-        assertEquals(DEFAULT_UPLOAD_PATH + "q_auto/test", result);
-        transformation = new Transformation().quality("auto:good");
-        result = cloudinary.url().transformation(transformation).generate("test");
-        assertEquals(DEFAULT_UPLOAD_PATH + "q_auto:good/test", result);
+    @TestCaseName("{method}: {params}")
+    @Parameters
+    public void testQuality( Object quality, String result) {
+        Transformation transformation = new Transformation().quality(quality);
+        assertEquals(result, transformation.generate());
     }
+    private Object parametersForTestQuality() {
+        Object [][] q = {
+            {0.4, "q_0.4"},
+            {"0.4", "q_0.4"},
+            {"auto", "q_auto"},
+            {"auto:good", "q_auto:good"}};
+        return q;
+
+    };
 
     @Test
     public void testTransformationSimple() {
@@ -610,22 +618,20 @@ public class CloudinaryTest {
         assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,h_100,w_100/c_pad,w_auto/test", result);
         Transformation.setResponsiveWidthTransformation(null);
     }
+
+    @Parameters({
+            "auto:20|c_fill\\,w_auto:20",
+            "auto:20:350|c_fill\\,w_auto:20:350",
+            "auto:breakpoints|c_fill\\,w_auto:breakpoints",
+            "auto:breakpoints_100_1900_20_15|c_fill\\,w_auto:breakpoints_100_1900_20_15",
+            "auto:breakpoints:json|c_fill\\,w_auto:breakpoints:json"})
+    @TestCaseName("Width {0}: {1}")
     @Test
-    public void testShouldSupportAutoWidth(){
+    public void testShouldSupportAutoWidth(String width, String result){
         String trans;
-
-    trans = new Transformation().width("auto:20").crop("fill").generate();
-    assertEquals("c_fill,w_auto:20", trans);
-    trans = new Transformation().width("auto:20:350").crop("fill").generate();
-    assertEquals("c_fill,w_auto:20:350", trans);
-    trans = new Transformation().width("auto:breakpoints").crop("fill").generate();
-    assertEquals("c_fill,w_auto:breakpoints", trans);
-    trans = new Transformation().width("auto:breakpoints_100_1900_20_15").crop("fill").generate();
-    assertEquals("c_fill,w_auto:breakpoints_100_1900_20_15", trans);
-    trans = new Transformation().width("auto:breakpoints:json").crop("fill").generate();
-    assertEquals("c_fill,w_auto:breakpoints:json", trans);
+        trans = new Transformation().width(width).crop("fill").generate();
+        assertEquals(result, trans);
     }
-
 
     @Test
     public void testShouldSupportOhOw(){

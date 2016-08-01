@@ -25,9 +25,7 @@ public class Util {
         params.put("format", (String) options.get("format"));
         params.put("type", (String) options.get("type"));
         for (String attr : BOOLEAN_UPLOAD_OPTIONS) {
-            Boolean value = ObjectUtils.asBoolean(options.get(attr), null);
-            if (value != null)
-                params.put(attr, value.toString());
+            putBoolean(attr, options, params);
         }
 
         params.put("notification_url", (String) options.get("notification_url"));
@@ -43,7 +41,7 @@ public class Util {
         params.put("upload_preset", options.get("upload_preset"));
 
         if (options.get("signature") == null) {
-            params.put("eager", buildEager((List<Transformation>) options.get("eager")));
+            putEager("eager", options, params);
             Object transformation = options.get("transformation");
             if (transformation != null) {
                 if (transformation instanceof Transformation) {
@@ -103,18 +101,12 @@ public class Util {
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         if (options.get("context") != null)
             params.put("context", ObjectUtils.encodeMap(options.get("context")));
-        if (options.get("ocr") != null)
-            params.put("ocr", options.get("ocr"));
-        if (options.get("raw_convert") != null)
-            params.put("raw_convert", options.get("raw_convert"));
-        if (options.get("categorization") != null)
-            params.put("categorization", options.get("categorization"));
-        if (options.get("detection") != null)
-            params.put("detection", options.get("detection"));
-        if (options.get("similarity_search") != null)
-            params.put("similarity_search", options.get("similarity_search"));
-        if (options.get("background_removal") != null)
-            params.put("background_removal", options.get("background_removal"));
+        putObject("ocr", options, params);
+        putObject("raw_convert", options, params);
+        putObject("categorization", options, params);
+        putObject("detection", options, params);
+        putObject("similarity_search", options, params);
+        putObject("background_removal", options, params);
         if (options.get("auto_tagging") != null)
             params.put("auto_tagging", ObjectUtils.asFloat(options.get("auto_tagging")));
     }
@@ -149,37 +141,63 @@ public class Util {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildArchiveParams(Map options, String targetFormat) {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("type", options.get("type"));
-        params.put("mode", options.get("mode"));
-        params.put("target_format", targetFormat);
-        params.put("target_public_id", options.get("target_public_id"));
-        params.put("flatten_folders", ObjectUtils.asBoolean(options.get("flatten_folders"), false));
-        params.put("flatten_transformations", ObjectUtils.asBoolean(options.get("flatten_transformations"), false));
-        params.put("use_original_filename", ObjectUtils.asBoolean(options.get("use_original_filename"), false));
-        params.put("async", ObjectUtils.asBoolean(options.get("async"), false));
-        params.put("keep_derived", ObjectUtils.asBoolean(options.get("keep_derived"), false));
-        params.put("notification_url", options.get("notification_url"));
-        if (options.get("target_tags") != null)
-            params.put("target_tags", ObjectUtils.asArray(options.get("target_tags")));
-        if (options.get("tags") != null)
-            params.put("tags", ObjectUtils.asArray(options.get("tags")));
-        if (options.get("public_ids") != null)
-            params.put("public_ids", ObjectUtils.asArray(options.get("public_ids")));
-        if (options.get("prefixes") != null)
-            params.put("prefixes", ObjectUtils.asArray(options.get("prefixes")));
-        if (options.get("transformations") != null)
-            params.put("transformations", buildEager((List<Transformation>) options.get("transformations")));
-        if (options.get("timestamp") != null)
-            params.put("timestamp", options.get("timestamp"));
-        else
-            params.put("timestamp", Util.timestamp());
+        if (options != null && options.size() > 0){
+            params.put("type", options.get("type"));
+            params.put("mode", options.get("mode"));
+            params.put("target_format", targetFormat);
+            params.put("target_public_id", options.get("target_public_id"));
+            putBoolean("flatten_folders", options, params);
+            putBoolean("flatten_transformations", options, params);
+            putBoolean("use_original_filename", options, params);
+            putBoolean("async", options, params);
+            putBoolean("keep_derived", options, params);
+            params.put("notification_url", options.get("notification_url"));
+            putArray("target_tags", options, params);
+            putArray("tags", options, params);
+            putArray("public_ids", options, params);
+            putArray("prefixes", options, params);
+            putEager("transformations", options, params);
+            putObject("timestamp", options, params, Util.timestamp());
+            putBoolean("skip_transformation_name", options, params);
+        }
         return params;
     }
 
+    private static void putEager(String name, Map from, Map<String, Object> to) {
+        final Object transformations = from.get(name);
+        if (transformations != null)
+            to.put(name, buildEager((List<Transformation>) transformations));
+    }
+
+    private static void putBoolean(String name, Map from, Map<String, Object> to) {
+        final Object value = from.get(name);
+        if(value != null){
+            to.put(name, ObjectUtils.asBoolean(value));
+        }
+    }
+
+    private static void putObject(String name, Map from, Map<String, Object> to) {
+        putObject(name, from, to, null);
+    }
+
+    private static void putObject(String name, Map from, Map<String, Object> to, Object defaultValue) {
+        final Object value = from.get(name);
+        if (value != null){
+            to.put(name, value);
+        } else if(defaultValue != null){
+            to.put(name, defaultValue);
+        }
+    }
+
+    private static void putArray(String name, Map from, Map<String, Object> to) {
+        final Object value = from.get(name);
+        if (value != null){
+            to.put(name, ObjectUtils.asArray(value));
+        }
+    }
+
     protected static String timestamp() {
-        return new Long(System.currentTimeMillis() / 1000L).toString();
+        return Long.toString(System.currentTimeMillis() / 1000L);
     }
 }

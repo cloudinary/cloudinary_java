@@ -56,7 +56,11 @@ public class ObjectUtils {
     public static Boolean asBoolean(Object value, Boolean defaultValue) {
         if (value == null) {
             return defaultValue;
-        } else if (value instanceof Boolean) {
+        } else return asBoolean(value);
+    }
+
+    public static Boolean asBoolean(Object value) {
+        if (value instanceof Boolean) {
             return (Boolean) value;
         } else {
             return "true".equals(value);

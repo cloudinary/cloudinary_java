@@ -1,7 +1,7 @@
 package com.cloudinary.transformation;
 
 /**
- * @deprecated
+ * @deprecated Use {@link SubtitlesLayer} instead
  */
 public class SubtitlesLayerBuilder extends SubtitlesLayer {
 }

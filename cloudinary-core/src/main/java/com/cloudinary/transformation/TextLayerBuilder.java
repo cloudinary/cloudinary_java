@@ -1,7 +1,7 @@
 package com.cloudinary.transformation;
 
 /**
- * @deprecated
+ * @deprecated Use {@link TextLayer} instead
  */
 public class TextLayerBuilder extends TextLayer {
 }

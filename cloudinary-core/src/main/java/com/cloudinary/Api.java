@@ -275,4 +275,39 @@ public class Api {
         return callApi(HttpMethod.POST, Arrays.asList("upload_mappings"), params, options);
     }
 
+    public ApiResponse publishByPrefix(String prefix, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+        List<String> uri = new ArrayList<String>();
+        uri.add("publish_resources");
+        uri.add(resourceType);
+        Map params = new HashMap<String, Object>();
+        params.put("prefix", prefix);
+        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
+        return callApi(HttpMethod.POST, uri, params, options);
+    }
+
+    public ApiResponse publishByTag(String tag, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+        List<String> uri = new ArrayList<String>();
+        uri.add("publish_resources");
+        uri.add(resourceType);
+        Map params = new HashMap<String, Object>();
+        params.put("tag", tag);
+        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
+        return callApi(HttpMethod.POST, uri, params, options);
+    }
+
+    public ApiResponse publishByIds(Iterable<String> publicIds, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+        List<String> uri = new ArrayList<String>();
+        uri.add("publish_resources");
+        uri.add(resourceType);
+        Map params = new HashMap<String, Object>();
+        params.put("public_ids", publicIds);
+        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
+        return callApi(HttpMethod.POST, uri, params, options);
+    }
 }

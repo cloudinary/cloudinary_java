@@ -165,6 +165,7 @@ public class Uploader {
         params.put("from_public_id", fromPublicId);
         params.put("to_public_id", toPublicId);
         params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
+        params.put("to_type", options.get("to_type"));
         return callApi("rename", params, options, null);
     }
 

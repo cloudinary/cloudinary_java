@@ -676,6 +676,47 @@ abstract public class AbstractApiTest {
         assertTrue(!found);
     }
 
+    @Test
+    public void testPublishByIds() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", SDK_TEST_TAG, "type", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        response = cloudinary.api().publishByIds(Arrays.asList(publicId), null);
+        List published = (List) response.get("published");
+        assertNotNull(published);
+        assertEquals(published.size(), 1);
+        Map resource = (Map) published.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertNotNull(resource.get("url"));
+        cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
+    public void testPublishByPrefix() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", SDK_TEST_TAG, "type", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        response = cloudinary.api().publishByPrefix(publicId.substring(0, publicId.length() - 2), null);
+        List published = (List) response.get("published");
+        assertNotNull(published);
+        assertEquals(published.size(), 1);
+        Map resource = (Map) published.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertNotNull(resource.get("url"));
+        cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
+    public void testPublishByTag() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(SDK_TEST_TAG, SDK_TEST_TAG + "1"), "type", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        response = cloudinary.api().publishByTag(SDK_TEST_TAG + "1", null);
+        List published = (List) response.get("published");
+        assertNotNull(published);
+        assertEquals(published.size(), 1);
+        Map resource = (Map) published.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertNotNull(resource.get("url"));
+        cloudinary.uploader().destroy(publicId, null);
+    }
 
     private void assertContains(Object object, Collection list) {
         assertTrue(list.contains(object));

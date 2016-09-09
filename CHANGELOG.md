@@ -1,4 +1,26 @@
 
+cloudinary-parent-1.4.3 / 2016-09-09
+====================================
+
+New functionality
+-----------------
+
+  * New Admin API `Publish`.
+  * Support `to_type` in `rename`.
+  * Add `skip_transformation_name` and `expires_at` to archive parameters.
+  * Support Client Hints.
+
+Other changes
+-------------
+
+  * Add deprecation message to `Layer` classes.
+  * Define `MockableTest`
+  * Add static import of `asMap` and `emptyMap`. Suppress deprecation warnings for backward compatibility tests.
+  * Refactor Quality and Width tests.
+  * Update Junit version and add JUnitParams.
+  * Add Hamcrest tests.
+  * Add tests for auto width and original width and height ( `ow`, `oh`) values
+
 cloudinary-parent-1.4.2 / 2016-05-16
 ====================================
 

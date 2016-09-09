@@ -160,6 +160,7 @@ public class Util {
             putEager("transformations", options, params);
             putObject("timestamp", options, params, Util.timestamp());
             putBoolean("skip_transformation_name", options, params);
+            putObject("expires_at", options, params);
         }
         return params;
     }

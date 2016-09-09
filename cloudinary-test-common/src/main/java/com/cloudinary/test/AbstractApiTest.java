@@ -66,6 +66,10 @@ abstract public class AbstractApiTest extends MockableTest {
         } catch (Exception ignored) {
         }
         try {
+            api.deleteResourcesByTag(uniqueTag, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        } 
+        try {
             api.deleteTransformation(API_TEST_TRANSFORMATION, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
         }
@@ -700,7 +704,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByIds() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", SDK_TEST_TAG, "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
         String publicId = (String) response.get("public_id");
         response = cloudinary.api().publishByIds(Arrays.asList(publicId), null);
         List published = (List) response.get("published");
@@ -714,7 +718,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByPrefix() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", SDK_TEST_TAG, "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
         String publicId = (String) response.get("public_id");
         response = cloudinary.api().publishByPrefix(publicId.substring(0, publicId.length() - 2), null);
         List published = (List) response.get("published");
@@ -728,9 +732,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByTag() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(SDK_TEST_TAG, SDK_TEST_TAG + "1"), "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(uniqueTag, uniqueTag + "1"), "type", "authenticated"));
         String publicId = (String) response.get("public_id");
-        response = cloudinary.api().publishByTag(SDK_TEST_TAG + "1", null);
+        response = cloudinary.api().publishByTag(uniqueTag + "1", null);
         List published = (List) response.get("published");
         assertNotNull(published);
         assertEquals(published.size(), 1);

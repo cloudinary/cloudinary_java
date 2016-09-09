@@ -23,8 +23,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
-abstract public class AbstractApiTest {
-
+abstract public class AbstractApiTest extends MockableTest {
     private static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
     private static final int SUFFIX = new Random().nextInt(99999);
     private static final String API_TEST = "api_test_" + SUFFIX;
@@ -122,14 +121,15 @@ abstract public class AbstractApiTest {
     public void test01ResourceTypes() throws Exception {
         // should allow listing resource_types
         Map result = api.resourceTypes(ObjectUtils.emptyMap());
-        assertThat( (Collection) result.get("resource_types"), hasItem("image"));
+        final List<String> resource_types = (List<String>) result.get("resource_types");
+        assertThat(resource_types, hasItem("image"));
     }
 
     @Test
     public void test02Resources() throws Exception {
         // should allow listing resources
         Map result = api.resources(ObjectUtils.emptyMap());
-        final List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        final List<Map> resources = (List) result.get("resources");
         assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
     }
 
@@ -139,7 +139,7 @@ abstract public class AbstractApiTest {
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("timeout", Integer.valueOf(5000));
         Map result = api.resources(options);
-        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        List<Map> resources = (List) result.get("resources");
         assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
     }
 
@@ -166,7 +166,7 @@ abstract public class AbstractApiTest {
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
         Map result = api.resources(ObjectUtils.asMap("type", "upload"));
-        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        List<Map> resources = (List) result.get("resources");
         assertThat(resources, hasItem(hasEntry("public_id", API_TEST)));
     }
 
@@ -174,7 +174,7 @@ abstract public class AbstractApiTest {
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
         Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", API_TEST, "tags", true, "context", true));
-        List resources = (List<Map<? extends String, ?>>) result.get("resources");
+        List<Map> resources = (List) result.get("resources");
         System.out.println(resources);
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST)));
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST_1)));
@@ -589,7 +589,7 @@ abstract public class AbstractApiTest {
     @Test
     public void testListByModerationUpdate() throws Exception {
         // "should support listing by moderation kind and value
-        List resources;
+        List<Map> resources;
 
         Map result1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual", "tags", SDK_TEST_TAG));
         Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("moderation", "manual", "tags", SDK_TEST_TAG));
@@ -600,17 +600,17 @@ abstract public class AbstractApiTest {
         Map rejected = api.resourcesByModeration("manual", "rejected", ObjectUtils.asMap("max_results", 1000));
         Map pending = api.resourcesByModeration("manual", "pending", ObjectUtils.asMap("max_results", 1000));
 
-        resources = (List<Map<? extends String, ?>>) approved.get("resources");
+        resources = (List<Map>) approved.get("resources");
         assertThat(resources, hasItem(hasEntry("public_id", result1.get("public_id"))));
         assertThat(resources, not(hasItem(hasEntry("public_id", result2.get("public_id")))));
         assertThat(resources, not(hasItem(hasEntry("public_id", result3.get("public_id")))));
 
-        resources = (List<Map<? extends String, ?>>) rejected.get("resources");
+        resources = (List<Map>) rejected.get("resources");
         assertThat(resources, not(hasItem(hasEntry("public_id", result1.get("public_id")))));
         assertThat(resources, hasItem(hasEntry("public_id", result2.get("public_id"))));
         assertThat(resources, not(hasItem(hasEntry("public_id", result3.get("public_id")))));
 
-        resources = (List<Map<? extends String, ?>>) pending.get("resources");
+        resources = (List<Map>) pending.get("resources");
         assertThat(resources, not(hasItem(hasEntry("public_id", result1.get("public_id")))));
         assertThat(resources, not(hasItem(hasEntry("public_id", result2.get("public_id")))));
         assertThat(resources, hasItem(hasEntry("public_id", result3.get("public_id"))));

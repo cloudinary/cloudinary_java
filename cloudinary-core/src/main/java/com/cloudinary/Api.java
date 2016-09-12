@@ -276,32 +276,18 @@ public class Api {
     }
 
     public ApiResponse publishByPrefix(String prefix, Map options) throws Exception {
-        if (options == null) options = ObjectUtils.emptyMap();
-        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        List<String> uri = new ArrayList<String>();
-        uri.add("resources");
-        uri.add(resourceType);
-        uri.add("publish_resources");
-        Map params = new HashMap<String, Object>();
-        params.put("prefix", prefix);
-        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
-        return callApi(HttpMethod.POST, uri, params, options);
+        return publishResource("prefix", prefix, options);
     }
 
     public ApiResponse publishByTag(String tag, Map options) throws Exception {
-        if (options == null) options = ObjectUtils.emptyMap();
-        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        List<String> uri = new ArrayList<String>();
-        uri.add("resources");
-        uri.add(resourceType);
-        uri.add("publish_resources");
-        Map params = new HashMap<String, Object>();
-        params.put("tag", tag);
-        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
-        return callApi(HttpMethod.POST, uri, params, options);
+        return publishResource("tag", tag, options);
     }
 
     public ApiResponse publishByIds(Iterable<String> publicIds, Map options) throws Exception {
+        return publishResource("public_ids", publicIds, options);
+    }
+
+    private ApiResponse publishResource(String byKey, Object value, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         List<String> uri = new ArrayList<String>();
@@ -309,7 +295,7 @@ public class Api {
         uri.add(resourceType);
         uri.add("publish_resources");
         Map params = new HashMap<String, Object>();
-        params.put("public_ids", publicIds);
+        params.put(byKey, value);
         params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
         return callApi(HttpMethod.POST, uri, params, options);
     }

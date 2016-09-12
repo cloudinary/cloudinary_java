@@ -279,8 +279,9 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         List<String> uri = new ArrayList<String>();
-        uri.add("publish_resources");
+        uri.add("resources");
         uri.add(resourceType);
+        uri.add("publish_resources");
         Map params = new HashMap<String, Object>();
         params.put("prefix", prefix);
         params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
@@ -291,8 +292,9 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         List<String> uri = new ArrayList<String>();
-        uri.add("publish_resources");
+        uri.add("resources");
         uri.add(resourceType);
+        uri.add("publish_resources");
         Map params = new HashMap<String, Object>();
         params.put("tag", tag);
         params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
@@ -303,8 +305,9 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         List<String> uri = new ArrayList<String>();
-        uri.add("publish_resources");
+        uri.add("resources");
         uri.add(resourceType);
+        uri.add("publish_resources");
         Map params = new HashMap<String, Object>();
         params.put("public_ids", publicIds);
         params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));

@@ -179,7 +179,6 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow listing resources by prefix
         Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", API_TEST, "tags", true, "context", true));
         List<Map> resources = (List) result.get("resources");
-        System.out.println(resources);
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST)));
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST_1)));
 //        resources = (List<Map<? extends String, ?>>) result.get("resources");

@@ -605,9 +605,9 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testShouldSupportOhOw(){
-        String trans = new Transformation().width("ow").height("oh").crop("crop").generate();
-        assertEquals("c_crop,h_oh,w_ow", trans);
+    public void testShouldSupportIhIw(){
+        String trans = new Transformation().width("iw").height("ih").crop("crop").generate();
+        assertEquals("c_crop,h_ih,w_iw", trans);
     }
 
     @Test

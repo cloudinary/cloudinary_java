@@ -5,12 +5,12 @@
   <parent>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-parent</artifactId>
-    <version>1.4.3-SNAPSHOT</version>
+    <version>1.4.3</version>
   </parent>
 
   <groupId>com.cloudinary</groupId>
   <artifactId>cloudinary-android-test</artifactId>
-  <version>1.4.3-SNAPSHOT</version>
+  <version>1.4.3</version>
   <packaging>apk</packaging>
   <name>Cloudinary Android Test Project</name>
 
@@ -19,7 +19,7 @@
       <groupId>com.cloudinary</groupId>
       <artifactId>cloudinary-android</artifactId>
       <type>jar</type>
-      <version>1.4.3-SNAPSHOT</version>
+      <version>1.4.3</version>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>

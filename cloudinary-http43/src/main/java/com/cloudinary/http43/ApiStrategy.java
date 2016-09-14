@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import static com.cloudinary.http43.ApiUtils.prepareParams;
+import static com.cloudinary.http43.ApiUtils.setTimeouts;
+
 public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
     private CloseableHttpClient client = null;
@@ -85,7 +88,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         for (String component : uri) {
             apiUrl = apiUrl + "/" + component;
         }
-        HttpUriRequest request = prepareRequest(method, apiUrl, params);
+        HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
         request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
 
@@ -131,11 +134,11 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
      * @throws URISyntaxException
      * @throws UnsupportedEncodingException
      */
-    private HttpUriRequest prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params) throws URISyntaxException, UnsupportedEncodingException {
+    private HttpUriRequest prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params, Map options) throws URISyntaxException, UnsupportedEncodingException {
         URI apiUri;
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
         List<NameValuePair> parameters;
-        HttpUriRequest request;
+        HttpRequestBase request;
         parameters = prepareParams(params);
         if(method == HttpMethod.GET) {
             apiUrlBuilder.setParameters(parameters);
@@ -158,22 +161,10 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             }
             ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parameters));
         }
+
+        setTimeouts(request, options);
         return request;
     }
 
-    private List<NameValuePair> prepareParams(Map<String, ?> params) {
-        List<NameValuePair> requestParams = new ArrayList<NameValuePair>(params.size());
-        for (Map.Entry<String, ?> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (Object single : (Iterable<?>) param.getValue()) {
-                    requestParams.add(new BasicNameValuePair(param.getKey() + "[]", ObjectUtils.asString(single)));
-                }
-            } else {
-                requestParams.add(new BasicNameValuePair(param.getKey(), ObjectUtils.asString(param.getValue())));
-            }
-        }
 
-
-        return requestParams;
-    }
 }

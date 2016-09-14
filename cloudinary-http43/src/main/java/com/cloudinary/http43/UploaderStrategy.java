@@ -71,6 +71,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
         HttpPost postMethod = new HttpPost(apiUrl);
+        ApiUtils.setTimeouts(postMethod, options);
 
         Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");
         if (extraHeaders != null) {

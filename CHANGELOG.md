@@ -20,6 +20,7 @@ Other changes
   * Update Junit version and add JUnitParams.
   * Add Hamcrest tests.
   * Add tests for auto width and original width and height ( `ow`, `oh`) values
+  * Add `timeout`, `connect_timeout` and `connection_request_timeout` to HTTP43 and HTTP44 Api.
 
 cloudinary-parent-1.4.2 / 2016-05-16
 ====================================

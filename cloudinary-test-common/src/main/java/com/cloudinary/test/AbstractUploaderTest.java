@@ -17,15 +17,11 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-abstract public class AbstractUploaderTest {
+abstract public class AbstractUploaderTest extends MockableTest {
 
-    public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
-    public static final String REMOTE_TEST_IMAGE = "http://cloudinary.com/images/old_logo.png";
     private static final String ARCHIVE_TAG = "archive_tag_" + String.valueOf(System.currentTimeMillis());
-    private static final String SDK_TEST_TAG = "cloudinary_java_test";
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
-    private Cloudinary cloudinary;
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -41,9 +37,13 @@ abstract public class AbstractUploaderTest {
     }
 
     @AfterClass
-    public static void tearDownClass() throws Exception {
+    public static void tearDownClass() {
+        Api api = MockableTest.cleanUp();
         Cloudinary cloudinary = new Cloudinary();
-        cloudinary.api().deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
+        try {
+            api.deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
     }
 
     @Rule
@@ -54,6 +54,20 @@ abstract public class AbstractUploaderTest {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
         this.cloudinary = new Cloudinary();
         assumeNotNull(cloudinary.config.apiSecret);
+    }
+
+    @Test
+    public void testUtf8Upload() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("colors", true, "tags", SDK_TEST_TAG, "public_id", "aåßéƒ"));
+        assertEquals(result.get("width"), SRC_TEST_IMAGE_W);
+        assertEquals(result.get("height"), SRC_TEST_IMAGE_H);
+        assertNotNull(result.get("colors"));
+        assertNotNull(result.get("predominant"));
+        Map<String, Object> to_sign = new HashMap<String, Object>();
+        to_sign.put("public_id", result.get("public_id"));
+        to_sign.put("version", ObjectUtils.asString(result.get("version")));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        assertEquals(result.get("signature"), expected_signature);
     }
 
     @Test

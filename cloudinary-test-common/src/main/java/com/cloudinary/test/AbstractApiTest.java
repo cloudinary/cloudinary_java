@@ -24,14 +24,11 @@ import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
 abstract public class AbstractApiTest extends MockableTest {
-    private static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
-    private static final int SUFFIX = new Random().nextInt(99999);
     private static final String API_TEST = "api_test_" + SUFFIX;
     private static final String API_TEST_1 = API_TEST + "_1";
     private static final String API_TEST_2 = API_TEST + "_2";
     private static final String API_TEST_3 = API_TEST + "_3";
     private static final String API_TEST_5 = API_TEST + "_5";
-    private static final String SDK_TEST_TAG = "cloudinary_java_test_" + SUFFIX;
     public static final String API_TEST_TRANSFORMATION = "api_test_transformation_" + SUFFIX;
     public static final String API_TEST_TRANSFORMATION_2 = API_TEST_TRANSFORMATION + "2";
     public static final String API_TEST_TRANSFORMATION_3 = API_TEST_TRANSFORMATION + "3";
@@ -39,9 +36,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String API_TEST_UPLOAD_PRESET_2 = API_TEST_UPLOAD_PRESET + "2";
     public static final String API_TEST_UPLOAD_PRESET_3 = API_TEST_UPLOAD_PRESET + "3";
     public static final String API_TEST_UPLOAD_PRESET_4 = API_TEST_UPLOAD_PRESET + "4";
-    private Cloudinary cloudinary;
     protected Api api;
-    private static final String uniqueTag = SDK_TEST_TAG + (new java.util.Date().getTime());
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -59,16 +54,11 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @AfterClass
     public static void tearDownClass() {
-        Cloudinary cloudinary = new Cloudinary();
-        Api api = cloudinary.api();
+        Api api  = MockableTest.cleanUp();
         try {
             api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
         } catch (Exception ignored) {
         }
-        try {
-            api.deleteResourcesByTag(uniqueTag, ObjectUtils.emptyMap());
-        } catch (Exception ignored) {
-        } 
         try {
             api.deleteTransformation(API_TEST_TRANSFORMATION, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
@@ -132,19 +122,16 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test02Resources() throws Exception {
         // should allow listing resources
-        Map result = api.resources(ObjectUtils.emptyMap());
-        final List<Map> resources = (List) result.get("resources");
-        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
-    }
+        Map resource = preloadResource();
 
-    @Test
-    public void testTimeoutParameter() throws Exception {
-        // should allow listing resources
-        Map<String, Object> options = new HashMap<String, Object>();
-        options.put("timeout", Integer.valueOf(5000));
-        Map result = api.resources(options);
-        List<Map> resources = (List) result.get("resources");
-        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
+        final List<Map> resources = new ArrayList<Map>();
+        String next_cursor = null;
+        do {
+            Map result = api.resources(ObjectUtils.asMap("max_results", 500, "next_cursor", next_cursor));
+            resources.addAll((List) result.get("resources"));
+            next_cursor = (String) result.get("next_cursor");
+        } while (next_cursor != null );
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", (String) resource.get("public_id")),hasEntry("type", "upload"))));
     }
 
     @Test
@@ -169,9 +156,10 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
+        Map resource = preloadResource();
         Map result = api.resources(ObjectUtils.asMap("type", "upload"));
         List<Map> resources = (List) result.get("resources");
-        assertThat(resources, hasItem(hasEntry("public_id", API_TEST)));
+        assertThat(resources, hasItem(hasEntry("public_id", (String) resource.get("public_id"))));
     }
 
     @Test
@@ -279,7 +267,7 @@ abstract public class AbstractApiTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", SDK_TEST_TAG));
         Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResources(Arrays.asList(API_TEST, API_TEST_2, public_id), ObjectUtils.emptyMap());
+        api.deleteResources(Arrays.asList(API_TEST_2, public_id), ObjectUtils.emptyMap());
         api.resource(public_id, ObjectUtils.emptyMap());
     }
 
@@ -336,9 +324,11 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test13TransformationMetadata() throws Exception {
         // should allow getting transformation metadata
-        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
+        final Transformation tr = new Transformation().crop("scale").width(100);
+        preloadResource(ObjectUtils.asMap("eager", Collections.singletonList(tr)));
+        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.asMap("max_results", 500));
         assertNotNull(transformation);
-        assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), new Transformation().crop("scale").width(100).generate());
+        assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), tr.generate());
     }
 
     @Test

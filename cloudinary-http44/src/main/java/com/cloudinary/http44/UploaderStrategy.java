@@ -7,8 +7,10 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.apache.http.HttpHost;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.conn.HttpClientConnectionManager;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -71,6 +73,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
 
         HttpPost postMethod = new HttpPost(apiUrl);
+        ApiUtils.setTimeouts(postMethod, options);
 
         Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");
         if (extraHeaders != null) {
@@ -149,5 +152,4 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         }
         return result;
     }
-
 }

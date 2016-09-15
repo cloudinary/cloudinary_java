@@ -499,5 +499,11 @@ abstract public class AbstractUploaderTest extends MockableTest {
         }
         assertEquals(2, files);
     }
+    
+    @Test
+    public void testUploadInvalidUrl() throws IOException {
+        Map result = cloudinary.uploader().upload(REMOTE_TEST_IMAGE + "\n", ObjectUtils.asMap("return_error", true));
+        assertEquals(result.get("http_code"), 404);
+    }
 
 }

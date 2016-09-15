@@ -62,7 +62,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
 
-        if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+        if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
             file = new File((String) file);
         }
         String filename = (String) options.get("filename");
@@ -91,7 +91,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         String responseData = readFully(responseStream);
         connection.disconnect();
 
-        if (code != 200 && code != 400 && code != 500) {
+        if (code != 200 && code != 400 && code != 404 && code != 500) {
             throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
         }
 

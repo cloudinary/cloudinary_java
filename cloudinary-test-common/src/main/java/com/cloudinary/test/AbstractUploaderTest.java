@@ -500,11 +500,13 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals(2, files);
     }
     
-    @Test
-    public void testUploadInvalidUrl() throws IOException {
-        Map result = cloudinary.uploader().upload(REMOTE_TEST_IMAGE + "\n", ObjectUtils.asMap("return_error", true));
-        Map error = (Map) result.get("error");
-        assertEquals(error.get("http_code"), 404);
+    public void testUploadInvalidUrl() {
+        try {
+            cloudinary.uploader().upload(REMOTE_TEST_IMAGE + "\n", ObjectUtils.asMap("return_error", true));
+            fail("Expected exception was not thrown");
+        } catch(IOException e) {
+            assertEquals(e.getMessage(), "File not found or unreadable: " + REMOTE_TEST_IMAGE + "\n");
+        }
     }
 
 }

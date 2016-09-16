@@ -84,8 +84,12 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
 
-        if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
-            file = new File((String) file);
+        if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+            File _file = new File((String) file);
+            if (!_file.isFile() && !_file.canRead()) {
+                throw new IOException("File not found or unreadable: " + file);
+            }
+            file = _file;
         }
         String filename = (String) options.get("filename");
         if (file instanceof File) {
@@ -98,7 +102,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         } else if (file == null) {
             // no-problem
         } else {
-            throw new IOException("Uprecognized file parameter " + file);
+            throw new IOException("Unrecognized file parameter " + file);
         }
         postMethod.setEntity(multipart);
 

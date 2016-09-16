@@ -1,3 +1,7 @@
+cloudinary-parent-1.4.5 / 2016-09-16
+====================================
+  * Better handling of missing/unreadable local files
+
 cloudinary-parent-1.4.4 / 2016-09-15
 ====================================
   * Fix issue when uploading URL with \n

@@ -1,10 +1,7 @@
 package com.cloudinary;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
@@ -16,11 +13,13 @@ import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.api.exceptions.RateLimited;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
+import org.cloudinary.json.JSONArray;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Api {
-    public enum HttpMethod {GET, POST, PUT, DELETE}
 
+
+    public enum HttpMethod {GET, POST, PUT, DELETE;}
     public final static Map<Integer, Class<? extends Exception>> CLOUDINARY_API_ERROR_CLASSES = new HashMap<Integer, Class<? extends Exception>>();
 
     static {
@@ -34,8 +33,8 @@ public class Api {
     }
 
     public final Cloudinary cloudinary;
-    private AbstractApiStrategy strategy;
 
+    private AbstractApiStrategy strategy;
     protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
         return this.strategy.callApi(method, uri, params, options);
     }
@@ -299,4 +298,146 @@ public class Api {
         params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
         return callApi(HttpMethod.POST, uri, params, options);
     }
+
+    /**
+     * Create a new streaming profile
+     *
+     * @param name            the of the profile
+     * @param displayName     the display name of the profile
+     * @param representations a collection of Maps with a transformation key
+     * @param options         additional options
+     * @return the new streaming profile
+     * @throws Exception an exception
+     */
+    public ApiResponse createStreamingProfile(String name, String displayName, List<Map> representations, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        List<Map> serializedRepresentations = new ArrayList<Map>(representations.size());
+        for (Map t : representations) {
+            final Object transformation = t.get("transformation");
+            serializedRepresentations.add(ObjectUtils.asMap("transformation", transformation.toString()));
+        }
+        List<String> uri = Collections.singletonList("streaming_profiles");
+        final Map params = ObjectUtils.asMap(
+                "name", name,
+                "representations", new JSONArray(serializedRepresentations.toArray())
+        );
+        if (displayName != null) {
+            params.put("display_name", displayName);
+        }
+        return callApi(HttpMethod.POST, uri, params, options);
+    }
+
+    /**
+     * @see Api#createStreamingProfile(String, String, List, Map)
+     */
+    public ApiResponse createStreamingProfile(String name, String displayName, List<Map> representations) throws Exception {
+        return createStreamingProfile(name, displayName, representations, null);
+    }
+
+    /**
+     * Get a streaming profile information
+     * @param name the name of the profile to fetch
+     * @param options additional options
+     * @return a streaming profile
+     * @throws Exception an exception
+     */
+    public ApiResponse getStreamingProfile(String name, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        List<String> uri = Arrays.asList("streaming_profiles", name);
+
+        return callApi(HttpMethod.GET, uri, ObjectUtils.emptyMap(), options);
+
+    }
+
+    /**
+     * @see Api#getStreamingProfile(String, Map)
+     */
+    public ApiResponse getStreamingProfile(String name) throws Exception {
+        return getStreamingProfile(name, null);
+    }
+
+    /**
+     * List Streaming profiles
+     * @param options additional options
+     * @return a list of all streaming profiles defined for the current cloud
+     * @throws Exception an exception
+     */
+    public ApiResponse listStreamingProfiles(Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        List<String> uri = Collections.singletonList("streaming_profiles");
+        return callApi(HttpMethod.GET, uri, ObjectUtils.emptyMap(), options);
+
+    }
+
+    /**
+     * @see Api#listStreamingProfiles(Map)
+     */
+    public ApiResponse listStreamingProfiles() throws Exception {
+        return listStreamingProfiles(null);
+    }
+
+    /**
+     * Delete a streaming profile information. Predefined profiles are restored to the default setting.
+     * @param name the name of the profile to delete
+     * @param options additional options
+     * @return a streaming profile
+     * @throws Exception an exception
+     */
+    public ApiResponse deleteStreamingProfile(String name, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        List<String> uri = Arrays.asList("streaming_profiles", name);
+
+        return callApi(HttpMethod.DELETE, uri, ObjectUtils.emptyMap(), options);
+
+    }
+
+    /**
+     * @see Api#deleteStreamingProfile(String, Map)
+     */
+    public ApiResponse deleteStreamingProfile(String name) throws Exception {
+        return getStreamingProfile(name, null);
+    }
+
+    /**
+     * Create a new streaming profile
+     *
+     * @param name            the of the profile
+     * @param displayName     the display name of the profile
+     * @param representations a collection of Maps with a transformation key
+     * @param options         additional options
+     * @return the new streaming profile
+     * @throws Exception an exception
+     */
+    public ApiResponse updateStreamingProfile(String name, String displayName, List<Map> representations, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        List<Map> serializedRepresentations;
+        final Map params = new HashMap();
+        List<String> uri = Arrays.asList("streaming_profiles", name);
+
+        if (representations != null) {
+            serializedRepresentations = new ArrayList<Map>(representations.size());
+            for (Map t : representations) {
+                final Object transformation = t.get("transformation");
+                serializedRepresentations.add(ObjectUtils.asMap("transformation", transformation.toString()));
+            }
+            params.put("representations", new JSONArray(serializedRepresentations.toArray()));
+        }
+        if (displayName != null) {
+            params.put("display_name", displayName);
+        }
+        return callApi(HttpMethod.PUT, uri, params, options);
+    }
+
+    /**
+     * @see Api#updateStreamingProfile(String, String, List, Map)
+     */
+    public ApiResponse updateStreamingProfile(String name, String displayName, List<Map> representations) throws Exception {
+        return createStreamingProfile(name, displayName, representations);
+    }
+
 }

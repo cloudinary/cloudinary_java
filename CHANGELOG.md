@@ -1,12 +1,23 @@
-cloudinary-parent-1.4.5 / 2016-09-16
+
+1.4.6 / 2016-10-27
+==================
+
+  * Add streaming profiles API
+
+1.4.6 / 2016-10-27
+====================================
+
+  * Add streaming profiles API
+
+1.4.5 / 2016-09-16
 ====================================
   * Better handling of missing/unreadable local files
 
-cloudinary-parent-1.4.4 / 2016-09-15
+1.4.4 / 2016-09-15
 ====================================
   * Fix issue when uploading URL with \n
 
-cloudinary-parent-1.4.3 / 2016-09-09
+1.4.3 / 2016-09-09
 ====================================
 
 New functionality
@@ -29,7 +40,7 @@ Other changes
   * Add tests for auto width and original width and height ( `ow`, `oh`) values
   * Add `timeout`, `connect_timeout` and `connection_request_timeout` to HTTP43 and HTTP44 Api.
 
-cloudinary-parent-1.4.2 / 2016-05-16
+1.4.2 / 2016-05-16
 ====================================
 
   * Sent params as entities for PUT, POST
@@ -41,12 +52,12 @@ cloudinary-parent-1.4.2 / 2016-05-16
   * Add SDK_TEST_TAG to all resources being created.
   * Remove API limits test
 
-cloudinary-parent-1.4.1 / 2016-03-23
+1.4.1 / 2016-03-23
 ====================================
   * Rename conditional parameters `faces` and `pages` to `faceCount` and `pageCount`
 
 
-cloudinary-parent-1.4.0 / 2016-03-19
+1.4.0 / 2016-03-19
 ====================================
   * Add Condition builder for faces
   * Modify explicit test - don't use twitter
@@ -57,7 +68,7 @@ cloudinary-parent-1.4.0 / 2016-03-19
   * Fix uploadLarge to use X-Unique-Upload-Id instead of updating params. Solves #18
   * Fix support for non-ascii chars in upload URL
 
-cloudinary-parent-1.3.0 / 2016-01-19
+1.3.0 / 2016-01-19
 ====================================
 
   * Add `responsive_breakpoints` paramater

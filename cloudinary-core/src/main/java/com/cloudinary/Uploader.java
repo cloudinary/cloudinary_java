@@ -277,6 +277,12 @@ public class Uploader {
         return callTagsApi(tag, "remove", publicIds, options);
     }
 
+    public Map removeAllTags(String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callTagsApi(null, "remove_all", publicIds, options);
+    }
+
     public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
@@ -287,7 +293,9 @@ public class Uploader {
         if (options == null)
             options = ObjectUtils.emptyMap();
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("tag", tag);
+        if (tag != null) {
+            params.put("tag", tag);
+        }
         params.put("command", command);
         params.put("type", (String) options.get("type"));
         params.put("public_ids", Arrays.asList(publicIds));

@@ -4,6 +4,8 @@ import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -13,6 +15,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
@@ -226,6 +229,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
         cloudinary.uploader().replaceTag("tag3", new String[]{public_id}, ObjectUtils.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, ObjectUtils.asArray(new String[]{"tag3"}));
+        result = cloudinary.uploader().removeAllTags(new String[]{public_id, public_id2, "noSuchId"}, ObjectUtils.emptyMap());
+        List<String> publicIds = (List<String>) result.get("public_ids");
+        assertThat(publicIds, containsInAnyOrder(public_id, public_id2)); // = and not containing "noSuchId"
+        result = cloudinary.api().resource(public_id, ObjectUtils.emptyMap());
+        assertThat((Map<? extends String, ?>) result, not(hasKey("tags")));
+
     }
 
     @Test

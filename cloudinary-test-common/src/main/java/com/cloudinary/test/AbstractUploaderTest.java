@@ -338,7 +338,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("context", context, "tags", SDK_TEST_TAG));
         Map info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
         assertEquals(ObjectUtils.asMap("custom", context), info.get("context"));
-        Map differentContext = ObjectUtils.asMap("caption", "different caption", "alt2", "alternative alternative");
+        Map differentContext = ObjectUtils.asMap("caption", "different = caption", "alt2", "alt|alternative alternative");
         cloudinary.uploader().explicit((String) result.get("public_id"), ObjectUtils.asMap("type", "upload", "context", differentContext));
         info = cloudinary.api().resource((String) result.get("public_id"), ObjectUtils.asMap("context", true));
         assertEquals(ObjectUtils.asMap("custom", differentContext), info.get("context"));

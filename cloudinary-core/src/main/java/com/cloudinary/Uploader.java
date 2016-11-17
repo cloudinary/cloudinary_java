@@ -188,7 +188,7 @@ public class Uploader {
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         }
         if (options.get("context") != null) {
-            params.put("context", ObjectUtils.encodeMap(options.get("context")));
+            params.put("context", Util.encodeContext(options.get("context")));
         }
         if (options.get("responsive_breakpoints") != null) {
             params.put("responsive_breakpoints", JSONObject.wrap(options.get("responsive_breakpoints")));

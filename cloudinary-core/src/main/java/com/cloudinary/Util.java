@@ -1,10 +1,6 @@
 package com.cloudinary;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -100,7 +96,7 @@ public class Util {
         if (options.get("custom_coordinates") != null)
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         if (options.get("context") != null)
-            params.put("context", ObjectUtils.encodeMap(options.get("context")));
+            params.put("context", encodeContext(options.get("context")));
         putObject("ocr", options, params);
         putObject("raw_convert", options, params);
         putObject("categorization", options, params);
@@ -109,6 +105,22 @@ public class Util {
         putObject("background_removal", options, params);
         if (options.get("auto_tagging") != null)
             params.put("auto_tagging", ObjectUtils.asFloat(options.get("auto_tagging")));
+    }
+
+    protected static String encodeContext(Object context) {
+        if (context != null && context instanceof Map) {
+            Map<String, String> mapArg = (Map<String, String>) context;
+            HashSet out = new HashSet();
+            for (Map.Entry<String, String> entry : mapArg.entrySet()) {
+                final String value = entry.getValue().replaceAll("([=\\|])","\\\\$1");
+                out.add(entry.getKey() + "=" + value);
+            }
+            return StringUtils.join(out.toArray(), "|");
+        } else if (context == null) {
+            return null;
+        } else {
+            return context.toString();
+        }
     }
 
     @SuppressWarnings("unchecked")

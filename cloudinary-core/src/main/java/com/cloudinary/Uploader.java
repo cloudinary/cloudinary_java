@@ -18,6 +18,17 @@ import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Uploader {
+
+    private final class Command {
+        final static String add = "add";
+        final static String remove = "remove";
+        final static String replace = "replace";
+        final static String removeAll = "remove_all";
+
+        private Command() {
+        }
+    }
+
     public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
         return strategy.callApi(action, params, options, file);
     }
@@ -267,26 +278,26 @@ public class Uploader {
         if (options == null)
             options = ObjectUtils.emptyMap();
         boolean exclusive = ObjectUtils.asBoolean(options.get("exclusive"), false);
-        String command = exclusive ? "set_exclusive" : "add";
+        String command = exclusive ? "set_exclusive" : Command.add;
         return callTagsApi(tag, command, publicIds, options);
     }
 
     public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        return callTagsApi(tag, "remove", publicIds, options);
+        return callTagsApi(tag, Command.remove, publicIds, options);
     }
 
     public Map removeAllTags(String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        return callTagsApi(null, "remove_all", publicIds, options);
+        return callTagsApi(null, Command.removeAll, publicIds, options);
     }
 
     public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        return callTagsApi(tag, "replace", publicIds, options);
+        return callTagsApi(tag, Command.replace, publicIds, options);
     }
 
     public Map callTagsApi(String tag, String command, String[] publicIds, Map options) throws IOException {
@@ -300,6 +311,58 @@ public class Uploader {
         params.put("type", (String) options.get("type"));
         params.put("public_ids", Arrays.asList(publicIds));
         return callApi("tags", params, options, null);
+    }
+
+    /**
+     * Add a context keys and values. If a particular key already exists, the value associated with the key is updated.
+     * @param context a map of key and value. Serialized to "key1=value1|key2=value2"
+     * @param publicIds the public IDs of the resources to update
+     * @param options additional options passed to the request
+     * @return a list of public IDs that were updated
+     * @throws IOException
+     */
+    public Map addContext(Map context, String[] publicIds, Map options) throws IOException {
+        return callContextApi(context, Command.add, publicIds, options);
+    }
+
+    /**
+     * Add a context keys and values. If a particular key already exists, the value associated with the key is updated.
+     * @param context Serialized context in the form of "key1=value1|key2=value2"
+     * @param publicIds the public IDs of the resources to update
+     * @param options additional options passed to the request
+     * @return a list of public IDs that were updated
+     * @throws IOException
+     */
+    public Map addContext(String context, String[] publicIds, Map options) throws IOException {
+        return callContextApi(context, Command.add, publicIds, options);
+    }
+
+    /**
+     * Remove all custom context from the specified public IDs.
+     * @param publicIds the public IDs of the resources to update
+     * @param options additional options passed to the request
+     * @return a list of public IDs that were updated
+     * @throws IOException
+     */
+    public Map removeAllContext(String[] publicIds, Map options) throws IOException {
+        return callContextApi((String)null, Command.removeAll, publicIds, options);
+    }
+
+    protected Map callContextApi(Map context, String command, String[] publicIds, Map options) throws IOException {
+        return callContextApi(Util.encodeContext(context), command, publicIds, options);
+    }
+
+    protected Map callContextApi(String context, String command, String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        Map<String, Object> params = new HashMap<String, Object>();
+        if (context != null) {
+            params.put("context", context);
+        }
+        params.put("command", command);
+        params.put("type", (String) options.get("type"));
+        params.put("public_ids", Arrays.asList(publicIds));
+        return callApi("context", params, options, null);
     }
 
     private final static String[] TEXT_PARAMS = {"public_id", "font_family", "font_size", "font_color", "text_align", "font_weight", "font_style",

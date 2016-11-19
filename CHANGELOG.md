@@ -1,3 +1,14 @@
+
+1.5.0 / 2016-11-19
+==================
+
+New functionality
+-----------------
+
+  * Add context API
+  * Escape `\` and `=` in context
+  * Add `removeAllTags` API
+
 1.4.6 / 2016-10-27
 ====================================
 

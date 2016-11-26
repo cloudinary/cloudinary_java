@@ -234,8 +234,8 @@ public class UploaderTest extends InstrumentationTestCase {
         if (cloudinary.config.apiSecret == null)
             return;
         Coordinates coordinates = new Coordinates();
-        Rectangle rect1 = new Rectangle(121, 31, 231, 182);
-        Rectangle rect2 = new Rectangle(120, 30, 229, 270);
+        Rectangle rect1 = new Rectangle(121, 31, 110, 51);
+        Rectangle rect2 = new Rectangle(120, 30, 109, 51);
         coordinates.addRect(rect1);
         coordinates.addRect(rect2);
         JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("face_coordinates", coordinates, "faces", true)));

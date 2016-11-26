@@ -272,8 +272,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public void testFaceCoordinates() throws Exception {
         //should allow sending face coordinates
         Coordinates coordinates = new Coordinates();
-        Rectangle rect1 = new Rectangle(121, 31, 110, 151);
-        Rectangle rect2 = new Rectangle(120, 30, 109, 150);
+        Rectangle rect1 = new Rectangle(121, 31, 110, 51);
+        Rectangle rect2 = new Rectangle(120, 30, 109, 51);
         coordinates.addRect(rect1);
         coordinates.addRect(rect2);
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("face_coordinates", coordinates, "faces", true, "tags", SDK_TEST_TAG));

@@ -14,6 +14,7 @@ import com.cloudinary.api.exceptions.RateLimited;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import org.cloudinary.json.JSONArray;
+import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Api {
@@ -76,6 +77,21 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+    }
+
+    public ApiResponse resourcesByContext(String key, Map options) throws Exception {
+      return resourcesByContext(key,null,options);
+    }
+
+    public ApiResponse resourcesByContext(String key,String value, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+        Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations");
+        params.put("key",key);
+        if (StringUtils.isNotBlank(value)) {
+          params.put("value",value);
+        }
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType,"context"), params , options);
     }
 
     public ApiResponse resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {

@@ -50,6 +50,11 @@ abstract public class AbstractApiTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         options.put("public_id", API_TEST_1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+
+        options = ObjectUtils.asMap("public_id", "context_1", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "test-key=alt");
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        options = ObjectUtils.asMap("public_id", "context_2", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "test-key=alternate");
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 
     @AfterClass
@@ -385,6 +390,18 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow deleting implicit transformation
         api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
         api.deleteTransformation("c_scale,w_100", ObjectUtils.emptyMap());
+    }
+
+    @Test
+    public void test20ResourcesContext() throws Exception {
+        Map result = api.resourcesByContext("test-key", ObjectUtils.emptyMap());
+        
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertEquals(2,resources.size());
+        result = api.resourcesByContext("test-key","alt", ObjectUtils.emptyMap());
+        
+        resources = (List<Map>) result.get("resources");
+        assertEquals(1,resources.size());
     }
 
     /**

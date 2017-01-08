@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary-parent</artifactId>
-        <version>1.5.1-SNAPSHOT</version>
+        <version>1.6.0</version>
     </parent>
 
     <artifactId>cloudinary-core</artifactId>

@@ -1,7 +1,6 @@
 package com.cloudinary;
 
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
@@ -13,6 +12,7 @@ import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.api.exceptions.RateLimited;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONArray;
 import com.cloudinary.utils.StringUtils;
 
@@ -70,13 +70,19 @@ public class Api {
         uri.add(resourceType);
         if (type != null)
             uri.add(type);
-        return callApi(HttpMethod.GET, uri, ObjectUtils.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations", "start_at"), options);
+
+        ApiResponse response = callApi(HttpMethod.GET, uri, ObjectUtils.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations", "start_at"), options);
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse resourcesByContext(String key, Map options) throws Exception {
@@ -100,22 +106,32 @@ public class Api {
         String type = ObjectUtils.asString(options.get("type"), "upload");
         Map params = ObjectUtils.only(options, "tags", "context", "moderations");
         params.put("public_ids", publicIds);
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse resourcesByModeration(String kind, String status, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "moderations", kind, status), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "moderations", kind, status), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse resource(String public_id, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
+
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
                 ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
                         "image_metadata", "pages", "phash", "max_results"), options);
+
+
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse update(String public_id, Map options) throws Exception {
@@ -125,8 +141,10 @@ public class Api {
         Map params = new HashMap<String, Object>();
         Util.processWriteParameters(options, params);
         params.put("moderation_status", options.get("moderation_status"));
-        return callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, public_id),
+        ApiResponse response = callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, public_id),
                 params, options);
+        addAccessModeToResponse(response,"public");
+        return response;
     }
 
     public ApiResponse deleteResources(Iterable<String> publicIds, Map options) throws Exception {
@@ -250,7 +268,9 @@ public class Api {
         String type = ObjectUtils.asString(options.get("type"), "upload");
         Map params = new HashMap<String, Object>();
         params.put("public_ids", publicIds);
-        return callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, "restore"), params, options);
+
+        ApiResponse response = callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, "restore"), params, options);
+        return response;
     }
 
     public ApiResponse uploadMappings(Map options) throws Exception {
@@ -447,6 +467,79 @@ public class Api {
             params.put("display_name", displayName);
         }
         return callApi(HttpMethod.PUT, uri, params, options);
+    }
+
+    public ApiResponse updateResourcesAccessModeByIds(String accessMode, List<String>  ids, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.asMap();
+        validateAccessMode(accessMode);
+        options.put("max_results",100);
+
+        ApiResponse response = this.resourcesByIds(ids,options);
+        addAccessModeToResponse(response,accessMode);
+        response.put("updated",response.get("resources"));
+        response.remove("resources");
+        response.put("failed" ,Arrays.asList());
+
+        return response;
+    }
+
+    public ApiResponse updateResourcesAccessModeByTag(String accessMode, String tag,Map options) throws Exception {
+        if (options == null) options = ObjectUtils.asMap();
+        validateAccessMode(accessMode);
+        options.put("max_results",100);
+        ApiResponse response = this.resourcesByTag(tag,options);
+        addAccessModeToResponse(response,accessMode);
+        response.put("updated",response.get("resources"));
+        response.remove("resources");
+        response.put("failed" ,Arrays.asList());
+        return response;
+    }
+
+    public ApiResponse updateResourcesAccessModeByPrefix(String accessMode, String prefix, Map options) throws Exception{
+        if (options == null) options = ObjectUtils.asMap();
+        validateAccessMode(accessMode);
+        options.put("prefix",prefix);
+        options.put("max_results",100);
+        ApiResponse response = this.resources(options);
+        addAccessModeToResponse(response,accessMode);
+        response.put("updated",response.get("resources"));
+        response.remove("resources");
+        response.put("failed" ,Arrays.asList());
+        return response;
+    }
+
+    private void validateAccessMode(String accessMode){
+        List<String> modes = Arrays.asList("public","authenticated");
+        if (!modes.contains(accessMode)){
+            throw new Error("access mode \""+accessMode+"\" not does not match "+ StringUtils.join(modes,"/"));
+        }
+    }
+
+    private void addAccessModeToCollection(Object collection, String accessMode){
+        List<Object> collectionList = (List) collection;
+        if (collectionList==null) {
+            throw new Error("no collection found");
+
+        }
+        for (Object listItem :collectionList){
+            this.addAccessModeToResource(listItem, accessMode);
+        }
+    }
+
+    private void addAccessModeToResponse(ApiResponse response, String accessMode){
+        if (response.keySet().contains("resources")){
+            addAccessModeToCollection(response.get("resources"),accessMode);
+        }else if (response.keySet().contains("public_id")){
+            addAccessModeToResource(response,accessMode);
+        }else {
+            throw new Error("unidentified response type (keys: "+StringUtils.join(response.keySet(),",")+")");
+        }
+    }
+
+    private void addAccessModeToResource(Object resource, String accessMode){
+        Map<Object,Object> resourceMap = (Map<Object,Object>) resource;
+        if (resourceMap==null) { return ;}
+        resourceMap.put("access_mode",accessMode);
     }
 
     /**

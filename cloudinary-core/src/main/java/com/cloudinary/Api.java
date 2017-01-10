@@ -72,6 +72,7 @@ public class Api {
             uri.add(type);
 
         ApiResponse response = callApi(HttpMethod.GET, uri, ObjectUtils.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations", "start_at"), options);
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -81,6 +82,7 @@ public class Api {
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
 
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -107,6 +109,7 @@ public class Api {
         Map params = ObjectUtils.only(options, "tags", "context", "moderations");
         params.put("public_ids", publicIds);
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type), params, options);
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -116,6 +119,7 @@ public class Api {
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
 
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "moderations", kind, status), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations"), options);
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -130,6 +134,7 @@ public class Api {
                         "image_metadata", "pages", "phash", "max_results"), options);
 
 
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -143,6 +148,7 @@ public class Api {
         params.put("moderation_status", options.get("moderation_status"));
         ApiResponse response = callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, public_id),
                 params, options);
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,"public");
         return response;
     }
@@ -469,12 +475,14 @@ public class Api {
         return callApi(HttpMethod.PUT, uri, params, options);
     }
 
+    /* Update access mode method stubs */
     public ApiResponse updateResourcesAccessModeByIds(String accessMode, List<String>  ids, Map options) throws Exception {
         if (options == null) options = ObjectUtils.asMap();
-        validateAccessMode(accessMode);
         options.put("max_results",100);
 
         ApiResponse response = this.resourcesByIds(ids,options);
+
+        // stubbing default access mode to response  , will be removed in final version
         addAccessModeToResponse(response,accessMode);
         response.put("updated",response.get("resources"));
         response.remove("resources");
@@ -485,7 +493,6 @@ public class Api {
 
     public ApiResponse updateResourcesAccessModeByTag(String accessMode, String tag,Map options) throws Exception {
         if (options == null) options = ObjectUtils.asMap();
-        validateAccessMode(accessMode);
         options.put("max_results",100);
         ApiResponse response = this.resourcesByTag(tag,options);
         addAccessModeToResponse(response,accessMode);
@@ -497,7 +504,6 @@ public class Api {
 
     public ApiResponse updateResourcesAccessModeByPrefix(String accessMode, String prefix, Map options) throws Exception{
         if (options == null) options = ObjectUtils.asMap();
-        validateAccessMode(accessMode);
         options.put("prefix",prefix);
         options.put("max_results",100);
         ApiResponse response = this.resources(options);
@@ -507,13 +513,9 @@ public class Api {
         response.put("failed" ,Arrays.asList());
         return response;
     }
+    /* Update access mode method stubs */
 
-    private void validateAccessMode(String accessMode){
-        List<String> modes = Arrays.asList("public","authenticated");
-        if (!modes.contains(accessMode)){
-            throw new Error("access mode \""+accessMode+"\" not does not match "+ StringUtils.join(modes,"/"));
-        }
-    }
+    /* Temporary access mode helper methods */
 
     private void addAccessModeToCollection(Object collection, String accessMode){
         List<Object> collectionList = (List) collection;
@@ -541,6 +543,7 @@ public class Api {
         if (resourceMap==null) { return ;}
         resourceMap.put("access_mode",accessMode);
     }
+    /* temporary access_mode stubs */
 
     /**
      * @see Api#updateStreamingProfile(String, String, List, Map)

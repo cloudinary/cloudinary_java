@@ -24,6 +24,7 @@ import com.cloudinary.utils.StringUtils;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
 
+    public static final String AKAMAI_TOKEN_NAME = "__cld_token__";
     private static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",

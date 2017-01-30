@@ -749,4 +749,49 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(resource.get("url"));
         cloudinary.uploader().destroy(publicId, null);
     }
+
+    @Test
+    public void testUpdateResourcesAccessModeByIds() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "access_mode", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        assertEquals(response.get("access_mode"), "authenticated");
+        response = cloudinary.api().updateResourcesAccessModeByIds("public", Arrays.asList(publicId), null);
+        List updated = (List) response.get("updated");
+        assertNotNull(updated);
+        assertEquals(updated.size(), 1);
+        Map resource = (Map) updated.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertEquals(resource.get("access_mode"), "public");
+        cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
+    public void testUpdateResourcesAccessModeByPrefix() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "access_mode", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        assertEquals(response.get("access_mode"), "authenticated");
+        response = cloudinary.api().updateResourcesAccessModeByPrefix("public", publicId.substring(0, publicId.length() - 2), null);
+        List updated = (List) response.get("updated");
+        assertNotNull(updated);
+        assertEquals(updated.size(), 1);
+        Map resource = (Map) updated.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertEquals(resource.get("access_mode"), "public");
+        cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
+    public void testUpdateResourcesAccessModeByTag() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(uniqueTag, uniqueTag + "2"), "access_mode", "authenticated"));
+        String publicId = (String) response.get("public_id");
+        assertEquals(response.get("access_mode"), "authenticated");
+        response = cloudinary.api().updateResourcesAccessModeByTag("public", uniqueTag + "2", null);
+        List updated = (List) response.get("updated");
+        assertNotNull(updated);
+        assertEquals(updated.size(), 1);
+        Map resource = (Map) updated.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertEquals(resource.get("access_mode"), "public");
+        cloudinary.uploader().destroy(publicId, null);
+    }
 }

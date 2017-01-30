@@ -1,4 +1,17 @@
 
+1.7.0 / 2017-01-30
+==================
+
+New functionality
+-----------------
+
+  * Add Akamai token generator
+
+Other changes
+-------------
+
+  * Fix "multi" test
+
 1.6.0 / 2017-01-08
 ==================
 

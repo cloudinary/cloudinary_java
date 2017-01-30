@@ -204,7 +204,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public void testMulti() throws IOException {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[] {"multi_test_tag", SDK_TEST_TAG}, "public_id", "multi_test_tag_1"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[] {"multi_test_tag", SDK_TEST_TAG}, "public_id", "multi_test_tag_2"));
-        Map result = cloudinary.uploader().multi("multi_test_tag", asMap("tags", SDK_TEST_TAG));
+        Map result = cloudinary.uploader().multi("multi_test_tag", asMap("tags", SDK_TEST_TAG, "transformation", "c_crop,w_0.5" ));
         assertTrue(((String) result.get("url")).endsWith(".gif"));
         result = cloudinary.uploader().multi("multi_test_tag", asMap("transformation", "w_100"));
         assertTrue(((String) result.get("url")).contains("w_100"));

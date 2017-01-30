@@ -243,9 +243,9 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow get resource metadata
         Map resource = api.resource(API_TEST, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        assertEquals(resource.get("public_id"), API_TEST);
-        assertEquals(resource.get("bytes"), 3381);
-        assertEquals(((List) resource.get("derived")).size(), 1);
+        assertEquals(API_TEST, resource.get("public_id"));
+        assertEquals(3381, resource.get("bytes"));
+        assertEquals(1, ((List) resource.get("derived")).size());
     }
 
     @Test

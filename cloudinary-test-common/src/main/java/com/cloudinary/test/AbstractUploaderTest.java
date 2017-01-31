@@ -202,15 +202,23 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testMulti() throws IOException {
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[] {"multi_test_tag", SDK_TEST_TAG}, "public_id", "multi_test_tag_1"));
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[] {"multi_test_tag", SDK_TEST_TAG}, "public_id", "multi_test_tag_2"));
-        Map result = cloudinary.uploader().multi("multi_test_tag", asMap("tags", SDK_TEST_TAG, "transformation", "c_crop,w_0.5" ));
+        final String MULTI_TEST_TAG = "multi_test_tag" + SUFFIX;
+        final Map options = asMap("tags", new String[]{MULTI_TEST_TAG, SDK_TEST_TAG, uniqueTag});
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        List<String> ids = new ArrayList<String>();
+        Map result = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", "c_crop,w_0.5" ));
+        ids.add((String) result.get("public_id"));
+        Map pdfResult = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", new Transformation().width(111), "format", "pdf"));
+        ids.add((String) pdfResult.get("public_id"));
+        try {
+            cloudinary.api().deleteResources(ids, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
         assertTrue(((String) result.get("url")).endsWith(".gif"));
-        result = cloudinary.uploader().multi("multi_test_tag", asMap("transformation", "w_100"));
-        assertTrue(((String) result.get("url")).contains("w_100"));
-        result = cloudinary.uploader().multi("multi_test_tag", asMap("transformation", new Transformation().width(111), "format", "pdf"));
-        assertTrue(((String) result.get("url")).contains("w_111"));
-        assertTrue(((String) result.get("url")).endsWith(".pdf"));
+        assertTrue(((String) result.get("url")).contains("w_0.5"));
+        assertTrue(((String) pdfResult.get("url")).contains("w_111"));
+        assertTrue(((String) pdfResult.get("url")).endsWith(".pdf"));
     }
 
     @Test

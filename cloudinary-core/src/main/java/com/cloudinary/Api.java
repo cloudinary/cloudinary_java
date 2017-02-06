@@ -514,12 +514,12 @@ public class Api {
         List<String> uri = new ArrayList<String>();
         uri.add("resources");
         uri.add(resourceType);
-        uri.add("upload");
+        uri.add(ObjectUtils.asString(options.get("type"), "upload"));
         uri.add("update_access_mode");
         Map params = new HashMap<String, Object>();
         params.put("access_mode", accessMode);
         params.put(byKey, value);
-        return callApi(HttpMethod.POST, uri, params, options);
+        return callApi(HttpMethod.POST, uri, params, ObjectUtils.only(options, "next_cursor"));
     }
 
 }

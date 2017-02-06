@@ -12,9 +12,9 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
- * Token generator for Akamai authentication
+ * Authentication Token generator
  */
-public class AkamaiToken {
+public class AuthToken {
     public String tokenName = Cloudinary.AKAMAI_TOKEN_NAME;
     public String key;
     public long startTime;
@@ -23,11 +23,11 @@ public class AkamaiToken {
     public String acl;
     public long window;
 
-    public AkamaiToken(String key) {
+    public AuthToken(String key) {
         this.key = key;
     }
 
-    public AkamaiToken setTokenName(String tokenName) {
+    public AuthToken setTokenName(String tokenName) {
         this.tokenName = tokenName;
         return this;
     }
@@ -38,7 +38,7 @@ public class AkamaiToken {
      * @param startTime in seconds since epoch
      * @return
      */
-    public AkamaiToken setStartTime(long startTime) {
+    public AuthToken setStartTime(long startTime) {
         this.startTime = startTime;
         return this;
     }
@@ -49,17 +49,17 @@ public class AkamaiToken {
      * @param endTime in seconds since epoch
      * @return
      */
-    public AkamaiToken setEndTime(long endTime) {
+    public AuthToken setEndTime(long endTime) {
         this.endTime = endTime;
         return this;
     }
 
-    public AkamaiToken setIp(String ip) {
+    public AuthToken setIp(String ip) {
         this.ip = ip;
         return this;
     }
 
-    public AkamaiToken setAcl(String acl) {
+    public AuthToken setAcl(String acl) {
         this.acl = acl;
         return this;
     }
@@ -71,7 +71,7 @@ public class AkamaiToken {
      * @param window
      * @return
      */
-    public AkamaiToken setWindow(long window) {
+    public AuthToken setWindow(long window) {
         this.window = window;
         return this;
     }
@@ -82,6 +82,10 @@ public class AkamaiToken {
      * @return a signed token
      */
     public String generate() {
+        return generate(null);
+    }
+
+    public String generate(String url) {
         long expiration = endTime;
         if (expiration == 0) {
             if (window > 0) {
@@ -99,12 +103,18 @@ public class AkamaiToken {
             tokenParts.add("st=" + startTime);
         }
         tokenParts.add("exp=" + expiration);
-        tokenParts.add("acl=" + acl);
+        if (url != null) {
+            tokenParts.add("url=" + url);
+        } else if (acl != null) {
+            tokenParts.add("acl=" + acl);
+        } else {
+            throw new IllegalArgumentException("Must provide either url or acl");
+        }
         String auth = digest(StringUtils.join(tokenParts, "~"));
         tokenParts.add("hmac=" + auth);
         return tokenName + "=" + StringUtils.join(tokenParts, "~");
-    }
 
+    }
 
     private String digest(String message) {
         byte[] binKey = DatatypeConverter.parseHexBinary(key);

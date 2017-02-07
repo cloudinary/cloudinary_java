@@ -49,6 +49,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
             api.deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
         }
+        try {
+            api.deleteResourcesByTag(SDK_TEST_TAG, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
     }
 
     @Rule

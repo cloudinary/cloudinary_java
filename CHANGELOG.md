@@ -1,4 +1,18 @@
 
+1.8.0 / 2017-02-08
+==================
+
+New functionality
+-----------------
+
+  * Access mode API
+
+Other changes
+-------------
+
+  * Fix listing direction test.
+  * Refactor `multi` test
+
 1.7.0 / 2017-01-30
 ==================
 

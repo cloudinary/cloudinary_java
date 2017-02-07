@@ -4,12 +4,7 @@ import java.util.*;
 
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
-import com.cloudinary.api.exceptions.AlreadyExists;
-import com.cloudinary.api.exceptions.BadRequest;
-import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.api.exceptions.NotAllowed;
-import com.cloudinary.api.exceptions.NotFound;
-import com.cloudinary.api.exceptions.RateLimited;
+import com.cloudinary.api.exceptions.*;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -473,10 +468,19 @@ public class Api {
      * Update access mode of one or more resources by prefix
      *
      * @param accessMode The new access mode, "public" or  "authenticated"
-     * @param prefix The prefix by which to filter applicable resources
-     * @param options
-     * @return
-     * @throws Exception
+     * @param prefix     The prefix by which to filter applicable resources
+     * @param options    additional options
+     * <ul>
+     * <li>resource_type - (default "image") - the type of resources to modify</li>
+     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     * <li>next_cursor - optional - provided by a previous call to the method</li>
+     * </ul>
+     * @return a map of the returned values
+     * <ul>
+     * <li>updated - an array of resources</li>
+     * <li>next_cursor - optional - provided if more resources can be processed</li>
+     * </ul>
+     * @throws ApiException an API exception
      */
     public ApiResponse updateResourcesAccessModeByPrefix(String accessMode, String prefix, Map options) throws Exception {
         return updateResourcesAccessMode(accessMode, "prefix", prefix, options);
@@ -486,10 +490,19 @@ public class Api {
      * Update access mode of one or more resources by tag
      *
      * @param accessMode The new access mode, "public" or  "authenticated"
-     * @param tag The tag by which to filter applicable resources
-     * @param options
-     * @return
-     * @throws Exception
+     * @param tag        The tag by which to filter applicable resources
+     * @param options    additional options
+     * <ul>
+     * <li>resource_type - (default "image") - the type of resources to modify</li>
+     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     * <li>next_cursor - optional - provided by a previous call to the method</li>
+     * </ul>
+     * @return a map of the returned values
+     * <ul>
+     * <li>updated - an array of resources</li>
+     * <li>next_cursor - optional - provided if more resources can be processed</li>
+     * </ul>
+     * @throws ApiException an API exception
      */
     public ApiResponse updateResourcesAccessModeByTag(String accessMode, String tag, Map options) throws Exception {
         return updateResourcesAccessMode(accessMode, "tag", tag, options);
@@ -499,10 +512,19 @@ public class Api {
      * Update access mode of one or more resources by publicIds
      *
      * @param accessMode The new access mode, "public" or  "authenticated"
-     * @param publicIds A list of public ids of resources to be updated
-     * @param options
-     * @return
-     * @throws Exception
+     * @param publicIds  A list of public ids of resources to be updated
+     * @param options    additional options
+     * <ul>
+     * <li>resource_type - (default "image") - the type of resources to modify</li>
+     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     * <li>next_cursor - optional - provided by a previous call to the method</li>
+     * </ul>
+     * @return a map of the returned values
+     * <ul>
+     * <li>updated - an array of resources</li>
+     * <li>next_cursor - optional - provided if more resources can be processed</li>
+     * </ul>
+     * @throws ApiException an API exception
      */
     public ApiResponse updateResourcesAccessModeByIds(String accessMode, Iterable<String> publicIds, Map options) throws Exception {
         return updateResourcesAccessMode(accessMode, "public_ids", publicIds, options);
@@ -511,15 +533,12 @@ public class Api {
     private ApiResponse updateResourcesAccessMode(String accessMode, String byKey, Object value, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        List<String> uri = new ArrayList<String>();
-        uri.add("resources");
-        uri.add(resourceType);
-        uri.add(ObjectUtils.asString(options.get("type"), "upload"));
-        uri.add("update_access_mode");
-        Map params = new HashMap<String, Object>();
+        String type = ObjectUtils.asString(options.get("type"), "upload");
+        List<String> uri = Arrays.asList("resources", resourceType, type, "update_access_mode");
+        Map params = ObjectUtils.only(options, "next_cursor", "max_results");
         params.put("access_mode", accessMode);
         params.put(byKey, value);
-        return callApi(HttpMethod.POST, uri, params, ObjectUtils.only(options, "next_cursor"));
+        return callApi(HttpMethod.POST, uri, params, options);
     }
 
 }

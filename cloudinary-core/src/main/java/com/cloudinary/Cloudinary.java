@@ -24,7 +24,6 @@ import com.cloudinary.utils.StringUtils;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
 
-    public static final String AKAMAI_TOKEN_NAME = "__cld_token__";
     private static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",
@@ -257,13 +256,38 @@ public class Cloudinary {
             for (String param : cloudinaryUri.getQuery().split("&")) {
                 String[] keyValue = param.split("=");
                 try {
-                    params.put(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
+                    final String value = URLDecoder.decode(keyValue[1], "ASCII");
+                    final String key = keyValue[0];
+                    if(isNestedKey(key)) {
+                        putNestedValue(params, key, value);
+                    } else {
+                        params.put(key, value);
+                    }
                 } catch (UnsupportedEncodingException e) {
                     throw new RuntimeException("Unexpected exception", e);
                 }
             }
         }
         return params;
+    }
+
+    private void putNestedValue(Map params, String key, String value) {
+        String[] chain = key.split("[\\[\\]]+");
+        Map outer = params;
+        String innerKey = chain[0];
+        for (int i = 0; i < chain.length -1; i++, innerKey = chain[i]) {
+            Map inner = (Map) outer.get(innerKey);
+            if (inner == null) {
+                inner = new HashMap();
+                outer.put(innerKey, inner);
+            }
+            outer = inner;
+        }
+        outer.put(innerKey, value);
+    }
+
+    private boolean isNestedKey(String key) {
+        return key.matches("\\w+\\[\\w+\\]");
     }
 
     byte[] getUTF8Bytes(String string) {

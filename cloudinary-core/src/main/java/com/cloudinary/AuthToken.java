@@ -5,29 +5,41 @@ import com.cloudinary.utils.StringUtils;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Authentication Token generator
  */
 public class AuthToken {
-    public String tokenName = Cloudinary.AKAMAI_TOKEN_NAME;
+    public static final AuthToken NULL_AUTH_TOKEN = new AuthToken().setNull();
+    public static final String AUTH_TOKEN_NAME = "__cld_token__";
+
+    public String tokenName = AUTH_TOKEN_NAME;
     public String key;
     public long startTime;
-    public long endTime;
+    public long expiration;
     public String ip;
     public String acl;
-    public long window;
+    public long duration;
+    private boolean isNullToken = false;
+
+    public AuthToken() {
+    }
 
     public AuthToken(String key) {
         this.key = key;
     }
 
-    public AuthToken setTokenName(String tokenName) {
+    public AuthToken tokenName(String tokenName) {
         this.tokenName = tokenName;
         return this;
     }
@@ -38,7 +50,7 @@ public class AuthToken {
      * @param startTime in seconds since epoch
      * @return
      */
-    public AuthToken setStartTime(long startTime) {
+    public AuthToken startTime(long startTime) {
         this.startTime = startTime;
         return this;
     }
@@ -46,33 +58,33 @@ public class AuthToken {
     /**
      * Set the end time (expiration) of the token
      *
-     * @param endTime in seconds since epoch
+     * @param expiration in seconds since epoch
      * @return
      */
-    public AuthToken setEndTime(long endTime) {
-        this.endTime = endTime;
+    public AuthToken expiration(long expiration) {
+        this.expiration = expiration;
         return this;
     }
 
-    public AuthToken setIp(String ip) {
+    public AuthToken ip(String ip) {
         this.ip = ip;
         return this;
     }
 
-    public AuthToken setAcl(String acl) {
+    public AuthToken acl(String acl) {
         this.acl = acl;
         return this;
     }
 
     /**
      * The duration of the token in seconds. This value is used to calculate the expiration of the token.
-     * It is ignored if endTime is provided.
+     * It is ignored if expiration is provided.
      *
-     * @param window
+     * @param duration in seconds
      * @return
      */
-    public AuthToken setWindow(long window) {
-        this.window = window;
+    public AuthToken duration(long duration) {
+        this.duration = duration;
         return this;
     }
 
@@ -86,13 +98,13 @@ public class AuthToken {
     }
 
     public String generate(String url) {
-        long expiration = endTime;
+        long expiration = this.expiration;
         if (expiration == 0) {
-            if (window > 0) {
+            if (duration > 0) {
                 final long start = startTime > 0 ? startTime : Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTimeInMillis() / 1000L;
-                expiration = start + window;
+                expiration = start + duration;
             } else {
-                throw new IllegalArgumentException("Must provide either endTime or window");
+                throw new IllegalArgumentException("Must provide either expiration or duration");
             }
         }
         ArrayList<String> tokenParts = new ArrayList<String>();
@@ -103,17 +115,54 @@ public class AuthToken {
             tokenParts.add("st=" + startTime);
         }
         tokenParts.add("exp=" + expiration);
-        if (url != null) {
-            tokenParts.add("url=" + url);
-        } else if (acl != null) {
+        if (acl != null) {
             tokenParts.add("acl=" + acl);
-        } else {
-            throw new IllegalArgumentException("Must provide either url or acl");
         }
-        String auth = digest(StringUtils.join(tokenParts, "~"));
+        ArrayList<String> toSign = new ArrayList<String>(tokenParts);
+        if (url != null) {
+
+            try {
+                toSign.add("url=" + escapeUrl(url));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        String auth = digest(StringUtils.join(toSign, "~"));
         tokenParts.add("hmac=" + auth);
         return tokenName + "=" + StringUtils.join(tokenParts, "~");
 
+    }
+
+    /**
+     * Escape url using lowercase hex code
+     * @param url a url string
+     * @return escaped url
+     * @throws UnsupportedEncodingException see {@link URLEncoder#encode}
+     */
+    private String escapeUrl(String url) throws UnsupportedEncodingException {
+        String escaped;
+        StringBuilder sb= new StringBuilder(URLEncoder.encode(url, "UTF-8"));
+        String regex= "%..";
+        Pattern p = Pattern.compile(regex); // Create the pattern.
+        Matcher matcher = p.matcher(sb); // Create the matcher.
+        while (matcher.find()) {
+            String buf= sb.substring(matcher.start(), matcher.end()).toLowerCase();
+            sb.replace(matcher.start(), matcher.end(), buf);
+        }
+        escaped = sb.toString();
+        return escaped;
+    }
+
+
+    public AuthToken copy() {
+        final AuthToken authToken = new AuthToken(key);
+        authToken.tokenName = tokenName;
+        authToken.startTime = startTime;
+        authToken.expiration = expiration;
+        authToken.ip = ip;
+        authToken.acl = acl;
+        authToken.duration = duration;
+        return authToken;
     }
 
     private String digest(String message) {
@@ -132,5 +181,34 @@ public class AuthToken {
         return null;
     }
 
+    private AuthToken setNull() {
+        isNullToken = true;
+        return this;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof AuthToken) {
+            AuthToken other = (AuthToken) o;
+            return  (isNullToken && other.isNullToken)  ||
+                    key == null ? other.key == null : key.equals(other.key) &&
+                    tokenName.equals(other.tokenName) &&
+                    startTime == other.startTime &&
+                    expiration == other.expiration &&
+                    duration == other.duration &&
+                    (ip == null ? other.ip == null : ip.equals(other.ip)) &&
+                    (acl == null ? other.acl == null : acl.equals(other.acl));
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        if(isNullToken) {
+            return 0;
+        } else {
+            return Arrays.asList(tokenName, startTime, expiration, duration, ip, acl).hashCode();
+        }
+    }
 }

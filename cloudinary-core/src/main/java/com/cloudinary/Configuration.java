@@ -39,6 +39,7 @@ public class Configuration {
     public int timeout;
     public boolean loadStrategies = true;
     public boolean clientHints = false;
+    public AuthToken authToken;
 
     public Configuration() {
     }
@@ -92,6 +93,17 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
+        Map tokenMap = (Map) config.get("auth_token");
+        if (tokenMap != null) {
+            this.authToken = new AuthToken();
+            this.authToken.tokenName = (String) tokenMap.get("tokenName");
+            this.authToken.key = (String) tokenMap.get("key");
+            this.authToken.startTime = ObjectUtils.asLong(tokenMap.get("startTime"), 0L);
+            this.authToken.expiration = ObjectUtils.asLong(tokenMap.get("expiration"),0L);
+            this.authToken.ip = (String) tokenMap.get("ip");
+            this.authToken.acl = (String) tokenMap.get("acl");
+            this.authToken.duration = ObjectUtils.asLong(tokenMap.get("duration"), 0L);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -115,6 +127,7 @@ public class Configuration {
         map.put("load_strategies", loadStrategies);
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
+        map.put("auth_token", authToken.copy());
         return map;
     }
 
@@ -137,6 +150,7 @@ public class Configuration {
         this.useRootPath = other.useRootPath;
         this.timeout = other.timeout;
         this.clientHints = other.clientHints;
+        this.authToken = other.authToken.copy();
     }
 
     /**
@@ -174,6 +188,7 @@ public class Configuration {
         builder.setPrivateCdn(!StringUtils.isEmpty(cloudinaryUri.getPath()));
         builder.setSecureDistribution(cloudinaryUri.getPath());
         if (cloudinaryUri.getQuery() != null) {
+            AuthToken token = null;
             for (String param : cloudinaryUri.getQuery().split("&")) {
                 String[] keyValue = param.split("=");
                 String val = null;
@@ -197,9 +212,32 @@ public class Configuration {
                     builder.setShorten(ObjectUtils.asBoolean(val, false));
                 } else if (key.equals("load_strategies")) {
                     builder.setLoadStrategies(ObjectUtils.asBoolean(val, true));
-                } else {
+                } else if (key.matches("auth_token\\[\\w+\\]")){
+                    if (token == null) {
+                        token = new AuthToken();
+                    }
+                    String subKey = key.substring(key.indexOf('[') + 1, key.indexOf(']') +1);
+                    System.out.println("sub key is " + subKey);
+                    if (subKey.equals("tokenName")) {
+                        token.tokenName  = val;
+                    } else if (subKey.equals("key")) {
+                        token.key = val;
+                    } else if (subKey.equals("startTime")) {
+                        token.startTime = ObjectUtils.asLong(val, 0L);
+                    } else if (subKey.equals("expiration")) {
+                        token.expiration = ObjectUtils.asLong(val, 0L);
+                    } else if (subKey.equals("ip")) {
+                        token.ip = val;
+                    } else if (subKey.equals("acl")) {
+                        token.acl = val;
+                    } else if (subKey.equals("duration")) {
+                        token.duration = ObjectUtils.asLong(val, 0L);
+                    }
 //                	Log.w("Cloudinary", "ignoring invalid parameter " + val);
                 }
+            }
+            if (token != null) {
+                builder.setAuthToken(token);
             }
         }
         return builder.build();
@@ -227,6 +265,7 @@ public class Configuration {
         private boolean loadStrategies = true;
         private int timeout;
         private boolean clientHints = false;
+        private AuthToken authToken;
 
         /**
          * Set the HTTP connection timeout.
@@ -353,6 +392,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setAuthToken(AuthToken authToken) {
+            this.authToken = authToken;
+            return this;
+        }
+
         /**
          * Initialize builder from existing {@link Configuration}
          *
@@ -378,6 +422,7 @@ public class Configuration {
             this.loadStrategies = other.loadStrategies;
             this.timeout = other.timeout;
             this.clientHints = other.clientHints;
+            this.authToken = other.authToken;
             return this;
         }
     }

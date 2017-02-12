@@ -162,4 +162,14 @@ public class ObjectUtils {
         }
     }
 
+    public static Long asLong(Object value, Long defaultValue) {
+        if (value == null) {
+            return defaultValue;
+        } else if (value instanceof Long) {
+            return (Long) value;
+        } else {
+            return Long.parseLong(value.toString());
+        }
+    }
+
 }

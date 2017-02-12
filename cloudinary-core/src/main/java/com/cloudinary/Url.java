@@ -28,6 +28,7 @@ public class Url {
     String version = null;
     Transformation transformation = null;
     boolean signUrl;
+    private AuthToken authToken;
     String source = null;
     private String urlSuffix;
     private Boolean useRootPath;
@@ -45,6 +46,7 @@ public class Url {
     public Url(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
         this.config = new Configuration(cloudinary.config);
+        this.authToken = config.authToken;
     }
 
     public Url clone() {
@@ -210,6 +212,11 @@ public class Url {
         return this;
     }
 
+    public Url authToken(AuthToken authToken) {
+        this.authToken = authToken;
+        return this;
+    }
+
     public Url sourceTransformation(Map<String, Transformation> sourceTransformation) {
         this.sourceTransformation = sourceTransformation;
         return this;
@@ -346,7 +353,7 @@ public class Url {
             version = "v" + version;
 
 
-        if (signUrl) {
+        if (signUrl && authToken == null) {
             MessageDigest md = null;
             try {
                 md = MessageDigest.getInstance("SHA-1");
@@ -367,7 +374,12 @@ public class Url {
         String finalResourceType = finalizeResourceType(resourceType, type, urlSuffix, useRootPath, config.shorten);
         String prefix = unsignedDownloadUrlPrefix(source, config.cloudName, config.privateCdn, config.cdnSubdomain, config.secureCdnSubdomain, config.cname, config.secure, config.secureDistribution);
 
-        return StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+        String s = "/" + StringUtils.join(new String[]{finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+        if (signUrl && authToken != null && !authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
+            String token = authToken.generate(s);
+            s = s + "?" + token;
+        }
+        return prefix + s;
     }
 
     private String[] finalizeSource(String source, String format, String urlSuffix) {

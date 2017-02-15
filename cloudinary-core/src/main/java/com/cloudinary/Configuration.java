@@ -95,14 +95,7 @@ public class Configuration {
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
-            this.authToken = new AuthToken();
-            this.authToken.tokenName = (String) tokenMap.get("tokenName");
-            this.authToken.key = (String) tokenMap.get("key");
-            this.authToken.startTime = ObjectUtils.asLong(tokenMap.get("startTime"), 0L);
-            this.authToken.expiration = ObjectUtils.asLong(tokenMap.get("expiration"),0L);
-            this.authToken.ip = (String) tokenMap.get("ip");
-            this.authToken.acl = (String) tokenMap.get("acl");
-            this.authToken.duration = ObjectUtils.asLong(tokenMap.get("duration"), 0L);
+            this.authToken = new AuthToken(tokenMap);
         }
     }
 
@@ -127,7 +120,9 @@ public class Configuration {
         map.put("load_strategies", loadStrategies);
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
-        map.put("auth_token", authToken.copy());
+        if (authToken != null) {
+            map.put("auth_token", authToken.copy());
+        }
         return map;
     }
 
@@ -150,7 +145,9 @@ public class Configuration {
         this.useRootPath = other.useRootPath;
         this.timeout = other.timeout;
         this.clientHints = other.clientHints;
-        this.authToken = other.authToken.copy();
+        if (other.authToken != null) {
+            this.authToken = other.authToken.copy();
+        }
     }
 
     /**
@@ -172,75 +169,65 @@ public class Configuration {
      * @return a new configuration with the arguments supplied by the url
      */
     public static Configuration from(String cloudinaryUrl) {
-        return from(parseConfigUrl(cloudinaryUrl));
+        Configuration config = new Configuration();
+        config.update(parseConfigUrl(cloudinaryUrl));
+        return config;
     }
 
-    private static Configuration parseConfigUrl(String cloudinaryUrl) {
-        Builder builder = new Builder();
 
+    static protected Map parseConfigUrl(String cloudinaryUrl) {
+        Map params = new HashMap();
         URI cloudinaryUri = URI.create(cloudinaryUrl);
-        builder.setCloudName(cloudinaryUri.getHost());
+        params.put("cloud_name", cloudinaryUri.getHost());
         if (cloudinaryUri.getUserInfo() != null) {
             String[] creds = cloudinaryUri.getUserInfo().split(":");
-            builder.setApiKey(creds[0]);
-            builder.setApiSecret(creds[1]);
+            params.put("api_key", creds[0]);
+            if (creds.length > 1) {
+                params.put("api_secret", creds[1]);
+            }
         }
-        builder.setPrivateCdn(!StringUtils.isEmpty(cloudinaryUri.getPath()));
-        builder.setSecureDistribution(cloudinaryUri.getPath());
+        params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
+        params.put("secure_distribution", cloudinaryUri.getPath());
+        updateMapfromURI(params, cloudinaryUri);
+        return params;
+    }
+
+    static private void updateMapfromURI(Map params, URI cloudinaryUri) {
         if (cloudinaryUri.getQuery() != null) {
-            AuthToken token = null;
             for (String param : cloudinaryUri.getQuery().split("&")) {
                 String[] keyValue = param.split("=");
-                String val = null;
                 try {
-//                    params.put(keyValue[0], URLDecoder.decode(keyValue[1], "ASCII"));
-                    val = URLDecoder.decode(keyValue[1], "ASCII");
+                    final String value = URLDecoder.decode(keyValue[1], "ASCII");
+                    final String key = keyValue[0];
+                    if(isNestedKey(key)) {
+                        putNestedValue(params, key, value);
+                    } else {
+                        params.put(key, value);
+                    }
                 } catch (UnsupportedEncodingException e) {
-                    throw new IllegalArgumentException("Error decoding cloudinaryUrl", e);
+                    throw new RuntimeException("Unexpected exception", e);
                 }
-
-                String key = keyValue[0];
-                if (key.equals("cname")) {
-                    builder.setCname(val);
-                } else if (key.equals("upload_prefix")) {
-                    builder.setUploadPrefix(val);
-                } else if (key.equals("secure")) {
-                    builder.setSecure(ObjectUtils.asBoolean(val, false));
-                } else if (key.equals("cdn_subdomain")) {
-                    builder.setCdnSubdomain(ObjectUtils.asBoolean(val, false));
-                } else if (key.equals("shorten")) {
-                    builder.setShorten(ObjectUtils.asBoolean(val, false));
-                } else if (key.equals("load_strategies")) {
-                    builder.setLoadStrategies(ObjectUtils.asBoolean(val, true));
-                } else if (key.matches("auth_token\\[\\w+\\]")){
-                    if (token == null) {
-                        token = new AuthToken();
-                    }
-                    String subKey = key.substring(key.indexOf('[') + 1, key.indexOf(']') +1);
-                    System.out.println("sub key is " + subKey);
-                    if (subKey.equals("tokenName")) {
-                        token.tokenName  = val;
-                    } else if (subKey.equals("key")) {
-                        token.key = val;
-                    } else if (subKey.equals("startTime")) {
-                        token.startTime = ObjectUtils.asLong(val, 0L);
-                    } else if (subKey.equals("expiration")) {
-                        token.expiration = ObjectUtils.asLong(val, 0L);
-                    } else if (subKey.equals("ip")) {
-                        token.ip = val;
-                    } else if (subKey.equals("acl")) {
-                        token.acl = val;
-                    } else if (subKey.equals("duration")) {
-                        token.duration = ObjectUtils.asLong(val, 0L);
-                    }
-//                	Log.w("Cloudinary", "ignoring invalid parameter " + val);
-                }
-            }
-            if (token != null) {
-                builder.setAuthToken(token);
             }
         }
-        return builder.build();
+    }
+
+    static private void putNestedValue(Map params, String key, String value) {
+        String[] chain = key.split("[\\[\\]]+");
+        Map outer = params;
+        String innerKey = chain[0];
+        for (int i = 0; i < chain.length -1; i++, innerKey = chain[i]) {
+            Map inner = (Map) outer.get(innerKey);
+            if (inner == null) {
+                inner = new HashMap();
+                outer.put(innerKey, inner);
+            }
+            outer = inner;
+        }
+        outer.put(innerKey, value);
+    }
+
+    static private boolean isNestedKey(String key) {
+        return key.matches("\\w+\\[\\w+\\]");
     }
 
     /**
@@ -422,7 +409,7 @@ public class Configuration {
             this.loadStrategies = other.loadStrategies;
             this.timeout = other.timeout;
             this.clientHints = other.clientHints;
-            this.authToken = other.authToken;
+            this.authToken = other.authToken == null ? null : other.authToken.copy();
             return this;
         }
     }

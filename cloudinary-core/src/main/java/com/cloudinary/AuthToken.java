@@ -1,5 +1,6 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 import javax.crypto.Mac;
@@ -9,10 +10,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +18,9 @@ import java.util.regex.Pattern;
  * Authentication Token generator
  */
 public class AuthToken {
+    /**
+     * A null AuthToken, which can be passed to a method to override global settings.
+     */
     public static final AuthToken NULL_AUTH_TOKEN = new AuthToken().setNull();
     public static final String AUTH_TOKEN_NAME = "__cld_token__";
 
@@ -39,6 +40,29 @@ public class AuthToken {
         this.key = key;
     }
 
+    /**
+     * Create a new AuthToken configuration.
+     *
+     * @param options The following keys may be used in the options: key, startTime, expiration, ip, acl, duration.
+     */
+    public AuthToken(Map options) {
+        if (options != null) {
+            this.tokenName = ObjectUtils.asString( options.get("tokenName"), this.tokenName);
+            this.key = (String) options.get("key");
+            this.startTime = ObjectUtils.asLong(options.get("startTime"), 0L);
+            this.expiration = ObjectUtils.asLong(options.get("expiration"),0L);
+            this.ip = (String) options.get("ip");
+            this.acl = (String) options.get("acl");
+            this.duration = ObjectUtils.asLong(options.get("duration"), 0L);
+        }
+
+    }
+
+    /**
+     * Create a new AuthToken configuration overriding the default token name.
+     * @param tokenName the name of the token. must be supported by the server.
+     * @return this
+     */
     public AuthToken tokenName(String tokenName) {
         this.tokenName = tokenName;
         return this;
@@ -48,7 +72,7 @@ public class AuthToken {
      * Set the start time of the token. Defaults to now.
      *
      * @param startTime in seconds since epoch
-     * @return
+     * @return this
      */
     public AuthToken startTime(long startTime) {
         this.startTime = startTime;
@@ -59,18 +83,28 @@ public class AuthToken {
      * Set the end time (expiration) of the token
      *
      * @param expiration in seconds since epoch
-     * @return
+     * @return this
      */
     public AuthToken expiration(long expiration) {
         this.expiration = expiration;
         return this;
     }
 
+    /**
+     * Set the ip of the client
+     * @param ip
+     * @return this
+     */
     public AuthToken ip(String ip) {
         this.ip = ip;
         return this;
     }
 
+    /**
+     * Define an ACL for a cookie token
+     * @param acl
+     * @return this
+     */
     public AuthToken acl(String acl) {
         this.acl = acl;
         return this;
@@ -81,7 +115,7 @@ public class AuthToken {
      * It is ignored if expiration is provided.
      *
      * @param duration in seconds
-     * @return
+     * @return this
      */
     public AuthToken duration(long duration) {
         this.duration = duration;
@@ -97,6 +131,11 @@ public class AuthToken {
         return generate(null);
     }
 
+    /**
+     * Generate a URL token for the given URL.
+     * @param url the URL to be authorized
+     * @return a URL token
+     */
     public String generate(String url) {
         long expiration = this.expiration;
         if (expiration == 0) {
@@ -116,16 +155,11 @@ public class AuthToken {
         }
         tokenParts.add("exp=" + expiration);
         if (acl != null) {
-            tokenParts.add("acl=" + acl);
+            tokenParts.add("acl=" + escapeToLower(acl));
         }
         ArrayList<String> toSign = new ArrayList<String>(tokenParts);
         if (url != null) {
-
-            try {
-                toSign.add("url=" + escapeUrl(url));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            toSign.add("url=" + escapeToLower(url));
         }
         String auth = digest(StringUtils.join(toSign, "~"));
         tokenParts.add("hmac=" + auth);
@@ -137,11 +171,16 @@ public class AuthToken {
      * Escape url using lowercase hex code
      * @param url a url string
      * @return escaped url
-     * @throws UnsupportedEncodingException see {@link URLEncoder#encode}
      */
-    private String escapeUrl(String url) throws UnsupportedEncodingException {
+    private String escapeToLower(String url) {
         String escaped;
-        StringBuilder sb= new StringBuilder(URLEncoder.encode(url, "UTF-8"));
+        String encodedUrl = null;
+        try {
+            encodedUrl = URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Cannot escape string.", e);
+        }
+        StringBuilder sb= new StringBuilder(encodedUrl);
         String regex= "%..";
         Pattern p = Pattern.compile(regex); // Create the pattern.
         Matcher matcher = p.matcher(sb); // Create the matcher.
@@ -154,6 +193,10 @@ public class AuthToken {
     }
 
 
+    /**
+     * Create a copy of this AuthToken
+     * @return a new AuthToken object
+     */
     public AuthToken copy() {
         final AuthToken authToken = new AuthToken(key);
         authToken.tokenName = tokenName;
@@ -165,6 +208,27 @@ public class AuthToken {
         return authToken;
     }
 
+    /**
+     * Merge this token with another, creating a new token. Other's members who are not <code>null</code> or <code>0</code> will override this object's members.
+     * @param other the token to merge from
+     * @return a new token
+     */
+    public AuthToken merge(AuthToken other) {
+        if(other.equals(NULL_AUTH_TOKEN)) {
+            // NULL_AUTH_TOKEN can't merge
+            return other;
+        }
+        AuthToken merged = new AuthToken();
+        merged.key = other.key != null ? other.key : this.key;
+        merged.tokenName = other.tokenName != null ? other.tokenName : this.tokenName;
+        merged.startTime = other.startTime != 0 ? other.startTime : this.startTime;
+        merged.expiration = other.expiration != 0 ? other.expiration : this.expiration;
+        merged.ip = other.ip != null ? other.ip : this.ip;
+        merged.acl = other.acl != null ? other.acl : this.acl;
+        merged.duration = other.duration != 0 ? other.duration : this.duration;
+        return merged;
+    }
+
     private String digest(String message) {
         byte[] binKey = DatatypeConverter.parseHexBinary(key);
         try {
@@ -174,11 +238,10 @@ public class AuthToken {
             final byte[] bytes = message.getBytes();
             return DatatypeConverter.printHexBinary(hmac.doFinal(bytes)).toLowerCase();
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot create authorization token.", e);
         } catch (InvalidKeyException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Cannot create authorization token.", e);
         }
-        return null;
     }
 
     private AuthToken setNull() {
@@ -191,7 +254,7 @@ public class AuthToken {
         if(o instanceof AuthToken) {
             AuthToken other = (AuthToken) o;
             return  (isNullToken && other.isNullToken)  ||
-                    key == null ? other.key == null : key.equals(other.key) &&
+                    (key == null ? other.key == null : key.equals(other.key)) &&
                     tokenName.equals(other.tokenName) &&
                     startTime == other.startTime &&
                     expiration == other.expiration &&

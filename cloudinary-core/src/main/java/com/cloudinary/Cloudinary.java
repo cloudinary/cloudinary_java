@@ -89,14 +89,14 @@ public class Cloudinary {
     }
 
     public Cloudinary(String cloudinaryUrl) {
-        this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+        this.config = Configuration.from(cloudinaryUrl);
         loadStrategies();
     }
 
     public Cloudinary() {
         String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
         if (cloudinaryUrl != null) {
-            this.config = new Configuration(parseConfigUrl(cloudinaryUrl));
+            this.config = Configuration.from(cloudinaryUrl);
         } else {
             this.config = new Configuration();
         }
@@ -237,57 +237,6 @@ public class Cloudinary {
             first = false;
         }
         return urlBuilder.toString();
-    }
-
-    protected Map parseConfigUrl(String cloudinaryUrl) {
-        Map params = new HashMap();
-        URI cloudinaryUri = URI.create(cloudinaryUrl);
-        params.put("cloud_name", cloudinaryUri.getHost());
-        if (cloudinaryUri.getUserInfo() != null) {
-            String[] creds = cloudinaryUri.getUserInfo().split(":");
-            params.put("api_key", creds[0]);
-            if (creds.length > 1) {
-                params.put("api_secret", creds[1]);
-            }
-        }
-        params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
-        params.put("secure_distribution", cloudinaryUri.getPath());
-        if (cloudinaryUri.getQuery() != null) {
-            for (String param : cloudinaryUri.getQuery().split("&")) {
-                String[] keyValue = param.split("=");
-                try {
-                    final String value = URLDecoder.decode(keyValue[1], "ASCII");
-                    final String key = keyValue[0];
-                    if(isNestedKey(key)) {
-                        putNestedValue(params, key, value);
-                    } else {
-                        params.put(key, value);
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("Unexpected exception", e);
-                }
-            }
-        }
-        return params;
-    }
-
-    private void putNestedValue(Map params, String key, String value) {
-        String[] chain = key.split("[\\[\\]]+");
-        Map outer = params;
-        String innerKey = chain[0];
-        for (int i = 0; i < chain.length -1; i++, innerKey = chain[i]) {
-            Map inner = (Map) outer.get(innerKey);
-            if (inner == null) {
-                inner = new HashMap();
-                outer.put(innerKey, inner);
-            }
-            outer = inner;
-        }
-        outer.put(innerKey, value);
-    }
-
-    private boolean isNestedKey(String key) {
-        return key.matches("\\w+\\[\\w+\\]");
     }
 
     byte[] getUTF8Bytes(String string) {

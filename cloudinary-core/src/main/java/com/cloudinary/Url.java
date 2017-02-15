@@ -1,6 +1,8 @@
 package com.cloudinary;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -212,8 +214,30 @@ public class Url {
         return this;
     }
 
+    /**
+     * Set the authorization token. If <code>authToken</code> has already been set the parameter is <b>merged</b> with the current value unless the parameter value is <code>null</code> or <code>NULL_AUTH_TOKEN</code>.<br><br>
+     *  For example, to generate an authorized URL with a different duration:<br>
+     *  <pre class="prettyprint">
+     *  {@code
+     *   cloudinary.config.authToken = new AuthToken(KEY).duration(500);
+     *   // later...
+     *   cloudinary.url().signed(true).authToken(new AuthToken().duration(300))
+     *                   .type("authenticated").version("1486020273").generate("sample.jpg");
+     *  }
+     *</pre>
+     * @param authToken an authorization token object
+     * @return this
+     *
+     *
+     */
     public Url authToken(AuthToken authToken) {
-        this.authToken = authToken;
+        if (this.authToken == null) {
+            this.authToken = authToken;
+        } else if(authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
+            this.authToken = authToken;
+        } else {
+            this.authToken = this.authToken.merge(authToken);
+        }
         return this;
     }
 
@@ -353,7 +377,7 @@ public class Url {
             version = "v" + version;
 
 
-        if (signUrl && authToken == null) {
+        if (signUrl && (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN))) {
             MessageDigest md = null;
             try {
                 md = MessageDigest.getInstance("SHA-1");
@@ -374,12 +398,18 @@ public class Url {
         String finalResourceType = finalizeResourceType(resourceType, type, urlSuffix, useRootPath, config.shorten);
         String prefix = unsignedDownloadUrlPrefix(source, config.cloudName, config.privateCdn, config.cdnSubdomain, config.secureCdnSubdomain, config.cname, config.secure, config.secureDistribution);
 
-        String s = "/" + StringUtils.join(new String[]{finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+        String url = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+
         if (signUrl && authToken != null && !authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
-            String token = authToken.generate(s);
-            s = s + "?" + token;
+            try {
+                URL tempUrl = new URL(url);
+                String path = tempUrl.getPath();
+                String token = authToken.generate(path);
+                url = url + "?" + token;
+            } catch (MalformedURLException ignored) {
+            }
         }
-        return prefix + s;
+        return url;
     }
 
     private String[] finalizeSource(String source, String format, String urlSuffix) {

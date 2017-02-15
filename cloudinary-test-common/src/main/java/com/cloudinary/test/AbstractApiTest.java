@@ -7,6 +7,7 @@ import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
@@ -37,6 +38,9 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String API_TEST_UPLOAD_PRESET_3 = API_TEST_UPLOAD_PRESET + "3";
     public static final String API_TEST_UPLOAD_PRESET_4 = API_TEST_UPLOAD_PRESET + "4";
     public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, uniqueTag};
+    public static final String EXPLICIT_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + ",w_100";
+    public static final Transformation EXPLICIT_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX).fontFamily("Arial").fontSize(60));
+
     protected Api api;
 
     @BeforeClass
@@ -47,7 +51,7 @@ abstract public class AbstractApiTest extends MockableTest {
             return;
         }
         Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "key=value", "eager",
-                Collections.singletonList(new Transformation().width(100).crop("scale")));
+                Collections.singletonList(EXPLICIT_TRANSFORMATION));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         options.put("public_id", API_TEST_1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
@@ -330,7 +334,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void test12Transformations() throws Exception {
         // should allow listing transformations
         Map result = api.transformations(ObjectUtils.emptyMap());
-        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", "c_scale,w_100");
+        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", EXPLICIT_TRANSFORMATION_NAME);
 
         assertNotNull(transformation);
         assertTrue((Boolean) transformation.get("used"));
@@ -339,22 +343,21 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test13TransformationMetadata() throws Exception {
         // should allow getting transformation metadata
-        final Transformation tr = new Transformation().crop("scale").width(100);
-        preloadResource(ObjectUtils.asMap("eager", Collections.singletonList(tr)));
-        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.asMap("max_results", 500));
+        preloadResource(ObjectUtils.asMap("eager", Collections.singletonList(EXPLICIT_TRANSFORMATION)));
+        Map transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("max_results", 500));
         assertNotNull(transformation);
-        assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), tr.generate());
+        assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), EXPLICIT_TRANSFORMATION.generate());
     }
 
     @Test
     public void test14TransformationUpdate() throws Exception {
         // should allow updating transformation allowed_for_strict
-        api.updateTransformation("c_scale,w_100", ObjectUtils.asMap("allowed_for_strict", true), ObjectUtils.emptyMap());
-        Map transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
+        api.updateTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", true), ObjectUtils.emptyMap());
+        Map transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
-        api.updateTransformation("c_scale,w_100", ObjectUtils.asMap("allowed_for_strict", false), ObjectUtils.emptyMap());
-        transformation = api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
+        api.updateTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", false), ObjectUtils.emptyMap());
+        transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), false);
     }
@@ -398,8 +401,8 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test17aTransformationDeleteImplicit() throws Exception {
         // should allow deleting implicit transformation
-        api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
-        api.deleteTransformation("c_scale,w_100", ObjectUtils.emptyMap());
+        api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        api.deleteTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -420,7 +423,7 @@ abstract public class AbstractApiTest extends MockableTest {
      */
     @Test(expected = NotFound.class)
     public void test17bTransformationDeleteImplicit() throws Exception {
-        api.transformation("c_scale,w_100", ObjectUtils.emptyMap());
+        api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -556,9 +559,7 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow getting a single upload_preset
         String[] tags = {"a", "b", "c"};
         Map context = ObjectUtils.asMap("a", "b", "c", "d");
-        Transformation transformation = new Transformation();
-        transformation.width(100).crop("scale");
-        Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", transformation, "tags", tags, "context",
+        Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", EXPLICIT_TRANSFORMATION, "tags", tags, "context",
                 context));
         String name = result.get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());

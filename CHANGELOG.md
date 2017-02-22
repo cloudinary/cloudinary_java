@@ -1,4 +1,13 @@
 
+1.8.1 / 2017-02-22
+==================
+
+  * Add support for URL authorization token.
+  * Refactor AuthToken.
+  * Refactor tests for stability
+  * Support nested objects in CLOUDINARY_URL. e.g. foo[bar]=100.
+  * Add maven items to `.gitignore`.
+
 1.8.0 / 2017-02-08
 ==================
 

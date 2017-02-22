@@ -22,15 +22,15 @@ public class AuthToken {
      * A null AuthToken, which can be passed to a method to override global settings.
      */
     public static final AuthToken NULL_AUTH_TOKEN = new AuthToken().setNull();
-    public static final String AUTH_TOKEN_NAME = "__cld_token__";
+    private static final String AUTH_TOKEN_NAME = "__cld_token__";
 
-    public String tokenName = AUTH_TOKEN_NAME;
-    public String key;
-    public long startTime;
-    public long expiration;
-    public String ip;
-    public String acl;
-    public long duration;
+    private String tokenName = AUTH_TOKEN_NAME;
+    private String key;
+    private long startTime;
+    private long expiration;
+    private String ip;
+    private String acl;
+    private long duration;
     private boolean isNullToken = false;
 
     public AuthToken() {

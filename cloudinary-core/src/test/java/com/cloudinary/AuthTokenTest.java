@@ -95,18 +95,15 @@ public class AuthTokenTest {
     @Test
     public void testConfiguration() {
         cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false&auth_token[key]=aabbcc112233&auth_token[duration]=200");
-
-        assertEquals(cloudinary.config.authToken.key, "aabbcc112233");
-        assertEquals(cloudinary.config.authToken.duration, 200);
-
+        assertEquals(cloudinary.config.authToken, new AuthToken("aabbcc112233").duration(200));
     }
 
     @Test
     public void testTokenGeneration(){
         AuthToken token = new AuthToken(KEY);
-        token.duration = 300;
+        token.duration(300);
         String user = "foobar"; // username taken from elsewhere
-        token.acl = "/*/t_" + user;
+        token.acl("/*/t_" + user);
         token.startTime(222222222); // we can't rely on the default "now" value in tests
         String cookieToken = token.generate();
         assertEquals("__cld_token__=st=222222222~exp=222222522~acl=%2f*%2ft_foobar~hmac=8e39600cc18cec339b21fe2b05fcb64b98de373355f8ce732c35710d8b10259f", cookieToken);

@@ -1,6 +1,8 @@
 package com.cloudinary.transformation;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.cloudinary.SmartUrlEncoder;
 import com.cloudinary.utils.StringUtils;
@@ -81,7 +83,20 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     }
 
     public TextLayer text(String text) {
-        this.text = SmartUrlEncoder.encode(text).replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
+        String part;
+        StringBuffer result = new StringBuffer();
+        // Don't encode interpolation expressions e.g. $(variable)
+        Matcher m = Pattern.compile("\\$\\([a-zA-Z]\\w+\\)").matcher(text);
+        int start = 0;
+        while (m.find()) {
+            part = text.substring(start, m.start());
+            part = SmartUrlEncoder.encode(part);
+            result.append(part); // append encoded pre-match
+            result.append(m.group()); // append match
+            start = m.end();
+        }
+        result.append(SmartUrlEncoder.encode(text.substring(start)));
+        this.text = result.toString().replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
         return getThis();
     }
 

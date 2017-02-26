@@ -172,6 +172,7 @@ public class Cloudinary {
         params.put("format", format);
         params.put("attachment", options.get("attachment"));
         params.put("type", options.get("type"));
+        params.put("expires_at", options.get("expires_at"));
         params.put("timestamp", Util.timestamp());
         signRequest(params, options);
         return buildUrl(cloudinaryApiUrl("download", options), params);

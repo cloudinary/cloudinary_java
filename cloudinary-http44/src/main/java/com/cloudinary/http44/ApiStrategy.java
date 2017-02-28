@@ -9,6 +9,7 @@ import com.cloudinary.http44.api.Response;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
+import org.apache.http.Consts;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -155,7 +156,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
                 default:
                     throw new IllegalArgumentException("Unknown HTTP method");
             }
-            ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parameters));
+            ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parameters, Consts.UTF_8));
         }
 
         ApiUtils.setTimeouts(request, options);

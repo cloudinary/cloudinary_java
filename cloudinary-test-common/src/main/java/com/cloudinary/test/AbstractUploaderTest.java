@@ -168,6 +168,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testUploadAsync() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("transformation", new Transformation().crop("scale").width(2.0), "async", true));
+        assertEquals((String)result.get("status"), "pending");
+    }
+
+    @Test
     public void testHeaders() throws IOException {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("headers", new String[]{"Link: 1"}, "tags", SDK_TEST_TAG));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("headers", asMap("Link", "1"), "tags", SDK_TEST_TAG));

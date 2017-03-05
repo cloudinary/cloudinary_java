@@ -81,7 +81,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     }
 
     public TextLayer text(String text) {
-        this.text = SmartUrlEncoder.encode(text).replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
+        this.text = SmartUrlEncoder.encode(text).replace("%2C", "%252C").replace("/", "%252F");
         return getThis();
     }
 

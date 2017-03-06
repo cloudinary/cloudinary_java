@@ -20,6 +20,7 @@ public class ArchiveParams {
     private boolean useOriginalFilename = false;
     private boolean async = false;
     private boolean keepDerived = false;
+    private boolean skipTransformationName = false;
     private String notificationUrl = null;
     private String[] targetTags = null;
     private String[] tags = null;
@@ -110,6 +111,15 @@ public class ArchiveParams {
         return this;
     }
 
+    public boolean isSkipTransformationName() {
+        return skipTransformationName;
+    }
+
+    public ArchiveParams skipTransformationName(boolean skipTransformationName) {
+        this.skipTransformationName = skipTransformationName;
+        return this;
+    }
+
     public boolean isKeepDerived() {
         return keepDerived;
     }
@@ -185,6 +195,7 @@ public class ArchiveParams {
         params.put("use_original_filename", useOriginalFilename);
         params.put("async", async);
         params.put("keep_derived", keepDerived);
+        params.put("skip_transformation_name", skipTransformationName);
         if (notificationUrl != null)
             params.put("notification_url", notificationUrl);
         if (targetTags != null)

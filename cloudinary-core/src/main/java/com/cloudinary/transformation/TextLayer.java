@@ -96,7 +96,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
             start = m.end();
         }
         result.append(SmartUrlEncoder.encode(text.substring(start)));
-        this.text = result.toString().replace("%2C", "%E2%80%9A").replace("/", "%E2%81%84");
+        this.text = result.toString().replace("%2C", "%252C").replace("/", "%252F");
         return getThis();
     }
 

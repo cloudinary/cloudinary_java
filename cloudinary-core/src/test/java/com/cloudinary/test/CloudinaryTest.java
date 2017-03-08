@@ -407,6 +407,13 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testArtisticFilter(){
+        Transformation transformation = new Transformation().effect("art", "incognito");
+        String result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "e_art:incognito/test", result);
+    }
+
+    @Test
     public void testDensity() {
         // should support density
         Transformation transformation = new Transformation().density(150);

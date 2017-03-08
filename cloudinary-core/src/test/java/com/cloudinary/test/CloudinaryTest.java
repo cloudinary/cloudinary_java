@@ -298,6 +298,13 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testAutoGravity(){
+        Transformation transformation = new Transformation().crop("crop").gravity("auto").width(0.5f);
+        String result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,g_auto,w_0.5/test", result);
+    }
+
+    @Test
     public void testTransformationSimple() {
         // should support named transformation
         Transformation transformation = new Transformation().named("blip");

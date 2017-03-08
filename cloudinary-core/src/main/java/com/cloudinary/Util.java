@@ -8,7 +8,7 @@ import org.cloudinary.json.JSONObject;
 
 public class Util {
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
-            "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token"};
+            "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token", "async"};
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildUploadParams(Map options) {

@@ -6,6 +6,7 @@ import java.util.regex.Pattern;
 
 import com.cloudinary.transformation.AbstractLayer;
 import com.cloudinary.transformation.Condition;
+import com.cloudinary.transformation.Expression;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -365,6 +366,25 @@ public class Transformation {
         return param("if", condition);
     }
 
+
+    /**
+     * Define a conditional transformation
+     * @param expression a condition
+     * @return the transformation for chaining
+     */
+    public Transformation ifCondition(Expression expression) {
+        return ifCondition(expression.toString());
+    }
+
+    /**
+     * Define a conditional transformation
+     * @param condition a condition
+     * @return the transformation for chaining
+     */
+    public Transformation ifCondition(Condition condition) {
+        return ifCondition(condition.toString());
+    }
+
     public Transformation ifElse() {
         chain();
         return param("if", "else");
@@ -530,24 +550,32 @@ public class Transformation {
         String dpr = ObjectUtils.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
 
         SortedMap<String, String> params = new TreeMap<String, String>();
-        params.put("a", angle);
+
+        params.put("a", Expression.normalize(angle));
+        params.put("ar", Expression.normalize( options.get("aspect_ratio")));
         params.put("b", background);
         params.put("c", crop);
         params.put("co", color);
-        params.put("dpr", dpr);
+        params.put("dpr", Expression.normalize(dpr));
         params.put("du", duration);
         params.put("eo", endOffset);
         params.put("fl", flags);
-        params.put("h", height);
+        params.put("h", Expression.normalize(height));
+        params.put("o", Expression.normalize( options.get("opacity")));
+        params.put("q", Expression.normalize( options.get("quality")));
+        params.put("q", Expression.normalize( options.get("quality")));
+        params.put("r", Expression.normalize( options.get("radius")));
         params.put("so", startOffset);
         params.put("t", namedTransformation);
         params.put("vc", videoCodec);
-        params.put("w", width);
+        params.put("w", Expression.normalize(width));
+        params.put("x", Expression.normalize( options.get("x")));
+        params.put("y", Expression.normalize( options.get("y")));
+        params.put("z", Expression.normalize( options.get("zoom")));
 
         String[] simple_params = new String[]{
                 "ac", "audio_codec",
                 "af", "audio_frequency",
-                "ar", "aspect_ratio",
                 "bo", "border",
                 "br", "bit_rate",
                 "cs", "color_space",
@@ -558,21 +586,39 @@ public class Transformation {
                 "f", "fetch_format",
                 "g", "gravity",
                 "l", "overlay",
-                "o", "opacity",
                 "p", "prefix",
                 "pg", "page",
-                "q", "quality",
-                "r", "radius",
                 "u", "underlay",
-                "vs", "video_sampling",
-                "x", "x",
-                "y", "y",
-                "z", "zoom"};
+                "vs", "video_sampling"
+                };
 
         for (int i = 0; i < simple_params.length; i += 2) {
             params.put(simple_params[i], ObjectUtils.asString(options.get(simple_params[i + 1])));
         }
         List<String> components = new ArrayList<String>();
+
+        String ifValue = (String) options.get("if");
+        if(ifValue != null){
+            components.add(0, "if_" + Expression.normalize(ifValue));
+        }
+
+        List<String> varParams = new ArrayList<String>();
+        for( Object k: options.keySet()) {
+            String key = (String) k;
+            if(key.matches("^\\$[a-zA-Z0-9]+$")) {
+                varParams.add(key + "_" + ObjectUtils.asString(options.get(k)));
+            }
+        }
+
+        String variables = processVar((Expression[]) options.get("variables"));
+        if (variables != null) {
+            varParams.add(variables);
+        }
+
+        if (varParams != null && !varParams.isEmpty()) {
+            components.add(StringUtils.join(varParams, ","));
+        }
+
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (StringUtils.isNotBlank(param.getValue())) {
                 components.add(param.getKey() + "_" + param.getValue());
@@ -582,14 +628,9 @@ public class Transformation {
         if (raw_transformation != null) {
             components.add(raw_transformation);
         }
-
-        String ifValue = (String) options.get("if");
-        if(ifValue != null){
-            components.add(0, "if_" + new Condition(ifValue).toString());
-        }
-
         if (!components.isEmpty()) {
-            transformations.add(StringUtils.join(components, ","));
+            final String joined = StringUtils.join(components, ",");
+            transformations.add(Expression.normalize(joined));
         }
 
         if (isResponsive) {
@@ -605,6 +646,17 @@ public class Transformation {
         }
 
         return StringUtils.join(transformations, "/");
+    }
+
+    private String processVar(Expression[] variables) {
+        if(variables == null) {
+            return null;
+        }
+        List<String> s = new ArrayList<String>(variables.length);
+        for(Expression variable: variables) {
+            s.add(variable.toString());
+        }
+        return StringUtils.join(s, ",");
     }
 
     /**
@@ -708,6 +760,25 @@ public class Transformation {
             }
         }
         return outParam.toString();
+    }
+
+    /**
+     * Add a variable assignment. Each call to this method will add a new variable assignments, but the order of the assignments may change. To enforce a particular order, use {@link #variables(Expression...)}
+     * @param name the name of the variable
+     * @param value the value to assign to the variable
+     * @return this for chaining
+     */
+    public Transformation variable(String name, Object value) {
+        return param(name, value);
+    }
+
+    /**
+     * Add a sequence of variable assignments. The order of the assignments will be honored.
+     * @param variables variable expressions
+     * @return this for chaining
+     */
+    public Transformation variables(Expression...variables) {
+        return param("variables", variables);
     }
 
 }

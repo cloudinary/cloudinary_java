@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -533,12 +534,14 @@ public class CloudinaryTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testPrivateDownload() throws Exception {
-        String url = cloudinary.privateDownload("imgÿ=&é", "jpg", emptyMap());
+        long inTwentyMinutes = System.currentTimeMillis() / 1000 + 20 * 60;
+        String url = cloudinary.privateDownload("imgÿ=&é", "jpg", Collections.<String, Object>singletonMap("expires_at", inTwentyMinutes));
         URI uri = new URI(url);
         Map<String, String> parameters = getUrlParameters(uri);
         assertEquals("imgÿ=&é", parameters.get("public_id"));
         assertEquals("jpg", parameters.get("format"));
         assertEquals("a", parameters.get("api_key"));
+        assertEquals(String.valueOf(inTwentyMinutes), parameters.get("expires_at"));
         assertEquals("/v1_1/test123/image/download", uri.getPath());
     }
 

@@ -1,15 +1,17 @@
 package com.cloudinary;
 
+import com.cloudinary.transformation.Condition;
+import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.cloudinary.json.JSONArray;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import static com.cloudinary.transformation.Expression.faceCount;
+import static com.cloudinary.transformation.Expression.variable;
 import static org.junit.Assert.*;
 
 /**
@@ -140,5 +142,46 @@ public class TransformationTest {
         assertEquals("force the if_else clause to be chained", "if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end", transformation.toString());
 
     }
+    
+    @Test
+    public void testArrayShouldDefineASetOfVariables() {
+        // using methods
+        Transformation t = new Transformation();
+        t.ifCondition("face_count > 2")
+                .variables(variable("$z", 5), variable("$foo", "$z * 2"))
+                .crop("scale")
+                .width("$foo * 200");
+        assertEquals("if_fc_gt_2,$z_5,$foo_$z_mul_2,c_scale,w_$foo_mul_200", t.generate());
+    }
+    
+    @Test
+    public void testVariable(){
+        // using strings
+        Transformation t = new Transformation();
+        t.variable("$foo", 10)
+                .chain()
+                .ifCondition(faceCount().gt(2))
+                .crop("scale")
+                .width(new Condition("$foo * 200 / faceCount"))
+                .endIf();
+        assertEquals("$foo_10/if_fc_gt_2/c_scale,w_$foo_mul_200_div_fc/if_end", t.generate());
+    }
+    
+    @Test
+    public void testShouldSupportTextValues() {
+        Transformation t = new Transformation();
+        t.effect("$efname", 100)
+            .variable("$efname", "!blur!");
+        assertEquals("$efname_!blur!,e_$efname:100", t.generate());
+    }
 
+    @Test
+    public void testSupportStringInterpolation() {
+        Transformation t = new Transformation()
+                .crop("scale")
+                .overlay(new TextLayer().text(
+                        "$(start)Hello $(name)$(ext), $(no ) $( no)$(end)"
+                ).fontFamily("Arial").fontSize(18));
+        assertEquals("c_scale,l_text:Arial_18:$(start)Hello%20$(name)$(ext)%E2%80%9A%20%24%28no%20%29%20%24%28%20no%29$(end)", t.generate());
+    }
 }

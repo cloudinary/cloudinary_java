@@ -182,6 +182,6 @@ public class TransformationTest {
                 .overlay(new TextLayer().text(
                         "$(start)Hello $(name)$(ext), $(no ) $( no)$(end)"
                 ).fontFamily("Arial").fontSize(18));
-        assertEquals("c_scale,l_text:Arial_18:$(start)Hello%20$(name)$(ext)%E2%80%9A%20%24%28no%20%29%20%24%28%20no%29$(end)", t.generate());
+        assertEquals("c_scale,l_text:Arial_18:$(start)Hello%20$(name)$(ext)%252C%20%24%28no%20%29%20%24%28%20no%29$(end)", t.generate());
     }
 }

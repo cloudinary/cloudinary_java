@@ -1,4 +1,24 @@
 
+1.9.0 / 2017-03-08
+==================
+
+New functionality
+-----------------
+
+  * Support **User defined variables** and **expressions**.
+  * Add `async` parameter to upload params(#63)
+  * Add `expired_at` parameter to private download. (#60)
+  * Add `moderation` parameter in explicit call (#59)
+
+Other changes
+-------------
+
+  * Fix double encoding for commas and slashes in text layers (#66)
+  * Add artistic filter test (#65)
+  * Add gravity-auto test (#64)
+  * Fix `OutOfMemoryError` when uploading large files in android. Fixes #55 (#57)
+  * Fix encoding error in api update resource (#61)
+
 1.8.1 / 2017-02-22
 ==================
 

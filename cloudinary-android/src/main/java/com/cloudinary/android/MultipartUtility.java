@@ -48,6 +48,7 @@ public class MultipartUtility {
         URL url = new URL(requestURL);
         httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setDoOutput(true); // indicates POST method
+        httpConn.setChunkedStreamingMode(0);
         httpConn.setDoInput(true);
         if (headers != null) {
             for (Map.Entry<String, String> header : headers.entrySet()) {

@@ -192,6 +192,7 @@ public class Uploader {
         params.put("eager_notification_url", (String) options.get("eager_notification_url"));
         params.put("headers", Util.buildCustomHeaders(options.get("headers")));
         params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
+        params.put("moderation", (String) options.get("moderation"));
         if (options.get("face_coordinates") != null) {
             params.put("face_coordinates", Coordinates.parseCoordinates(options.get("face_coordinates")).toString());
         }

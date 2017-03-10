@@ -563,7 +563,6 @@ public class Transformation {
         params.put("h", Expression.normalize(height));
         params.put("o", Expression.normalize( options.get("opacity")));
         params.put("q", Expression.normalize( options.get("quality")));
-        params.put("q", Expression.normalize( options.get("quality")));
         params.put("r", Expression.normalize( options.get("radius")));
         params.put("so", startOffset);
         params.put("t", namedTransformation);

@@ -26,6 +26,7 @@ public class ArchiveParams {
     private String[] publicIds = null;
     private String[] prefixes = null;
     private Transformation[] transformations = null;
+    private Long expiresAt = null;
 
     public String resourceType() {
         return resourceType;
@@ -173,6 +174,15 @@ public class ArchiveParams {
         return this;
     }
 
+    public ArchiveParams expiresAt(Long expiresAt) {
+        this.expiresAt = expiresAt;
+        return this;
+    }
+
+    public Long expiresAt(){
+        return expiresAt;
+    }
+
     public Map<String, Object> toMap() {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("resource_type", resourceType);
@@ -197,6 +207,9 @@ public class ArchiveParams {
             params.put("prefixes", prefixes);
         if (transformations != null) {
             params.put("transformations", Arrays.asList(transformations));
+        }
+        if (expiresAt != null){
+            params.put("expires_at", expiresAt);
         }
         return params;
     }

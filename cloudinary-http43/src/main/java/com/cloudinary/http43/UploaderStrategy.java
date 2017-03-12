@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
+import com.cloudinary.strategies.ProgressCallback;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -54,7 +55,11 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
+        if (progressCallback != null){
+            throw new IllegalArgumentException("Progress callback is not supported");
+        }
+
         // initialize options if passed as null
         if (options == null) {
             options = ObjectUtils.emptyMap();

@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.cloudinary.strategies.ProgressCallback;
 import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
@@ -30,7 +31,11 @@ public class Uploader {
     }
 
     public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
-        return strategy.callApi(action, params, options, file);
+        return strategy.callApi(action, params, options, file, null);
+    }
+
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
+        return strategy.callApi(action, params, options, file, progressCallback);
     }
 
     private Cloudinary cloudinary;
@@ -51,39 +56,64 @@ public class Uploader {
     }
 
     public Map unsignedUpload(Object file, String uploadPreset, Map options) throws IOException {
+        return unsignedUpload(file, uploadPreset, options, null);
+    }
+
+    public Map unsignedUpload(Object file, String uploadPreset, Map options, ProgressCallback progressCallback) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         HashMap nextOptions = new HashMap(options);
         nextOptions.put("unsigned", true);
         nextOptions.put("upload_preset", uploadPreset);
-        return upload(file, nextOptions);
+        return upload(file, nextOptions, progressCallback);
     }
 
     public Map upload(Object file, Map options) throws IOException {
+        return upload(file, options, null);
+    }
+
+    public Map upload(Object file, Map options, final ProgressCallback progressCallback) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         Map<String, Object> params = buildUploadParams(options);
-        return callApi("upload", params, options, file);
+
+        return callApi("upload", params, options, file, progressCallback);
     }
 
     public Map uploadLargeRaw(Object file, Map options) throws IOException {
-        return uploadLargeRaw(file, options, 20000000);
+        return uploadLargeRaw(file, options, 20000000, null);
+    }
+
+    public Map uploadLargeRaw(Object file, Map options, ProgressCallback progressCallback) throws IOException {
+        return uploadLargeRaw(file, options, 20000000, progressCallback);
     }
 
     public Map uploadLargeRaw(Object file, Map options, int bufferSize) throws IOException {
+        return uploadLargeRaw(file, options, bufferSize, null);
+    }
+
+    public Map uploadLargeRaw(Object file, Map options, int bufferSize, ProgressCallback callback) throws IOException {
         Map sentOptions = new HashMap();
         sentOptions.putAll(options);
         sentOptions.put("resource_type", "raw");
-        return uploadLarge(file, sentOptions, bufferSize);
+        return uploadLarge(file, sentOptions, bufferSize, callback);
     }
 
     public Map uploadLarge(Object file, Map options) throws IOException {
+        return uploadLarge(file, options, null);
+    }
+
+    public Map uploadLarge(Object file, Map options, ProgressCallback progressCallback) throws IOException {
         int bufferSize = ObjectUtils.asInteger(options.get("chunk_size"), 20000000);
-        return uploadLarge(file, options, bufferSize);
+        return uploadLarge(file, options, bufferSize, progressCallback);
     }
 
     @SuppressWarnings("resource")
     public Map uploadLarge(Object file, Map options, int bufferSize) throws IOException {
+        return uploadLarge(file, options, bufferSize, null);
+    }
+
+    public Map uploadLarge(Object file, Map options, int bufferSize,  ProgressCallback progressCallback) throws IOException {
         InputStream input;
         long length = -1;
         if (file instanceof InputStream) {
@@ -100,14 +130,14 @@ public class Uploader {
             input = new FileInputStream(f);
         }
         try {
-            Map result = uploadLargeParts(input, options, bufferSize, length);
+            Map result = uploadLargeParts(input, options, bufferSize, length, progressCallback);
             return result;
         } finally {
             input.close();
         }
     }
 
-    private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length) throws IOException {
+    private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length, final ProgressCallback progressCallback) throws IOException {
         Map params = buildUploadParams(options);
 
         Map sentOptions = new HashMap();
@@ -123,6 +153,8 @@ public class Uploader {
         int partNumber = 0;
         long totalBytes = 0;
         Map response = null;
+        final long knownLengthBeforeUpload = length;
+        long totalBytesUploaded = 0;
         while (true) {
             bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize);
             boolean atEnd = bytesRead == -1;
@@ -147,9 +179,27 @@ public class Uploader {
                 extraHeaders.put("Content-Range", range);
                 Map sentParams = new HashMap();
                 sentParams.putAll(params);
-                response = callApi("upload", sentParams, sentOptions, buffer);
+
+                // wrap the callback with another callback to account for multiple parts
+                final long bytesUploadedSoFar = totalBytesUploaded;
+                final ProgressCallback singlePartProgressCallback;
+                if (progressCallback == null) {
+                    singlePartProgressCallback = null;
+                } else {
+                    singlePartProgressCallback = new ProgressCallback() {
+
+                        @Override
+                        public void onProgress(long bytesUploaded, long totalBytes) {
+                            progressCallback.onProgress(bytesUploadedSoFar + bytesUploaded, knownLengthBeforeUpload);
+                        }
+                    };
+                }
+
+                response = callApi("upload", sentParams, sentOptions, buffer, singlePartProgressCallback);
+
                 if (atEnd) break;
                 buffer[0] = nibbleBuffer[0];
+                totalBytesUploaded += currentBufferSize;
                 currentBufferSize = 1;
                 partNumber++;
             }

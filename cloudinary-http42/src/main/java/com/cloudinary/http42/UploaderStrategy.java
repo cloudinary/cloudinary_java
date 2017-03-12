@@ -1,12 +1,11 @@
 package com.cloudinary.http42;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.Map;
-
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Util;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.strategies.ProgressCallback;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -22,17 +21,22 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Util;
-import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Collection;
+import java.util.Map;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
-    public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
+        if (progressCallback != null){
+            throw new IllegalArgumentException("Progress callback is not supported");
+        }
+
         // initialize options if passed as null
         if (options == null) {
             options = ObjectUtils.emptyMap();

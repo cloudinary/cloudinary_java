@@ -18,5 +18,9 @@ public abstract class AbstractUploaderStrategy {
     }
 
     @SuppressWarnings("rawtypes")
-    public abstract Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException;
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException{
+        return callApi(action, params, options, file, null);
+    }
+
+    public abstract Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException;
 }

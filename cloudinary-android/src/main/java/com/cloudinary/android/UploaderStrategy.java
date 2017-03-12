@@ -1,26 +1,24 @@
 package com.cloudinary.android;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.strategies.ProgressCallback;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+import org.cloudinary.json.JSONException;
+import org.cloudinary.json.JSONObject;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Map;
 
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
-
-import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
+import static com.cloudinary.android.MultipartUtility.*;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
     @SuppressWarnings("rawtypes")
     @Override
-    public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
+    public Map callApi(String action, Map<String, Object> params, Map options, Object file, final ProgressCallback progressCallback) throws IOException {
         // initialize options if passed as null
         if (options == null) {
             options = ObjectUtils.emptyMap();
@@ -46,8 +44,22 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
                 params.put("api_key", apiKey);
             }
         }
+
         String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
-        MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"));
+        MultipartCallback multipartCallback;
+        if (progressCallback == null) {
+            multipartCallback = null;
+        } else {
+            final long totalBytes = determineLength(file);
+            multipartCallback = new MultipartCallback() {
+                @Override
+                public void totalBytesLoaded(long bytes) {
+                    progressCallback.onProgress(bytes, totalBytes);
+                }
+            };
+        }
+
+        MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"), multipartCallback);
 
         // Remove blank parameters
         for (Map.Entry<String, Object> param : params.entrySet()) {
@@ -110,6 +122,23 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         } catch (JSONException e) {
             throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
         }
+    }
+
+    private long determineLength(Object file) {
+        long actualLength = -1;
+
+        if (file != null) {
+            if (file instanceof File) {
+                actualLength = ((File) file).length();
+            } else if (file instanceof byte[]) {
+                actualLength = ((byte[]) file).length;
+            } else if (!(file instanceof InputStream)) {
+                File f = new File(file.toString());
+                actualLength = f.length();
+            }
+        }
+
+        return actualLength;
     }
 
     protected static String readFully(InputStream in) throws IOException {

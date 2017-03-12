@@ -1,18 +1,11 @@
 package com.cloudinary.android;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import com.cloudinary.Cloudinary;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
-
-import com.cloudinary.Cloudinary;
 
 /**
  * This utility class provides an abstraction layer for sending multipart HTTP
@@ -25,13 +18,12 @@ public class MultipartUtility {
     private final String boundary;
     private static final String LINE_FEED = "\r\n";
     private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    private final MultipartCallback multipartCallback;
     private HttpURLConnection httpConn;
     private String charset;
     private OutputStream outputStream;
     private PrintWriter writer;
-
     public final static String USER_AGENT = "CloudinaryAndroid/" + Cloudinary.VERSION;
-
 
     /**
      * This constructor initializes a new HTTP POST request with content type is
@@ -42,8 +34,13 @@ public class MultipartUtility {
      * @throws IOException
      */
     public MultipartUtility(String requestURL, String charset, String boundary, Map<String, String> headers) throws IOException {
+        this(requestURL, charset, boundary, headers, null);
+    }
+
+    public MultipartUtility(String requestURL, String charset, String boundary, Map<String, String> headers, MultipartCallback multipartCallback) throws IOException {
         this.charset = charset;
         this.boundary = boundary;
+        this.multipartCallback = multipartCallback;
 
         URL url = new URL(requestURL);
         httpConn = (HttpURLConnection) url.openConnection();
@@ -62,7 +59,7 @@ public class MultipartUtility {
     }
 
     public MultipartUtility(String requestURL, String charset, String boundary) throws IOException {
-        this(requestURL, charset, boundary, null);
+        this(requestURL, charset, boundary, null, null);
     }
 
     /**
@@ -107,15 +104,23 @@ public class MultipartUtility {
         writer.flush();
 
         byte[] buffer = new byte[4096];
-        int bytesRead = -1;
+        int bytesRead;
+        long totalRead = 0;
         while ((bytesRead = inputStream.read(buffer)) != -1) {
             outputStream.write(buffer, 0, bytesRead);
+            notifyCallback(totalRead += bytesRead);
         }
         outputStream.flush();
         inputStream.close();
 
         writer.append(LINE_FEED);
         writer.flush();
+    }
+
+    private void notifyCallback(long bytes) {
+        if (multipartCallback != null) {
+            multipartCallback.totalBytesLoaded(bytes);
+        }
     }
 
     public void addFilePart(String fieldName, InputStream inputStream) throws IOException {
@@ -136,4 +141,7 @@ public class MultipartUtility {
         return httpConn;
     }
 
+    interface MultipartCallback {
+        void totalBytesLoaded(long bytes);
+    }
 }

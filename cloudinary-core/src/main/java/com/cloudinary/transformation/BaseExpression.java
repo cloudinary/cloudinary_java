@@ -87,17 +87,19 @@ public abstract class BaseExpression<T extends BaseExpression> {
     }
 
     /**
-     * @return a regex pattern for operators and predefined vars
+     * @return a regex pattern for operators and predefined vars as /((operators)(?=[ _])|variables)/
      */
     private static String getpattern() {
         String pattern;
         final ArrayList<String> operators = new ArrayList<String>(OPERATORS.keySet());
         Collections.sort(operators, Collections.<String>reverseOrder());
-        StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer("((");
         for(String op: operators) {
-            sb.append("|").append(Pattern.quote(op));
+            sb.append(Pattern.quote(op)).append("|");
         }
-        pattern = "(" + StringUtils.join(PREDEFINED_VARS.keySet(), "|") + sb.toString() + ")";
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append(")(?=[ _])|").append(StringUtils.join(PREDEFINED_VARS.keySet(), "|")).append(")");
+        pattern = sb.toString();
         return pattern;
     }
 

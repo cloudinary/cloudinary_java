@@ -558,6 +558,7 @@ public class Transformation {
         params.put("co", color);
         params.put("dpr", Expression.normalize(dpr));
         params.put("du", duration);
+        params.put("e", Expression.normalize( options.get("effect")));
         params.put("eo", endOffset);
         params.put("fl", flags);
         params.put("h", Expression.normalize(height));
@@ -581,7 +582,6 @@ public class Transformation {
                 "d", "default_image",
                 "dl", "delay",
                 "dn", "density",
-                "e", "effect",
                 "f", "fetch_format",
                 "g", "gravity",
                 "l", "overlay",

@@ -8,7 +8,7 @@ public class FetchLayer extends AbstractLayer<FetchLayer> {
         this.type = "fetch";
     }
 
-    public FetchLayer publicId(String publicId) {
+    public FetchLayer url(String publicId) {
         this.publicId = Base64Coder.encodeString(publicId);
         return this;
     }

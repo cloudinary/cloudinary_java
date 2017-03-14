@@ -955,12 +955,10 @@ public class CloudinaryTest {
                 new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
                 new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
                 "subtitles:Arial_40:sample_sub_he.srt",
-                new FetchLayer().publicId("https://test").resourceType("image"),
+                new FetchLayer().url("https://test").resourceType("image"),
                 "fetch:aHR0cHM6Ly90ZXN0",
-                new FetchLayer().publicId("https://test"),
-                "fetch:aHR0cHM6Ly90ZXN0",
-                new FetchLayer().publicId("https://test").format("jpg"),
-                "fetch:aHR0cHM6Ly90ZXN0.jpg"};
+                new FetchLayer().url("https://test"),
+                "fetch:aHR0cHM6Ly90ZXN0"};
 
         for (int i = 0; i < tests.length; i += 2) {
             Object layer = tests[i];

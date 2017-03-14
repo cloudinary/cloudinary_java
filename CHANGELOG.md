@@ -1,4 +1,18 @@
 
+1.9.1 / 2017-03-14
+==================
+
+  * Add expires at to generate archive (#68)
+  * Add `skip_transformation_name` parameter to generate archive. (#67)
+  * Fix variables.
+    * Fix variable regex.
+    * Make Expression.serialize return normalized expression
+    * Fix variable sorting.
+    * Add tests for variable order.
+  * Avoid normalizing negative numbers.
+  * Normalize effect parameter
+  * Remove duplicate quality parameter line.
+
 1.9.0 / 2017-03-08
 ==================
 

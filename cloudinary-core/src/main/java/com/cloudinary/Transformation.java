@@ -12,6 +12,7 @@ import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Transformation {
+    public static final String VAR_NAME_RE = "^\\$[a-zA-Z][a-zA-Z0-9]+$";
     protected Map transformation;
     protected List<Map> transformations;
     protected String htmlWidth;
@@ -601,21 +602,21 @@ public class Transformation {
             components.add(0, "if_" + Expression.normalize(ifValue));
         }
 
-        List<String> varParams = new ArrayList<String>();
+        SortedSet<String> varParams = new TreeSet<String>();
         for( Object k: options.keySet()) {
             String key = (String) k;
-            if(key.matches("^\\$[a-zA-Z0-9]+$")) {
+            if(key.matches(VAR_NAME_RE)) {
                 varParams.add(key + "_" + ObjectUtils.asString(options.get(k)));
             }
         }
 
-        String variables = processVar((Expression[]) options.get("variables"));
-        if (variables != null) {
-            varParams.add(variables);
+        if (!varParams.isEmpty()) {
+            components.add(StringUtils.join(varParams, ","));
         }
 
-        if (varParams != null && !varParams.isEmpty()) {
-            components.add(StringUtils.join(varParams, ","));
+        String variables = processVar((Expression[]) options.get("variables"));
+        if (variables != null) {
+            components.add(variables);
         }
 
         for (Map.Entry<String, String> param : params.entrySet()) {

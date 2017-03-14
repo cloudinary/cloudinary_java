@@ -142,7 +142,7 @@ public class TransformationTest {
         assertEquals("force the if_else clause to be chained", "if_w_gt_100_and_w_lt_200/c_scale,w_50/if_else/c_crop,w_100/if_end", transformation.toString());
 
     }
-    
+
     @Test
     public void testArrayShouldDefineASetOfVariables() {
         // using methods
@@ -153,7 +153,22 @@ public class TransformationTest {
                 .width("$foo * 200");
         assertEquals("if_fc_gt_2,$z_5,$foo_$z_mul_2,c_scale,w_$foo_mul_200", t.generate());
     }
-    
+
+    @Test
+    public void testShouldSortDefinedVariable(){
+        Transformation t = new Transformation().variable("$second", 1).variable("$first", 2);
+        assertEquals("$first_2,$second_1", t.generate());
+    }
+
+    @Test
+    public void testShouldPlaceDefinedVariablesBeforeOrdered(){
+        Transformation t = new Transformation()
+                .variables(variable("$z", 5), variable("$foo", "$z * 2"))
+                .variable("$second", 1)
+                .variable("$first", 2);
+        assertEquals("$first_2,$second_1,$z_5,$foo_$z_mul_2", t.generate());
+    }
+
     @Test
     public void testVariable(){
         // using strings
@@ -166,7 +181,7 @@ public class TransformationTest {
                 .endIf();
         assertEquals("$foo_10/if_fc_gt_2/c_scale,w_$foo_mul_200_div_fc/if_end", t.generate());
     }
-    
+
     @Test
     public void testShouldSupportTextValues() {
         Transformation t = new Transformation();

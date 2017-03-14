@@ -113,7 +113,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
     }
 
     public String serialize() {
-        return StringUtils.join(expressions, "_");
+        return normalize(StringUtils.join(expressions, "_"));
     }
 
     @Override

@@ -279,6 +279,26 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals(derived.size(), 0);
     }
 
+    @Test()
+    public void testDeleteDerivedByTransformation() throws Exception {
+        // should allow deleting resources
+        String public_id = "api_test_123";
+        List<Transformation> transformations = new ArrayList<Transformation>();
+        transformations.add(new Transformation().angle(90));
+        transformations.add(new Transformation().width(120));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS, "eager", transformations));
+        Map resource = api.resource(public_id, ObjectUtils.emptyMap());
+        assertNotNull(resource);
+        List derived = ((List) resource.get("derived"));
+        assertTrue(derived.size() == 2);
+        api.deleteDerivedResourcesByTransformations(ObjectUtils.asArray(public_id), ObjectUtils.asArray(transformations), ObjectUtils.emptyMap());
+
+        resource = api.resource(public_id, ObjectUtils.emptyMap());
+        assertNotNull(resource);
+        derived = ((List) resource.get("derived"));
+        assertTrue(derived.size() == 0);
+    }
+
     @Test(expected = NotFound.class)
     public void test09DeleteResources() throws Exception {
         // should allow deleting resources

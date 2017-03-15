@@ -3,6 +3,7 @@ package com.cloudinary.http43.api;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,8 +33,7 @@ public class Response extends HashMap implements ApiResponse {
     private static final Pattern RATE_LIMIT_REGEX = Pattern
             .compile("X-Feature(\\w*)RateLimit(-Limit|-Reset|-Remaining)");
     private static final String RFC1123_PATTERN = "EEE, dd MMM yyyyy HH:mm:ss z";
-    private static final DateFormat RFC1123 = new SimpleDateFormat(
-            RFC1123_PATTERN);
+    private static final DateFormat RFC1123 = new SimpleDateFormat(RFC1123_PATTERN, Locale.ENGLISH);
 
     public Map<String, RateLimit> rateLimits() throws java.text.ParseException {
         Header[] headers = this.response.getAllHeaders();

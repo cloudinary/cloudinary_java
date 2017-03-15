@@ -5,6 +5,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.RateLimit;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.transformation.TextLayer;
@@ -13,6 +14,7 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.equalTo;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
@@ -431,6 +433,13 @@ abstract public class AbstractApiTest extends MockableTest {
         // should support usage API call
         Map result = api.usage(ObjectUtils.emptyMap());
         assertNotNull(result.get("last_updated"));
+    }
+
+    @Test
+    public void testRateLimitWithNonEnglishLocale() throws Exception {
+        Locale.setDefault(new Locale("de", "DE"));
+        ApiResponse result = cloudinary.api().usage(new HashMap());
+        Assert.assertNotNull(result.apiRateLimit().getReset());
     }
 
     @Test

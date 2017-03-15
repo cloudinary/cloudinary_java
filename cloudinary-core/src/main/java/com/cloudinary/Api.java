@@ -140,8 +140,19 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
-        Map params = ObjectUtils.only(options, "keep_original", "invalidate", "next_cursor");
+        Map params = ObjectUtils.only(options, "keep_original", "invalidate", "next_cursor", "transformations");
         params.put("public_ids", publicIds);
+        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
+    }
+
+    public ApiResponse deleteDerivedResourcesByTransformations(Iterable<String> publicIds, List<Transformation> transformations, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
+        String type = ObjectUtils.asString(options.get("type"), "upload");
+        Map params = ObjectUtils.only(options, "invalidate", "next_cursor");
+        params.put("keep_original", true);
+        params.put("public_ids", publicIds);
+        params.put("transformations", Util.buildEager(transformations));
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
 

@@ -130,6 +130,7 @@ public class Api {
         Map params = new HashMap<String, Object>();
         Util.processWriteParameters(options, params);
         params.put("moderation_status", options.get("moderation_status"));
+        params.put("notification_url", options.get("notification_url"));
         ApiResponse response = callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, public_id),
                 params, options);
         return response;

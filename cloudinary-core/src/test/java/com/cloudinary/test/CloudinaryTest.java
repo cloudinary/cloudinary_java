@@ -774,6 +774,7 @@ public class CloudinaryTest {
         expectedTag = String.format(expectedTag, expectedUrl, expectedUrl, expectedUrl, expectedUrl);
         assertEquals(expectedTag, cloudinary.url().videoTag("movie", emptyMap()));
         assertEquals(expectedTag, cloudinary.url().publicId("movie").videoTag());
+        assertEquals(expectedTag, cloudinary.url().videoTag("movie"));
     }
 
     @Test

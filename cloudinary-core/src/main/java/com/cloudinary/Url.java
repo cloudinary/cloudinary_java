@@ -575,6 +575,10 @@ public class Url {
         return videoTag("", new HashMap<String, String>());
     }
 
+    public String videoTag(String source) {
+        return videoTag(source, new HashMap<String, String>());
+    }
+
     public String videoTag(Map<String, String> attributes) {
         return videoTag("", attributes);
     }

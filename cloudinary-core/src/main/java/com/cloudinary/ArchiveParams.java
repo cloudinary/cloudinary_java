@@ -21,6 +21,7 @@ public class ArchiveParams {
     private boolean async = false;
     private boolean keepDerived = false;
     private boolean skipTransformationName = false;
+    private boolean allowMissing = false;
     private String notificationUrl = null;
     private String[] targetTags = null;
     private String[] tags = null;
@@ -121,6 +122,15 @@ public class ArchiveParams {
         return this;
     }
 
+    public boolean isAllowMissing(){
+        return allowMissing;
+    }
+
+    public ArchiveParams allowMissing(boolean allowMissing){
+        this.allowMissing = allowMissing;
+        return this;
+    }
+
     public boolean isKeepDerived() {
         return keepDerived;
     }
@@ -206,6 +216,7 @@ public class ArchiveParams {
         params.put("async", async);
         params.put("keep_derived", keepDerived);
         params.put("skip_transformation_name", skipTransformationName);
+        params.put("allow_missing", allowMissing);
         if (notificationUrl != null)
             params.put("notification_url", notificationUrl);
         if (targetTags != null)

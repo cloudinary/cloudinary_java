@@ -6,6 +6,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.Utils;
+import com.cloudinary.strategies.ProgressCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
@@ -22,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class UploaderTest extends InstrumentationTestCase {
 
@@ -46,10 +49,66 @@ public class UploaderTest extends InstrumentationTestCase {
         return getInstrumentation().getContext().getAssets().open(filename);
     }
 
+    private long getAssetFileSize(String filename) {
+        try {
+            return getInstrumentation().getContext().getAssets().openFd(filename).getLength();
+        } catch (IOException e) {
+            return -1;
+        }
+    }
+
+    private File getLargeFile() throws IOException {
+        File temp = File.createTempFile("cldupload.test.", "");
+        FileOutputStream out = new FileOutputStream(temp);
+        int[] header = new int[]{0x42, 0x4D, 0x4A, 0xB9, 0x59, 0x00, 0x00, 0x00, 0x00, 0x00, 0x8A, 0x00, 0x00, 0x00, 0x7C, 0x00, 0x00, 0x00, 0x78, 0x05, 0x00, 0x00, 0x78, 0x05, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC0, 0xB8, 0x59, 0x00, 0x61, 0x0F, 0x00, 0x00, 0x61, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0x42, 0x47, 0x52, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x54, 0xB8, 0x1E, 0xFC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x66, 0x66, 0x66, 0xFC, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xC4, 0xF5, 0x28, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        byte[] byteHeader = new byte[138];
+        for (int i = 0; i <= 137; i++) byteHeader[i] = (byte) header[i];
+        byte[] piece = new byte[10];
+        Arrays.fill(piece, (byte) 0xff);
+        out.write(byteHeader);
+        for (int i = 1; i <= 588000; i++) {
+            out.write(piece);
+        }
+        out.close();
+        assertEquals(5880138, temp.length());
+        return temp;
+    }
+
     public void testUpload() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
         JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("colors", true)));
+        assertEquals(result.getLong("width"), 241L);
+        assertEquals(result.getLong("height"), 51L);
+        assertNotNull(result.get("colors"));
+        assertNotNull(result.get("predominant"));
+        Map<String, Object> to_sign = new HashMap<String, Object>();
+        to_sign.put("public_id", result.getString("public_id"));
+        to_sign.put("version", ObjectUtils.asString(result.get("version")));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        assertEquals(result.get("signature"), expected_signature);
+    }
+
+    public void testUploadProgressCallback() throws Exception {
+        if (cloudinary.config.apiSecret == null)
+            return;
+
+        final CountDownLatch signal = new CountDownLatch(1);
+        final long totalLength = getAssetFileSize(TEST_IMAGE);
+
+        ProgressCallback progressCallback = new ProgressCallback() {
+            @Override
+            public void onProgress(long bytesUploaded, long totalBytes) {
+                if (bytesUploaded == totalLength) {
+                    signal.countDown();
+                }
+            }
+        };
+
+        JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("colors", true), progressCallback));
+
+        signal.await(5, TimeUnit.SECONDS);
+        assertEquals(signal.getCount(), 0);
         assertEquals(result.getLong("width"), 241L);
         assertEquals(result.getLong("height"), 51L);
         assertNotNull(result.get("colors"));
@@ -368,6 +427,42 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(5880138, temp.length());
 
         JSONObject resource = new JSONObject(cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("resource_type", "raw", "chunk_size", 5243000)));
+        assertEquals("raw", resource.getString("resource_type"));
+
+        resource = new JSONObject(cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("chunk_size", 5243000)));
+        assertEquals("image", resource.getString("resource_type"));
+        assertEquals(1400L, resource.getLong("width"));
+        assertEquals(1400L, resource.getLong("height"));
+
+        resource = new JSONObject(cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("chunk_size", 5880138)));
+        assertEquals("image", resource.getString("resource_type"));
+        assertEquals(1400L, resource.getLong("width"));
+        assertEquals(1400L, resource.getLong("height"));
+    }
+
+    public void testUploadLargeProgressCallback() throws Exception {
+        // support uploading large files
+        if (cloudinary.config.apiSecret == null)
+            return;
+
+
+        File temp = getLargeFile();
+        final CountDownLatch signal = new CountDownLatch(1);
+        final long totalLength = temp.length();
+
+        ProgressCallback progressCallback = new ProgressCallback() {
+            @Override
+            public void onProgress(long bytesUploaded, long totalBytes) {
+                if (bytesUploaded == totalLength) {
+                    signal.countDown();
+                }
+            }
+        };
+        JSONObject resource = new JSONObject(cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("resource_type", "raw", "chunk_size", 5243000), progressCallback));
+
+        signal.await(120, TimeUnit.SECONDS);
+        assertEquals(signal.getCount(), 0);
+
         assertEquals("raw", resource.getString("resource_type"));
 
         resource = new JSONObject(cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap("chunk_size", 5243000)));

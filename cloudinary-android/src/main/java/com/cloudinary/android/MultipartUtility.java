@@ -136,4 +136,9 @@ public class MultipartUtility {
         return httpConn;
     }
 
+    public void close(){
+        if (writer != null){
+            writer.close();
+        }
+    }
 }

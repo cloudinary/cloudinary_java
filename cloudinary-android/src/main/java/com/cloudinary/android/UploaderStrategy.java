@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Collection;
 import java.util.Map;
@@ -48,65 +47,62 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
         String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
-        MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"));
 
-        // Remove blank parameters
-        for (Map.Entry<String, Object> param : params.entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                for (Object value : (Collection) param.getValue()) {
-                    multipart.addFormField(param.getKey() + "[]", ObjectUtils.asString(value));
+        MultipartUtility multipart = null;
+        HttpURLConnection connection;
+
+        try {
+            multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"));
+
+            // Remove blank parameters
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                if (param.getValue() instanceof Collection) {
+                    for (Object value : (Collection) param.getValue()) {
+                        multipart.addFormField(param.getKey() + "[]", ObjectUtils.asString(value));
+                    }
+                } else {
+                    if (StringUtils.isNotBlank(param.getValue())) {
+                        multipart.addFormField(param.getKey(), param.getValue().toString());
+                    }
                 }
-            } else {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    multipart.addFormField(param.getKey(), param.getValue().toString());
-                }
+            }
+
+            if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+                file = new File((String) file);
+            }
+            String filename = (String) options.get("filename");
+            if (file instanceof File) {
+                multipart.addFilePart("file", (File) file, filename);
+            } else if (file instanceof String) {
+                multipart.addFormField("file", (String) file);
+            } else if (file instanceof InputStream) {
+                multipart.addFilePart("file", (InputStream) file, filename);
+            } else if (file instanceof byte[]) {
+                multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
+            }
+
+            connection = multipart.execute();
+        } finally {
+            if (multipart != null){
+                // Closing more than once has no effect so we can call it safely without having to check state
+                multipart.close();
             }
         }
 
-        if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
-            file = new File((String) file);
-        }
-        String filename = (String) options.get("filename");
-        if (file instanceof File) {
-            multipart.addFilePart("file", (File) file, filename);
-        } else if (file instanceof String) {
-            multipart.addFormField("file", (String) file);
-        } else if (file instanceof InputStream) {
-            multipart.addFilePart("file", (InputStream) file, filename);
-        } else if (file instanceof byte[]) {
-            multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
-        }
-
-        HttpURLConnection connection = multipart.execute();
         int code;
-
-        OutputStream outputStream = null;
-
         try {
             code = connection.getResponseCode();
-            outputStream = connection.getOutputStream();
-        } catch (Exception e) {
+        } catch (IOException e) {
             if (e.getMessage().equals("No authentication challenges found")) {
                 // Android trying to be clever...
                 code = 401;
             } else {
                 throw e;
             }
-        } finally {
-            if (outputStream != null) {
-                try {
-                    outputStream.close();
-                } catch (Exception e) {}
-            }
         }
-
         InputStream responseStream = code >= 400 ? connection.getErrorStream() : connection.getInputStream();
         String responseData = readFully(responseStream);
         connection.disconnect();
-
-        try {
-            responseStream.close();
-        } catch (Exception e) {}
 
         if (code != 200 && code != 400 && code != 404 && code != 500) {
             throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);

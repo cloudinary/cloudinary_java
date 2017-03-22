@@ -36,6 +36,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         }
 
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {SDK_TEST_TAG, ARCHIVE_TAG}));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {SDK_TEST_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
                 asMap("tags", new String [] {SDK_TEST_TAG, ARCHIVE_TAG},
                         "transformation", new Transformation().crop("scale").width(10)));
@@ -497,6 +498,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
                 new ArchiveParams().tags(new String[]{ARCHIVE_TAG}).transformations(
                         new Transformation[]{new Transformation().width(0.5), new Transformation().width(2.0)}));
         assertEquals(4, result.get("file_count"));
+    }
+
+    @Test
+    public void testCreateArchiveRaw() throws Exception {
+        Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[]{ARCHIVE_TAG}).resourceType("raw"));
+        assertEquals(1, result.get("file_count"));
     }
 
     @Test

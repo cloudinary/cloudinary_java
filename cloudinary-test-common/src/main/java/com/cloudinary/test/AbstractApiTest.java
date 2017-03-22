@@ -734,6 +734,35 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testPublishWithType() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
+        String publicId = (String) response.get("public_id");
+
+        // publish with wrong type - verify publish fails
+        response = cloudinary.api().publishByIds(Arrays.asList(publicId), ObjectUtils.asMap("type", "private"));
+        List published = (List) response.get("published");
+        List failed = (List) response.get("failed");
+        assertNotNull(published);
+        assertNotNull(failed);
+        assertEquals(published.size(), 0);
+        assertEquals(failed.size(), 1);
+
+        // publish with correct type - verify publish succeeds
+        response = cloudinary.api().publishByIds(Arrays.asList(publicId), ObjectUtils.asMap("type", "authenticated"));
+        published = (List) response.get("published");
+        failed = (List) response.get("failed");
+        assertNotNull(published);
+        assertNotNull(failed);
+        assertEquals(published.size(), 1);
+        assertEquals(failed.size(), 0);
+
+        Map resource = (Map) published.get(0);
+        assertEquals(resource.get("public_id"), publicId);
+        assertNotNull(resource.get("url"));
+        cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
     public void testPublishByPrefix() throws Exception {
         Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
         String publicId = (String) response.get("public_id");

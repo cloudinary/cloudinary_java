@@ -319,7 +319,7 @@ public class Api {
         uri.add("publish_resources");
         Map params = new HashMap<String, Object>();
         params.put(byKey, value);
-        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite"));
+        params.putAll(ObjectUtils.only(options, "invalidate", "overwrite", "type"));
         return callApi(HttpMethod.POST, uri, params, options);
     }
 

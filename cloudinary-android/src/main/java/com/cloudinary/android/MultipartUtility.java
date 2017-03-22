@@ -141,6 +141,9 @@ public class MultipartUtility {
         return httpConn;
     }
 
+    /***
+     * For internal use only - callback to monitor multipart upload progress
+     */
     interface MultipartCallback {
         void totalBytesLoaded(long bytes);
     }

@@ -136,6 +136,10 @@ public class MultipartUtility {
         return httpConn;
     }
 
+    /***
+     * Closes the internal connection's output stream.
+     * Closing a previously closed stream has no effect.
+     */
     public void close(){
         if (writer != null){
             writer.close();

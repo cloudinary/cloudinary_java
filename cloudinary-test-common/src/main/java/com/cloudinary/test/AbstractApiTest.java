@@ -430,11 +430,11 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test20ResourcesContext() throws Exception {
         Map result = api.resourcesByContext("test-key", ObjectUtils.emptyMap());
-        
+
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(2,resources.size());
         result = api.resourcesByContext("test-key","alt", ObjectUtils.emptyMap());
-        
+
         resources = (List<Map>) result.get("resources");
         assertEquals(1,resources.size());
     }

@@ -1,20 +1,15 @@
 package com.cloudinary;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+import org.cloudinary.json.JSONObject;
+
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.cloudinary.json.JSONObject;
-
-import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Uploader {

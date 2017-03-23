@@ -17,6 +17,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.HttpClientConnectionManager;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
@@ -29,9 +31,9 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 import static com.cloudinary.http43.ApiUtils.prepareParams;
@@ -128,6 +130,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
     /**
      * Prepare a request with the URL and parameters based on the HTTP method used
+     *
      * @param method the HTTP method: GET, PUT, POST, DELETE
      * @param apiUrl the cloudinary API URI
      * @param params the parameters to pass to the server
@@ -137,12 +140,14 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
      */
     private HttpUriRequest prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params, Map options) throws URISyntaxException, UnsupportedEncodingException {
         URI apiUri;
-        URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
-        List<NameValuePair> parameters;
         HttpRequestBase request;
-        parameters = prepareParams(params);
-        if(method == HttpMethod.GET) {
-            apiUrlBuilder.setParameters(parameters);
+
+        String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
+        URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
+        HashMap<String,Object>  unboxedParams = new  HashMap<String,Object>(params);
+
+        if (method == HttpMethod.GET) {
+            apiUrlBuilder.setParameters(prepareParams(params));
             apiUri = apiUrlBuilder.build();
             request = new HttpGet(apiUri);
         } else {
@@ -152,7 +157,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
                     request = new HttpPut(apiUri);
                     break;
                 case DELETE: //uses HttpPost instead of HttpDelete
-                    parameters.add(new BasicNameValuePair("_method", "delete"));
+                    unboxedParams.put("_method","delete");
                     //continue with POST
                 case POST:
                     request = new HttpPost(apiUri);
@@ -160,7 +165,13 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
                 default:
                     throw new IllegalArgumentException("Unknown HTTP method");
             }
-            ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(parameters, Consts.UTF_8));
+            if (contentType.equals("json")) {
+                JSONObject asJSON = ObjectUtils.toJSON(unboxedParams);
+                StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);
+                ((HttpEntityEnclosingRequestBase) request).setEntity(requestEntity);
+            } else {
+                ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(prepareParams(unboxedParams), Consts.UTF_8));
+            }
         }
 
         setTimeouts(request, options);

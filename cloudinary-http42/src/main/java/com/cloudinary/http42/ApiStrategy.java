@@ -8,13 +8,11 @@ import java.util.Map;
 
 import com.cloudinary.strategies.AbstractApiStrategy;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -44,23 +42,27 @@ public class ApiStrategy extends AbstractApiStrategy {
         if (apiKey == null) throw new IllegalArgumentException("Must supply api_key");
         String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
         if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
-
+        String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
         int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
-
         String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
+
         for (String component : uri) {
             apiUrl = apiUrl + "/" + component;
         }
+
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
-        for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (String single : (Iterable<String>) param.getValue()) {
-                    apiUrlBuilder.addParameter(param.getKey() + "[]", single);
+        if (!contentType.equals("json")) {
+            for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
+                if (param.getValue() instanceof Iterable) {
+                    for (String single : (Iterable<String>) param.getValue()) {
+                        apiUrlBuilder.addParameter(param.getKey() + "[]", single);
+                    }
+                } else {
+                    apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
                 }
-            } else {
-                apiUrlBuilder.addParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
             }
         }
+
         ClientConnectionManager connectionManager = (ClientConnectionManager) this.api.cloudinary.config.properties.get("connectionManager");
 
         DefaultHttpClient client = new DefaultHttpClient(connectionManager);
@@ -88,6 +90,11 @@ public class ApiStrategy extends AbstractApiStrategy {
         }
         request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
         request.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
+        if (contentType.equals("json")) {
+            JSONObject asJSON = ObjectUtils.toJSON(params);
+            StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);
+            ((HttpEntityEnclosingRequestBase) request).setEntity(requestEntity);
+        }
 
         HttpResponse response = client.execute(request);
 

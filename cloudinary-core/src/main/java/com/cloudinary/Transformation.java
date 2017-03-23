@@ -290,6 +290,10 @@ public class Transformation {
         return param("audio_frequency", value);
     }
 
+    public Transformation streamingProfile(String value){
+        return param("streaming_profile", value);
+    }
+
     public Transformation bitRate(String value) {
         return param("bit_rate", value);
     }
@@ -589,7 +593,8 @@ public class Transformation {
                 "p", "prefix",
                 "pg", "page",
                 "u", "underlay",
-                "vs", "video_sampling"
+                "vs", "video_sampling",
+                "sp", "streaming_profile"
                 };
 
         for (int i = 0; i < simple_params.length; i += 2) {

@@ -112,6 +112,7 @@ public class Uploader {
     public Map uploadLarge(Object file, Map options, int bufferSize, ProgressCallback progressCallback) throws IOException {
         InputStream input;
         long length = -1;
+        boolean remote = false;
         if (file instanceof InputStream) {
             input = (InputStream) file;
         } else if (file instanceof File) {
@@ -121,15 +122,27 @@ public class Uploader {
             length = ((byte[]) file).length;
             input = new ByteArrayInputStream((byte[]) file);
         } else {
-            File f = new File(file.toString());
-            length = f.length();
-            input = new FileInputStream(f);
+            if (StringUtils.isRemoteUrl(file.toString())){
+                remote = true;
+                input = null;
+            } else {
+                File f = new File(file.toString());
+                length = f.length();
+                input = new FileInputStream(f);
+            }
         }
         try {
-            Map result = uploadLargeParts(input, options, bufferSize, length, progressCallback);
+            final Map result;
+            if (remote) {
+                result = upload(file, options);
+            } else {
+                result = uploadLargeParts(input, options, bufferSize, length, progressCallback);
+            }
             return result;
         } finally {
-            input.close();
+            if (input != null) {
+                input.close();
+            }
         }
     }
 

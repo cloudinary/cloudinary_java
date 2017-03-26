@@ -449,15 +449,19 @@ public class Url {
         if (type == null) {
             type = "upload";
         }
+
         if (!StringUtils.isBlank(urlSuffix)) {
             if (resourceType.equals("image") && type.equals("upload")) {
                 resourceType = "images";
+                type = null;
+            } else if (resourceType.equals("image") && type.equals("private")) {
+                resourceType = "private_images";
                 type = null;
             } else if (resourceType.equals("raw") && type.equals("upload")) {
                 resourceType = "files";
                 type = null;
             } else {
-                throw new IllegalArgumentException("URL Suffix only supported for image/upload and raw/upload");
+                throw new IllegalArgumentException("URL Suffix only supported for image/upload, image/private and raw/upload");
             }
         }
         if (useRootPath) {

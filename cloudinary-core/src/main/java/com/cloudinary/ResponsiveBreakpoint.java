@@ -2,6 +2,8 @@ package com.cloudinary;
 
 import org.cloudinary.json.JSONObject;
 
+import java.util.Collections;
+
 public class ResponsiveBreakpoint extends JSONObject {
     public ResponsiveBreakpoint() {
         put("create_derived", true);
@@ -21,7 +23,7 @@ public class ResponsiveBreakpoint extends JSONObject {
     }
 
     public ResponsiveBreakpoint transformation(Transformation transformation) {
-        put("transformation", transformation);
+        put("transformation", Util.buildEager(Collections.singletonList(transformation)));
         return this;
     }
 

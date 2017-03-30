@@ -59,35 +59,47 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             };
         }
 
-        MultipartUtility multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"), multipartCallback);
+        MultipartUtility multipart = null;
+        HttpURLConnection connection;
 
-        // Remove blank parameters
-        for (Map.Entry<String, Object> param : params.entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                for (Object value : (Collection) param.getValue()) {
-                    multipart.addFormField(param.getKey() + "[]", ObjectUtils.asString(value));
-                }
-            } else {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    multipart.addFormField(param.getKey(), param.getValue().toString());
+        try {
+            multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"));
+
+            // Remove blank parameters
+            for (Map.Entry<String, Object> param : params.entrySet()) {
+                if (param.getValue() instanceof Collection) {
+                    for (Object value : (Collection) param.getValue()) {
+                        multipart.addFormField(param.getKey() + "[]", ObjectUtils.asString(value));
+                    }
+                } else {
+                    if (StringUtils.isNotBlank(param.getValue())) {
+                        multipart.addFormField(param.getKey(), param.getValue().toString());
+                    }
                 }
             }
-        }
 
-        if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
-            file = new File((String) file);
-        }
-        String filename = (String) options.get("filename");
-        if (file instanceof File) {
-            multipart.addFilePart("file", (File) file, filename);
-        } else if (file instanceof String) {
-            multipart.addFormField("file", (String) file);
-        } else if (file instanceof InputStream) {
-            multipart.addFilePart("file", (InputStream) file, filename);
-        } else if (file instanceof byte[]) {
-            multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
-        }
-        HttpURLConnection connection = multipart.execute();
+            if (file instanceof String && !((String) file).matches("(?s)ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+                file = new File((String) file);
+            }
+            String filename = (String) options.get("filename");
+            if (file instanceof File) {
+                multipart.addFilePart("file", (File) file, filename);
+            } else if (file instanceof String) {
+                multipart.addFormField("file", (String) file);
+            } else if (file instanceof InputStream) {
+                multipart.addFilePart("file", (InputStream) file, filename);
+            } else if (file instanceof byte[]) {
+                multipart.addFilePart("file", new ByteArrayInputStream((byte[]) file), filename);
+            }
+
+            connection = multipart.execute();
+        } finally {
+            if (multipart != null){
+                // Closing more than once has no effect so we can call it safely without having to check state
+                multipart.close();
+            }
+            }
+
         int code;
         try {
             code = connection.getResponseCode();

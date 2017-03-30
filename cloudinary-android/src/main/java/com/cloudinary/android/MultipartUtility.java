@@ -23,6 +23,7 @@ public class MultipartUtility {
     private String charset;
     private OutputStream outputStream;
     private PrintWriter writer;
+
     public final static String USER_AGENT = "CloudinaryAndroid/" + Cloudinary.VERSION;
 
     /**
@@ -141,10 +142,21 @@ public class MultipartUtility {
         return httpConn;
     }
 
-    /***
+    /**
+     * Closes the internal connection's output stream.
+     * Closing a previously closed stream has no effect.
+     */
+    public void close(){
+        if (writer != null){
+            writer.close();
+        }
+    }
+
+    /**
      * For internal use only - callback to monitor multipart upload progress
      */
     interface MultipartCallback {
         void totalBytesLoaded(long bytes);
     }
+
 }

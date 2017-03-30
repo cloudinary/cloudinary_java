@@ -1,7 +1,7 @@
 package com.cloudinary.android;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.strategies.ProgressCallback;
+import com.cloudinary.ProgressCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONException;

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.ProgressCallback;
 import com.cloudinary.Uploader;
 
 public abstract class AbstractUploaderStrategy {

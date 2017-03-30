@@ -3,7 +3,7 @@ package com.cloudinary.http42;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Util;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.strategies.ProgressCallback;
+import com.cloudinary.ProgressCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpHost;

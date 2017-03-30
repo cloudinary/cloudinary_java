@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.cloudinary.strategies.ProgressCallback;
 import org.cloudinary.json.JSONObject;
 
 import com.cloudinary.strategies.AbstractUploaderStrategy;
@@ -19,6 +18,8 @@ import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Uploader {
+
+    public static final int BUFFER_SIZE = 20000000;
 
     private final class Command {
         final static String add = "add";
@@ -81,11 +82,11 @@ public class Uploader {
     }
 
     public Map uploadLargeRaw(Object file, Map options) throws IOException {
-        return uploadLargeRaw(file, options, 20000000, null);
+        return uploadLargeRaw(file, options, BUFFER_SIZE, null);
     }
 
     public Map uploadLargeRaw(Object file, Map options, ProgressCallback progressCallback) throws IOException {
-        return uploadLargeRaw(file, options, 20000000, progressCallback);
+        return uploadLargeRaw(file, options, BUFFER_SIZE, progressCallback);
     }
 
     public Map uploadLargeRaw(Object file, Map options, int bufferSize) throws IOException {
@@ -104,7 +105,7 @@ public class Uploader {
     }
 
     public Map uploadLarge(Object file, Map options, ProgressCallback progressCallback) throws IOException {
-        int bufferSize = ObjectUtils.asInteger(options.get("chunk_size"), 20000000);
+        int bufferSize = ObjectUtils.asInteger(options.get("chunk_size"), BUFFER_SIZE);
         return uploadLarge(file, options, bufferSize, progressCallback);
     }
 

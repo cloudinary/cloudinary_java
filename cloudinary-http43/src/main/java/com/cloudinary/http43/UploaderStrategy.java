@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
-import com.cloudinary.strategies.ProgressCallback;
+import com.cloudinary.ProgressCallback;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;

@@ -1,4 +1,29 @@
 
+1.10.0 / 2017-04-02
+===================
+
+New functionality
+-----------------
+
+  * Add upload progress callback for Android
+  * Add support for notification_url param in `Api.update`
+  * Add support for `allowMissing` parameter in archive creation.
+  * Add `videoTag(String source)` overload to `Url`.
+  * Add `deleteDerivedResourcesByTransformations` to Admin Api
+  * Add `ocr` to explicit API
+
+Other changes
+-------------
+
+  * Add `ocr` gravity value tests
+  * Fix ParseException when accessing `Response.rateLimits` with default locale set to non-english.
+  * Add javaDoc for `MultipartUtility.close()`
+  * Merge pull request #46 Close streams in UploaderStrategy 
+  * Add javaDoc for `MultipartCallback`
+  * Add `progressCallback` test cases.
+  * Add test for `generate_archive` of raw resources.
+  * Fix `MultipartUtility` - Verify inner stream is closed if an exception is thrown somewhere along the way.
+
 1.9.1 / 2017-03-14
 ==================
 

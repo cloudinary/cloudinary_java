@@ -288,7 +288,7 @@ public class CloudinaryTest {
         assertEquals(result, transformation.generate());
     }
     @SuppressWarnings("unused")
-    private Object parametersForTestQuality() {
+    private Object[][] parametersForTestQuality() {
         return new Object[][]{
             {0.4, "q_0.4"},
             {"0.4", "q_0.4"},
@@ -298,10 +298,24 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testAutoGravity(){
-        Transformation transformation = new Transformation().crop("crop").gravity("auto").width(0.5f);
+    @TestCaseName("{method}: {0}")
+    @Parameters
+    public void testAutoGravity(String value, String serialized){
+        Transformation transformation = new Transformation().crop("crop").gravity(value).width(0.5f);
         String result = cloudinary.url().transformation(transformation).generate("test");
-        assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,g_auto,w_0.5/test", result);
+        assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,"+ serialized + ",w_0.5/test", result);
+    }
+    @SuppressWarnings("unused")
+    private String[][] parametersForTestAutoGravity() {
+        return new String[][]{
+                {"west", "g_west"},
+                {"auto", "g_auto"},
+                {"auto:good", "g_auto:good"},
+                {"auto:ocr_text", "g_auto:ocr_text"},
+                {"ocr_text", "g_ocr_text"},
+                {"ocr_text:adv_ocr", "g_ocr_text:adv_ocr"}
+        };
+
     }
 
     @Test

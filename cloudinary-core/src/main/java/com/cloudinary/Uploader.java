@@ -244,6 +244,7 @@ public class Uploader {
         params.put("headers", Util.buildCustomHeaders(options.get("headers")));
         params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
         params.put("moderation", (String) options.get("moderation"));
+        params.put("ocr", (String) options.get("ocr"));
         if (options.get("face_coordinates") != null) {
             params.put("face_coordinates", Coordinates.parseCoordinates(options.get("face_coordinates")).toString());
         }

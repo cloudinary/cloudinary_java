@@ -63,7 +63,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         HttpURLConnection connection;
 
         try {
-            multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"));
+            multipart = new MultipartUtility(apiUrl, "UTF-8", this.cloudinary().randomPublicId(), (Map<String, String>) options.get("extra_headers"), multipartCallback);
 
             // Remove blank parameters
             for (Map.Entry<String, Object> param : params.entrySet()) {

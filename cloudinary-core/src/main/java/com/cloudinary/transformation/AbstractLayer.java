@@ -1,10 +1,11 @@
 package com.cloudinary.transformation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import com.cloudinary.utils.StringUtils;
 
-public abstract class AbstractLayer<T extends AbstractLayer<T>> {
+public abstract class AbstractLayer<T extends AbstractLayer<T>> implements Serializable{
     abstract T getThis();
 
     protected String resourceType = null;

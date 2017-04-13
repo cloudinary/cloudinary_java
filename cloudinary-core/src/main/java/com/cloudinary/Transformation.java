@@ -1,5 +1,6 @@
 package com.cloudinary;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,7 +12,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Transformation {
+public class Transformation implements Serializable{
     public static final String VAR_NAME_RE = "^\\$[a-zA-Z][a-zA-Z0-9]+$";
     protected Map transformation;
     protected List<Map> transformations;

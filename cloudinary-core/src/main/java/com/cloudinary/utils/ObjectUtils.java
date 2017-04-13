@@ -1,17 +1,11 @@
 package com.cloudinary.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.cloudinary.json.JSONArray;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
+
+import java.io.*;
+import java.util.*;
 
 
 public class ObjectUtils {
@@ -30,6 +24,22 @@ public class ObjectUtils {
         } else {
             return value.toString();
         }
+    }
+
+    public static String serialize(Object object) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(baos);
+        try {
+            objectOutputStream.writeObject(object);
+            return new String(Base64Coder.encode(baos.toByteArray()));
+        } finally {
+            objectOutputStream.close();
+        }
+    }
+
+    public static Object deserialize(String base64SerializedString) throws IOException, ClassNotFoundException {
+        byte[] buf = Base64Coder.decode(base64SerializedString);
+        return new ObjectInputStream(new ByteArrayInputStream(buf)).readObject();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

@@ -1,6 +1,8 @@
 package com.cloudinary.utils;
 
-public class Rectangle {
+import java.io.Serializable;
+
+public class Rectangle implements Serializable{
 
     public int height;
     public int width;

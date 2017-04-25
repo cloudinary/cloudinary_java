@@ -413,6 +413,33 @@ public class Transformation {
         return chain();
     }
 
+    /**
+     * fps (frames per second) parameter for video
+     * @param value Either a single value int or float or a range in the format <code>&lt;start&gt;[-&lt;end&gt;]</code>.  <br>
+     *              For example, <code>23-29.7</code>
+     * @return the transformation for chaining
+     */
+    public Transformation fps(String value) {
+        return param("fps", value);
+    }
+
+    /**
+     * fps (frames per second) parameter for video
+     * @param value the desired fps
+     * @return the transformation for chaining
+     */
+    public Transformation fps(double value) {
+        return param("fps", new Float(value));
+    }
+
+    /**
+     * fps (frames per second) parameter for video
+     * @param value the desired fps
+     * @return the transformation for chaining
+     */
+    public Transformation fps(int value) {
+        return param("fps", new Integer(value));
+    }
 
     public boolean isResponsive() {
         return this.isResponsive;
@@ -584,6 +611,7 @@ public class Transformation {
                 "dl", "delay",
                 "dn", "density",
                 "f", "fetch_format",
+                "fps", "fps",
                 "g", "gravity",
                 "l", "overlay",
                 "p", "prefix",

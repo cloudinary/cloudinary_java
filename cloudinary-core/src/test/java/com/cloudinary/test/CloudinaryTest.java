@@ -1060,6 +1060,19 @@ public class CloudinaryTest {
         assertArrayEquals(expectedArr, actualArr);
     }
 
+    @Test
+    public void testFps() {
+        Transformation t = new Transformation().fps(12);
+        assertEquals("fps_12", t.generate());
+        t = new Transformation().fps(12.5);
+        assertEquals("fps_12.5", t.generate());
+        t = new Transformation().fps("12");
+        assertEquals("fps_12", t.generate());
+        t = new Transformation().fps("12-25.6");
+        assertEquals("fps_12-25.6", t.generate());
+
+    }
+
     public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
         Map<String, String> params = new HashMap<String, String>();
         for (String param : uri.getRawQuery().split("&")) {
@@ -1073,4 +1086,6 @@ public class CloudinaryTest {
         }
         return params;
     }
+
+
 }

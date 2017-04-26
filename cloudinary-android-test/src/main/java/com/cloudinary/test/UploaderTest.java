@@ -91,22 +91,21 @@ public class UploaderTest extends InstrumentationTestCase {
         if (cloudinary.config.apiSecret == null)
             return;
 
-        final CountDownLatch signal = new CountDownLatch(1);
         final long totalLength = getAssetFileSize(TEST_IMAGE);
+        final long[] totalUploaded = new long[]{0};
 
         ProgressCallback progressCallback = new ProgressCallback() {
             @Override
             public void onProgress(long bytesUploaded, long totalBytes) {
-                if (bytesUploaded == totalLength) {
-                    signal.countDown();
-                }
+                totalUploaded[0] += bytesUploaded;
             }
         };
 
         JSONObject result = new JSONObject(cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("colors", true), progressCallback));
 
-        signal.await(5, TimeUnit.SECONDS);
-        assertEquals(signal.getCount(), 0);
+        assertTrue("ProgressCallback was never called", totalUploaded[0] > 0);
+        assertEquals("ProgressCallback calls do not sum up to actual file length", totalLength, totalUploaded[0]);
+
         assertEquals(result.getLong("width"), 241L);
         assertEquals(result.getLong("height"), 51L);
         assertNotNull(result.get("colors"));

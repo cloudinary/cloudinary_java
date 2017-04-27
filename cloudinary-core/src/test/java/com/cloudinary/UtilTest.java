@@ -15,7 +15,8 @@ public class UtilTest {
     public void encodeContext() throws Exception {
         Map context = ObjectUtils.asMap("caption", "different = caption", "alt2", "alt|alternative");
         String result = Util.encodeContext(context);
-        assertEquals("caption=different \\= caption|alt2=alt\\|alternative", result);
+        assertTrue("caption=different \\= caption|alt2=alt\\|alternative".equals(result) ||
+                "alt2=alt\\|alternative|caption=different \\= caption".equals(result));
     }
 
 }

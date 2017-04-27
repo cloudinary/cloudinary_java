@@ -14,7 +14,7 @@
 
     <application>
         <uses-library android:name="android.test.runner" />
-        <meta-data android:name="CLOUDINARY_URL" android:value="cloudinary://123456789:abcdefg@hijklmnop"/>
+        <meta-data android:name="CLOUDINARY_URL" android:value="%CLOUDINARY_URL%"/>
     </application>
 
 </manifest>

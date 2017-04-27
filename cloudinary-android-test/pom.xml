@@ -53,6 +53,46 @@
         </configuration>
         <extensions>true</extensions>
       </plugin>
+        <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+                <execution>
+                    <id>copy</id>
+                    <phase>validate</phase>
+                    <configuration>
+                        <tasks>
+                            <copy file="${basedir}/src/main/AndroidManifest.xml.sample" tofile="src/main/AndroidManifest.xml"/>
+                        </tasks>
+                    </configuration>
+                    <goals>
+                        <goal>run</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+        <plugin>
+            <groupId>com.google.code.maven-replacer-plugin</groupId>
+            <artifactId>replacer</artifactId>
+            <version>1.5.3</version>
+            <executions>
+                <execution>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>replace</goal>
+                    </goals>
+                </execution>
+            </executions>
+            <configuration>
+                <file>${basedir}/src/main/AndroidManifest.xml</file>
+                <replacements>
+                    <replacement>
+                        <token>%CLOUDINARY_URL%</token>
+                        <value>${env.CLOUDINARY_URL}</value>
+                    </replacement>
+                </replacements>
+            </configuration>
+        </plugin>
     </plugins>
   </build>
 </project>

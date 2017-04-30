@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EagerTransformation extends Transformation {
+public class EagerTransformation extends Transformation<EagerTransformation> {
     protected String format;
 
     @SuppressWarnings("rawtypes")

@@ -4,8 +4,6 @@ import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
-import org.hamcrest.Matcher;
-import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -201,8 +199,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Test
     public void testSprite() throws IOException {
         final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime()) ;
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {sprite_test_tag, SDK_TEST_TAG}, "public_id", "sprite_test_tag_1"));
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {sprite_test_tag, SDK_TEST_TAG}, "public_id", "sprite_test_tag_2"));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {sprite_test_tag, SDK_TEST_TAG}, "public_id", "sprite_test_tag_1" + SUFFIX));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {sprite_test_tag, SDK_TEST_TAG}, "public_id", "sprite_test_tag_2" + SUFFIX));
         Map result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("tags", SDK_TEST_TAG));
         assertEquals(2, ((Map) result.get("image_infos")).size());
         result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("transformation", "w_100"));

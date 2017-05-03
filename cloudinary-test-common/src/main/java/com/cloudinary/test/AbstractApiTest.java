@@ -61,6 +61,7 @@ abstract public class AbstractApiTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         options = ObjectUtils.asMap("public_id", "context_2", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        System.out.println("Suffix: " + SUFFIX);
     }
 
     @AfterClass

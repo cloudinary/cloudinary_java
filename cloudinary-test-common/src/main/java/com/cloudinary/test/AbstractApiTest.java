@@ -5,21 +5,17 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
-import com.cloudinary.api.RateLimit;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.equalTo;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
 import java.util.*;
 
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.*;
@@ -42,6 +38,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, uniqueTag};
     public static final String EXPLICIT_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + ",w_100";
     public static final Transformation EXPLICIT_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX).fontFamily("Arial").fontSize(60));
+    public static final String TEST_KEY = "test-key" + SUFFIX;
 
     protected Api api;
 
@@ -58,15 +55,17 @@ abstract public class AbstractApiTest extends MockableTest {
         options.put("public_id", API_TEST_1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
 
-        options = ObjectUtils.asMap("public_id", "context_1", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "test-key=alt");
+        String context1 = TEST_KEY + "=alt";
+        String context2 = TEST_KEY + "=alternate";
+        options = ObjectUtils.asMap("public_id", "context_1", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", "context_2", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "test-key=alternate");
+        options = ObjectUtils.asMap("public_id", "context_2", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 
     @AfterClass
     public static void tearDownClass() {
-        Api api  = MockableTest.cleanUp();
+        Api api = MockableTest.cleanUp();
         try {
 //            api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
             api.deleteResourcesByTag(uniqueTag, ObjectUtils.emptyMap());
@@ -102,6 +101,7 @@ abstract public class AbstractApiTest extends MockableTest {
         }
 
     }
+
     @Rule
     public TestName currentTest = new TestName();
 
@@ -143,8 +143,8 @@ abstract public class AbstractApiTest extends MockableTest {
             Map result = api.resources(ObjectUtils.asMap("max_results", 500, "next_cursor", next_cursor));
             resources.addAll((List) result.get("resources"));
             next_cursor = (String) result.get("next_cursor");
-        } while (next_cursor != null );
-        assertThat(resources, hasItem(allOf(hasEntry("public_id", (String) resource.get("public_id")),hasEntry("type", "upload"))));
+        } while (next_cursor != null);
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", (String) resource.get("public_id")), hasEntry("type", "upload"))));
     }
 
     @Test
@@ -183,9 +183,9 @@ abstract public class AbstractApiTest extends MockableTest {
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST)));
         assertThat(resources, hasItem(hasEntry("public_id", (Object) API_TEST_1)));
 //        resources = (List<Map<? extends String, ?>>) result.get("resources");
-        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST),hasEntry("type", "upload"))));
+        assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST), hasEntry("type", "upload"))));
         assertThat(resources, hasItem(hasEntry("context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")))));
-        assertThat(resources, hasItem(hasEntry(equalTo("tags"),  hasItem( SDK_TEST_TAG))));
+        assertThat(resources, hasItem(hasEntry(equalTo("tags"), hasItem(SDK_TEST_TAG))));
     }
 
     @Test
@@ -338,15 +338,15 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow listing tags
         Map result = api.tags(ObjectUtils.asMap("max_results", 500));
         List<String> tags = (List<String>) result.get("tags");
-        assertThat( tags, hasItem(SDK_TEST_TAG));
+        assertThat(tags, hasItem(SDK_TEST_TAG));
     }
 
     @Test
     public void test11TagsPrefix() throws Exception {
         // should allow listing tag by prefix
-        Map result = api.tags(ObjectUtils.asMap("prefix", SDK_TEST_TAG.substring(0,SDK_TEST_TAG.length()-1)));
+        Map result = api.tags(ObjectUtils.asMap("prefix", SDK_TEST_TAG.substring(0, SDK_TEST_TAG.length() - 1)));
         List<String> tags = (List<String>) result.get("tags");
-        assertThat( tags, hasItem(SDK_TEST_TAG));
+        assertThat(tags, hasItem(SDK_TEST_TAG));
         result = api.tags(ObjectUtils.asMap("prefix", "api_test_no_such_tag"));
         tags = (List<String>) result.get("tags");
         assertEquals(0, tags.size());
@@ -429,14 +429,14 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void test20ResourcesContext() throws Exception {
-        Map result = api.resourcesByContext("test-key", ObjectUtils.emptyMap());
+        Map result = api.resourcesByContext(TEST_KEY, ObjectUtils.emptyMap());
 
         List<Map> resources = (List<Map>) result.get("resources");
-        assertEquals(2,resources.size());
-        result = api.resourcesByContext("test-key","alt", ObjectUtils.emptyMap());
+        assertEquals(2, resources.size());
+        result = api.resourcesByContext(TEST_KEY, "alt", ObjectUtils.emptyMap());
 
         resources = (List<Map>) result.get("resources");
-        assertEquals(1,resources.size());
+        assertEquals(1, resources.size());
     }
 
     /**
@@ -497,7 +497,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testOcrUpdate() {
         // should support requesting ocr info
         try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("ocr", "illegal"));
         } catch (Exception e) {
             assertTrue(e instanceof BadRequest);
@@ -509,7 +509,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testRawConvertUpdate() {
         // should support requesting raw conversion
         try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("raw_convert", "illegal"));
         } catch (Exception e) {
             assertTrue(e instanceof BadRequest);
@@ -521,7 +521,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testCategorizationUpdate() {
         // should support requesting categorization
         try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("categorization", "illegal"));
         } catch (Exception e) {
             assertTrue(e instanceof BadRequest);
@@ -533,7 +533,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testDetectionUpdate() {
         // should support requesting detection
         try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("detection", "illegal"));
         } catch (Exception e) {
             assertTrue(e instanceof BadRequest);
@@ -545,7 +545,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testSimilaritySearchUpdate() {
         // should support requesting similarity search
         try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("similarity_search", "illegal"));
         } catch (Exception e) {
             assertTrue(e instanceof BadRequest);
@@ -557,7 +557,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testUpdateCustomCoordinates() throws IOException, Exception {
         // should update custom coordinates
         Coordinates coordinates = new Coordinates("121,31,110,151");
-        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap( "tags", UPLOAD_TAGS));
+        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
         cloudinary.api().update(uploadResult.get("public_id").toString(), ObjectUtils.asMap("custom_coordinates", coordinates));
         Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("coordinates", true));
         int[] expected = new int[]{121, 31, 110, 151};

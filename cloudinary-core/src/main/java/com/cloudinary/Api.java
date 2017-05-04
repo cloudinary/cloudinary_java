@@ -1,7 +1,5 @@
 package com.cloudinary;
 
-import java.util.*;
-
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.*;
@@ -9,7 +7,8 @@ import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONArray;
-import com.cloudinary.utils.StringUtils;
+
+import java.util.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Api {
@@ -435,7 +434,7 @@ public class Api {
      * @see Api#deleteStreamingProfile(String, Map)
      */
     public ApiResponse deleteStreamingProfile(String name) throws Exception {
-        return getStreamingProfile(name, null);
+        return deleteStreamingProfile(name, null);
     }
 
     /**

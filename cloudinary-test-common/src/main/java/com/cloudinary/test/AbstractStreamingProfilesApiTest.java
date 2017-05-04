@@ -18,8 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
 abstract public class AbstractStreamingProfilesApiTest extends MockableTest {
@@ -92,10 +91,7 @@ abstract public class AbstractStreamingProfilesApiTest extends MockableTest {
         }
 
         result = api.deleteStreamingProfile(DELETE_PROFILE_NAME);
-        assertTrue(result.containsKey("data"));
-        Map profile = (Map) result.get("data");
-        assertThat(profile, (Matcher) hasEntry("name", (Object) DELETE_PROFILE_NAME));
-
+        assertEquals("deleted", result.get("message"));
     }
 
     @Test

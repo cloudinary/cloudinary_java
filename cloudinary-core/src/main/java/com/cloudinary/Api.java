@@ -434,7 +434,7 @@ public class Api {
      * @see Api#deleteStreamingProfile(String, Map)
      */
     public ApiResponse deleteStreamingProfile(String name) throws Exception {
-        return getStreamingProfile(name, null);
+        return deleteStreamingProfile(name, null);
     }
 
     /**

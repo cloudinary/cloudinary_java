@@ -57,11 +57,11 @@ abstract public class AbstractApiTest extends MockableTest {
 
         String context1 = TEST_KEY + "=alt";
         String context2 = TEST_KEY + "=alternate";
-        options = ObjectUtils.asMap("public_id", "context_1", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context1);
+        options = ObjectUtils.asMap("public_id", "context_1" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", "context_2", "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
+        options = ObjectUtils.asMap("public_id", "context_2" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        System.out.println("Suffix: " + SUFFIX);
+        System.out.println("Generated tag suffix: " + SUFFIX);
     }
 
     @AfterClass

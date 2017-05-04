@@ -5,6 +5,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.AlreadyExists;
+import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.utils.ObjectUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -113,7 +114,7 @@ abstract public class AbstractStreamingProfilesApiTest extends MockableTest {
         assertThat(profile, (Matcher) hasEntry("name", (Object) UPDATE_PROFILE_NAME));
         assertThat(profile, Matchers.hasEntry(equalTo("representations"), (Matcher) hasItem(hasKey("transformation"))));
         final Map representation = (Map) ((List) profile.get("representations")).get(0);
-        Map transformation = (Map) ((List)representation.get("transformation")).get(0);
+        Map transformation = (Map) ((List) representation.get("transformation")).get(0);
         assertThat(transformation, allOf(
                 (Matcher) hasEntry("width", 800),
                 (Matcher) hasEntry("height", 800),
@@ -123,14 +124,22 @@ abstract public class AbstractStreamingProfilesApiTest extends MockableTest {
     }
 
     @AfterClass
-    public static void tearDownClass() {
+    public static void tearDownClass() throws Exception {
         Api api = new Cloudinary().api();
         try {
             api.deleteStreamingProfile(CREATE_PROFILE_NAME);
-            api.deleteStreamingProfile(DELETE_PROFILE_NAME);
+        } catch (NotFound ignored) {
+        }
+
+        try {
             api.deleteStreamingProfile(UPDATE_PROFILE_NAME);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (NotFound ignored) {
+        }
+
+        try {
+            // this should already be gone but in case that deletion-test failed we still need to cleanup the account.
+            api.deleteStreamingProfile(DELETE_PROFILE_NAME);
+        } catch (NotFound ignored) {
         }
     }
 }

@@ -285,7 +285,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test()
     public void testDeleteDerivedByTransformation() throws Exception {
         // should allow deleting resources
-        String public_id = "api_test_123";
+        String public_id = "api_test_123" + SUFFIX;
         List<Transformation> transformations = new ArrayList<Transformation>();
         transformations.add(new Transformation().angle(90));
         transformations.add(new Transformation().width(120));
@@ -305,7 +305,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test(expected = NotFound.class)
     public void test09DeleteResources() throws Exception {
         // should allow deleting resources
-        String public_id = "api_,test3";
+        String public_id = "api_,test3" + SUFFIX;
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
         Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
@@ -712,35 +712,36 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUploadMapping() throws Exception {
+        String aptTestUploadMapping = "api_test_upload_mapping" + SUFFIX;
         try {
-            api.deleteUploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+            api.deleteUploadMapping(aptTestUploadMapping, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
 
         }
-        api.createUploadMapping("api_test_upload_mapping", ObjectUtils.asMap("template", "http://cloudinary.com"));
-        Map result = api.uploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+        api.createUploadMapping(aptTestUploadMapping, ObjectUtils.asMap("template", "http://cloudinary.com"));
+        Map result = api.uploadMapping(aptTestUploadMapping, ObjectUtils.emptyMap());
         assertEquals(result.get("template"), "http://cloudinary.com");
-        api.updateUploadMapping("api_test_upload_mapping", ObjectUtils.asMap("template", "http://res.cloudinary.com"));
-        result = api.uploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+        api.updateUploadMapping(aptTestUploadMapping, ObjectUtils.asMap("template", "http://res.cloudinary.com"));
+        result = api.uploadMapping(aptTestUploadMapping, ObjectUtils.emptyMap());
         assertEquals(result.get("template"), "http://res.cloudinary.com");
         result = api.uploadMappings(ObjectUtils.emptyMap());
         ListIterator mappings = ((ArrayList) result.get("mappings")).listIterator();
         boolean found = false;
         while (mappings.hasNext()) {
             Map mapping = (Map) mappings.next();
-            if (mapping.get("folder").equals("api_test_upload_mapping")
+            if (mapping.get("folder").equals(aptTestUploadMapping)
                     && mapping.get("template").equals("http://res.cloudinary.com")) {
                 found = true;
                 break;
             }
         }
         assertTrue(found);
-        api.deleteUploadMapping("api_test_upload_mapping", ObjectUtils.emptyMap());
+        api.deleteUploadMapping(aptTestUploadMapping, ObjectUtils.emptyMap());
         result = api.uploadMappings(ObjectUtils.emptyMap());
         found = false;
         while (mappings.hasNext()) {
             Map mapping = (Map) mappings.next();
-            if (mapping.get("folder").equals("api_test_upload_mapping")
+            if (mapping.get("folder").equals(aptTestUploadMapping)
                     && mapping.get("template").equals("http://res.cloudinary.com")) {
                 found = true;
                 break;

@@ -988,7 +988,11 @@ public class CloudinaryTest {
                 "text:Arial_18_bold_italic_letter_spacing_4_line_spacing_3:Hello%20World%252C%20Nice%20to%20meet%20you%3F",
                 new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
                 new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
-                "subtitles:Arial_40:sample_sub_he.srt"};
+                "subtitles:Arial_40:sample_sub_he.srt",
+                new FetchLayer().url("https://test").resourceType("image"),
+                "fetch:aHR0cHM6Ly90ZXN0",
+                new FetchLayer().url("https://test"),
+                "fetch:aHR0cHM6Ly90ZXN0"};
 
         for (int i = 0; i < tests.length; i += 2) {
             Object layer = tests[i];

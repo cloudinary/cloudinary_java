@@ -228,6 +228,11 @@ public class CloudinaryTest {
         assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);
     }
 
+    @Test
+    public void testSupportUrlSuffixForPrivateImages(){
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("image").type("private").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/private_images/test/hello", actual);
+    }
     @Test(expected = IllegalArgumentException.class)
     public void testDisllowUseRootPathInSharedDistribution() {
         cloudinary.url().useRootPath(true).generate("test");

@@ -25,11 +25,14 @@ For Java, Cloudinary provides a library for simplifying the integration even fur
 
 The cloudinary_java library is available in [Maven Central](https://repo1.maven.org/maven2/com/cloudinary/). To use it, add the following dependency to your pom.xml :
 
-    <dependency>
-        <groupId>com.cloudinary</groupId>
-        <artifactId>cloudinary-http44</artifactId>
-        <version>1.12.0</version>
-    </dependency>
+```xml
+<dependency>
+    <groupId>com.cloudinary</groupId>
+    <artifactId>cloudinary-http44</artifactId>
+    <version>1.12.0</version>
+</dependency>
+```
+
 
 Alternatively, download cloudinary_java from [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-core/1.12.0/cloudinary-core-1.12.0.jar) and [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-http44/1.12.0/cloudinary-http44-1.12.0.jar)
 and see [pom.xml](https://github.com/cloudinary/cloudinary_java/blob/master/cloudinary-http44/pom.xml) for library dependencies.
@@ -80,16 +83,19 @@ Setting the `cloud_name`, `api_key` and `api_secret` parameters can be done eith
 by when initializing the Cloudinary object, or by using the CLOUDINARY_URL environment variable / system property.
 
 The entry point of the library is the Cloudinary object. 
-
-    Cloudinary cloudinary = new Cloudinary();
+```java
+Cloudinary cloudinary = new Cloudinary();
+```
 
 Here's an example of setting the configuration parameters programatically:
 
-    Map config = new HashMap();
-    config.put("cloud_name", "n07t21i7");
-    config.put("api_key", "123456789012345");
-    config.put("api_secret", "abcdeghijklmnopqrstuvwxyz12");
-    Cloudinary cloudinary = new Cloudinary(config);
+```java
+Map config = new HashMap();
+config.put("cloud_name", "n07t21i7");
+config.put("api_key", "123456789012345");
+config.put("api_secret", "abcdeghijklmnopqrstuvwxyz12");
+Cloudinary cloudinary = new Cloudinary(config);
+```
 
 Another example of setting the configuration parameters by providing the CLOUDINARY_URL value to the constructor:
 
@@ -101,21 +107,29 @@ Any image uploaded to Cloudinary can be transformed and embedded using powerful 
 
 The following example generates the url for accessing an uploaded `sample` image while transforming it to fill a 100x150 rectangle:
 
-    cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg");
+```java
+cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg");
+```
 
 Another example, emedding a smaller version of an uploaded image while generating a 90x90 face detection based thumbnail: 
 
-    cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg");
+```java
+cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg");
+```
 
 You can provide either a Facebook name or a numeric ID of a Facebook profile or a fan page.  
              
 Embedding a Facebook profile to match your graphic design is very simple:
 
-    cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg");
-                           
+```java
+cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg");
+```
+
 Same goes for Twitter:
 
-    cloudinary.url().type("twitter_name").generate("billclinton.jpg");
+```java
+cloudinary.url().type("twitter_name").generate("billclinton.jpg");
+```
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_manipulation) for more information about displaying and transforming images in Java**.
 
@@ -124,22 +138,28 @@ Same goes for Twitter:
 Assuming you have your Cloudinary configuration parameters defined (`cloud_name`, `api_key`, `api_secret`), uploading to Cloudinary is very simple.
     
 The following example uploads a local JPG to the cloud: 
-    
-    cloudinary.uploader().upload("my_picture.jpg", ObjectUtils.emptyMap());
+
+```java
+cloudinary.uploader().upload("my_picture.jpg", ObjectUtils.emptyMap());
+```
         
 The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
 
-    cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg");
-        
-    # http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
+```java
+cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg");
+
+# http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
+```
 
 You can also specify your own public ID:    
-    
-    cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"));
 
-    cloudinary.url().generate("sample_remote.jpg");
+```java
+cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"));
 
-    # http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
+cloudinary.url().generate("sample_remote.jpg");
+
+# http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
+```
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.        
 
@@ -149,9 +169,11 @@ Returns an html image tag pointing to Cloudinary.
 
 Usage:
 
-    cloudinary.url().format("png").transformation(new Transformation().width(100).height(100).crop("fill")).imageTag("sample");
+```java
+cloudinary.url().format("png").transformation(new Transformation().width(100).height(100).crop("fill")).imageTag("sample");
 
-    # <img src='http://res.cloudinary.com/cloud_name/image/upload/c_fill,h_100,w_100/sample.png' height='100' width='100'/>
+# <img src='http://res.cloudinary.com/cloud_name/image/upload/c_fill,h_100,w_100/sample.png' height='100' width='100'/>
+```
 
 ### imageUploadTag
 
@@ -159,9 +181,11 @@ Returns an html input field for direct image upload, to be used in conjunction w
 
 Usage:
 
-    Map options = ObjectUtils.asMap("resource_type", "auto");
-    Map htmlOptions = ObjectUtils.asMap("alt", "sample");
-    String html = cloudinary.uploader().imageUploadTag("image_id", options, htmlOptions);
+```java
+Map options = ObjectUtils.asMap("resource_type", "auto");
+Map htmlOptions = ObjectUtils.asMap("alt", "sample");
+String html = cloudinary.uploader().imageUploadTag("image_id", options, htmlOptions);
+```
 
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload#direct_uploading_from_the_browser) for plenty more options of uploading directly from the browser**.
   

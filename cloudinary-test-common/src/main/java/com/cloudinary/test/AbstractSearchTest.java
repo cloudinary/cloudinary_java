@@ -3,22 +3,21 @@ package com.cloudinary.test;
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import org.cloudinary.json.JSONObject;
 import org.junit.*;
 import org.junit.rules.TestName;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
 abstract public class AbstractSearchTest extends MockableTest {
     @Rule
     public TestName currentTest = new TestName();
-    private static final String SEARCH_TAG = "search_test";
+    private static final String SEARCH_TAG = "search_test" + SUFFIX;
     private static final String API_TEST = "api_test_" + SUFFIX;
     private static final String API_TEST_1 = API_TEST + "_1";
     private static final String API_TEST_2 = API_TEST + "_2";

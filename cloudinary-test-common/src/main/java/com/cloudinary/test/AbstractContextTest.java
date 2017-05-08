@@ -21,7 +21,7 @@ import static org.junit.Assume.assumeNotNull;
 @SuppressWarnings({"rawtypes", "unchecked"})
 abstract public class AbstractContextTest extends MockableTest {
 
-    private static final String CONTEXT_TAG = "context_tag_" + String.valueOf(System.currentTimeMillis());
+    private static final String CONTEXT_TAG = "context_tag_" + String.valueOf(System.currentTimeMillis()) + SUFFIX;
     private static Map resource;
     public static final Map CONTEXT = asMap("caption", "some cäption", "alt", "alternativè");
     private Uploader uploader;

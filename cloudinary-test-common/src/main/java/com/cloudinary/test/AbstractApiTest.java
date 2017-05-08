@@ -35,7 +35,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String API_TEST_UPLOAD_PRESET_2 = API_TEST_UPLOAD_PRESET + "2";
     public static final String API_TEST_UPLOAD_PRESET_3 = API_TEST_UPLOAD_PRESET + "3";
     public static final String API_TEST_UPLOAD_PRESET_4 = API_TEST_UPLOAD_PRESET + "4";
-    public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, uniqueTag};
+    public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, SDK_TEST_TAG + "_api", uniqueTag};
     public static final String EXPLICIT_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + ",w_100";
     public static final Transformation EXPLICIT_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX).fontFamily("Arial").fontSize(60));
     public static final String TEST_KEY = "test-key" + SUFFIX;
@@ -49,7 +49,7 @@ abstract public class AbstractApiTest extends MockableTest {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
-        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "key=value", "eager",
+        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", UPLOAD_TAGS, "context", "key=value", "eager",
                 Collections.singletonList(EXPLICIT_TRANSFORMATION));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         options.put("public_id", API_TEST_1);
@@ -57,9 +57,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
         String context1 = TEST_KEY + "=alt";
         String context2 = TEST_KEY + "=alternate";
-        options = ObjectUtils.asMap("public_id", "context_1" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context1);
+        options = ObjectUtils.asMap("public_id", "context_1" + SUFFIX, "tags", UPLOAD_TAGS, "context", context1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", "context_2" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
+        options = ObjectUtils.asMap("public_id", "context_2" + SUFFIX, "tags", UPLOAD_TAGS, "context", context2);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 

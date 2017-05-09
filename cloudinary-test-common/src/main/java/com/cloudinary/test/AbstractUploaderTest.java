@@ -43,8 +43,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @AfterClass
     public static void tearDownClass() {
-        Api api = MockableTest.cleanUp();
-        Cloudinary cloudinary = new Cloudinary();
+        Api api = new Cloudinary().api();
         try {
             api.deleteResourcesByTag(ARCHIVE_TAG, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
@@ -214,7 +213,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Test
     public void testMulti() throws IOException {
         final String MULTI_TEST_TAG = "multi_test_tag" + SUFFIX;
-        final Map options = asMap("tags", new String[]{MULTI_TEST_TAG, SDK_TEST_TAG, UPLOADER_TAG, uniqueTag});
+        final Map options = asMap("tags", new String[]{MULTI_TEST_TAG, SDK_TEST_TAG, UPLOADER_TAG});
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         List<String> ids = new ArrayList<String>();

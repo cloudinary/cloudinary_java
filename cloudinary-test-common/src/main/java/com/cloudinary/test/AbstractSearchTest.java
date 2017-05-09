@@ -1,6 +1,5 @@
 package com.cloudinary.test;
 
-import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -18,6 +17,7 @@ abstract public class AbstractSearchTest extends MockableTest {
     @Rule
     public TestName currentTest = new TestName();
     private static final String SEARCH_TAG = "search_test" + SUFFIX;
+    public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, SEARCH_TAG};
     private static final String API_TEST = "api_test_" + SUFFIX;
     private static final String API_TEST_1 = API_TEST + "_1";
     private static final String API_TEST_2 = API_TEST + "_2";
@@ -25,15 +25,15 @@ abstract public class AbstractSearchTest extends MockableTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         Cloudinary cloudinary = new Cloudinary();
-        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{SDK_TEST_TAG, SEARCH_TAG, uniqueTag}, "context", "stage=in_review");
+        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", UPLOAD_TAGS, "context", "stage=in_review");
         cloudinary.api().deleteResourcesByTag(SEARCH_TAG, null);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", API_TEST_1, "tags", new String[]{SDK_TEST_TAG, SEARCH_TAG, uniqueTag}, "context", "stage=new");
+        options = ObjectUtils.asMap("public_id", API_TEST_1, "tags", UPLOAD_TAGS, "context", "stage=new");
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", API_TEST_2, "tags", new String[]{SDK_TEST_TAG, SEARCH_TAG, uniqueTag}, "context", "stage=validated");
+        options = ObjectUtils.asMap("public_id", API_TEST_2, "tags", UPLOAD_TAGS, "context", "stage=validated");
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         try {
-            Thread.sleep(3000); //wait for search indexing
+            Thread.sleep(5000); //wait for search indexing
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -41,7 +41,6 @@ abstract public class AbstractSearchTest extends MockableTest {
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-        Api api = MockableTest.cleanUp();
         Cloudinary cloudinary = new Cloudinary();
         cloudinary.api().deleteResourcesByTag(SEARCH_TAG, null);
     }

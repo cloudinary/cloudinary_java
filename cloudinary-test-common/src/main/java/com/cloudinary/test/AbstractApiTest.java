@@ -327,28 +327,29 @@ abstract public class AbstractApiTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
         Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResources(Arrays.asList(API_TEST_2, public_id), ObjectUtils.emptyMap());
+        api.deleteResources(Arrays.asList(public_id), ObjectUtils.emptyMap());
         api.resource(public_id, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByPrefix() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "api_test_by_prefix", "tags", UPLOAD_TAGS));
-        Map resource = api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
+        String public_id = SUFFIX + "_api_test_by_prefix";
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
+        Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByPrefix("api_test_by", ObjectUtils.emptyMap());
-        api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
+        api.deleteResourcesByPrefix(public_id.substring(0, SUFFIX.length() + 10), ObjectUtils.emptyMap());
+        api.resource(public_id, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByTags() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", API_TEST + "_4", "tags", Collections.singletonList("api_test_tag_for_delete")));
+        String tag = "api_test_tag_for_delete" + SUFFIX;
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", API_TEST + "_4", "tags", Collections.singletonList(tag)));
         Map resource = api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByTag("api_test_tag_for_delete", ObjectUtils.emptyMap());
+        api.deleteResourcesByTag(tag, ObjectUtils.emptyMap());
         api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
     }
 

@@ -375,8 +375,10 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test12Transformations() throws Exception {
         // should allow listing transformations
+        final Transformation listTest = new Transformation().width(25).crop("scale").overlay(new TextLayer().text(SUFFIX + "_testListTransformations").fontFamily("Arial").fontSize(60));
+        preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS, "eager", Collections.singletonList(listTest)));
         Map result = api.transformations(ObjectUtils.emptyMap());
-        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", EXPLICIT_TRANSFORMATION_NAME);
+        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", listTest.generate());
 
         assertNotNull(transformation);
         assertTrue((Boolean) transformation.get("used"));

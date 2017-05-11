@@ -33,7 +33,7 @@ abstract public class AbstractSearchTest extends MockableTest {
         options = ObjectUtils.asMap("public_id", SEARCH_TEST_2, "tags", UPLOAD_TAGS, "context", "stage=validated");
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         try {
-            Thread.sleep(3000); //wait for search indexing
+            Thread.sleep(5000); //wait for search indexing
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

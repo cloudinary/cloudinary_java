@@ -293,7 +293,7 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(resource);
         List derived = ((List) resource.get("derived"));
         assertTrue(derived.size() == 2);
-        api.deleteDerivedResourcesByTransformations(ObjectUtils.asArray(public_id), ObjectUtils.asArray(transformations), ObjectUtils.emptyMap());
+        api.deleteDerivedByTransformation(ObjectUtils.asArray(public_id), ObjectUtils.asArray(transformations), ObjectUtils.emptyMap());
 
         resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);

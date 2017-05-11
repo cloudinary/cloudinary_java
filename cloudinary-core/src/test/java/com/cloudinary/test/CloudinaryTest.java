@@ -1006,7 +1006,6 @@ public class CloudinaryTest {
         }
     }
 
-
     @Test
     @SuppressWarnings("deprecation")
     public void testBackwardCampatibleOverlayOptions() {

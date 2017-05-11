@@ -11,7 +11,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Transformation {
+public class Transformation<T extends Transformation> {
     public static final String VAR_NAME_RE = "^\\$[a-zA-Z][a-zA-Z0-9]+$";
     protected Map transformation;
     protected List<Map> transformations;
@@ -48,305 +48,309 @@ public class Transformation {
         chain();
     }
 
-    public Transformation width(Object value) {
+    public T width(Object value) {
         return param("width", value);
     }
 
-    public Transformation height(Object value) {
+    public T height(Object value) {
         return param("height", value);
     }
 
-    public Transformation named(String... value) {
+    public T named(String... value) {
         return param("transformation", value);
     }
 
-    public Transformation crop(String value) {
+    public T crop(String value) {
         return param("crop", value);
     }
 
-    public Transformation background(String value) {
+    public T background(String value) {
         return param("background", value);
     }
 
-    public Transformation color(String value) {
+    public T color(String value) {
         return param("color", value);
     }
 
-    public Transformation effect(String value) {
+    public T effect(String value) {
         return param("effect", value);
     }
 
-    public Transformation effect(String effect, Object param) {
+    public T effect(String effect, Object param) {
         return param("effect", effect + ":" + param);
     }
 
-    public Transformation angle(int value) {
+    public T angle(int value) {
         return param("angle", value);
     }
 
-    public Transformation angle(String... value) {
+    public T angle(String... value) {
         return param("angle", value);
     }
 
-    public Transformation border(String value) {
+    public T border(String value) {
         return param("border", value);
     }
 
-    public Transformation border(int width, String color) {
+    public T border(int width, String color) {
         return param("border", "" + width + "px_solid_" + color.replaceFirst("^#", "rgb:"));
     }
 
-    public Transformation x(Object value) {
+    public T x(Object value) {
         return param("x", value);
     }
 
-    public Transformation y(Object value) {
+    public T y(Object value) {
         return param("y", value);
     }
 
-    public Transformation radius(Object value) {
+    public T radius(Object value) {
         return param("radius", value);
     }
 
-    public Transformation quality(Object value) {
+    public T quality(Object value) {
         return param("quality", value);
     }
 
-    public Transformation defaultImage(String value) {
+    public T defaultImage(String value) {
         return param("default_image", value);
     }
 
-    public Transformation gravity(String value) {
+    public T gravity(String value) {
         return param("gravity", value);
     }
 
-    public Transformation colorSpace(String value) {
+    public T colorSpace(String value) {
         return param("color_space", value);
     }
 
-    public Transformation prefix(String value) {
+    public T prefix(String value) {
         return param("prefix", value);
     }
 
-    public Transformation overlay(String value) {
+    public T overlay(String value) {
         return param("overlay", value);
     }
 
-    public Transformation overlay(AbstractLayer<?> value) {
+    public T overlay(AbstractLayer<?> value) {
         return param("overlay", value);
     }
 
-    public Transformation underlay(String value) {
+    public T underlay(String value) {
         return param("underlay", value);
     }
 
-    public Transformation underlay(AbstractLayer<?> value) {
+    public T underlay(AbstractLayer<?> value) {
         return param("underlay", value);
     }
 
-    public Transformation fetchFormat(String value) {
+    public T fetchFormat(String value) {
         return param("fetch_format", value);
     }
 
-    public Transformation density(Object value) {
+    public T density(Object value) {
         return param("density", value);
     }
 
-    public Transformation page(Object value) {
+    public T page(Object value) {
         return param("page", value);
     }
 
-    public Transformation delay(Object value) {
+    public T delay(Object value) {
         return param("delay", value);
     }
 
-    public Transformation opacity(int value) {
+    public T opacity(int value) {
         return param("opacity", value);
     }
 
-    public Transformation rawTransformation(String value) {
+    public T rawTransformation(String value) {
         return param("raw_transformation", value);
     }
 
-    public Transformation flags(String... value) {
+    public T flags(String... value) {
         return param("flags", value);
     }
 
-    public Transformation dpr(float value) {
+    public T dpr(float value) {
         return param("dpr", value);
     }
 
-    public Transformation dpr(int value) {
+    public T dpr(int value) {
         return param("dpr", value);
     }
 
-    public Transformation dpr(String value) {
+    public T dpr(String value) {
         return param("dpr", value);
     }
 
-    public Transformation duration(String value) {
+    public T duration(String value) {
         return param("duration", value);
     }
 
-    public Transformation duration(float value) {
+    public T duration(float value) {
         return param("duration", new Float(value));
     }
 
-    public Transformation duration(double value) {
+    public T duration(double value) {
         return param("duration", new Double(value));
     }
 
-    public Transformation durationPercent(float value) {
+    public T durationPercent(float value) {
         return param("duration", new Float(value).toString() + "p");
     }
 
-    public Transformation durationPercent(double value) {
+    public T durationPercent(double value) {
         return param("duration", new Double(value).toString() + "p");
     }
 
-    public Transformation startOffset(String value) {
+    public T startOffset(String value) {
         return param("start_offset", value);
     }
 
-    public Transformation startOffset(float value) {
+    public T startOffset(float value) {
         return param("start_offset", new Float(value));
     }
 
-    public Transformation startOffset(double value) {
+    public T startOffset(double value) {
         return param("start_offset", new Double(value));
     }
 
-    public Transformation startOffsetPercent(float value) {
+    public T startOffsetPercent(float value) {
         return param("start_offset", new Float(value).toString() + "p");
     }
 
-    public Transformation startOffsetPercent(double value) {
+    public T startOffsetPercent(double value) {
         return param("start_offset", new Double(value).toString() + "p");
     }
 
-    public Transformation endOffset(String value) {
+    public T endOffset(String value) {
         return param("end_offset", value);
     }
 
-    public Transformation endOffset(float value) {
+    public T endOffset(float value) {
         return param("end_offset", new Float(value));
     }
 
-    public Transformation endOffset(double value) {
+    public T endOffset(double value) {
         return param("end_offset", new Double(value));
     }
 
-    public Transformation endOffsetPercent(float value) {
+    public T endOffsetPercent(float value) {
         return param("end_offset", new Float(value).toString() + "p");
     }
 
-    public Transformation endOffsetPercent(double value) {
+    public T endOffsetPercent(double value) {
         return param("end_offset", new Double(value).toString() + "p");
     }
 
-    public Transformation offset(String value) {
+    public T offset(String value) {
         return param("offset", value);
     }
 
-    public Transformation offset(String[] value) {
+    public T offset(String[] value) {
         if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
         return param("offset", value);
     }
 
-    public Transformation offset(float[] value) {
+    public T offset(float[] value) {
         if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
         Number[] numberArray = new Number[]{value[0], value[1]};
         return offset(numberArray);
     }
 
-    public Transformation offset(double[] value) {
+    public T offset(double[] value) {
         if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
         Number[] numberArray = new Number[]{value[0], value[1]};
         return offset(numberArray);
     }
 
-    public Transformation offset(Number[] value) {
+    public T offset(Number[] value) {
         if (value.length < 2) throw new IllegalArgumentException("Offset range must include at least 2 items");
         return param("offset", value);
     }
 
-    public Transformation videoCodec(String value) {
+    public T videoCodec(String value) {
         return param("video_codec", value);
     }
 
-    public Transformation videoCodec(Map<String, String> value) {
+    public T videoCodec(Map<String, String> value) {
         return param("video_codec", value);
     }
 
-    public Transformation audioCodec(String value) {
+    public T audioCodec(String value) {
         return param("audio_codec", value);
     }
 
-    public Transformation audioFrequency(String value) {
+    public T audioFrequency(String value) {
         return param("audio_frequency", value);
     }
 
-    public Transformation audioFrequency(int value) {
+    public T audioFrequency(int value) {
         return param("audio_frequency", value);
     }
 
-    public Transformation bitRate(String value) {
+    public T streamingProfile(String value){
+        return param("streaming_profile", value);
+    }
+
+    public T bitRate(String value) {
         return param("bit_rate", value);
     }
 
-    public Transformation bitRate(int value) {
+    public T bitRate(int value) {
         return param("bit_rate", new Integer(value));
     }
 
-    public Transformation videoSampling(String value) {
+    public T videoSampling(String value) {
         return param("video_sampling", value);
     }
 
-    public Transformation videoSamplingFrames(int value) {
+    public T videoSamplingFrames(int value) {
         return param("video_sampling", value);
     }
 
-    public Transformation videoSamplingSeconds(Number value) {
+    public T videoSamplingSeconds(Number value) {
         return param("video_sampling", value.toString() + "s");
     }
 
-    public Transformation videoSamplingSeconds(int value) {
+    public T videoSamplingSeconds(int value) {
         return videoSamplingSeconds(new Integer(value));
     }
 
-    public Transformation videoSamplingSeconds(float value) {
+    public T videoSamplingSeconds(float value) {
         return videoSamplingSeconds(new Float(value));
     }
 
-    public Transformation videoSamplingSeconds(double value) {
+    public T videoSamplingSeconds(double value) {
         return videoSamplingSeconds(new Double(value));
     }
 
-    public Transformation zoom(String value) {
+    public T zoom(String value) {
         return param("zoom", value);
     }
 
-    public Transformation zoom(float value) {
+    public T zoom(float value) {
         return param("zoom", new Float(value));
     }
 
-    public Transformation zoom(double value) {
+    public T zoom(double value) {
         return param("zoom", new Double(value));
     }
 
-    public Transformation aspectRatio(double value) {
+    public T aspectRatio(double value) {
         return param("aspect_ratio", new Double(value));
     }
 
-    public Transformation aspectRatio(String value) {
+    public T aspectRatio(String value) {
         return param("aspect_ratio", value);
     }
 
-    public Transformation aspectRatio(int nom, int denom) {
+    public T aspectRatio(int nom, int denom) {
         return aspectRatio(Integer.toString(nom) + ":" + Integer.toString(denom));
     }
 
-    public Transformation responsiveWidth(boolean value) {
+    public T responsiveWidth(boolean value) {
         return param("responsive_width", value);
     }
 
@@ -363,7 +367,7 @@ public class Transformation {
      * @param condition a condition string
      * @return the transformation for chaining
      */
-    public Transformation ifCondition(String condition) {
+    public T ifCondition(String condition) {
         return param("if", condition);
     }
 
@@ -373,7 +377,7 @@ public class Transformation {
      * @param expression a condition
      * @return the transformation for chaining
      */
-    public Transformation ifCondition(Expression expression) {
+    public T ifCondition(Expression expression) {
         return ifCondition(expression.toString());
     }
 
@@ -382,16 +386,16 @@ public class Transformation {
      * @param condition a condition
      * @return the transformation for chaining
      */
-    public Transformation ifCondition(Condition condition) {
+    public T ifCondition(Condition condition) {
         return ifCondition(condition.toString());
     }
 
-    public Transformation ifElse() {
+    public T ifElse() {
         chain();
         return param("if", "else");
     }
 
-    public Transformation endIf() {
+    public T endIf() {
         chain();
         int transSize = this.transformations.size();
         for (int i = transSize - 1; i >= 0; i--) {
@@ -450,25 +454,25 @@ public class Transformation {
     }
 
     // Warning: options will destructively updated!
-    public Transformation params(Map transformation) {
+    public T params(Map transformation) {
         this.transformation = transformation;
         transformations.add(transformation);
-        return this;
+        return (T) this;
     }
 
-    public Transformation chain() {
+    public T chain() {
         return params(new HashMap());
     }
 
-    public Transformation chainWith(Transformation transformation) {
+    public T chainWith(Transformation transformation) {
         List<Map> transformations = dup(this.transformations);
         transformations.addAll(dup(transformation.transformations));
-        return new Transformation(transformations);
+        return (T) new Transformation(transformations);
     }
 
-    public Transformation param(String key, Object value) {
+    public T param(String key, Object value) {
         transformation.put(key, value);
-        return this;
+        return (T) this;
     }
 
     /**
@@ -617,7 +621,8 @@ public class Transformation {
                 "p", "prefix",
                 "pg", "page",
                 "u", "underlay",
-                "vs", "video_sampling"
+                "vs", "video_sampling",
+                "sp", "streaming_profile"
                 };
 
         for (int i = 0; i < simple_params.length; i += 2) {
@@ -796,7 +801,7 @@ public class Transformation {
      * @param value the value to assign to the variable
      * @return this for chaining
      */
-    public Transformation variable(String name, Object value) {
+    public T variable(String name, Object value) {
         return param(name, value);
     }
 
@@ -805,7 +810,7 @@ public class Transformation {
      * @param variables variable expressions
      * @return this for chaining
      */
-    public Transformation variables(Expression...variables) {
+    public T variables(Expression...variables) {
         return param("variables", variables);
     }
 

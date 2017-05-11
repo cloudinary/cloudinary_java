@@ -5,11 +5,13 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
 import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.RateLimit;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 
 import java.io.IOException;

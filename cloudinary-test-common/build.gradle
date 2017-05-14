@@ -1,0 +1,70 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    compile project(':cloudinary-core')
+    compile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
+    compile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: publishRepo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: snapshotRepo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                groupId publishGroupId
+                artifactId 'cloudinary-test-common'
+                name 'Cloudinary Apache HTTP 4.3 Library'
+                packaging jar
+                version projectVersion
+
+                url githubUrl
+
+                scm {
+                    connection scmConnection
+                    developerConnection scmDeveloperConnection
+                    url scmUrl
+                }
+
+                licenses {
+                    license {
+                        name licenseName
+                        url licenseUrl
+                    }
+                }
+
+                developers {
+                    developer {
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+            }
+
+            pom.whenConfigured { pom ->
+                pom.dependencies.forEach { dep ->
+                    if (dep.getVersion() == "unspecified") {
+                        dep.setGroupId(publishGroupId)
+                        dep.setVersion(projectVersion)
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,17 +1,20 @@
-package com.cloudinary.test;
+package com.cloudinary.android.test;
 
-import android.test.InstrumentationTestCase;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Log;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Coordinates;
+import com.cloudinary.ProgressCallback;
 import com.cloudinary.Transformation;
 import com.cloudinary.android.Utils;
-import com.cloudinary.ProgressCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
 import org.cloudinary.json.JSONObject;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -24,32 +27,34 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class UploaderTest extends InstrumentationTestCase {
+import static junit.framework.Assert.*;
+
+@RunWith(AndroidJUnit4.class)
+public class UploaderTest {
 
 
     public static final String TEST_IMAGE = "images/old_logo.png";
     public static final String TEST_PRESET = "cloudinary_java_test";
-    private Cloudinary cloudinary;
-    private static boolean first = true;
+    private static Cloudinary cloudinary;
 
-    public void setUp() throws Exception {
-        String url = Utils.cloudinaryUrlFromContext(getInstrumentation().getContext());
-        this.cloudinary = new Cloudinary(url);
-        if (first) {
-            first = false;
-            if (cloudinary.config.apiSecret == null) {
-                Log.e("UploaderTest", "Please CLOUDINARY_URL in AndroidManifest for Upload test to run");
-            }
+    @BeforeClass
+    public static void setUp() throws Exception {
+        String url = Utils.cloudinaryUrlFromContext(InstrumentationRegistry.getContext());
+        cloudinary = new Cloudinary(url);
+
+        if (cloudinary.config.apiSecret == null) {
+            Log.e("UploaderTest", "Please CLOUDINARY_URL in AndroidManifest for Upload test to run");
         }
     }
 
+
     protected InputStream getAssetStream(String filename) throws IOException {
-        return getInstrumentation().getContext().getAssets().open(filename);
+        return InstrumentationRegistry.getContext().getAssets().open(filename);
     }
 
     private long getAssetFileSize(String filename) {
         try {
-            return getInstrumentation().getContext().getAssets().openFd(filename).getLength();
+            return InstrumentationRegistry.getContext().getAssets().openFd(filename).getLength();
         } catch (IOException e) {
             return -1;
         }
@@ -72,6 +77,7 @@ public class UploaderTest extends InstrumentationTestCase {
         return temp;
     }
 
+    @Test
     public void testUpload() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -87,6 +93,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testUploadProgressCallback() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -117,6 +124,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testUnsignedUpload() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -132,6 +140,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testUploadUrl() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -145,6 +154,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testUploadDataUri() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -162,6 +172,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testUploadExternalSignature() throws Exception {
         String apiSecret = cloudinary.config.apiSecret;
         if (apiSecret == null)
@@ -184,6 +195,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
     public void testRename() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -202,6 +214,7 @@ public class UploaderTest extends InstrumentationTestCase {
         cloudinary.uploader().rename((String) result2.get("public_id"), result.get("public_id") + "2", ObjectUtils.asMap("overwrite", Boolean.TRUE));
     }
 
+    @Test
     public void testExplicit() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -212,6 +225,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(url, result.getJSONArray("eager").getJSONObject(0).get("url"));
     }
 
+    @Test
     public void testEager() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -219,6 +233,7 @@ public class UploaderTest extends InstrumentationTestCase {
                 ObjectUtils.asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0))));
     }
 
+    @Test
     public void testUploadAsync() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -227,6 +242,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.getString("status"), "pending");
     }
 
+    @Test
     public void testHeaders() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -234,6 +250,7 @@ public class UploaderTest extends InstrumentationTestCase {
         cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("headers", ObjectUtils.asMap("Link", "1")));
     }
 
+    @Test
     public void testText() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -242,10 +259,11 @@ public class UploaderTest extends InstrumentationTestCase {
         assertTrue(result.getInt("height") > 1);
     }
 
+    @Test
     public void testSprite() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
-        final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime()) ;
+        final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime());
         cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", sprite_test_tag, "public_id", "sprite_test_tag_1"));
         cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("tags", sprite_test_tag, "public_id", "sprite_test_tag_2"));
         JSONObject result = new JSONObject(cloudinary.uploader().generateSprite(sprite_test_tag, ObjectUtils.emptyMap()));
@@ -257,6 +275,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertTrue((result.getString("css_url")).contains("f_jpg,w_100"));
     }
 
+    @Test
     public void testMulti() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
@@ -271,11 +290,12 @@ public class UploaderTest extends InstrumentationTestCase {
         assertTrue((result.getString("url")).endsWith(".pdf"));
     }
 
+    @Test
     public void testUniqueFilename() throws Exception {
         if (cloudinary.config.apiSecret == null)
             return;
 
-        File f = new File(getInstrumentation().getContext().getCacheDir() + "/old_logo.png");
+        File f = new File(InstrumentationRegistry.getContext().getCacheDir() + "/old_logo.png");
 
         InputStream is = getAssetStream(TEST_IMAGE);
         int size = is.available();
@@ -293,6 +313,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(result.getString("public_id"), "old_logo");
     }
 
+    @Test
     public void testFaceCoordinates() throws Exception {
         // should allow sending face coordinates
         if (cloudinary.config.apiSecret == null)
@@ -322,6 +343,7 @@ public class UploaderTest extends InstrumentationTestCase {
 
     }
 
+    @Test
     public void testContext() throws Exception {
         // should allow sending context
         if (cloudinary.config.apiSecret == null)
@@ -331,6 +353,7 @@ public class UploaderTest extends InstrumentationTestCase {
         cloudinary.uploader().upload(getAssetStream(TEST_IMAGE), ObjectUtils.asMap("context", context));
     }
 
+    @Test
     public void testModerationRequest() throws Exception {
         // should support requesting manual moderation
         if (cloudinary.config.apiSecret == null)
@@ -340,6 +363,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals("pending", result.getJSONArray("moderation").getJSONObject(0).getString("status"));
     }
 
+    @Test
     public void testRawConvertRequest() {
         // should support requesting raw conversion
         if (cloudinary.config.apiSecret == null)
@@ -351,6 +375,7 @@ public class UploaderTest extends InstrumentationTestCase {
         }
     }
 
+    @Test
     public void testCategorizationRequest() {
         // should support requesting categorization
         if (cloudinary.config.apiSecret == null)
@@ -362,6 +387,7 @@ public class UploaderTest extends InstrumentationTestCase {
         }
     }
 
+    @Test
     public void testDetectionRequest() {
         // should support requesting detection
         if (cloudinary.config.apiSecret == null)
@@ -373,6 +399,7 @@ public class UploaderTest extends InstrumentationTestCase {
         }
     }
 
+    @Test
     public void testAutoTaggingRequest() {
         // should support requesting auto tagging
         if (cloudinary.config.apiSecret == null)
@@ -403,6 +430,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(complexFilename, result.getString("original_filename"));
     }
 
+    @Test
     @SuppressWarnings("unchecked")
     public void testUploadLarge() throws Exception {
         // support uploading large files
@@ -437,6 +465,7 @@ public class UploaderTest extends InstrumentationTestCase {
         assertEquals(1400L, resource.getLong("height"));
     }
 
+    @Test
     public void testUploadLargeProgressCallback() throws Exception {
         // support uploading large files
         if (cloudinary.config.apiSecret == null)

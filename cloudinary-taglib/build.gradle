@@ -1,0 +1,80 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+configurations.all {
+}
+
+dependencies {
+    compile project(':cloudinary-core')
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.1'
+    testCompile group: 'org.hamcrest', name: 'java-hamcrest', version:'2.0.0.0'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version:'1.0.5'
+    testCompile group: 'junit', name: 'junit', version:'4.12'
+    compile(group: 'javax.servlet', name: 'jsp-api', version:'2.0') {
+       /* This dependency was originally in the Maven provided scope, but the project was not of type war.
+       This behavior is not yet supported by Gradle, so this dependency has been converted to a compile dependency.
+       Please review and delete this closure when resolved. */
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: publishRepo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: snapshotRepo) {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                groupId publishGroupId
+                artifactId 'cloudinary-taglib'
+                description 'Cloudinary Taglib Library'
+                packaging jar
+                version projectVersion
+
+                url githubUrl
+
+                scm {
+                    connection scmConnection
+                    developerConnection scmDeveloperConnection
+                    url scmUrl
+                }
+
+                licenses {
+                    license {
+                        name licenseName
+                        url licenseUrl
+                    }
+                }
+
+                developers {
+                    developer {
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+            }
+
+            pom.whenConfigured { pom ->
+                pom.dependencies.forEach { dep ->
+                    if (dep.getVersion() == "unspecified") {
+                        dep.setGroupId(publishGroupId)
+                        dep.setVersion(projectVersion)
+                    }
+                }
+            }
+        }
+    }
+}

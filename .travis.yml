@@ -1,11 +1,19 @@
 language: android
 
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+
 jdk:
   - oraclejdk8
   - oraclejdk7
   - openjdk7
-
-# Temporarily disabled, test fail because Hamcrest needs java 1.7 (probably)
+# Temporarily disabled, test fail because Hamcrest needs java 1.7
 #  - openjdk6
 
-script: mvn test -B -Dtest=\!*#*Timeout* -DfailIfNoTests=false
+# ciTest is configured to skip the various timeout tests that don't work in travis
+script: gradle ciTest

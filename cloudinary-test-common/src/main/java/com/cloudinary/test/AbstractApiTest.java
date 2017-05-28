@@ -35,9 +35,15 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String API_TEST_UPLOAD_PRESET_2 = API_TEST_UPLOAD_PRESET + "2";
     public static final String API_TEST_UPLOAD_PRESET_3 = API_TEST_UPLOAD_PRESET + "3";
     public static final String API_TEST_UPLOAD_PRESET_4 = API_TEST_UPLOAD_PRESET + "4";
-    public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, uniqueTag};
+    public static final String API_TAG = SDK_TEST_TAG + "_api";
+    public static final String DIRECTION_TAG = SDK_TEST_TAG + "_api_resource_direction";
+    public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, API_TAG};
     public static final String EXPLICIT_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + ",w_100";
     public static final Transformation EXPLICIT_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX).fontFamily("Arial").fontSize(60));
+    public static final String UPDATE_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + "_update,w_100";
+    public static final Transformation UPDATE_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX + "_update").fontFamily("Arial").fontSize(60));
+    public static final String DELETE_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + "_delete,w_100";
+    public static final Transformation DELETE_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX + "_delete").fontFamily("Arial").fontSize(60));
     public static final String TEST_KEY = "test-key" + SUFFIX;
 
     protected Api api;
@@ -49,26 +55,39 @@ abstract public class AbstractApiTest extends MockableTest {
             System.err.println("Please setup environment for Upload test to run");
             return;
         }
-        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", "key=value", "eager",
+
+        List<String> uploadAndDirectionTag = new ArrayList<String>(Arrays.asList(UPLOAD_TAGS));
+        uploadAndDirectionTag.add(DIRECTION_TAG);
+
+        Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", uploadAndDirectionTag, "context", "key=value", "eager",
                 Collections.singletonList(EXPLICIT_TRANSFORMATION));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+
         options.put("public_id", API_TEST_1);
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        options.remove("public_id");
+
+        options.put("eager", Collections.singletonList(UPDATE_TRANSFORMATION));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+
+        options.put("eager", Collections.singletonList(DELETE_TRANSFORMATION));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
 
         String context1 = TEST_KEY + "=alt";
         String context2 = TEST_KEY + "=alternate";
-        options = ObjectUtils.asMap("public_id", "context_1" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context1);
+
+        options = ObjectUtils.asMap("public_id", "context_1" + SUFFIX, "tags", uploadAndDirectionTag, "context", context1);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        options = ObjectUtils.asMap("public_id", "context_2" + SUFFIX, "tags", new String[]{SDK_TEST_TAG, uniqueTag}, "context", context2);
+
+        options = ObjectUtils.asMap("public_id", "context_2" + SUFFIX, "tags", uploadAndDirectionTag, "context", context2);
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
     }
 
     @AfterClass
     public static void tearDownClass() {
-        Api api = MockableTest.cleanUp();
+        Api api = new Cloudinary().api();
         try {
-//            api.deleteResources(Arrays.asList(API_TEST, API_TEST_1, API_TEST_2, API_TEST_3, API_TEST_5), ObjectUtils.emptyMap());
-            api.deleteResourcesByTag(uniqueTag, ObjectUtils.emptyMap());
+            api.deleteResourcesByTag(API_TAG, ObjectUtils.emptyMap());
         } catch (Exception ignored) {
         }
         try {
@@ -135,7 +154,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test02Resources() throws Exception {
         // should allow listing resources
-        Map resource = preloadResource();
+        Map resource = preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS));
 
         final List<Map> resources = new ArrayList<Map>();
         String next_cursor = null;
@@ -169,8 +188,8 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
-        Map resource = preloadResource();
-        Map result = api.resources(ObjectUtils.asMap("type", "upload"));
+        Map resource = preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS));
+        Map result = api.resources(ObjectUtils.asMap("type", "upload", "max_results", 500));
         List<Map> resources = (List) result.get("resources");
         assertThat(resources, hasItem(hasEntry("public_id", (String) resource.get("public_id"))));
     }
@@ -185,19 +204,19 @@ abstract public class AbstractApiTest extends MockableTest {
 //        resources = (List<Map<? extends String, ?>>) result.get("resources");
         assertThat(resources, hasItem(allOf(hasEntry("public_id", API_TEST), hasEntry("type", "upload"))));
         assertThat(resources, hasItem(hasEntry("context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")))));
-        assertThat(resources, hasItem(hasEntry(equalTo("tags"), hasItem(SDK_TEST_TAG))));
+        assertThat(resources, hasItem(hasEntry(equalTo("tags"), hasItem(API_TAG))));
     }
 
     @Test
     public void testResourcesListingDirection() throws Exception {
         // should allow listing resources in both directions
-        Map result = api.resourcesByTag(uniqueTag, ObjectUtils.asMap("type", "upload", "direction", "asc", "max_results", 500));
+        Map result = api.resourcesByTag(DIRECTION_TAG, ObjectUtils.asMap("type", "upload", "direction", "asc", "max_results", 500));
         List<Map> resources = (List<Map>) result.get("resources");
         ArrayList<String> resourceIds = new ArrayList<String>();
         for (Map resource : resources) {
             resourceIds.add((String) resource.get("public_id"));
         }
-        result = api.resourcesByTag(uniqueTag, ObjectUtils.asMap("type", "upload", "direction", -1, "max_results", 500));
+        result = api.resourcesByTag(DIRECTION_TAG, ObjectUtils.asMap("type", "upload", "direction", -1, "max_results", 500));
         List<Map> resourcesDesc = (List<Map>) result.get("resources");
         ArrayList<String> resourceIdsDesc = new ArrayList<String>();
         for (Map resource : resourcesDesc) {
@@ -232,7 +251,7 @@ abstract public class AbstractApiTest extends MockableTest {
         boolean found = false;
         for (Map r : resources) {
             ArrayList tags = (ArrayList) r.get("tags");
-            found = found || tags.contains(SDK_TEST_TAG);
+            found = found || tags.contains(API_TAG);
         }
         assertTrue(found);
     }
@@ -240,7 +259,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test06ResourcesTag() throws Exception {
         // should allow listing resources by tag
-        Map result = api.resourcesByTag(SDK_TEST_TAG, ObjectUtils.asMap("tags", true, "context", true));
+        Map result = api.resourcesByTag(API_TAG, ObjectUtils.asMap("tags", true, "context", true, "max_results", 500));
         Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", API_TEST);
         assertNotNull(resource);
         resource = findByAttr((List<Map>) result.get("resources"), "context", ObjectUtils.asMap("custom", ObjectUtils.asMap("key", "value")));
@@ -249,7 +268,7 @@ abstract public class AbstractApiTest extends MockableTest {
         boolean found = false;
         for (Map r : resources) {
             ArrayList tags = (ArrayList) r.get("tags");
-            found = found || tags.contains(SDK_TEST_TAG);
+            found = found || tags.contains(API_TAG);
         }
         assertTrue(found);
     }
@@ -308,28 +327,29 @@ abstract public class AbstractApiTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
         Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResources(Arrays.asList(API_TEST_2, public_id), ObjectUtils.emptyMap());
+        api.deleteResources(Arrays.asList(public_id), ObjectUtils.emptyMap());
         api.resource(public_id, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByPrefix() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", "api_test_by_prefix", "tags", UPLOAD_TAGS));
-        Map resource = api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
+        String public_id = SUFFIX + "_api_test_by_prefix";
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
+        Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByPrefix("api_test_by", ObjectUtils.emptyMap());
-        api.resource("api_test_by_prefix", ObjectUtils.emptyMap());
+        api.deleteResourcesByPrefix(public_id.substring(0, SUFFIX.length() + 10), ObjectUtils.emptyMap());
+        api.resource(public_id, ObjectUtils.emptyMap());
     }
 
     @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByTags() throws Exception {
         // should allow deleting resources
-        cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", API_TEST + "_4", "tags", Collections.singletonList("api_test_tag_for_delete")));
+        String tag = "api_test_tag_for_delete" + SUFFIX;
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", API_TEST + "_4", "tags", Collections.singletonList(tag)));
         Map resource = api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
         assertNotNull(resource);
-        api.deleteResourcesByTag("api_test_tag_for_delete", ObjectUtils.emptyMap());
+        api.deleteResourcesByTag(tag, ObjectUtils.emptyMap());
         api.resource(API_TEST + "_4", ObjectUtils.emptyMap());
     }
 
@@ -338,15 +358,15 @@ abstract public class AbstractApiTest extends MockableTest {
         // should allow listing tags
         Map result = api.tags(ObjectUtils.asMap("max_results", 500));
         List<String> tags = (List<String>) result.get("tags");
-        assertThat(tags, hasItem(SDK_TEST_TAG));
+        assertThat(tags, hasItem(API_TAG));
     }
 
     @Test
     public void test11TagsPrefix() throws Exception {
         // should allow listing tag by prefix
-        Map result = api.tags(ObjectUtils.asMap("prefix", SDK_TEST_TAG.substring(0, SDK_TEST_TAG.length() - 1)));
+        Map result = api.tags(ObjectUtils.asMap("prefix", API_TAG.substring(0, API_TAG.length() - 1)));
         List<String> tags = (List<String>) result.get("tags");
-        assertThat(tags, hasItem(SDK_TEST_TAG));
+        assertThat(tags, hasItem(API_TAG));
         result = api.tags(ObjectUtils.asMap("prefix", "api_test_no_such_tag"));
         tags = (List<String>) result.get("tags");
         assertEquals(0, tags.size());
@@ -355,8 +375,10 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test12Transformations() throws Exception {
         // should allow listing transformations
-        Map result = api.transformations(ObjectUtils.emptyMap());
-        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", EXPLICIT_TRANSFORMATION_NAME);
+        final Transformation listTest = new Transformation().width(25).crop("scale").overlay(new TextLayer().text(SUFFIX + "_testListTransformations").fontFamily("Arial").fontSize(60));
+        preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS, "eager", Collections.singletonList(listTest)));
+        Map result = api.transformations(ObjectUtils.asMap("max_results", 500));
+        Map transformation = findByAttr((List<Map>) result.get("transformations"), "name", listTest.generate());
 
         assertNotNull(transformation);
         assertTrue((Boolean) transformation.get("used"));
@@ -365,7 +387,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test13TransformationMetadata() throws Exception {
         // should allow getting transformation metadata
-        preloadResource(ObjectUtils.asMap("eager", Collections.singletonList(EXPLICIT_TRANSFORMATION)));
+        preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS, "eager", Collections.singletonList(EXPLICIT_TRANSFORMATION)));
         Map transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("max_results", 500));
         assertNotNull(transformation);
         assertEquals(new Transformation((List<Map>) transformation.get("info")).generate(), EXPLICIT_TRANSFORMATION.generate());
@@ -374,12 +396,12 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test14TransformationUpdate() throws Exception {
         // should allow updating transformation allowed_for_strict
-        api.updateTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", true), ObjectUtils.emptyMap());
-        Map transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        api.updateTransformation(UPDATE_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", true), ObjectUtils.emptyMap());
+        Map transformation = api.transformation(UPDATE_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), true);
-        api.updateTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", false), ObjectUtils.emptyMap());
-        transformation = api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        api.updateTransformation(UPDATE_TRANSFORMATION_NAME, ObjectUtils.asMap("allowed_for_strict", false), ObjectUtils.emptyMap());
+        transformation = api.transformation(UPDATE_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
         assertNotNull(transformation);
         assertEquals(transformation.get("allowed_for_strict"), false);
     }
@@ -407,24 +429,23 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals(transformation.get("used"), false);
     }
 
-    @Test
+    @Test(expected = NotFound.class)
     public void test16aTransformationDelete() throws Exception {
         // should allow deleting named transformation
         api.createTransformation(API_TEST_TRANSFORMATION_2, new Transformation().crop("scale").width(103).generate(), ObjectUtils.emptyMap());
         api.transformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
-        api.deleteTransformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
-    }
-
-    @Test(expected = NotFound.class)
-    public void test16bTransformationDelete() throws Exception {
+        ApiResponse res = api.deleteTransformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
+        assertEquals("deleted", res.get("message"));
         api.transformation(API_TEST_TRANSFORMATION_2, ObjectUtils.emptyMap());
     }
 
-    @Test
+    @Test(expected = NotFound.class)
     public void test17aTransformationDeleteImplicit() throws Exception {
         // should allow deleting implicit transformation
-        api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
-        api.deleteTransformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        api.transformation(DELETE_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        ApiResponse res = api.deleteTransformation(DELETE_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
+        assertEquals("deleted", res.get("message"));
+        api.deleteTransformation(DELETE_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -437,15 +458,6 @@ abstract public class AbstractApiTest extends MockableTest {
 
         resources = (List<Map>) result.get("resources");
         assertEquals(1, resources.size());
-    }
-
-    /**
-     * @throws Exception
-     * @expectedException \Cloudinary\Api\NotFound
-     */
-    @Test(expected = NotFound.class)
-    public void test17bTransformationDeleteImplicit() throws Exception {
-        api.transformation(EXPLICIT_TRANSFORMATION_NAME, ObjectUtils.emptyMap());
     }
 
     @Test
@@ -574,10 +586,12 @@ abstract public class AbstractApiTest extends MockableTest {
         api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET_2, "folder", "folder2"));
         api.createUploadPreset(ObjectUtils.asMap("name", API_TEST_UPLOAD_PRESET_3, "folder", "folder3"));
 
-        ArrayList presets = (ArrayList) (api.uploadPresets(ObjectUtils.emptyMap()).get("presets"));
-        assertEquals(((Map) presets.get(0)).get("name"), API_TEST_UPLOAD_PRESET_3);
-        assertEquals(((Map) presets.get(1)).get("name"), API_TEST_UPLOAD_PRESET_2);
-        assertEquals(((Map) presets.get(2)).get("name"), API_TEST_UPLOAD_PRESET);
+        ArrayList<Map> presets = (ArrayList) (api.uploadPresets(ObjectUtils.emptyMap()).get("presets"));
+
+        assertThat(presets, hasItem(hasEntry("name", API_TEST_UPLOAD_PRESET)));
+        assertThat(presets, hasItem(hasEntry("name", API_TEST_UPLOAD_PRESET_2)));
+        assertThat(presets, hasItem(hasEntry("name", API_TEST_UPLOAD_PRESET_3)));
+
         api.deleteUploadPreset(API_TEST_UPLOAD_PRESET, ObjectUtils.emptyMap());
         api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_2, ObjectUtils.emptyMap());
         api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_3, ObjectUtils.emptyMap());
@@ -751,7 +765,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByIds() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS, "type", "authenticated"));
         String publicId = (String) response.get("public_id");
         response = cloudinary.api().publishByIds(Arrays.asList(publicId), null);
         List published = (List) response.get("published");
@@ -765,7 +779,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishWithType() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS, "type", "authenticated"));
         String publicId = (String) response.get("public_id");
 
         // publish with wrong type - verify publish fails
@@ -794,7 +808,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByPrefix() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS, "type", "authenticated"));
         String publicId = (String) response.get("public_id");
         response = cloudinary.api().publishByPrefix(publicId.substring(0, publicId.length() - 2), null);
         List published = (List) response.get("published");
@@ -808,9 +822,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testPublishByTag() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(uniqueTag, uniqueTag + "1"), "type", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(API_TAG, API_TAG + "1"), "type", "authenticated"));
         String publicId = (String) response.get("public_id");
-        response = cloudinary.api().publishByTag(uniqueTag + "1", null);
+        response = cloudinary.api().publishByTag(API_TAG + "1", null);
         List published = (List) response.get("published");
         assertNotNull(published);
         assertEquals(published.size(), 1);
@@ -822,7 +836,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUpdateResourcesAccessModeByIds() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "access_mode", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS, "access_mode", "authenticated"));
         String publicId = (String) response.get("public_id");
         assertEquals(response.get("access_mode"), "authenticated");
         response = cloudinary.api().updateResourcesAccessModeByIds("public", Arrays.asList(publicId), null);
@@ -837,7 +851,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUpdateResourcesAccessModeByPrefix() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", uniqueTag, "access_mode", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS, "access_mode", "authenticated"));
         String publicId = (String) response.get("public_id");
         assertEquals(response.get("access_mode"), "authenticated");
         response = cloudinary.api().updateResourcesAccessModeByPrefix("public", publicId.substring(0, publicId.length() - 2), null);
@@ -852,10 +866,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUpdateResourcesAccessModeByTag() throws Exception {
-        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(uniqueTag, uniqueTag + "2"), "access_mode", "authenticated"));
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", Arrays.asList(API_TAG, API_TAG + "2"), "access_mode", "authenticated"));
         String publicId = (String) response.get("public_id");
         assertEquals(response.get("access_mode"), "authenticated");
-        response = cloudinary.api().updateResourcesAccessModeByTag("public", uniqueTag + "2", null);
+        response = cloudinary.api().updateResourcesAccessModeByTag("public", API_TAG + "2", null);
         List updated = (List) response.get("updated");
         assertNotNull(updated);
         assertEquals(updated.size(), 1);

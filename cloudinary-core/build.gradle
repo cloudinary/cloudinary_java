@@ -18,11 +18,11 @@ uploadArchives {
             beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
             repository(url: publishRepo) {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
             }
 
             snapshotRepository(url: snapshotRepo) {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
+                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
             }
 
             pom.project {

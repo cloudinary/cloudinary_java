@@ -10,9 +10,3 @@ test {
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = 'full'
 }
-
-task ciTest( type: Test ) {
-    useJUnit {
-        excludeCategories 'com.cloudinary.test.TimeoutTest'
-    }
-}

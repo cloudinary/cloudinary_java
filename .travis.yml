@@ -19,8 +19,11 @@ cache:
 
 jdk:
   - oraclejdk8
-  - oraclejdk7
-  - openjdk7
+
+#  Android build tools 25 require java 8 - until project separation java 7 tests are disabled
+#  - oraclejdk7
+#  - openjdk7
+
 # Temporarily disabled, test fail because Hamcrest needs java 1.7
 #  - openjdk6
 

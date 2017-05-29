@@ -28,4 +28,4 @@ jdk:
 #  - openjdk6
 
 # ciTest is configured to skip the various timeout tests that don't work in travis
-script: ./gradlew ciTest
+script: ./gradlew clean ciTest

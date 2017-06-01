@@ -34,6 +34,7 @@ uploadArchives {
                 groupId publishGroupId
                 artifactId 'cloudinary-http43'
                 name 'Cloudinary Apache HTTP 4.3 Library'
+                description publishDescription
                 packaging jar
                 version projectVersion
 

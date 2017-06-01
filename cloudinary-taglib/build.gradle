@@ -29,7 +29,8 @@ uploadArchives {
             pom.project {
                 groupId publishGroupId
                 artifactId 'cloudinary-taglib'
-                description 'Cloudinary Taglib Library'
+                name 'Cloudinary Taglib Library'
+                description publishDescription
                 packaging jar
                 version projectVersion
 

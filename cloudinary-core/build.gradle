@@ -23,6 +23,7 @@ uploadArchives {
                 groupId publishGroupId
                 artifactId 'cloudinary-core'
                 name 'Cloudinary Core Library'
+                description publishDescription
                 packaging jar
                 version projectVersion
 

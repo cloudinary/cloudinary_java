@@ -81,6 +81,7 @@ uploadArchives {
                 groupId publishGroupId
                 artifactId 'cloudinary-android'
                 name 'Cloudinary Android Library'
+                description publishDescription
                 packaging 'aar'
                 version projectVersion
 

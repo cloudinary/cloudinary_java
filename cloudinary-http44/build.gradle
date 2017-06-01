@@ -33,7 +33,8 @@ uploadArchives {
             pom.project {
                 groupId publishGroupId
                 artifactId 'cloudinary-http44'
-                description 'Cloudinary Apache HTTP 4.4 Library'
+                name 'Cloudinary Apache HTTP 4.4 Library'
+                description publishDescription
                 packaging jar
                 version projectVersion
 

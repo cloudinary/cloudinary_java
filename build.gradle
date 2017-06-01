@@ -9,6 +9,8 @@ allprojects {
         jcenter()
         mavenCentral()
     }
+
+    project.ext.set("publishGroupId", group)
 }
 
 subprojects {

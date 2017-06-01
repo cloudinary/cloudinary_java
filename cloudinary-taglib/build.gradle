@@ -32,7 +32,7 @@ uploadArchives {
                 name 'Cloudinary Taglib Library'
                 description publishDescription
                 packaging jar
-                version projectVersion
+                version version
 
                 url githubUrl
 
@@ -62,7 +62,7 @@ uploadArchives {
                 pom.dependencies.forEach { dep ->
                     if (dep.getVersion() == "unspecified") {
                         dep.setGroupId(publishGroupId)
-                        dep.setVersion(projectVersion)
+                        dep.setVersion(version)
                     }
                 }
             }

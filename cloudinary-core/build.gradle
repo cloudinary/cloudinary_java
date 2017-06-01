@@ -28,7 +28,7 @@ uploadArchives {
                 name 'Cloudinary Core Library'
                 description publishDescription
                 packaging jar
-                version projectVersion
+                version version
 
                 url githubUrl
 

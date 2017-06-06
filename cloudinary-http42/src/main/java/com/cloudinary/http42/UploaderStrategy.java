@@ -1,9 +1,9 @@
 package com.cloudinary.http42;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.ProgressCallback;
 import com.cloudinary.Util;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.ProgressCallback;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpHost;
@@ -18,8 +18,6 @@ import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -115,28 +113,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         InputStream responseStream = response.getEntity().getContent();
         String responseData = StringUtils.read(responseStream);
 
-        if (code != 200 && code != 400 && code != 404 && code != 500) {
-            throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
-        }
-
-        Map result;
-
-        try {
-            JSONObject responseJSON = new JSONObject(responseData);
-            result = ObjectUtils.toMap(responseJSON);
-        } catch (JSONException e) {
-            throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
-        }
-
-        if (result.containsKey("error")) {
-            Map error = (Map) result.get("error");
-            if (returnError) {
-                error.put("http_code", code);
-            } else {
-                throw new RuntimeException((String) error.get("message"));
-            }
-        }
-        return result;
+        return processResponse(returnError, code, responseData);
     }
 
 }

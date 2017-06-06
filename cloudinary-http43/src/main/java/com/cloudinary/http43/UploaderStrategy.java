@@ -136,28 +136,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             response.close();
         }
 
-        if (code != 200 && code != 400 && code != 404 && code != 500) {
-            throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
-        }
-
-        Map result;
-
-        try {
-            JSONObject responseJSON = new JSONObject(responseData);
-            result = ObjectUtils.toMap(responseJSON);
-        } catch (JSONException e) {
-            throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
-        }
-
-        if (result.containsKey("error")) {
-            Map error = (Map) result.get("error");
-            if (returnError) {
-                error.put("http_code", code);
-            } else {
-                throw new RuntimeException((String) error.get("message"));
-            }
-        }
-        return result;
+        return processResponse(returnError, code, responseData);
     }
 
 }

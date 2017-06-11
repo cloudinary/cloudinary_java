@@ -45,7 +45,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
 
-        String apiUrl = this.cloudinary().cloudinaryApiUrl(action, options);
+        String apiUrl = buildUploadUrl(action, options);
         MultipartCallback multipartCallback;
         if (progressCallback == null) {
             multipartCallback = null;

@@ -10,14 +10,6 @@ buildscript {
         classpath 'com.android.tools.build:gradle:2.3.0'
     }
 
-    copy({
-        from "src/androidTest/template/"
-        into 'src/androidTest/'
-        rename { String fileName ->
-            fileName.replace("AndroidManifest.xml.sample", "AndroidManifest.xml")
-        }
-        filter(ReplaceTokens, tokens: ['cloudinary://123456789:abcdefg@hijklmnop': System.getenv('CLOUDINARY_URL')])
-    })
 }
 
 sourceCompatibility = 1.7
@@ -120,3 +112,14 @@ uploadArchives {
         }
     }
 }
+
+task copyFiles(type: Copy) {
+    from "src/androidTest/template/"
+    into 'src/androidTest/'
+    rename { String fileName ->
+        fileName.replace("AndroidManifest.xml.sample", "AndroidManifest.xml")
+    }
+    filter(ReplaceTokens, tokens: ['cloudinary://123456789:abcdefg@hijklmnop': System.getenv('CLOUDINARY_URL')])
+}
+
+preBuild.dependsOn(copyFiles)

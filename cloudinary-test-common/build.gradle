@@ -23,7 +23,7 @@ uploadArchives {
             pom.project {
                 groupId publishGroupId
                 artifactId 'cloudinary-test-common'
-                name 'Cloudinary Apache HTTP 4.3 Library'
+                name 'Cloudinary Test Common'
                 description publishDescription
                 packaging jar
                 version version

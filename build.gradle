@@ -10,6 +10,9 @@ allprojects {
         mavenCentral()
     }
 
+    signing {
+        sign configurations.archives
+    }
     project.ext.set("publishGroupId", group)
 }
 

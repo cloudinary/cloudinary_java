@@ -15,7 +15,7 @@ public class Condition extends BaseExpression<Condition> {
     /**
      * Create a Condition Object. The conditionStr string will be translated to a serialized condition.
      * <br>
-     * For example, <code>new Condition("fc > 3")</code>
+     * For example, <code>new Condition("fc &gt; 3")</code>
      * @param conditionStr condition in string format
      */
     public Condition(String conditionStr) {

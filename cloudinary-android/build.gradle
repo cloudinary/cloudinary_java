@@ -122,4 +122,23 @@ task copyFiles(type: Copy) {
     filter(ReplaceTokens, tokens: ['cloudinary://123456789:abcdefg@hijklmnop': System.getenv('CLOUDINARY_URL')])
 }
 
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all{var -> classpath += var.javaCompiler.classpath}
+
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
 preBuild.dependsOn(copyFiles)

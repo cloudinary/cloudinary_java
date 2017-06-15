@@ -241,7 +241,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testTransformationsWithCursor() throws Exception {
-        String name = "testTransformation" + SDK_TEST_TAG;
+        String name = "testTransformation" + SDK_TEST_TAG + System.currentTimeMillis();
         api.createTransformation(name, "c_scale,w_100", null);
         final List<Map> transformations = new ArrayList<>();
         String next_cursor = null;

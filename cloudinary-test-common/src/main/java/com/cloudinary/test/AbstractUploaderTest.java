@@ -180,6 +180,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testEagerWithStreamingProfile() throws IOException {
+        Transformation transformation =  new EagerTransformation().format("m3u8").streamingProfile("full_hd");
+        assertEquals("sp_full_hd/m3u8", transformation.generate());
+    }
+
+    @Test
     public void testExplicit() throws IOException {
         Map result = cloudinary.uploader().explicit("sample", asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "upload", "moderation", "manual"));
         String url = cloudinary.url().transformation(new Transformation().crop("scale").width(2.0)).format("jpg").version(result.get("version")).generate("sample");

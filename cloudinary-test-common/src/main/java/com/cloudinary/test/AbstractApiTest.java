@@ -240,6 +240,20 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testTransformationsWithCursor() throws Exception {
+        String name = "testTransformation" + SDK_TEST_TAG;
+        api.createTransformation(name, "c_scale,w_100", null);
+        final List<Map> transformations = new ArrayList<>();
+        String next_cursor = null;
+        do {
+            Map result = api.transformations(ObjectUtils.asMap("max_results", 500, "next_cursor", next_cursor));
+            transformations.addAll((List) result.get("transformations"));
+            next_cursor = (String) result.get("next_cursor");
+        } while (next_cursor != null );
+        assertThat(transformations, hasItem(allOf(hasEntry("name", "t_" + name))));
+    }
+
+    @Test
     public void testResourcesByPublicIds() throws Exception {
         // should allow listing resources by public ids
         Map result = api.resourcesByIds(Arrays.asList(API_TEST, API_TEST_1, "bogus"), ObjectUtils.asMap("type", "upload", "tags", true, "context", true));

@@ -1,9 +1,12 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.StringUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class EagerTransformation extends Transformation {
+public class EagerTransformation extends Transformation<EagerTransformation> {
     protected String format;
 
     @SuppressWarnings("rawtypes")
@@ -22,5 +25,17 @@ public class EagerTransformation extends Transformation {
 
     public String getFormat() {
         return format;
+    }
+
+    @Override
+    public String generate(Map options) {
+        List<String> eager = new ArrayList<>();
+        eager.add(super.generate(options));
+
+        if (StringUtils.isNotBlank(format)){
+            eager.add(format);
+        }
+
+        return StringUtils.join(eager, "/");
     }
 }

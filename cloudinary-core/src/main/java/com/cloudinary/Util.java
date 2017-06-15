@@ -68,21 +68,15 @@ public class Util {
         if (transformations == null) {
             return null;
         }
+
         List<String> eager = new ArrayList<String>();
         for (Transformation transformation : transformations) {
-            List<String> single_eager = new ArrayList<String>();
             String transformationString = transformation.generate();
             if (StringUtils.isNotBlank(transformationString)) {
-                single_eager.add(transformationString);
+                eager.add(transformationString);
             }
-            if (transformation instanceof EagerTransformation) {
-                EagerTransformation eagerTransformation = (EagerTransformation) transformation;
-                if (StringUtils.isNotBlank(eagerTransformation.getFormat())) {
-                    single_eager.add(eagerTransformation.getFormat());
-                }
-            }
-            eager.add(StringUtils.join(single_eager, "/"));
         }
+
         return StringUtils.join(eager, "|");
     }
 

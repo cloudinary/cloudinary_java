@@ -25,9 +25,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         }
         boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-        if (Boolean.TRUE.equals(options.get("unsigned"))) {
-            // Nothing to do
-        } else {
+        if (requiresSigning(action, options)) {
             String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary().config.apiKey);
             if (apiKey == null)
                 throw new IllegalArgumentException("Must supply api_key");
@@ -43,6 +41,8 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
                 params.put("signature", this.cloudinary().apiSignRequest(params, apiSecret));
                 params.put("api_key", apiKey);
             }
+        } else {
+            // Nothing to do
         }
 
         String apiUrl = buildUploadUrl(action, options);

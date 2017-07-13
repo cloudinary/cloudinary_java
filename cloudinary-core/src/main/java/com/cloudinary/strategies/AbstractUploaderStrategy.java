@@ -42,4 +42,11 @@ public abstract class AbstractUploaderStrategy {
             return StringUtils.join(new String[]{cloudinary, "v1_1", cloud_name, resource_type, action}, "/");
         }
     }
+
+    protected boolean requiresSigning(String action, Map options) {
+        boolean unsigned = Boolean.TRUE.equals(options.get("unsigned"));
+        boolean deleteByToken = "delete_by_token".equals(action);
+
+        return !unsigned && !deleteByToken;
+    }
 }

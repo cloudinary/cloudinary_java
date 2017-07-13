@@ -88,7 +88,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map options = ObjectUtils.asMap("return_delete_token", true, "tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG});
         Map res = cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         String token = (String) res.get("delete_token");
-        res = cloudinary.uploader().deleteByToken(token);
+        res = new Cloudinary(ObjectUtils.asMap("cloud_name", cloudinary.config.cloudName)).uploader().deleteByToken(token);
         assertNotNull(res);
         assertEquals("ok", res.get("result"));
     }

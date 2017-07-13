@@ -110,6 +110,10 @@ public class Uploader {
     }
 
     public Map uploadLarge(Object file, Map options, int bufferSize, ProgressCallback progressCallback) throws IOException {
+        return uploadLarge(file, options, bufferSize, 0, null, progressCallback);
+    }
+
+    public Map uploadLarge(Object file, Map options, int bufferSize, long offset, String uniqueUploadId, ProgressCallback progressCallback) throws IOException {
         InputStream input;
         long length = -1;
         boolean remote = false;
@@ -136,7 +140,7 @@ public class Uploader {
             if (remote) {
                 result = upload(file, options);
             } else {
-                result = uploadLargeParts(input, options, bufferSize, length, progressCallback);
+                result = uploadLargeParts(input, options, bufferSize, length, offset, uniqueUploadId, progressCallback);
             }
             return result;
         } finally {
@@ -146,13 +150,13 @@ public class Uploader {
         }
     }
 
-    private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length, final ProgressCallback progressCallback) throws IOException {
+    private Map uploadLargeParts(InputStream input, Map options, int bufferSize, long length, long offset, String uniqueUploadId, final ProgressCallback progressCallback) throws IOException {
         Map params = buildUploadParams(options);
 
         Map sentOptions = new HashMap();
         sentOptions.putAll(options);
         Map extraHeaders = new HashMap();
-        extraHeaders.put("X-Unique-Upload-Id", cloudinary().randomPublicId());
+        extraHeaders.put("X-Unique-Upload-Id", StringUtils.isBlank(uniqueUploadId) ? cloudinary().randomPublicId() : uniqueUploadId);
         sentOptions.put("extra_headers", extraHeaders);
 
         byte[] buffer = new byte[bufferSize];
@@ -160,10 +164,11 @@ public class Uploader {
         int bytesRead = 0;
         int currentBufferSize = 0;
         int partNumber = 0;
-        long totalBytes = 0;
+        long totalBytes = offset;
         Map response = null;
         final long knownLengthBeforeUpload = length;
-        long totalBytesUploaded = 0;
+        long totalBytesUploaded = offset;
+        input.skip(offset);
         while (true) {
             bytesRead = input.read(buffer, currentBufferSize, bufferSize - currentBufferSize);
             boolean atEnd = bytesRead == -1;
@@ -172,7 +177,7 @@ public class Uploader {
 
             if (atEnd || fullBuffer) {
                 totalBytes += currentBufferSize;
-                int currentLoc = bufferSize * partNumber;
+                long currentLoc = offset + bufferSize * partNumber;
                 if (!atEnd) {
                     //verify not on end - try read another byte
                     bytesRead = input.read(nibbleBuffer, 0, 1);

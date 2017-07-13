@@ -44,7 +44,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-        if (options.get("unsigned") == null || Boolean.FALSE.equals(options.get("unsigned"))) {
+        if (requiresSigning(action, options)) {
             uploader.signRequestParams(params, options);
         } else {
             Util.clearEmpty(params);

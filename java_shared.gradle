@@ -6,6 +6,10 @@ tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
 
+javadoc {
+    options.encoding = 'UTF-8'
+}
+
 test {
     testLogging.showStandardStreams = true
     testLogging.exceptionFormat = 'full'

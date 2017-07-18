@@ -35,7 +35,7 @@ public abstract class AbstractUploaderStrategy {
             throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
 
         if (action.equals("delete_by_token")) {
-            // the only method (so far) that doesn't need resource_type
+            // delete_by_token doesn't need resource_type
             return StringUtils.join(new String[]{cloudinary, "v1_1", cloud_name, action}, "/");
         } else {
             String resource_type = ObjectUtils.asString(options.get("resource_type"), "image");

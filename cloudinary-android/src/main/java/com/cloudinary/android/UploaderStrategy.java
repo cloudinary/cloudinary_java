@@ -115,6 +115,10 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         String responseData = readFully(responseStream);
         connection.disconnect();
 
+        try {
+            responseStream.close();
+        } catch (Exception e) {}
+
         if (code != 200 && code != 400 && code != 404 && code != 500) {
             throw new RuntimeException("Server returned unexpected status code - " + code + " - " + responseData);
         }

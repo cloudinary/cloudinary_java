@@ -5,7 +5,6 @@ import com.cloudinary.utils.StringUtils;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.InvalidKeyException;
@@ -230,13 +229,13 @@ public class AuthToken {
     }
 
     private String digest(String message) {
-        byte[] binKey = DatatypeConverter.parseHexBinary(key);
+        byte[] binKey = StringUtils.hexStringToByteArray(key);
         try {
             Mac hmac = Mac.getInstance("HmacSHA256");
             SecretKeySpec secret = new SecretKeySpec(binKey, "HmacSHA256");
             hmac.init(secret);
             final byte[] bytes = message.getBytes();
-            return DatatypeConverter.printHexBinary(hmac.doFinal(bytes)).toLowerCase();
+            return StringUtils.encodeHexString(hmac.doFinal(bytes)).toLowerCase();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Cannot create authorization token.", e);
         } catch (InvalidKeyException e) {

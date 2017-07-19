@@ -45,6 +45,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String DELETE_TRANSFORMATION_NAME = "c_scale,l_text:Arial_60:" + SUFFIX + "_delete,w_100";
     public static final Transformation DELETE_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX + "_delete").fontFamily("Arial").fontSize(60));
     public static final String TEST_KEY = "test-key" + SUFFIX;
+    public static final String API_TEST_RESTORE = "api_test_restore" + SUFFIX;
 
     protected Api api;
 
@@ -708,18 +709,18 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testRestore() throws Exception {
         // should support restoring resources
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                ObjectUtils.asMap("public_id", "api_test_restore", "backup", true, "tags", UPLOAD_TAGS));
-        Map resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+                ObjectUtils.asMap("public_id", API_TEST_RESTORE, "backup", true, "tags", UPLOAD_TAGS));
+        Map resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
         assertEquals(resource.get("bytes"), 3381);
-        api.deleteResources(Collections.singletonList("api_test_restore"), ObjectUtils.emptyMap());
-        resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+        api.deleteResources(Collections.singletonList(API_TEST_RESTORE), ObjectUtils.emptyMap());
+        resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
         assertEquals(resource.get("bytes"), 0);
         assertTrue((Boolean) resource.get("placeholder"));
-        Map response = api.restore(Collections.singletonList("api_test_restore"), ObjectUtils.emptyMap());
-        Map info = (Map) response.get("api_test_restore");
+        Map response = api.restore(Collections.singletonList(API_TEST_RESTORE), ObjectUtils.emptyMap());
+        Map info = (Map) response.get(API_TEST_RESTORE);
         assertNotNull(info);
         assertEquals(info.get("bytes"), 3381);
-        resource = api.resource("api_test_restore", ObjectUtils.emptyMap());
+        resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
         assertEquals(resource.get("bytes"), 3381);
     }
 

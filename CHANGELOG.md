@@ -1,4 +1,32 @@
 
+1.14.0 / 2017-07-20
+===================
+
+New functionality
+-----------------
+
+  * Add support for uploading remote urls through `Uploader.uploadLarge()`
+  * Support resuming `uploadLarge`
+  * Streaming profile support.
+  * Update TravisCI to explicitly set distribution
+  * Allow deleteByToken to pass through when there's no api secret in config.
+
+Other changes
+-------------
+
+  * Add test for listing transformations with cursor.
+  * Merge branch 'master' into patch-1
+  * Make restore test run in parallel
+  * Set javadoc encoding to UTF-8.
+  * Update gradle to 4.0.1.
+  * Fix test to run in parallel.
+  * Remove use of `DatatypeConverter` which is not supported in Android
+  * Update Cloudinary dependencies version for java sample project.
+  * Merge pull request #84 from elevenfive/master
+    * Close responsestream
+  * Merge pull request #83 from theel0ja/patch-1
+    * Improved formatting of markdown
+
 1.13.0 / 2017-06-12
 ===================
 

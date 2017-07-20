@@ -190,4 +190,8 @@ public class StringUtils {
         return new String(baos.toByteArray());
     }
 
+    public static boolean isRemoteUrl(String file) {
+        return file.matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)");
+    }
+
 }

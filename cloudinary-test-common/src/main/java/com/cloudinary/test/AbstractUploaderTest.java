@@ -120,6 +120,18 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testUploadLargeUrl() throws IOException {
+        Map result = cloudinary.uploader().uploadLarge(REMOTE_TEST_IMAGE, asMap("tags", SDK_TEST_TAG));
+        assertEquals(result.get("width"), SRC_TEST_IMAGE_W);
+        assertEquals(result.get("height"), SRC_TEST_IMAGE_H);
+        Map<String, Object> to_sign = new HashMap<String, Object>();
+        to_sign.put("public_id", result.get("public_id"));
+        to_sign.put("version", ObjectUtils.asString(result.get("version")));
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        assertEquals(result.get("signature"), expected_signature);
+    }
+
+    @Test
     public void testUploadDataUri() throws IOException {
         Map result = cloudinary.uploader().upload("data:image/png;base64,iVBORw0KGgoAA\nAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAABlBMVEUAAAD///+l2Z/dAAAAM0l\nEQVR4nGP4/5/h/1+G/58ZDrAz3D/McH8yw83NDDeNGe4Ug9C9zwz3gVLMDA/A6\nP9/AFGGFyjOXZtQAAAAAElFTkSuQmCC", asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         assertEquals(result.get("width"), 16);

@@ -109,7 +109,7 @@ public class Uploader {
         return uploadLarge(file, options, bufferSize, null);
     }
 
-    public Map uploadLarge(Object file, Map options, int bufferSize,  ProgressCallback progressCallback) throws IOException {
+    public Map uploadLarge(Object file, Map options, int bufferSize, ProgressCallback progressCallback) throws IOException {
         InputStream input;
         long length = -1;
         if (file instanceof InputStream) {
@@ -510,4 +510,7 @@ public class Uploader {
         return builder.toString();
     }
 
+    public Map deleteByToken(String token) throws Exception {
+        return callApi("delete_by_token", ObjectUtils.asMap("token", token), ObjectUtils.emptyMap(), null);
+    }
 }

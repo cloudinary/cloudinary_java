@@ -1,0 +1,65 @@
+apply from: "../java_shared.gradle"
+
+dependencies {
+    compile project(':cloudinary-core')
+    compile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
+    compile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: publishRepo) {
+                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
+            }
+
+            snapshotRepository(url: snapshotRepo) {
+                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
+            }
+
+            pom.project {
+                groupId publishGroupId
+                artifactId 'cloudinary-test-common'
+                name 'Cloudinary Test Common'
+                description publishDescription
+                packaging jar
+                version version
+
+                url githubUrl
+
+                scm {
+                    connection scmConnection
+                    developerConnection scmDeveloperConnection
+                    url scmUrl
+                }
+
+                licenses {
+                    license {
+                        name licenseName
+                        url licenseUrl
+                    }
+                }
+
+                developers {
+                    developer {
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+            }
+
+            pom.whenConfigured { pom ->
+                pom.dependencies.forEach { dep ->
+                    if (dep.getVersion() == "unspecified") {
+                        dep.setGroupId(publishGroupId)
+                        dep.setVersion(version)
+                    }
+                }
+            }
+        }
+    }
+}

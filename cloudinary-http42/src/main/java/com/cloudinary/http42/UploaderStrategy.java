@@ -50,7 +50,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             Util.clearEmpty(params);
         }
 
-        String apiUrl = uploader.cloudinary().cloudinaryApiUrl(action, options);
+        String apiUrl = buildUploadUrl(action, options);
 
         ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
         HttpClient client = new DefaultHttpClient(connectionManager);

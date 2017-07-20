@@ -1,0 +1,26 @@
+buildscript {
+}
+
+allprojects {
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+
+    signing {
+        sign configurations.archives
+    }
+    project.ext.set("publishGroupId", group)
+}
+
+subprojects {
+    tasks.withType(Test) {
+        maxParallelForks = Runtime.runtime.availableProcessors()
+
+        // show standard out and standard error of the test JVM(s) on the console
+        testLogging.showStandardStreams = true
+    }
+}

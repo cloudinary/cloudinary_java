@@ -14,7 +14,7 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 For Android, Cloudinary provides a library for simplifying the integration even further. The library requires Android 2.3 or higher.
 
 ## Manual Setup ######################################################################
-Download cloudinary-core-1.2.2.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-core/1.2.2/cloudinary-core-1.2.2.jar) and cloudinary-android-1.2.2.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-android/1.2.2/cloudinary-android-1.2.2.jar) and put them in your libs folder.
+Download cloudinary-core-1.13.0.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-core/1.13.0/cloudinary-core-1.13.0.jar) and cloudinary-android-1.13.0.jar from [here](http://search.maven.org/remotecontent?filepath=com/cloudinary/cloudinary-android/1.13.0/cloudinary-android-1.13.0.jar) and put them in your libs folder.
 
 ## Maven Integration ######################################################################
 The cloudinary_java library is available in [Maven Central](http://repo1.maven.org/maven/). To use it, add the following dependency to your pom.xml:
@@ -22,7 +22,7 @@ The cloudinary_java library is available in [Maven Central](http://repo1.maven.o
     <dependency>
         <groupId>com.cloudinary</groupId>
         <artifactId>cloudinary-android</artifactId>
-        <version>1.2.2</version>
+        <version>1.13.0</version>
     </dependency>
 
 

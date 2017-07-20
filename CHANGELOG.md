@@ -1,4 +1,25 @@
 
+1.13.0 / 2017-06-12
+===================
+
+New functionality
+-----------------
+
+  * Add support for `format` in Responsive breakpoints transformation. (#78)
+  * Add `url_suffix` support for private images. (#76)
+  * Add `type` parameter to `Api.publishResource()` (#73)
+  * Add support for fetch overlay/underlay (#69)
+  * Add `deleteByToken` to `Uploader`.
+  * Rename `deleteDerivedResourcesByTransformations` to `deleteDerivedByTransformation`
+  * Fix `deleteStreamProfile` no-options overload.
+  * Add support for *TravisCI* tests
+  * Replace Maven with Gradle as build tool
+
+Other changes
+-------------
+
+  * Parallelize tests.
+
 1.12.0 / 2017-05-01
 ===================
 

@@ -1,12 +1,13 @@
 package com.cloudinary;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import com.cloudinary.utils.Rectangle;
 import com.cloudinary.utils.StringUtils;
 
-public class Coordinates {
+public class Coordinates implements Serializable{
 
     Collection<Rectangle> coordinates = new ArrayList<Rectangle>();
 

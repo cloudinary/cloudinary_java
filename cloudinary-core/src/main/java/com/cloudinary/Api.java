@@ -144,7 +144,7 @@ public class Api {
         return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
     }
 
-    public ApiResponse deleteDerivedResourcesByTransformations(Iterable<String> publicIds, List<Transformation> transformations, Map options) throws Exception {
+    public ApiResponse deleteDerivedByTransformation(Iterable<String> publicIds, List<Transformation> transformations, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
@@ -434,7 +434,7 @@ public class Api {
      * @see Api#deleteStreamingProfile(String, Map)
      */
     public ApiResponse deleteStreamingProfile(String name) throws Exception {
-        return getStreamingProfile(name, null);
+        return deleteStreamingProfile(name, null);
     }
 
     /**

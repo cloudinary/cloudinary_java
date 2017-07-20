@@ -121,7 +121,11 @@ public class StringUtils {
     }
 
     /**
-     * {@see HtmlEscape.escapeHtml}
+     * Method for html escaping a String
+     *
+     * @param input The String to escape
+     * @return The escaped String
+     * @see HtmlEscape#escapeTextArea(String) 
      */
     public static String escapeHtml(String input) {
         return HtmlEscape.escapeTextArea(input);
@@ -157,7 +161,7 @@ public class StringUtils {
 
     /**
      * Verify that the input is an empty string or contains only whitespace characters.<br>
-     *     {@see Character.isWhitespace}
+     *     see {@link Character#isWhitespace(char)}
      * @param input a string
      * @return true if input is an empty string or contains only whitespace characters
      */

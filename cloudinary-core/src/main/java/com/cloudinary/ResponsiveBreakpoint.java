@@ -1,10 +1,13 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.StringUtils;
+
 import org.cloudinary.json.JSONObject;
 
-import java.util.Collections;
-
 public class ResponsiveBreakpoint extends JSONObject {
+    private Transformation transformation = null;
+    private String format = "";
+
     public ResponsiveBreakpoint() {
         put("create_derived", true);
     }
@@ -19,12 +22,33 @@ public class ResponsiveBreakpoint extends JSONObject {
     }
 
     public Transformation transformation() {
-        return (Transformation) opt("transformation");
+        return transformation;
     }
 
     public ResponsiveBreakpoint transformation(Transformation transformation) {
-        put("transformation", Util.buildEager(Collections.singletonList(transformation)));
+        this.transformation = transformation;
+        updateTransformationKey();
         return this;
+    }
+
+
+    public ResponsiveBreakpoint format(String format) {
+        this.format = format;
+        updateTransformationKey();
+        return this;
+    }
+
+    public String format() {
+        return format;
+    }
+
+    private synchronized void updateTransformationKey() {
+        String transformationStr = transformation == null ? "" : transformation.generate();
+        if (StringUtils.isNotBlank(format)){
+            transformationStr += "/" + format;
+        }
+
+        put("transformation", transformationStr);
     }
 
     public int maxWidth() {
@@ -62,5 +86,4 @@ public class ResponsiveBreakpoint extends JSONObject {
         put("max_images", maxImages);
         return this;
     }
-
 }

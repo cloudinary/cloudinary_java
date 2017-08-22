@@ -1,6 +1,5 @@
 rootProject.name = 'cloudinary-parent'
 include ':cloudinary-core'
-include ':cloudinary-android'
 include ':cloudinary-taglib'
 include ':cloudinary-test-common'
 include ':cloudinary-http42'

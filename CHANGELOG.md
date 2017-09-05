@@ -1,4 +1,22 @@
 
+1.15.0 / 2017-09-05
+===================
+
+New functionality
+-----------------
+
+  * Add format field to `ResponsiveBreakpoint`.
+  * The Android SDK has been moved to https://github.com/cloudinary/cloudinary_android
+
+Other changes
+-------------
+
+  * Add badges to README
+  * Create LICENSE
+  * Centralize response handling and respect `returnError` param.
+  * Fix boolean config values in tag generation
+  * Fix project for java8, update cloudinary dependencies.
+
 1.14.0 / 2017-07-20
 ===================
 

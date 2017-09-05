@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/cloudinary/cloudinary_java.svg?branch=master)](https://travis-ci.org/cloudinary/cloudinary_java)
+[![Maven Central](https://img.shields.io/maven-central/v/com.cloudinary/cloudinary-core.svg)](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.cloudinary)
+[![license](https://img.shields.io/github/license/cloudinary/cloudinary_js.svg?maxAge=2592000)]()
+
 Cloudinary
 ==========
 

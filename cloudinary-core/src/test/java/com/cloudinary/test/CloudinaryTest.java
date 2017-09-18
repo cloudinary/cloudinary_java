@@ -164,11 +164,6 @@ public class CloudinaryTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testDisallowUrlSuffixInSharedDistribution() {
-        cloudinary.url().suffix("hello").generate("test");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void testDisallowUrlSuffixInNonUploadTypes() {
         cloudinary.url().suffix("hello").privateCdn(true).type("facebook").generate("test");
 
@@ -229,13 +224,21 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testSupportUrlSuffixForVideoUploads() {
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("video").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/videos/test/hello", actual);
+    }
+
+    @Test
+    public void testSupportUrlSuffixForAuthenticatedImages() {
+        String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("image").type("authenticated").generate("test");
+        assertEquals("http://test123-res.cloudinary.com/authenticated_images/test/hello", actual);
+    }
+
+    @Test
     public void testSupportUrlSuffixForPrivateImages(){
         String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("image").type("private").generate("test");
         assertEquals("http://test123-res.cloudinary.com/private_images/test/hello", actual);
-    }
-    @Test(expected = IllegalArgumentException.class)
-    public void testDisllowUseRootPathInSharedDistribution() {
-        cloudinary.url().useRootPath(true).generate("test");
     }
 
     @Test

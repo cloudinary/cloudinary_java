@@ -328,15 +328,6 @@ public class Url {
             throw new IllegalArgumentException("Must supply cloud_name in tag or in configuration");
         }
 
-        if (!this.config.privateCdn) {
-            if (StringUtils.isNotBlank(urlSuffix)) {
-                throw new IllegalArgumentException("URL Suffix only supported in private CDN");
-            }
-            if (useRootPath) {
-                throw new IllegalArgumentException("Root path only supported in private CDN");
-            }
-        }
-
         if (source == null) {
             if (publicId == null) {
                 if (this.source == null) {
@@ -457,11 +448,17 @@ public class Url {
             } else if (resourceType.equals("image") && type.equals("private")) {
                 resourceType = "private_images";
                 type = null;
+            } else if (resourceType.equals("image") && type.equals("authenticated")){
+                resourceType = "authenticated_images";
+                type = null;
             } else if (resourceType.equals("raw") && type.equals("upload")) {
                 resourceType = "files";
                 type = null;
+            } else if (resourceType.equals("video") && type.equals("upload")){
+                resourceType = "videos";
+                type = null;
             } else {
-                throw new IllegalArgumentException("URL Suffix only supported for image/upload, image/private and raw/upload");
+                throw new IllegalArgumentException("URL Suffix only supported for image/upload, image/private, raw/upload, image/authenticated  and video/upload");
             }
         }
         if (useRootPath) {

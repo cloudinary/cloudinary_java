@@ -29,3 +29,9 @@ artifacts {
     archives sourcesJar
     archives javadocJar
 }
+
+tasks.each { task ->
+    if (!project.hasProperty("ossrhPassword") && "signArchives" == task.name) {
+        task.enabled = false
+    }
+}

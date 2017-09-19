@@ -2,10 +2,6 @@ language: java
 dist: precise
 sudo: required
 
-addons:
-  hosts:
-    - custom.host
-
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -17,10 +13,6 @@ cache:
 jdk:
   - oraclejdk8
   - oraclejdk7
-  - openjdk7
-
-# Temporarily disabled, test fail because Hamcrest needs java 1.7
-#  - openjdk6
 
 # ciTest is configured to skip the various timeout tests that don't work in travis
 script: ./gradlew clean ciTest

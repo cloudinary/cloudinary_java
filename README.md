@@ -24,7 +24,7 @@ For Java, Cloudinary provides a library for simplifying the integration even fur
 * For Android there's a separate library available at https://github.com/cloudinary/cloudinary_android
 
 ## Getting started guide
-![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](http://cloudinary.com/documentation/java_integration#getting_started_guide)**.
+![](https://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](https://cloudinary.com/documentation/java_integration#getting_started_guide)**.
 
 ## Setup ######################################################################
 
@@ -73,7 +73,7 @@ Generating a 120x90 thumbnail based on automatic face detection of the Facebook 
     
 ![Facebook 90x120](https://res.cloudinary.com/demo/image/facebook/c_thumb,g_face,h_90,w_120/billclinton.jpg "Facebook 90x200")
 
-For more details, see our documentation for embedding [Facebook](http://cloudinary.com/documentation/facebook_profile_pictures) and [Twitter](http://cloudinary.com/documentation/twitter_profile_pictures) profile pictures.
+For more details, see our documentation for embedding [Facebook](https://cloudinary.com/documentation/facebook_profile_pictures) and [Twitter](https://cloudinary.com/documentation/twitter_profile_pictures) profile pictures.
 
 ## Usage
 
@@ -81,7 +81,7 @@ For more details, see our documentation for embedding [Facebook](http://cloudina
 
 Each request for building a URL of a remote cloud resource must have the `cloud_name` parameter set. 
 Each request to our secure APIs (e.g., image uploads, eager sprite generation) must have the `api_key` and `api_secret` parameters set. 
-See [API, URLs and access identifiers](http://cloudinary.com/documentation/api_and_access_identifiers) for more details.
+See [API, URLs and access identifiers](https://cloudinary.com/documentation/solution_overview#account_and_api_setup) for more details.
 
 Setting the `cloud_name`, `api_key` and `api_secret` parameters can be done either directly in each call to a Cloudinary method, 
 by when initializing the Cloudinary object, or by using the CLOUDINARY_URL environment variable / system property.
@@ -135,7 +135,7 @@ Same goes for Twitter:
 cloudinary.url().type("twitter_name").generate("billclinton.jpg");
 ```
 
-![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_manipulation) for more information about displaying and transforming images in Java**.
+![](https://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](https://cloudinary.com/documentation/java_image_manipulation) for more information about displaying and transforming images in Java**.
 
 ### Upload
 
@@ -165,7 +165,7 @@ cloudinary.url().generate("sample_remote.jpg");
 # http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
 ```
 
-![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.        
+![](https://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](https://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.        
 
 ### imageTag
 
@@ -191,24 +191,28 @@ Map htmlOptions = ObjectUtils.asMap("alt", "sample");
 String html = cloudinary.uploader().imageUploadTag("image_id", options, htmlOptions);
 ```
 
-![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](http://cloudinary.com/documentation/java_image_upload#direct_uploading_from_the_browser) for plenty more options of uploading directly from the browser**.
+![](https://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](https://cloudinary.com/documentation/java_image_upload#direct_uploading_from_the_browser) for plenty more options of uploading directly from the browser**.
   
 ## Additional resources ##########################################################
 
 Additional resources are available at:
 
-* [Website](http://cloudinary.com)
-* [Documentation](http://cloudinary.com/documentation)
-* [Image transformations documentation](http://cloudinary.com/documentation/image_transformations)
-* [Upload API documentation](http://cloudinary.com/documentation/upload_images)
+* [Website](https://cloudinary.com)
+* [Interactive demo](https://demo.cloudinary.com/default)
+* [Knowledge Base](https://support.cloudinary.com/hc/en-us) 
+* [Documentation](https://cloudinary.com/documentation)
+* [Documentation for Java integration](https://cloudinary.com/documentation/java_integration)
+* [Image transformations documentation](https://cloudinary.com/documentation/image_transformations)
+* [Upload API documentation](https://cloudinary.com/documentation/upload_images)
 
 ## Support
 
 You can [open an issue through GitHub](https://github.com/cloudinary/cloudinary_java/issues).
 
-Contact us at [info@cloudinary.com](mailto:info@cloudinary.com)
+Contact us [https://cloudinary.com/contact](https://cloudinary.com/contact)
 
-Or via Twitter: [@cloudinary](https://twitter.com/#!/cloudinary)
+Stay tuned for updates, tips and tutorials: [Blog](https://cloudinary.com/blog), [Twitter](https://twitter.com/cloudinary), [Facebook](https://www.facebook.com/Cloudinary).
+
 
 ## License #######################################################################
 

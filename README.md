@@ -18,9 +18,10 @@ Cloudinary provides URL and HTTP based APIs that can be easily integrated with a
 
 For Java, Cloudinary provides a library for simplifying the integration even further.
 
-**Note:** Starting from version 1.1.0, you should depend on cloudinary-http42 for Java and cloudinary-android for Android. The artifact cloudinary is deprecated. From version 1.2.1 cloudinary-http44 is available. From version 1.2.2 cloudinary-http43 is available.
+**Notes:** 
 
-**Note:** This readme intended mainly for Web applications. For **Android** specific instructions, see: https://github.com/cloudinary/cloudinary_java/tree/master/cloudinary-android
+* There are three flavors of the library to support different HttpClient versions: cloudinary-http42, cloudinary-http43 and cloudinary-http44. 
+* For Android there's a separate library available at https://github.com/cloudinary/cloudinary_android
 
 ## Getting started guide
 ![](http://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png)  **Take a look at our [Getting started guide for Java](http://cloudinary.com/documentation/java_integration#getting_started_guide)**.

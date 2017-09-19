@@ -1,7 +1,6 @@
 language: java
-dist: trusty
+dist: precise
 sudo: required
-group: edge
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

@@ -1,4 +1,12 @@
 
+1.16.0 / 2017-09-26
+===================
+
+  * Change url suffix and root path limitations
+  * Add update_version.sh
+  * Update Readme to point to HTTPS URLs of cloudinary.com
+  * Fix android repository link
+
 1.15.0 / 2017-09-05
 ===================
 

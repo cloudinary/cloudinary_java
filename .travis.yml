@@ -1,16 +1,6 @@
-language: android
-dist: trusty
+language: java
+dist: precise
 sudo: required
-group: edge
-
-android:
-  components:
-    - tools
-    - platform-tools
-    - tools
-    - build-tools-25.0.2
-    - android-25
-    - extra-android-m2repository
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -22,13 +12,7 @@ cache:
 
 jdk:
   - oraclejdk8
-
-#  Android build tools 25 require java 8 - until project separation java 7 tests are disabled
-#  - oraclejdk7
-#  - openjdk7
-
-# Temporarily disabled, test fail because Hamcrest needs java 1.7
-#  - openjdk6
+  - oraclejdk7
 
 # ciTest is configured to skip the various timeout tests that don't work in travis
 script: ./gradlew clean ciTest

@@ -1,4 +1,10 @@
 
+1.17.0 / 2017-11-26
+===================
+
+  * Add missing params to `explicit` and `upload` api
+  * Remove Android from Travis configuration and add JDK versions
+
 1.16.0 / 2017-09-26
 ===================
 

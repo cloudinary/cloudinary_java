@@ -245,32 +245,11 @@ public class Uploader {
     }
 
     public Map explicit(String publicId, Map options) throws IOException {
-        if (options == null)
+        if (options == null) {
             options = ObjectUtils.emptyMap();
-        Map<String, Object> params = new HashMap<String, Object>();
+        }
+        Map<String, Object> params = buildUploadParams(options);
         params.put("public_id", publicId);
-        params.put("callback", (String) options.get("callback"));
-        params.put("type", (String) options.get("type"));
-        params.put("eager", Util.buildEager((List<Transformation>) options.get("eager")));
-        params.put("eager_async", ObjectUtils.asBoolean(options.get("eager_async"), false).toString());
-        params.put("eager_notification_url", (String) options.get("eager_notification_url"));
-        params.put("headers", Util.buildCustomHeaders(options.get("headers")));
-        params.put("tags", StringUtils.join(ObjectUtils.asArray(options.get("tags")), ","));
-        params.put("moderation", (String) options.get("moderation"));
-        params.put("ocr", (String) options.get("ocr"));
-        if (options.get("face_coordinates") != null) {
-            params.put("face_coordinates", Coordinates.parseCoordinates(options.get("face_coordinates")).toString());
-        }
-        if (options.get("custom_coordinates") != null) {
-            params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
-        }
-        if (options.get("context") != null) {
-            params.put("context", Util.encodeContext(options.get("context")));
-        }
-        if (options.get("responsive_breakpoints") != null) {
-            params.put("responsive_breakpoints", JSONObject.wrap(options.get("responsive_breakpoints")));
-        }
-        params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
         return callApi("explicit", params, options, null);
     }
 

@@ -522,14 +522,18 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testOcrUpdate() {
+        Exception expected = null;
         // should support requesting ocr info
         try {
             Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
             api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("ocr", "illegal"));
         } catch (Exception e) {
-            assertTrue(e instanceof BadRequest);
-            assertTrue(e.getMessage().matches("^Illegal value(.*)"));
+            expected = e;
         }
+
+        assertNotNull(expected);
+        assertTrue(expected instanceof BadRequest);
+        assertTrue(expected.getMessage().matches("^Illegal value(.*)"));
     }
 
     @Test

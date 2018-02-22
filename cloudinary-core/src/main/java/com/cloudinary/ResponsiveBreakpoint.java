@@ -1,13 +1,8 @@
 package com.cloudinary;
 
-import com.cloudinary.utils.StringUtils;
-
 import org.cloudinary.json.JSONObject;
 
 public class ResponsiveBreakpoint extends JSONObject {
-    private Transformation transformation = null;
-    private String format = "";
-
     public ResponsiveBreakpoint() {
         put("create_derived", true);
     }
@@ -22,33 +17,21 @@ public class ResponsiveBreakpoint extends JSONObject {
     }
 
     public Transformation transformation() {
-        return transformation;
+        return (Transformation) opt("transformation");
     }
 
     public ResponsiveBreakpoint transformation(Transformation transformation) {
-        this.transformation = transformation;
-        updateTransformationKey();
+        put("transformation", transformation);
         return this;
     }
 
-
     public ResponsiveBreakpoint format(String format) {
-        this.format = format;
-        updateTransformationKey();
+        put("format", format);
         return this;
     }
 
     public String format() {
-        return format;
-    }
-
-    private synchronized void updateTransformationKey() {
-        String transformationStr = transformation == null ? "" : transformation.generate();
-        if (StringUtils.isNotBlank(format)){
-            transformationStr += "/" + format;
-        }
-
-        put("transformation", transformationStr);
+        return optString("format");
     }
 
     public int maxWidth() {

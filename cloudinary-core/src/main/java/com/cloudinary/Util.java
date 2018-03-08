@@ -1,10 +1,10 @@
 package com.cloudinary;
 
-import java.util.*;
-
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
+
+import java.util.*;
 
 public class Util {
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
@@ -48,6 +48,8 @@ public class Util {
             }
             processWriteParameters(options, params);
         } else {
+            // if there's a signature, it means all the params are already serialized so
+            // we don't need to construct them, just pass the value as is:
             params.put("eager", (String) options.get("eager"));
             params.put("transformation", (String) options.get("transformation"));
             params.put("headers", (String) options.get("headers"));
@@ -60,6 +62,7 @@ public class Util {
             params.put("detection", (String) options.get("detection"));
             params.put("similarity_search", (String) options.get("similarity_search"));
             params.put("auto_tagging", (String) options.get("auto_tagging"));
+            params.put("access_control", (String) options.get("access_control"));
         }
         return params;
     }
@@ -92,6 +95,9 @@ public class Util {
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         if (options.get("context") != null)
             params.put("context", encodeContext(options.get("context")));
+        if (options.get("access_control") != null) {
+            params.put("access_control", encodeAccessControl(options.get("access_control")));
+        }
         putObject("ocr", options, params);
         putObject("raw_convert", options, params);
         putObject("categorization", options, params);
@@ -100,6 +106,14 @@ public class Util {
         putObject("background_removal", options, params);
         if (options.get("auto_tagging") != null)
             params.put("auto_tagging", ObjectUtils.asFloat(options.get("auto_tagging")));
+    }
+
+    protected static String encodeAccessControl(Object accessControl) {
+        if (accessControl instanceof AccessControlRule) {
+            accessControl = Arrays.asList(accessControl);
+        }
+
+        return JSONObject.wrap(accessControl).toString();
     }
 
     protected static String encodeContext(Object context) {

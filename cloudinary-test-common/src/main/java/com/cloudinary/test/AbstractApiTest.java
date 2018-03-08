@@ -1,9 +1,6 @@
 package com.cloudinary.test;
 
-import com.cloudinary.Api;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Coordinates;
-import com.cloudinary.Transformation;
+import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
@@ -13,6 +10,7 @@ import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static org.hamcrest.Matchers.*;
@@ -592,6 +590,24 @@ abstract public class AbstractApiTest extends MockableTest {
         for (int i = 0; i < expected.length; i++) {
             assertEquals(expected[i], actual.get(i));
         }
+    }
+
+    @Test
+    public void testUpdateAccessControl() throws Exception {
+        // should update access control
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        final Date start = simpleDateFormat.parse("2019-02-22 16:20:57 +0200");
+        final Date end = simpleDateFormat.parse("2019-03-22 00:00:00 +0200");
+        AccessControlRule acl = AccessControlRule.anonymous(start, end);
+        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
+        ApiResponse res = cloudinary.api().update(uploadResult.get("public_id").toString(), ObjectUtils.asMap("access_control", acl));
+        Map result = cloudinary.api().resource(uploadResult.get("public_id").toString(), ObjectUtils.asMap("access_control", true));
+
+        Map accessControlResult = (Map) ((List) result.get("access_control")).get(0);
+
+        assertEquals("anonymous", accessControlResult.get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z", accessControlResult.get("start"));
+        assertEquals("2019-03-21T22:00:00Z", accessControlResult.get("end"));
     }
 
     @Test

@@ -4,12 +4,15 @@ import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
+import org.cloudinary.json.JSONObject;
 import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 
@@ -408,11 +411,15 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Test
     public void testCategorizationRequest() {
         //should support requesting categorization
+        String errorMessage = "";
+
         try {
             cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("categorization", "illegal", "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid|invalid)(.*)"));
+            errorMessage = e.getMessage();
         }
+
+        assertTrue(errorMessage.contains("Categorization item illegal is not valid"));
     }
 
     @Test
@@ -571,4 +578,55 @@ abstract public class AbstractUploaderTest extends MockableTest {
         }
     }
 
+    @Test
+    public void testAccessControl() throws ParseException, IOException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+        final Date start = simpleDateFormat.parse("2019-02-22 16:20:57 +0200");
+        final Date end = simpleDateFormat.parse("2019-03-22 00:00:00 +0200");
+        AccessControlRule acl;
+        AccessControlRule token = AccessControlRule.token();
+
+        acl = AccessControlRule.anonymous(start, null);
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("access_control",
+                Arrays.asList(acl, token), "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+
+        assertNotNull(result);
+        List<Map<String,String>> accessControlResponse = (List<Map<String, String>>) result.get("access_control");
+        assertNotNull(accessControlResponse);
+        assertEquals(2,                         accessControlResponse.size());
+
+        Map<String, String> acr = accessControlResponse.get(0);
+        assertEquals("anonymous",               acr.get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z",    acr.get("start"));
+        assertThat(acr, not(hasKey("end")));
+        
+        acr = accessControlResponse.get(1);
+        assertEquals("token",                   acr.get("access_type"));
+        assertThat(acr, not(hasKey("start")));
+        assertThat(acr, not(hasKey("end")));
+
+        result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("access_control",
+                acl, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+
+        assertNotNull(result);
+        accessControlResponse = (List<Map<String, String>>) result.get("access_control");
+        assertNotNull(accessControlResponse);
+        acr = accessControlResponse.get(0);
+        assertEquals(1,                         accessControlResponse.size());
+        assertEquals("anonymous",               acr.get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z",    acr.get("start"));
+        assertThat(acr, not(hasKey("end")));
+
+        String aclString = "[{\"access_type\":\"anonymous\",\"start\":\"2019-02-22 16:20:57 +0200\",\"end\":\"2019-03-22 00:00 +0200\"}]";
+        result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("access_control",
+                aclString, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+
+        assertNotNull(result);
+        accessControlResponse = (List<Map<String, String>>) result.get("access_control");
+        assertNotNull(accessControlResponse);
+        assertTrue(accessControlResponse.size() == 1);
+        assertEquals("anonymous", accessControlResponse.get(0).get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z", accessControlResponse.get(0).get("start"));
+        assertEquals("2019-03-21T22:00:00Z", accessControlResponse.get(0).get("end"));
+    }
 }

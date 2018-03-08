@@ -5,10 +5,22 @@ import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
 public class ObjectUtils {
+    /**
+     * Formats a Date as an ISO-8601 string representation.
+     * @param date Date to format
+     * @return The date formatted as ISO-8601 string
+     */
+    public static String toISO8601(Date date){
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(date);
+    }
 
     public static String asString(Object value) {
         if (value == null) {

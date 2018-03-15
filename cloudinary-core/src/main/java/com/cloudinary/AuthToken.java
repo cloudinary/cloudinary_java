@@ -157,7 +157,7 @@ public class AuthToken {
             tokenParts.add("acl=" + escapeToLower(acl));
         }
         ArrayList<String> toSign = new ArrayList<String>(tokenParts);
-        if (url != null) {
+        if (url != null && acl == null) {
             toSign.add("url=" + escapeToLower(url));
         }
         String auth = digest(StringUtils.join(toSign, "~"));

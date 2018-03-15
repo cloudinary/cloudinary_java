@@ -1,25 +1,17 @@
 package com.cloudinary;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
@@ -40,7 +32,7 @@ public class Cloudinary {
     public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-    public final static String VERSION = "1.17.0";
+    public final static String VERSION = "1.18.0";
     public final static String USER_AGENT = "CloudinaryJava/" + VERSION;
 
     public final Configuration config;

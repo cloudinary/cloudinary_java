@@ -1,4 +1,21 @@
 
+1.18.0 / 2018-03-15
+===================
+
+New functionality
+-----------------
+
+  * Add access control parameter to upload and update calls
+
+Other changes
+-------------
+
+  * Fix authToken generation when using acl
+  * Fix `testOcrUpdate()` test case (#119)
+  * Configure .travis.yml to show more test information.
+  * Verify `testDeleteByToken` takes all original config into account (#116)
+  * Replace `pom.xml` link with `build.gradle` in README.md
+
 1.17.0 / 2017-11-26
 ===================
 

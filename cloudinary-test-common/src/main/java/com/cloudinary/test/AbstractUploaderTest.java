@@ -4,7 +4,6 @@ import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
-import org.cloudinary.json.JSONObject;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -404,7 +403,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         try {
             cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("raw_convert", "illegal", "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+            assertTrue(e.getMessage().contains("Raw convert is invalid"));
         }
     }
 

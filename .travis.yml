@@ -11,8 +11,14 @@ cache:
     - $HOME/.gradle/wrapper/
 
 jdk:
-  - oraclejdk8
   - oraclejdk7
+  - oraclejdk8
+env:
+  - MODULE=core
+  - MODULE=http42
+  - MODULE=http43
+  - MODULE=http44
 
 # ciTest is configured to skip the various timeout tests that don't work in travis
-script: ./gradlew clean ciTest -i
+script: ./gradlew clean ciTest -p cloudinary-${MODULE} -i
+

@@ -151,21 +151,6 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void test02Resources() throws Exception {
-        // should allow listing resources
-        Map resource = preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS));
-
-        final List<Map> resources = new ArrayList<Map>();
-        String next_cursor = null;
-        do {
-            Map result = api.resources(ObjectUtils.asMap("max_results", 500, "next_cursor", next_cursor));
-            resources.addAll((List) result.get("resources"));
-            next_cursor = (String) result.get("next_cursor");
-        } while (next_cursor != null);
-        assertThat(resources, hasItem(allOf(hasEntry("public_id", (String) resource.get("public_id")), hasEntry("type", "upload"))));
-    }
-
-    @Test
     public void test03ResourcesCursor() throws Exception {
         // should allow listing resources with cursor
         Map options = new HashMap();

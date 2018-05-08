@@ -3,7 +3,6 @@ package com.cloudinary.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.List;
 
@@ -48,16 +47,6 @@ public class StringUtils {
             return null;
         }
         return join(collection.toArray(new String[collection.size()]), separator, 0, collection.size());
-    }
-
-    /**
-     * Formats the given number to string using up to 3 decimal digits, with rounding.
-     * Integers rendered without trailing zeros. (e.g. 10.0f becomes "10").
-     * @param number Number to format
-     * @return The formatted number as String.
-     */
-    public static String decimalFormat(float number) {
-        return new DecimalFormat("#.###").format(number);
     }
 
     /**

@@ -127,7 +127,7 @@ public class Transformation<T extends Transformation> implements Serializable{
      * @return The transformation for chaining
      */
     public T keyframeInterval(float value) {
-        return keyframeInterval(StringUtils.decimalFormat(value));
+        return param("keyframe_interval", value);
     }
 
     /**

@@ -502,16 +502,22 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testResponsiveBreakpoints() throws Exception {
-        ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint().maxImages(2).createDerived(false).format("gif");
+        ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()
+                .createDerived(true)
+                .maxImages(2)
+                .transformation(new Transformation().angle(90))
+                .format("gif");
 
         // A single breakpoint
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("responsive_breakpoints",
-                breakpoint, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)
-        ));
+                breakpoint, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+
         java.util.ArrayList breakpointsResponse = (java.util.ArrayList) result.get("responsive_breakpoints");
-        java.util.ArrayList breakpoints = (java.util.ArrayList) ((Map) breakpointsResponse.get(0)).get("breakpoints");
-        assertEquals(2, breakpoints.size());
+        Map map = (Map) breakpointsResponse.get(0);
+
+        java.util.ArrayList breakpoints = (java.util.ArrayList) map.get("breakpoints");
         assertTrue(((Map) breakpoints.get(0)).get("url").toString().endsWith("gif"));
+        assertEquals("a_90", map.get("transformation"));
 
         // check again with transformation + format
         breakpoint.transformation(new Transformation().effect("sepia"));

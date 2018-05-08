@@ -1086,11 +1086,13 @@ public class CloudinaryTest {
 
     @Test
     public void testKeyframeInterval(){
-        assertEquals("ki_10.0", new Transformation().keyframeInterval(10).generate());
+        assertEquals("ki_10", new Transformation().keyframeInterval(10).generate());
         assertEquals("ki_0.05", new Transformation().keyframeInterval(0.05f).generate());
         assertEquals("ki_3.45", new Transformation().keyframeInterval(3.45f).generate());
-        assertEquals("ki_300.0", new Transformation().keyframeInterval(300).generate());
+        assertEquals("ki_300", new Transformation().keyframeInterval(300).generate());
         assertEquals("ki_10", new Transformation().keyframeInterval("10").generate());
+        assertEquals("", new Transformation().keyframeInterval("").generate());
+        assertEquals("", new Transformation().keyframeInterval(null).generate());
     }
 
     public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

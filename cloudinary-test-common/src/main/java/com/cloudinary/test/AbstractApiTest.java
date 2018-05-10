@@ -637,6 +637,8 @@ abstract public class AbstractApiTest extends MockableTest {
         assertArrayEquals(tags, outTags);
         Map outContext = (Map) settings.get("context");
         assertEquals(context, outContext);
+
+        api.deleteUploadPreset(name, ObjectUtils.emptyMap());
     }
 
     @Test

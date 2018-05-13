@@ -19,6 +19,10 @@ env:
   - MODULE=http43
   - MODULE=http44
 
+branches:
+  except:
+  - staging-test
+
 # ciTest is configured to skip the various timeout tests that don't work in travis
 script: ./gradlew clean ciTest -p cloudinary-${MODULE} -i
 

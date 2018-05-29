@@ -589,11 +589,11 @@ public class Transformation<T extends Transformation> implements Serializable{
         String flags = StringUtils.join(ObjectUtils.asArray(options.get("flags")), ".");
 
         String duration = normRangeValue(options.get("duration"));
-        String startOffset = normRangeValue(options.get("start_offset"));
+        String startOffset = normAutoRangeValue(options.get("start_offset"));
         String endOffset = normRangeValue(options.get("end_offset"));
         String[] offset = splitRange(options.get("offset"));
         if (offset != null) {
-            startOffset = normRangeValue(offset[0]);
+            startOffset = normAutoRangeValue(offset[0]);
             endOffset = normRangeValue(offset[1]);
         }
 
@@ -795,6 +795,15 @@ public class Transformation<T extends Transformation> implements Serializable{
             modifier = "p";
         }
         return matcher.group(1) + modifier;
+    }
+
+    private static String normAutoRangeValue(Object objectValue) {
+        if (objectValue == null) return null;
+        String value = objectValue.toString();
+        if ("auto".equals(value)) {
+            return value;
+        }
+        return normRangeValue(objectValue);
     }
 
     private static String processVideoCodecParam(Object param) {

@@ -8,7 +8,6 @@ import org.cloudinary.json.JSONObject;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -126,7 +125,7 @@ public class Uploader {
             length = ((byte[]) file).length;
             input = new ByteArrayInputStream((byte[]) file);
         } else {
-            if (StringUtils.isRemoteUrl(file.toString())){
+            if (StringUtils.isRemoteUrl(file.toString())) {
                 remote = true;
                 input = null;
             } else {
@@ -390,7 +389,7 @@ public class Uploader {
      * @throws IOException
      */
     public Map removeAllContext(String[] publicIds, Map options) throws IOException {
-        return callContextApi((String)null, Command.removeAll, publicIds, options);
+        return callContextApi((String) null, Command.removeAll, publicIds, options);
     }
 
     protected Map callContextApi(Map context, String command, String[] publicIds, Map options) throws IOException {

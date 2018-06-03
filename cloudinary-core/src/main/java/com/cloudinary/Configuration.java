@@ -1,13 +1,15 @@
 package com.cloudinary;
 
+import com.cloudinary.cache.CacheAdapter;
+import com.cloudinary.cache.ResponsiveBreakpointPayload;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
 
 /**
  * Configuration object for a {@link Cloudinary} instance
@@ -40,15 +42,13 @@ public class Configuration {
     public boolean loadStrategies = true;
     public boolean clientHints = false;
     public AuthToken authToken;
+    public boolean useResponsiveBreakpointsProvider = false;
+    public CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter;
 
     public Configuration() {
     }
 
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath) {
-        this(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, 0, true);
-    }
-
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean useResponsiveBreakpointsProvider, CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -66,11 +66,39 @@ public class Configuration {
         this.useRootPath = useRootPath;
         this.timeout = 0;
         this.loadStrategies = loadStrategies;
+        this.useResponsiveBreakpointsProvider = useResponsiveBreakpointsProvider;
+        this.cacheAdapter = cacheAdapter;
     }
 
     @SuppressWarnings("rawtypes")
     public Configuration(Map config) {
         update(config);
+    }
+
+    public Configuration(Configuration other) {
+        this.cloudName = other.cloudName;
+        this.apiKey = other.apiKey;
+        this.apiSecret = other.apiSecret;
+        this.secureDistribution = other.secureDistribution;
+        this.cname = other.cname;
+        this.uploadPrefix = other.uploadPrefix;
+        this.secure = other.secure;
+        this.privateCdn = other.privateCdn;
+        this.cdnSubdomain = other.cdnSubdomain;
+        this.shorten = other.shorten;
+        this.callback = other.callback;
+        this.proxyHost = other.proxyHost;
+        this.proxyPort = other.proxyPort;
+        this.secureCdnSubdomain = other.secureCdnSubdomain;
+        this.useRootPath = other.useRootPath;
+        this.timeout = other.timeout;
+        this.clientHints = other.clientHints;
+        this.useResponsiveBreakpointsProvider = other.useResponsiveBreakpointsProvider;
+        this.cacheAdapter = other.cacheAdapter;
+
+        if (other.authToken != null) {
+            this.authToken = other.authToken.copy();
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -93,6 +121,8 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
+        this.useResponsiveBreakpointsProvider = ObjectUtils.asBoolean(config.get("useResponsiveBreakpointsProvider"));
+        this.cacheAdapter = (CacheAdapter<ResponsiveBreakpointPayload>) config.get("cacheAdapter");
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);
@@ -120,34 +150,14 @@ public class Configuration {
         map.put("load_strategies", loadStrategies);
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
+        map.put("useResponsiveBreakpointsProvider", useResponsiveBreakpointsProvider);
+        if (cacheAdapter != null){
+            map.put("cacheAdapter", cacheAdapter);
+        }
         if (authToken != null) {
             map.put("auth_token", authToken.copy());
         }
         return map;
-    }
-
-
-    public Configuration(Configuration other) {
-        this.cloudName = other.cloudName;
-        this.apiKey = other.apiKey;
-        this.apiSecret = other.apiSecret;
-        this.secureDistribution = other.secureDistribution;
-        this.cname = other.cname;
-        this.uploadPrefix = other.uploadPrefix;
-        this.secure = other.secure;
-        this.privateCdn = other.privateCdn;
-        this.cdnSubdomain = other.cdnSubdomain;
-        this.shorten = other.shorten;
-        this.callback = other.callback;
-        this.proxyHost = other.proxyHost;
-        this.proxyPort = other.proxyPort;
-        this.secureCdnSubdomain = other.secureCdnSubdomain;
-        this.useRootPath = other.useRootPath;
-        this.timeout = other.timeout;
-        this.clientHints = other.clientHints;
-        if (other.authToken != null) {
-            this.authToken = other.authToken.copy();
-        }
     }
 
     /**
@@ -253,6 +263,18 @@ public class Configuration {
         private int timeout;
         private boolean clientHints = false;
         private AuthToken authToken;
+        private boolean useResponsiveBreakpointsCache;
+        private CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter;
+
+        public Builder setUseResponsiveBreakpointsCache(boolean value){
+            this.useResponsiveBreakpointsCache = value;
+            return this;
+        }
+
+        public Builder setCacheAdapter(CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter){
+            this.cacheAdapter = cacheAdapter;
+            return this;
+        }
 
         /**
          * Set the HTTP connection timeout.
@@ -269,7 +291,7 @@ public class Configuration {
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
         public Configuration build() {
-            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies);
+            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, useResponsiveBreakpointsCache, cacheAdapter);
             configuration.clientHints = clientHints;
             return configuration;
         }

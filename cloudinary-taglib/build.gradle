@@ -2,6 +2,7 @@ apply from: "../java_shared.gradle"
 
 dependencies {
     compile project(':cloudinary-core')
+    compile 'com.jakewharton:disklrucache:2.0.2'
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.1'
     testCompile group: 'org.hamcrest', name: 'java-hamcrest', version:'2.0.0.0'
     testCompile group: 'pl.pragmatists', name: 'JUnitParams', version:'1.0.5'

@@ -1,27 +1,22 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.Base64Coder;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
-import com.cloudinary.utils.Base64Coder;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
-
 public class Url {
-    private final Cloudinary cloudinary;
+    final Cloudinary cloudinary;
     private final Configuration config;
     String publicId = null;
     String type = null;
@@ -40,6 +35,8 @@ public class Url {
     Transformation posterTransformation = null;
     String posterSource = null;
     Url posterUrl = null;
+    final ResponsiveBreakpointsProvider.CacheKey bpCacheKey = new ResponsiveBreakpointsProvider.CacheKey();
+
 
     private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
     public static final String[] DEFAULT_VIDEO_SOURCE_TYPES = {"webm", "mp4", "ogv"};
@@ -57,7 +54,8 @@ public class Url {
         cloned.fallbackContent = this.fallbackContent;
         cloned.format = this.format;
         cloned.posterSource = this.posterSource;
-        if (this.posterTransformation != null) cloned.posterTransformation = new Transformation(this.posterTransformation);
+        if (this.posterTransformation != null)
+            cloned.posterTransformation = new Transformation(this.posterTransformation);
         if (this.posterUrl != null) cloned.posterUrl = this.posterUrl.clone();
         cloned.publicId = this.publicId;
         cloned.resourceType = this.resourceType;
@@ -216,24 +214,23 @@ public class Url {
 
     /**
      * Set the authorization token. If <code>authToken</code> has already been set the parameter is <b>merged</b> with the current value unless the parameter value is <code>null</code> or <code>NULL_AUTH_TOKEN</code>.<br><br>
-     *  For example, to generate an authorized URL with a different duration:<br>
-     *  <pre class="prettyprint">
+     * For example, to generate an authorized URL with a different duration:<br>
+     * <pre class="prettyprint">
      *  {@code
      *   cloudinary.config.authToken = new AuthToken(KEY).duration(500);
      *   // later...
      *   cloudinary.url().signed(true).authToken(new AuthToken().duration(300))
      *                   .type("authenticated").version("1486020273").generate("sample.jpg");
      *  }
-     *</pre>
+     * </pre>
+     *
      * @param authToken an authorization token object
      * @return this
-     *
-     *
      */
     public Url authToken(AuthToken authToken) {
         if (this.authToken == null) {
             this.authToken = authToken;
-        } else if(authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
+        } else if (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
             this.authToken = authToken;
         } else {
             this.authToken = this.authToken.merge(authToken);
@@ -400,6 +397,11 @@ public class Url {
             } catch (MalformedURLException ignored) {
             }
         }
+
+        bpCacheKey.publicId = source;
+        bpCacheKey.transformation = transformationStr;
+        bpCacheKey.format = format;
+
         return url;
     }
 
@@ -448,13 +450,13 @@ public class Url {
             } else if (resourceType.equals("image") && type.equals("private")) {
                 resourceType = "private_images";
                 type = null;
-            } else if (resourceType.equals("image") && type.equals("authenticated")){
+            } else if (resourceType.equals("image") && type.equals("authenticated")) {
                 resourceType = "authenticated_images";
                 type = null;
             } else if (resourceType.equals("raw") && type.equals("upload")) {
                 resourceType = "files";
                 type = null;
-            } else if (resourceType.equals("video") && type.equals("upload")){
+            } else if (resourceType.equals("video") && type.equals("upload")) {
                 resourceType = "videos";
                 type = null;
             } else {
@@ -477,6 +479,10 @@ public class Url {
         if (type != null) {
             result += "/" + type;
         }
+
+        bpCacheKey.resourceType = resourceType;
+        bpCacheKey.type = type;
+
         return result;
     }
 
@@ -528,19 +534,52 @@ public class Url {
         return String.valueOf((crc32.getValue() % 5 + 5) % 5 + 1);
     }
 
+    /**
+     * Generate an image tag based on the configured url parameters and the given source
+     *
+     * @param source The source to generate the url for (e.g. publicId, or a remote fetch url)
+     * @return The generated image tag.
+     */
     @SuppressWarnings("unchecked")
     public String imageTag(String source) {
         return imageTag(source, ObjectUtils.emptyMap());
     }
 
+    /**
+     * Generate an image tag based on the configured url parameters and the given attributes
+     *
+     * @param attributes a map of attributes to use in the tag.
+     * @return The generated image tag.
+     */
     public String imageTag(Map<String, String> attributes) {
         return imageTag(null, attributes);
     }
 
+    /**
+     * Generate an image tag based on the configured url parameters and the given attributes and source.
+     *
+     * @param source     The source to generate the url for (e.g. publicId, or a remote fetch url)
+     * @param attributes a map of attributes to use in the tag.
+     * @return The generated image tag.
+     */
     public String imageTag(String source, Map<String, String> attributes) {
+        return imageTag(source, new TagOptions().attributes(attributes));
+    }
+
+    /**
+     * Generate an image tag based on the configured url parameters and the given tag options and source.
+     *
+     * @param source     The source to generate the url for (e.g. publicId, or a remote fetch url)
+     * @param tagOptions a tag options instance with tag-specific configuration (see {@link TagOptions}).
+     * @return The generated image tag.
+     */
+    public String imageTag(String source, TagOptions tagOptions) {
+        TreeMap<String, String> attributes = tagOptions != null && tagOptions.getAttributes() != null ?
+                new TreeMap<>(tagOptions.getAttributes()) :
+                new TreeMap<String, String>(); // Make sure they are ordered.
+
+        Url original = clone();
         String url = generate(source);
-        attributes = new TreeMap<String, String>(attributes); // Make sure they
-        // are ordered.
         if (transformation().getHtmlHeight() != null)
             attributes.put("height", transformation().getHtmlHeight());
         if (transformation().getHtmlWidth() != null)
@@ -558,6 +597,22 @@ public class Url {
                 responsivePlaceholder = CL_BLANK;
             }
             url = responsivePlaceholder;
+        }
+
+        if (tagOptions != null && tagOptions.getSrcset() != null && !attributes.containsKey("srcset")) {
+            Srcset srcset = tagOptions.getSrcset();
+            Srcset.SrcsetResult result = srcset.generateSrcset(cloudinary, source, original, bpCacheKey);
+            attributes.put("srcset", result.srcset);
+            url = result.largestBreakpoint;
+
+            if (srcset.hasSizes()) {
+                attributes.put("sizes", srcset.generateSizes());
+            }
+        }
+
+        if (attributes.containsKey("srcset")) {
+            attributes.remove("width");
+            attributes.remove("height");
         }
 
         StringBuilder builder = new StringBuilder();

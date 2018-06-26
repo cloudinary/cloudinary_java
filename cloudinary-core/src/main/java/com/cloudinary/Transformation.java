@@ -798,10 +798,8 @@ public class Transformation<T extends Transformation> implements Serializable{
     }
 
     private static String normAutoRangeValue(Object objectValue) {
-        if (objectValue == null) return null;
-        String value = objectValue.toString();
-        if ("auto".equals(value)) {
-            return value;
+        if ("auto".equals(objectValue)) {
+            return objectValue.toString();
         }
         return normRangeValue(objectValue);
     }

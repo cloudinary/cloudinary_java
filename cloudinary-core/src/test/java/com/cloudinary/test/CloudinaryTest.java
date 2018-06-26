@@ -728,6 +728,9 @@ public class CloudinaryTest {
         actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffsetPercent(2.63))
                 .generate("video_id");
         assertEquals(VIDEO_UPLOAD_PATH + "so_2.63p/video_id", actual);
+        actual = cloudinary.url().resourceType("video").transformation(new Transformation().startOffset("auto"))
+                .generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "so_auto/video_id", actual);
     }
 
     @Test

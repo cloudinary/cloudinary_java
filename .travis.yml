@@ -1,5 +1,4 @@
 language: java
-dist: precise
 sudo: required
 
 before_cache:

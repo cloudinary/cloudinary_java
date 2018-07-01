@@ -398,7 +398,6 @@ public class Url {
             }
         }
 
-        bpCacheKey.publicId = source;
         bpCacheKey.transformation = transformationStr;
         bpCacheKey.format = format;
 
@@ -428,6 +427,7 @@ public class Url {
                 }
                 source = source + "/" + urlSuffix;
             }
+            bpCacheKey.publicId = source; // extension not included in publicId
             if (StringUtils.isNotBlank(format)) {
                 source = source + "." + format;
                 sourceToSign = sourceToSign + "." + format;

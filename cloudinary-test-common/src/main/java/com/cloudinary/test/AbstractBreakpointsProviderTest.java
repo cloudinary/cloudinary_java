@@ -1,10 +1,6 @@
 package com.cloudinary.test;
 
-import com.cloudinary.Api;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.ResponsiveBreakpointsProvider;
-import com.cloudinary.Url;
-import com.cloudinary.cache.CacheAdapter;
+import com.cloudinary.*;
 import com.cloudinary.cache.ResponsiveBreakpointPayload;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -22,6 +18,7 @@ public abstract class AbstractBreakpointsProviderTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
+    private MockMemCache cacheAdapter;
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -54,15 +51,22 @@ public abstract class AbstractBreakpointsProviderTest extends MockableTest {
     @Before
     public void setUp() {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-        this.cloudinary = new Cloudinary();
+        String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
+        final Configuration config;
+        if (cloudinaryUrl != null) {
+            config = Configuration.from(cloudinaryUrl);
+        } else {
+            config = new Configuration();
+        }
+        this.cacheAdapter = new MockMemCache();
+        config.useResponsiveBreakpointsProvider = true;
+        config.cacheAdapter = this.cacheAdapter;
+        this.cloudinary = new Cloudinary(config.asMap());
         assumeNotNull(cloudinary.config.apiSecret);
     }
 
     @Test
     public void testGetBreakpoints() throws Exception {
-        CacheAdapter<ResponsiveBreakpointPayload> adapter = new MockMemCache();
-
-        ResponsiveBreakpointsProvider provider = new ResponsiveBreakpointsProvider(adapter, cloudinary);
 
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, BP_TAGS)));
         String publicId = result.get("public_id").toString();
@@ -70,19 +74,20 @@ public abstract class AbstractBreakpointsProviderTest extends MockableTest {
         String resourceType = result.get("resource_type").toString();
         String format = result.get("format").toString();
 
-        ResponsiveBreakpointsProvider.CacheKey cacheKey = new ResponsiveBreakpointsProvider.CacheKey();
-        cacheKey.transformation = "e_blur";
-        cacheKey.type = type;
-        cacheKey.resourceType = resourceType;
-        cacheKey.format = format;
-        cacheKey.publicId = publicId;
 
         Url url = cloudinary.url();
-        url.type(type).resourceType(resourceType).format(format).publicId(publicId).transformation().rawTransformation(cacheKey.transformation);
-        ResponsiveBreakpointPayload payload = provider.get(url, cacheKey, 100, 1000, 100, 12);
+        url.type(type).resourceType(resourceType).format(format).publicId(publicId).transformation().rawTransformation("e_blur");
+        Url clone = url.clone();
+        // generate tag to fetch the breakpoints and cache them
+        url.imageTag(publicId, new TagOptions().srcset(new Srcset(100, 1000, 30, 20 * 1024)));
 
-        ResponsiveBreakpointPayload cached = adapter.get(cacheKey.publicId, cacheKey.type, cacheKey.resourceType, cacheKey.transformation, cacheKey.format);
-        Assert.assertNotNull(payload);
+        // fetch breakpoints directly (bypassing cache):
+        ResponsiveBreakpointPayload payload = cloudinary.get().getBreakpoints(clone, 100, 1000, 20 * 1024, 30);
+
+        // verify that the provider cached the result and that it is equal to the direct fetch
+        ResponsiveBreakpointPayload cached = cacheAdapter.get(publicId, type, resourceType, "e_blur", format);
+        Assert.assertNotNull(cached);
+
         Assert.assertTrue(Arrays.equals(payload.getBreakpoints(), cached.getBreakpoints()));
     }
 }

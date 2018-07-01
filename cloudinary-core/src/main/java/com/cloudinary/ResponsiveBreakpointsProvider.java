@@ -3,7 +3,7 @@ package com.cloudinary;
 import com.cloudinary.cache.CacheAdapter;
 import com.cloudinary.cache.ResponsiveBreakpointPayload;
 
-public class ResponsiveBreakpointsProvider {
+class ResponsiveBreakpointsProvider {
     private final CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter;
     private final Cloudinary cloudinary;
 

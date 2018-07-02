@@ -53,24 +53,11 @@ public class Srcset {
         this.bytesStepSize = bytesStepSize;
     }
 
-    private int[] calculateBreakpoints() {
-        int pixelStepSize = (int) Math.round(Math.ceil((float) (maxWidth - minWidth)) /
-                (maxImages > 1 ? maxImages - 1 : maxImages));
-        int curr = minWidth;
-        int[] breakpoints = new int[maxImages];
-        for (int i = 0; i < maxImages; i++) {
-            breakpoints[i] = curr;
-            curr += pixelStepSize;
-        }
-
-        return breakpoints;
-    }
-
     /**
      * Set the sizes param to `true` to generate a sizes attribute.
      *
-     * @param sizes
-     * @return
+     * @param sizes Boolean indicating whether go generate sizes attribute.
+     * @return Itself for chaining
      */
     public Srcset sizes(boolean sizes) {
         this.sizes = sizes;
@@ -88,25 +75,17 @@ public class Srcset {
      */
     SrcsetResult generateSrcset(Cloudinary cloudinary, String publicId, Url baseUrl, ResponsiveBreakpointsProvider.CacheKey cacheKey) {
         if (breakpoints == null) {
-            if (cloudinary.config.useResponsiveBreakpointsProvider) {
+            ResponsiveBreakpointPayload res = cloudinary.breakpointsProvider.get(
+                    baseUrl.clone(),
+                    cacheKey,
+                    minWidth,
+                    maxWidth,
+                    bytesStepSize,
+                    maxImages);
 
-                ResponsiveBreakpointPayload res = cloudinary.breakpointsProvider.get(
-                        baseUrl.clone(),
-                        cacheKey,
-                        minWidth,
-                        maxWidth,
-                        bytesStepSize,
-                        maxImages);
-
-                if (res != null) {
-                    breakpoints = res.getBreakpoints();
-                }
+            if (res != null) {
+                breakpoints = res.getBreakpoints();
             }
-
-            if (breakpoints == null) {
-                breakpoints = calculateBreakpoints();
-            }
-
         }
 
         Url current = baseUrl.clone();

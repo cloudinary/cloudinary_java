@@ -512,7 +512,7 @@ public class CloudinaryTest {
 
     @Test
     public void testSrcset() {
-
+        // Note: This test tests the local breakpoints generation, NOT the smart cloudinary server side generation
         Transformation transformation = new Transformation().width(1000).crop("scale").radius(20);
         String tag = cloudinary.url().transformation(transformation).imageTag("sample", Collections.singletonMap("srcset", "raw string value"));
         String expected = "<img src='" + DEFAULT_UPLOAD_PATH + "c_scale,r_20,w_1000/sample' srcset='raw string value'/>";

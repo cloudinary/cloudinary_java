@@ -1,6 +1,7 @@
 package com.cloudinary.test;
 
 import com.cloudinary.*;
+import com.cloudinary.cache.KeyValueResponsiveBreakpointsCacheAdapter;
 import com.cloudinary.cache.ResponsiveBreakpointPayload;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -18,7 +19,7 @@ public abstract class AbstractBreakpointsProviderTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
-    private MockMemCache cacheAdapter;
+    private KeyValueResponsiveBreakpointsCacheAdapter cacheAdapter;
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -58,27 +59,33 @@ public abstract class AbstractBreakpointsProviderTest extends MockableTest {
         } else {
             config = new Configuration();
         }
-        this.cacheAdapter = new MockMemCache();
-        config.useResponsiveBreakpointsProvider = true;
-        config.cacheAdapter = this.cacheAdapter;
+
+        this.cacheAdapter = new KeyValueResponsiveBreakpointsCacheAdapter(new MemoryKeyValueStore());
+        config.useResponsiveBreakpointsCache = true;
+        config.responsiveBreakpointsCacheAdapter = this.cacheAdapter;
         this.cloudinary = new Cloudinary(config.asMap());
         assumeNotNull(cloudinary.config.apiSecret);
     }
 
+    /**
+     * This test verifies that tag creation triggers a breakpoint fetch and caches them correctly
+     *
+     * @throws Exception
+     */
     @Test
     public void testGetBreakpoints() throws Exception {
-
+        // Upload a photo to work with
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, BP_TAGS)));
         String publicId = result.get("public_id").toString();
         String type = result.get("type").toString();
         String resourceType = result.get("resource_type").toString();
         String format = result.get("format").toString();
 
-
         Url url = cloudinary.url();
         url.type(type).resourceType(resourceType).format(format).publicId(publicId).transformation().rawTransformation("e_blur");
         Url clone = url.clone();
-        // generate tag to fetch the breakpoints and cache them
+
+        // generate tag - this should trigger a fetch the breakpoints and caching of the breakpoints.
         url.imageTag(publicId, new TagOptions().srcset(new Srcset(100, 1000, 30, 20 * 1024)));
 
         // fetch breakpoints directly (bypassing cache):

@@ -92,13 +92,13 @@ public class Cloudinary {
     public Cloudinary(Map config) {
         this.config = new Configuration(config);
         loadStrategies();
-        initCache();
+        initBreakpointsProvider();
     }
 
     public Cloudinary(String cloudinaryUrl) {
         this.config = Configuration.from(cloudinaryUrl);
         loadStrategies();
-        initCache();
+        initBreakpointsProvider();
     }
 
     public Cloudinary() {
@@ -109,13 +109,11 @@ public class Cloudinary {
             this.config = new Configuration();
         }
         loadStrategies();
-        initCache();
+        initBreakpointsProvider();
     }
 
-    private void initCache() {
-        if (config.cacheAdapter != null) {
-            breakpointsProvider = new ResponsiveBreakpointsProvider(config.cacheAdapter, this);
-        }
+    private void initBreakpointsProvider() {
+        breakpointsProvider = new ResponsiveBreakpointsProvider(config.responsiveBreakpointsCacheAdapter, this);
     }
 
     public Url url() {

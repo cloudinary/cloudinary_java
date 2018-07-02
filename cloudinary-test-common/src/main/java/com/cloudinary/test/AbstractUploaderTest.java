@@ -501,47 +501,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
-    public void testResponsiveBreakpointsCache() throws IOException {
-        // config cloudinary instance with enabled memory cache:
-        String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
-        Configuration config;
-        if (cloudinaryUrl != null) {
-            config = Configuration.from(cloudinaryUrl);
-        } else {
-            config = new Configuration();
-        }
-        config.cacheAdapter = new MockMemCache();
-        config.useResponsiveBreakpointsProvider = true;
-
-        Cloudinary cloudinary = new Cloudinary(config.asMap());
-
-        ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()
-                .createDerived(true)
-                .maxImages(10)
-                .transformation(new Transformation().effect("blur", 90))
-                .format("webp");
-
-        ResponsiveBreakpoint breakpoint2 = new ResponsiveBreakpoint()
-                .createDerived(true)
-                .maxImages(5)
-                .transformation(new Transformation().angle(10))
-                .format("gif");
-
-        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("responsive_breakpoints",
-                new ResponsiveBreakpoint[]{breakpoint, breakpoint2}, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)
-        ));
-
-        String publicId = result.get("public_id").toString();
-
-        TagOptions options = new TagOptions();
-        options.srcset(new Srcset(new int[]{100, 200, 2}));
-        String tag = cloudinary.url().transformation(new Transformation().angle(10)).format("gif").imageTag(publicId, options);
-        assertNotNull(tag);
-
-
-    }
-
-    @Test
     public void testResponsiveBreakpoints() throws Exception {
         ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()
                 .createDerived(true)

@@ -6,14 +6,28 @@ import com.jakewharton.disklrucache.DiskLruCache;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * A simple LRU cache implementation of {@link KeyValueStorage}. Use this in combination with {@link com.cloudinary.cache.KeyValueResponsiveBreakpointsCacheAdapter}
+ * And pass to Cloudinary to enable a simple responsive breakpoints cache mechanism.
+ */
 public class DiskLRUCacheStore implements KeyValueStorage {
 
     private final DiskLruCache lruCache;
 
-    public DiskLRUCacheStore(File directory, int appVersion, long maxSize) throws IOException {
-        lruCache = DiskLruCache.open(directory, appVersion, 1, maxSize);
+    /**
+     * Create a new instance of the LRU cache store.
+     *
+     * @param directory a writable directory to be owned by this cache.
+     * @param maxSize   the maximum number of bytes this cache should use to store
+     * @throws IOException When cache creation fails
+     */
+    public DiskLRUCacheStore(File directory, long maxSize) throws IOException {
+        lruCache = DiskLruCache.open(directory, 1, 1, maxSize);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String get(String key) {
         try {
@@ -27,6 +41,9 @@ public class DiskLRUCacheStore implements KeyValueStorage {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void set(String key, String value) {
         try {
@@ -38,6 +55,9 @@ public class DiskLRUCacheStore implements KeyValueStorage {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void delete(String key) {
         try {
@@ -47,6 +67,9 @@ public class DiskLRUCacheStore implements KeyValueStorage {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean flushAll() {
         try {

@@ -1,7 +1,6 @@
 package com.cloudinary;
 
-import com.cloudinary.cache.CacheAdapter;
-import com.cloudinary.cache.ResponsiveBreakpointPayload;
+import com.cloudinary.cache.ResponsiveBreakpointsCacheAdapter;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -42,13 +41,13 @@ public class Configuration {
     public boolean loadStrategies = true;
     public boolean clientHints = false;
     public AuthToken authToken;
-    public boolean useResponsiveBreakpointsProvider = false;
-    public CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter;
+    public boolean useResponsiveBreakpointsCache = false;
+    public ResponsiveBreakpointsCacheAdapter responsiveBreakpointsCacheAdapter;
 
     public Configuration() {
     }
 
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean useResponsiveBreakpointsProvider, CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean useResponsiveBreakpointsCache, ResponsiveBreakpointsCacheAdapter responsiveBreakpointsCacheAdapter) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -66,8 +65,8 @@ public class Configuration {
         this.useRootPath = useRootPath;
         this.timeout = 0;
         this.loadStrategies = loadStrategies;
-        this.useResponsiveBreakpointsProvider = useResponsiveBreakpointsProvider;
-        this.cacheAdapter = cacheAdapter;
+        this.useResponsiveBreakpointsCache = useResponsiveBreakpointsCache;
+        this.responsiveBreakpointsCacheAdapter = responsiveBreakpointsCacheAdapter;
     }
 
     @SuppressWarnings("rawtypes")
@@ -93,12 +92,72 @@ public class Configuration {
         this.useRootPath = other.useRootPath;
         this.timeout = other.timeout;
         this.clientHints = other.clientHints;
-        this.useResponsiveBreakpointsProvider = other.useResponsiveBreakpointsProvider;
-        this.cacheAdapter = other.cacheAdapter;
+        this.useResponsiveBreakpointsCache = other.useResponsiveBreakpointsCache;
+        this.responsiveBreakpointsCacheAdapter = other.responsiveBreakpointsCacheAdapter;
 
         if (other.authToken != null) {
             this.authToken = other.authToken.copy();
         }
+    }
+
+    static protected Map parseConfigUrl(String cloudinaryUrl) {
+        Map params = new HashMap();
+        URI cloudinaryUri = URI.create(cloudinaryUrl);
+        params.put("cloud_name", cloudinaryUri.getHost());
+        if (cloudinaryUri.getUserInfo() != null) {
+            String[] creds = cloudinaryUri.getUserInfo().split(":");
+            params.put("api_key", creds[0]);
+            if (creds.length > 1) {
+                params.put("api_secret", creds[1]);
+            }
+        }
+        params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
+        params.put("secure_distribution", cloudinaryUri.getPath());
+        updateMapFromURI(params, cloudinaryUri);
+        return params;
+    }
+
+    static private void updateMapFromURI(Map params, URI cloudinaryUri) {
+        if (cloudinaryUri.getQuery() != null) {
+            for (String param : cloudinaryUri.getQuery().split("&")) {
+                String[] keyValue = param.split("=");
+                try {
+                    final String value = URLDecoder.decode(keyValue[1], "ASCII");
+                    final String key = keyValue[0];
+                    if (isNestedKey(key)) {
+                        putNestedValue(params, key, value);
+                    } else {
+                        params.put(key, value);
+                    }
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException("Unexpected exception", e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Create a new Configuration from an existing one
+     *
+     * @param other
+     * @return a new configuration with the arguments supplied by another configuration object
+     */
+    public static Configuration from(Configuration other) {
+        return new Builder().from(other).build();
+    }
+
+    /**
+     * Create a Configuration from a cloudinary url
+     * <p>
+     * Example url: cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7
+     *
+     * @param cloudinaryUrl configuration url
+     * @return a new configuration with the arguments supplied by the url
+     */
+    public static Configuration from(String cloudinaryUrl) {
+        Configuration config = new Configuration();
+        config.update(parseConfigUrl(cloudinaryUrl));
+        return config;
     }
 
     @SuppressWarnings("rawtypes")
@@ -121,8 +180,8 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
-        this.useResponsiveBreakpointsProvider = ObjectUtils.asBoolean(config.get("useResponsiveBreakpointsProvider"));
-        this.cacheAdapter = (CacheAdapter<ResponsiveBreakpointPayload>) config.get("cacheAdapter");
+        this.useResponsiveBreakpointsCache = ObjectUtils.asBoolean(config.get("use_responsive_breakpoints_cache"));
+        this.responsiveBreakpointsCacheAdapter = (ResponsiveBreakpointsCacheAdapter) config.get("responsive_breakpoints_cache_adapter");
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);
@@ -150,75 +209,12 @@ public class Configuration {
         map.put("load_strategies", loadStrategies);
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
-        map.put("useResponsiveBreakpointsProvider", useResponsiveBreakpointsProvider);
-        if (cacheAdapter != null){
-            map.put("cacheAdapter", cacheAdapter);
-        }
+        map.put("use_responsive_breakpoints_cache", useResponsiveBreakpointsCache);
+        map.put("responsive_breakpoints_cache_adapter", responsiveBreakpointsCacheAdapter);
         if (authToken != null) {
             map.put("auth_token", authToken.copy());
         }
         return map;
-    }
-
-    /**
-     * Create a new Configuration from an existing one
-     *
-     * @param other
-     * @return a new configuration with the arguments supplied by another configuration object
-     */
-    public static Configuration from(Configuration other) {
-        return new Builder().from(other).build();
-    }
-
-    /**
-     * Create a Configuration from a cloudinary url
-     * <p>
-     * Example url: cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7
-     *
-     * @param cloudinaryUrl configuration url
-     * @return a new configuration with the arguments supplied by the url
-     */
-    public static Configuration from(String cloudinaryUrl) {
-        Configuration config = new Configuration();
-        config.update(parseConfigUrl(cloudinaryUrl));
-        return config;
-    }
-
-
-    static protected Map parseConfigUrl(String cloudinaryUrl) {
-        Map params = new HashMap();
-        URI cloudinaryUri = URI.create(cloudinaryUrl);
-        params.put("cloud_name", cloudinaryUri.getHost());
-        if (cloudinaryUri.getUserInfo() != null) {
-            String[] creds = cloudinaryUri.getUserInfo().split(":");
-            params.put("api_key", creds[0]);
-            if (creds.length > 1) {
-                params.put("api_secret", creds[1]);
-            }
-        }
-        params.put("private_cdn", !StringUtils.isEmpty(cloudinaryUri.getPath()));
-        params.put("secure_distribution", cloudinaryUri.getPath());
-        updateMapfromURI(params, cloudinaryUri);
-        return params;
-    }
-
-    static private void updateMapfromURI(Map params, URI cloudinaryUri) {
-        if (cloudinaryUri.getQuery() != null) {
-            for (String param : cloudinaryUri.getQuery().split("&")) {
-                String[] keyValue = param.split("=");
-                try {
-                    final String value = URLDecoder.decode(keyValue[1], "ASCII");
-                    final String key = keyValue[0];
-                    if(isNestedKey(key)) {
-                        putNestedValue(params, key, value);
-                    } else {
-                        params.put(key, value);
-                    }
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException("Unexpected exception", e);
-                }
-            }
-        }
     }
 
     static private void putNestedValue(Map params, String key, String value) {
@@ -264,15 +260,15 @@ public class Configuration {
         private boolean clientHints = false;
         private AuthToken authToken;
         private boolean useResponsiveBreakpointsCache;
-        private CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter;
+        private ResponsiveBreakpointsCacheAdapter responsiveBreakpointsCacheAdapter;
 
         public Builder setUseResponsiveBreakpointsCache(boolean value){
             this.useResponsiveBreakpointsCache = value;
             return this;
         }
 
-        public Builder setCacheAdapter(CacheAdapter<ResponsiveBreakpointPayload> cacheAdapter){
-            this.cacheAdapter = cacheAdapter;
+        public Builder setResponsiveBreakpointsCacheAdapter(ResponsiveBreakpointsCacheAdapter responsiveBreakpointsCacheAdapter) {
+            this.responsiveBreakpointsCacheAdapter = responsiveBreakpointsCacheAdapter;
             return this;
         }
 
@@ -291,7 +287,7 @@ public class Configuration {
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
         public Configuration build() {
-            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, useResponsiveBreakpointsCache, cacheAdapter);
+            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, useResponsiveBreakpointsCache, responsiveBreakpointsCacheAdapter);
             configuration.clientHints = clientHints;
             return configuration;
         }
@@ -432,6 +428,8 @@ public class Configuration {
             this.timeout = other.timeout;
             this.clientHints = other.clientHints;
             this.authToken = other.authToken == null ? null : other.authToken.copy();
+            this.useResponsiveBreakpointsCache = other.useResponsiveBreakpointsCache;
+            this.responsiveBreakpointsCacheAdapter = other.responsiveBreakpointsCacheAdapter;
             return this;
         }
     }

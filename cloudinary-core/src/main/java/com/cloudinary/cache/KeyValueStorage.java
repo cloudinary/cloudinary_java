@@ -17,7 +17,6 @@ public interface KeyValueStorage {
      * Set the value for a given cache key.
      * @param key The cache key
      * @param value The value to cache.
-     * @return The value.
      */
     void set(String key, String value);
 

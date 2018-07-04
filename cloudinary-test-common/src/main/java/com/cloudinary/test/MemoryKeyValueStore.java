@@ -2,15 +2,15 @@ package com.cloudinary.test;
 
 import com.cloudinary.cache.KeyValueStorage;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MemoryKeyValueStore implements KeyValueStorage {
 
     private final Map<String, String> map;
 
     public MemoryKeyValueStore() {
-        map = new HashMap<>();
+        map = new TreeMap<>();
     }
 
     @Override
@@ -32,5 +32,13 @@ public class MemoryKeyValueStore implements KeyValueStorage {
     public boolean flushAll() {
         map.clear();
         return true;
+    }
+
+    public int size() {
+        return map.size();
+    }
+
+    public Map<String, String> getMap() {
+        return map;
     }
 }

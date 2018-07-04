@@ -18,7 +18,10 @@ import java.util.*;
 public class Cloudinary {
 
     private static final List<String> GET_STRATEGIES = new ArrayList<String>(Arrays.asList(
-            "com.cloudinary.http42.GetStrategy"));
+            "com.cloudinary.android.GetStrategy",
+            "com.cloudinary.http42.GetStrategy",
+            "com.cloudinary.http43.GetStrategy",
+            "com.cloudinary.http44.GetStrategy"));
     private static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",

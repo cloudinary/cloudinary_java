@@ -1,7 +1,5 @@
 package com.cloudinary;
 
-import java.util.*;
-
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.*;
@@ -9,6 +7,8 @@ import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONArray;
+
+import java.util.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Api {
@@ -551,5 +551,4 @@ public class Api {
         params.put(byKey, value);
         return callApi(HttpMethod.POST, uri, params, options);
     }
-
 }

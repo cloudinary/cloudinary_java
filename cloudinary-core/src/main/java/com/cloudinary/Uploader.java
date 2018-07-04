@@ -1,14 +1,15 @@
 package com.cloudinary;
 
+import com.cloudinary.cache.ResponsiveBreakpointPayload;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -27,11 +28,60 @@ public class Uploader {
     }
 
     public Map callApi(String action, Map<String, Object> params, Map options, Object file) throws IOException {
-        return strategy.callApi(action, params, options, file, null);
+        return doStrategyCall(action, params, options, file, null);
     }
 
     public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
-        return strategy.callApi(action, params, options, file, progressCallback);
+        return doStrategyCall(action, params, options, file, progressCallback);
+    }
+
+    private Map doStrategyCall(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
+        Map map = strategy.callApi(action, params, options, file, progressCallback);
+        if (("upload".equals(action) || "explicit".equals(action)) && cloudinary.config.useResponsiveBreakpointsCache && map.containsKey("responsive_breakpoints")) {
+            cacheBreakpoints(options, map);
+        }
+
+        return map;
+    }
+
+    /**
+     * Caches the response breakpoints into the breakpoints cache
+     *
+     * @param requestOptions This is used to determine the exact params the user requested.
+     *                       If the user requested a format in the breakpoints, it's part of the cache key, otherwise
+     *                       we ignore it.
+     * @param response       The server response containing the breakpoints data.
+     */
+    private void cacheBreakpoints(Map requestOptions, Map response) {
+        // format the data and cache it:
+        String publicId = response.get("public_id").toString();
+        String type = response.get("type").toString();
+        String resourceType = response.get("resource_type").toString();
+
+        ArrayList breakpointsResponse = (ArrayList) response.get("responsive_breakpoints");
+        ResponsiveBreakpoint[] requestedBreakpoints = (ResponsiveBreakpoint[]) requestOptions.get("responsive_breakpoints");
+        for (int i = 0; i < breakpointsResponse.size(); i++) {
+            Map breakpointsMap = (Map) breakpointsResponse.get(i);
+            String transformation = breakpointsMap.get("transformation").toString();
+            String format = getRequestedFormat(requestedBreakpoints, i);
+
+            ArrayList breakpointsList = (ArrayList) breakpointsMap.get("breakpoints");
+            int[] breakpoints = new int[breakpointsList.size()];
+            for (int j = 0; j < breakpoints.length; j++) {
+                breakpoints[j] = Integer.parseInt(((Map) breakpointsList.get(j)).get("width").toString());
+            }
+
+            cloudinary.config.responsiveBreakpointsCacheAdapter.set(publicId, type, resourceType, transformation, format, new ResponsiveBreakpointPayload(breakpoints));
+        }
+    }
+
+    private String getRequestedFormat(ResponsiveBreakpoint[] breakpoints, int index) {
+        if (breakpoints != null && breakpoints.length > index) {
+            ResponsiveBreakpoint breakpoint = breakpoints[index];
+            return breakpoint.has("format") ? breakpoint.getString("format") : null;
+        }
+
+        return null;
     }
 
     private Cloudinary cloudinary;
@@ -126,7 +176,7 @@ public class Uploader {
             length = ((byte[]) file).length;
             input = new ByteArrayInputStream((byte[]) file);
         } else {
-            if (StringUtils.isRemoteUrl(file.toString())){
+            if (StringUtils.isRemoteUrl(file.toString())) {
                 remote = true;
                 input = null;
             } else {
@@ -360,9 +410,10 @@ public class Uploader {
 
     /**
      * Add a context keys and values. If a particular key already exists, the value associated with the key is updated.
-     * @param context a map of key and value. Serialized to "key1=value1|key2=value2"
+     *
+     * @param context   a map of key and value. Serialized to "key1=value1|key2=value2"
      * @param publicIds the public IDs of the resources to update
-     * @param options additional options passed to the request
+     * @param options   additional options passed to the request
      * @return a list of public IDs that were updated
      * @throws IOException
      */
@@ -372,9 +423,10 @@ public class Uploader {
 
     /**
      * Add a context keys and values. If a particular key already exists, the value associated with the key is updated.
-     * @param context Serialized context in the form of "key1=value1|key2=value2"
+     *
+     * @param context   Serialized context in the form of "key1=value1|key2=value2"
      * @param publicIds the public IDs of the resources to update
-     * @param options additional options passed to the request
+     * @param options   additional options passed to the request
      * @return a list of public IDs that were updated
      * @throws IOException
      */
@@ -384,13 +436,14 @@ public class Uploader {
 
     /**
      * Remove all custom context from the specified public IDs.
+     *
      * @param publicIds the public IDs of the resources to update
-     * @param options additional options passed to the request
+     * @param options   additional options passed to the request
      * @return a list of public IDs that were updated
      * @throws IOException
      */
     public Map removeAllContext(String[] publicIds, Map options) throws IOException {
-        return callContextApi((String)null, Command.removeAll, publicIds, options);
+        return callContextApi((String) null, Command.removeAll, publicIds, options);
     }
 
     protected Map callContextApi(Map context, String command, String[] publicIds, Map options) throws IOException {

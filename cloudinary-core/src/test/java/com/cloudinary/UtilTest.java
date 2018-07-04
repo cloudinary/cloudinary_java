@@ -1,7 +1,9 @@
 package com.cloudinary;
 
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -9,7 +11,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by amir on 17/11/2016.
@@ -45,15 +48,22 @@ public class UtilTest {
         assertEquals(2, acl.length());
         assertEquals(deserializedAcl.get("access_type"), "anonymous");
         assertEquals(deserializedAcl.get("start"), START_REFORMATTED);
-        
+
         acl = AccessControlRule.anonymousUntil(end);
         assertEquals(2, acl.length());
         assertEquals(deserializedAcl.get("access_type"), "anonymous");
         assertEquals(deserializedAcl.get("end"), END_REFORMATTED);
-        
+
         AccessControlRule token = AccessControlRule.token();
         assertEquals(1, token.length());
         assertEquals("{\"access_type\":\"token\"}", token.toString());
 
+    }
+
+    @Test
+    public void testSha1() {
+        String s = "dawe4k;l34!@#$12dsm;da;k5435";
+        String sha1 = StringUtils.sha1(s);
+        Assert.assertEquals("ef77c3fb252e01995bcb999550565146ce47f65f", sha1);
     }
 }

@@ -3,7 +3,11 @@ package com.cloudinary.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Formatter;
 import java.util.List;
 
 public class StringUtils {
@@ -11,7 +15,8 @@ public class StringUtils {
 
     /**
      * Join a list of Strings
-     * @param list strings to join
+     *
+     * @param list      strings to join
      * @param separator the separator to insert between the strings
      * @return a string made of the strings in list separated by separator
      */
@@ -25,7 +30,8 @@ public class StringUtils {
 
     /**
      * Join a array of Strings
-     * @param array strings to join
+     *
+     * @param array     strings to join
      * @param separator the separator to insert between the strings
      * @return a string made of the strings in array separated by separator
      */
@@ -38,8 +44,9 @@ public class StringUtils {
 
     /**
      * Join a collection of Strings
+     *
      * @param collection strings to join
-     * @param separator the separator to insert between the strings
+     * @param separator  the separator to insert between the strings
      * @return a string made of the strings in collection separated by separator
      */
     public static String join(Collection<String> collection, String separator) {
@@ -51,10 +58,11 @@ public class StringUtils {
 
     /**
      * Join a array of Strings from startIndex to endIndex
-     * @param array strings to join
-     * @param separator the separator to insert between the strings
+     *
+     * @param array      strings to join
+     * @param separator  the separator to insert between the strings
      * @param startIndex the string to start from
-     * @param endIndex the last string to join
+     * @param endIndex   the last string to join
      * @return a string made of the strings in array separated by separator
      */
     public static String join(final Object[] array, String separator, final int startIndex, final int endIndex) {
@@ -87,6 +95,7 @@ public class StringUtils {
 
     /**
      * Convert an array of bytes to a string of hex values
+     *
      * @param bytes bytes to convert
      * @return a string of hex values.
      */
@@ -102,6 +111,7 @@ public class StringUtils {
 
     /**
      * Convert a string of hex values to an array of bytes
+     *
      * @param s a string of two digit Hex numbers. The length of string to parse must be even.
      * @return bytes representation of the string
      */
@@ -125,7 +135,7 @@ public class StringUtils {
      *
      * @param input The String to escape
      * @return The escaped String
-     * @see HtmlEscape#escapeTextArea(String) 
+     * @see HtmlEscape#escapeTextArea(String)
      */
     public static String escapeHtml(String input) {
         return HtmlEscape.escapeTextArea(input);
@@ -133,6 +143,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has non whitespace characters in it
+     *
      * @param input a String-like object
      * @return true if input has non whitespace characters in it
      */
@@ -143,6 +154,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has non whitespace characters in it
+     *
      * @param input a String
      * @return true if input has non whitespace characters in it
      */
@@ -152,6 +164,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has no characters
+     *
      * @param input a string
      * @return true if input is null or has no characters
      */
@@ -161,7 +174,8 @@ public class StringUtils {
 
     /**
      * Verify that the input is an empty string or contains only whitespace characters.<br>
-     *     see {@link Character#isWhitespace(char)}
+     * see {@link Character#isWhitespace(char)}
+     *
      * @param input a string
      * @return true if input is an empty string or contains only whitespace characters
      */
@@ -180,6 +194,7 @@ public class StringUtils {
 
     /**
      * Read the entire input stream in 1KB chunks
+     *
      * @param in input stream to read from
      * @return a String generated from the input stream
      * @throws IOException thrown by the input stream
@@ -198,4 +213,35 @@ public class StringUtils {
         return file.matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)");
     }
 
+    public static String sha1(String s) {
+        String sha1 = "";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-1");
+            digest.reset();
+            digest.update(s.getBytes("UTF-8"));
+            sha1 = byteToHex(digest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return sha1;
+    }
+
+    private static String byteToHex(final byte[] hash) {
+        String result;
+        Formatter formatter = new Formatter();
+        try {
+            formatter = new Formatter();
+            for (byte b : hash) {
+                formatter.format("%02x", b);
+            }
+
+            result = formatter.toString();
+        } finally {
+            formatter.close();
+        }
+
+        return result;
+    }
 }

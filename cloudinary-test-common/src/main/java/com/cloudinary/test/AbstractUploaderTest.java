@@ -1,6 +1,7 @@
 package com.cloudinary.test;
 
 import com.cloudinary.*;
+import com.cloudinary.cache.KeyValueResponsiveBreakpointsCacheAdapter;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
@@ -36,10 +37,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
             System.err.println("Please setup environment for Upload test to run");
         }
 
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}));
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String [] {SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
-                asMap("tags", new String [] {SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG},
+                asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG},
                         "transformation", new Transformation().crop("scale").width(10)));
     }
 
@@ -186,7 +187,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testEagerWithStreamingProfile() throws IOException {
-        Transformation transformation =  new EagerTransformation().format("m3u8").streamingProfile("full_hd");
+        Transformation transformation = new EagerTransformation().format("m3u8").streamingProfile("full_hd");
         assertEquals("sp_full_hd/m3u8", transformation.generate());
     }
 
@@ -501,6 +502,45 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testResponsiveBreakpointsProvider() throws IOException {
+        // config cloudinary instance with enabled memory cache:
+        String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
+        Configuration config;
+        if (cloudinaryUrl != null) {
+            config = Configuration.from(cloudinaryUrl);
+        } else {
+            config = new Configuration();
+        }
+
+        MemoryKeyValueStore storage = new MemoryKeyValueStore();
+        config.responsiveBreakpointsCacheAdapter = new KeyValueResponsiveBreakpointsCacheAdapter(storage);
+        config.useResponsiveBreakpointsCache = true;
+
+        Cloudinary cloudinary = new Cloudinary(config.asMap());
+
+        ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()
+                .createDerived(true)
+                .maxImages(10)
+                .transformation(new Transformation().effect("blur", 90))
+                .format("webp");
+
+        // uploading an image should save the breakpoints to the cache:
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("responsive_breakpoints",
+                new ResponsiveBreakpoint[]{breakpoint}, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)
+        ));
+
+        Map responsiveBreakpoints = (Map) ((ArrayList) response.get("responsive_breakpoints")).get(0);
+        String[] breakpoints = new String[((ArrayList) responsiveBreakpoints.get("breakpoints")).size()];
+        for (int i = 0; i < breakpoints.length; i++) {
+            breakpoints[i] = ((Map) ((ArrayList) responsiveBreakpoints.get("breakpoints")).get(i)).get("width").toString();
+        }
+
+        // verify the cache entry:
+        assertEquals(1, storage.size());
+        assertTrue(Arrays.equals(breakpoints, storage.getMap().values().iterator().next().split(",")));
+    }
+
+    @Test
     public void testResponsiveBreakpoints() throws Exception {
         ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()
                 .createDerived(true)
@@ -596,17 +636,17 @@ abstract public class AbstractUploaderTest extends MockableTest {
                 Arrays.asList(acl, token), "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
 
         assertNotNull(result);
-        List<Map<String,String>> accessControlResponse = (List<Map<String, String>>) result.get("access_control");
+        List<Map<String, String>> accessControlResponse = (List<Map<String, String>>) result.get("access_control");
         assertNotNull(accessControlResponse);
-        assertEquals(2,                         accessControlResponse.size());
+        assertEquals(2, accessControlResponse.size());
 
         Map<String, String> acr = accessControlResponse.get(0);
-        assertEquals("anonymous",               acr.get("access_type"));
-        assertEquals("2019-02-22T14:20:57Z",    acr.get("start"));
+        assertEquals("anonymous", acr.get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z", acr.get("start"));
         assertThat(acr, not(hasKey("end")));
-        
+
         acr = accessControlResponse.get(1);
-        assertEquals("token",                   acr.get("access_type"));
+        assertEquals("token", acr.get("access_type"));
         assertThat(acr, not(hasKey("start")));
         assertThat(acr, not(hasKey("end")));
 
@@ -617,9 +657,9 @@ abstract public class AbstractUploaderTest extends MockableTest {
         accessControlResponse = (List<Map<String, String>>) result.get("access_control");
         assertNotNull(accessControlResponse);
         acr = accessControlResponse.get(0);
-        assertEquals(1,                         accessControlResponse.size());
-        assertEquals("anonymous",               acr.get("access_type"));
-        assertEquals("2019-02-22T14:20:57Z",    acr.get("start"));
+        assertEquals(1, accessControlResponse.size());
+        assertEquals("anonymous", acr.get("access_type"));
+        assertEquals("2019-02-22T14:20:57Z", acr.get("start"));
         assertThat(acr, not(hasKey("end")));
 
         String aclString = "[{\"access_type\":\"anonymous\",\"start\":\"2019-02-22 16:20:57 +0200\",\"end\":\"2019-03-22 00:00 +0200\"}]";

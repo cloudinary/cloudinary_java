@@ -1,6 +1,7 @@
 package com.cloudinary;
 
 import com.cloudinary.strategies.AbstractApiStrategy;
+import com.cloudinary.strategies.AbstractGetStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
@@ -16,6 +17,11 @@ import java.util.*;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
 
+    private static final List<String> GET_STRATEGIES = new ArrayList<String>(Arrays.asList(
+            "com.cloudinary.android.GetStrategy",
+            "com.cloudinary.http42.GetStrategy",
+            "com.cloudinary.http43.GetStrategy",
+            "com.cloudinary.http44.GetStrategy"));
     private static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",
@@ -38,10 +44,11 @@ public class Cloudinary {
     public final Configuration config;
     private AbstractUploaderStrategy uploaderStrategy;
     private AbstractApiStrategy apiStrategy;
+    ResponsiveBreakpointsProvider breakpointsProvider;
+    private AbstractGetStrategy getStrategy;
 
     public Uploader uploader() {
         return new Uploader(this, uploaderStrategy);
-
     }
 
     public Api api() {
@@ -50,6 +57,10 @@ public class Cloudinary {
 
     public Search search() {
         return new Search(this);
+    }
+
+    public GetClient get() {
+        return new GetClient(this, getStrategy);
     }
 
     public static void registerUploaderStrategy(String className) {
@@ -77,16 +88,20 @@ public class Cloudinary {
         if (apiStrategy == null) {
             throw new UnknownError("Can't find Cloudinary platform adapter [" + StringUtils.join(API_STRATEGIES, ",") + "]");
         }
+
+        getStrategy = StrategyLoader.find(GET_STRATEGIES);
     }
 
     public Cloudinary(Map config) {
         this.config = new Configuration(config);
         loadStrategies();
+        initBreakpointsProvider();
     }
 
     public Cloudinary(String cloudinaryUrl) {
         this.config = Configuration.from(cloudinaryUrl);
         loadStrategies();
+        initBreakpointsProvider();
     }
 
     public Cloudinary() {
@@ -97,6 +112,11 @@ public class Cloudinary {
             this.config = new Configuration();
         }
         loadStrategies();
+        initBreakpointsProvider();
+    }
+
+    private void initBreakpointsProvider() {
+        breakpointsProvider = new ResponsiveBreakpointsProvider(config.responsiveBreakpointsCacheAdapter, this);
     }
 
     public Url url() {

@@ -1,17 +1,14 @@
 package com.cloudinary.taglib;
 
+import com.cloudinary.Srcset;
+import com.cloudinary.TagOptions;
+import com.cloudinary.Url;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.DynamicAttributes;
-import javax.servlet.jsp.tagext.SimpleTagSupport;
-
-import com.cloudinary.*;
 
 /**
  * Generates an image html tag.<br>
@@ -39,7 +36,8 @@ public class CloudinaryImageTag extends CloudinaryUrl {
 
     private String id = null;
     private String extraClasses = null;
-    
+    private Srcset srcset;
+
     protected Map<String, String> prepareAttributes() {
     	Map<String, String> attributes = new HashMap<String, String>();
         if (id != null) {
@@ -54,7 +52,16 @@ public class CloudinaryImageTag extends CloudinaryUrl {
     public void doTag() throws JspException, IOException {
         JspWriter out = getJspContext().getOut();
         Url url = this.prepareUrl();
-        out.println(url.imageTag(prepareAttributes()));
+        TagOptions tagOptions = new TagOptions().attributes(prepareAttributes()).srcset(srcset);
+        out.println(url.imageTag(null, tagOptions));
+    }
+
+    /**
+     * Set the srcset configuration instance for the tag. See {@link Srcset} for details
+     * @param srcset
+     */
+    public void setSrcset(Srcset srcset){
+        this.srcset = srcset;
     }
 
     public void setId(String id) {

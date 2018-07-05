@@ -8,7 +8,7 @@ import org.cloudinary.json.JSONObject;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -189,7 +189,7 @@ public class Uploader {
                     System.arraycopy(buffer, 0, finalBuffer, 0, currentBufferSize);
                     buffer = finalBuffer;
                 }
-                String range = String.format("bytes %d-%d/%d", currentLoc, currentLoc + currentBufferSize - 1, length);
+                String range = String.format(Locale.US, "bytes %d-%d/%d", currentLoc, currentLoc + currentBufferSize - 1, length);
                 extraHeaders.put("Content-Range", range);
                 Map sentParams = new HashMap();
                 sentParams.putAll(params);

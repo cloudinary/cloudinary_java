@@ -8,7 +8,6 @@ import org.cloudinary.json.JSONObject;
 import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -117,10 +116,12 @@ public class Uploader {
         InputStream input;
         long length = -1;
         boolean remote = false;
+        String filename = null;
         if (file instanceof InputStream) {
             input = (InputStream) file;
         } else if (file instanceof File) {
             length = ((File) file).length();
+            filename = ((File) file).getName();
             input = new FileInputStream((File) file);
         } else if (file instanceof byte[]) {
             length = ((byte[]) file).length;
@@ -132,6 +133,7 @@ public class Uploader {
             } else {
                 File f = new File(file.toString());
                 length = f.length();
+                filename = f.getName();
                 input = new FileInputStream(f);
             }
         }
@@ -140,6 +142,9 @@ public class Uploader {
             if (remote) {
                 result = upload(file, options);
             } else {
+                if (!options.containsKey("filename") && StringUtils.isNotBlank(filename)) {
+                    options.put("filename", filename);
+                }
                 result = uploadLargeParts(input, options, bufferSize, length, offset, uniqueUploadId, progressCallback);
             }
             return result;

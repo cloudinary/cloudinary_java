@@ -461,10 +461,11 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
         String[] tags = new String[]{"upload_large_tag_" + SUFFIX, SDK_TEST_TAG, UPLOADER_TAG};
 
-        Map resource = cloudinary.uploader().uploadLarge(temp, asMap("resource_type", "raw", "chunk_size", 5243000, "tags", tags));
+        Map resource = cloudinary.uploader().uploadLarge(temp, asMap("use_filename", true, "resource_type", "raw", "chunk_size", 5243000, "tags", tags));
         assertArrayEquals(tags, ((java.util.ArrayList) resource.get("tags")).toArray());
 
         assertEquals("raw", resource.get("resource_type"));
+        assertTrue(resource.get("public_id").toString().startsWith("cldupload"));
 
         resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), asMap("chunk_size", 5243000, "tags", tags));
         assertArrayEquals(tags, ((java.util.ArrayList) resource.get("tags")).toArray());

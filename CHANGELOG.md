@@ -1,4 +1,27 @@
 
+1.19.0 / 2018-07-22
+===================
+
+New functionality
+-----------------
+
+  * Add support of `auto` value for `start_offset` transformation parameter
+  * Feature/keyframe interval support
+
+Other changes
+-------------
+
+  * Fix content range header in chunked upload (force US locale)
+  * Keep original filename in `uploadLarge` before sending the InputStream
+  * Update gradle for java 7 TLS fix (https://github.com/gradle/gradle/issues/5740)
+  * Fix Api list tags test - verify the list instead of specific tags
+  * Cleanup upload preset from `testGetUploadPreset` (#129)
+  * Add int overload to `TextLayer.letterSpacing()`
+  * Fix responsive breakpoint format field implementation
+  * Separate modules to run on different travis jobs.
+  * Remove `test02Resources` test (broken and unnecessary).
+  * Fix raw convert error message test
+
 1.18.0 / 2018-03-15
 ===================
 

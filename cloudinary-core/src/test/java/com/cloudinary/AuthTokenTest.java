@@ -83,7 +83,7 @@ public class AuthTokenTest {
 
         message = "explicit authToken should override global setting";
         url = cloudinary.url().signed(true).authToken(new AuthToken(ALT_KEY).startTime(222222222).duration(100)).resourceType("image").type("authenticated").transformation(new Transformation().crop("scale").width(300)).generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/c_scale,w_300/sample.jpg?__cld_token__=st=222222222~exp=222222322~hmac=7d276841d70c4ecbd0708275cd6a82e1f08e47838fbb0bceb2538e06ddfa3029", url);
+        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/c_scale,w_300/sample.jpg?__cld_token__=st=222222222~exp=222222322~hmac=55cfe516530461213fe3b3606014533b1eca8ff60aeab79d1bb84c9322eebc1f", url);
 
         message = "should compute expiration as start time + duration";
         url = cloudinary.url().signed(true).authToken(new AuthToken().startTime(11111111).duration(300))

@@ -7,6 +7,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -31,6 +32,7 @@ public class AuthToken {
     private String acl;
     private long duration;
     private boolean isNullToken = false;
+    private static final Pattern UNSAFE_URL_CHARS_PATTERN = Pattern.compile("[ \"#%&'/:;<=>?@\\[\\\\\\]^`{|}~]");
 
     public AuthToken() {
     }
@@ -46,10 +48,10 @@ public class AuthToken {
      */
     public AuthToken(Map options) {
         if (options != null) {
-            this.tokenName = ObjectUtils.asString( options.get("tokenName"), this.tokenName);
+            this.tokenName = ObjectUtils.asString(options.get("tokenName"), this.tokenName);
             this.key = (String) options.get("key");
             this.startTime = ObjectUtils.asLong(options.get("startTime"), 0L);
-            this.expiration = ObjectUtils.asLong(options.get("expiration"),0L);
+            this.expiration = ObjectUtils.asLong(options.get("expiration"), 0L);
             this.ip = (String) options.get("ip");
             this.acl = (String) options.get("acl");
             this.duration = ObjectUtils.asLong(options.get("duration"), 0L);
@@ -59,6 +61,7 @@ public class AuthToken {
 
     /**
      * Create a new AuthToken configuration overriding the default token name.
+     *
      * @param tokenName the name of the token. must be supported by the server.
      * @return this
      */
@@ -91,6 +94,7 @@ public class AuthToken {
 
     /**
      * Set the ip of the client
+     *
      * @param ip
      * @return this
      */
@@ -101,6 +105,7 @@ public class AuthToken {
 
     /**
      * Define an ACL for a cookie token
+     *
      * @param acl
      * @return this
      */
@@ -132,6 +137,7 @@ public class AuthToken {
 
     /**
      * Generate a URL token for the given URL.
+     *
      * @param url the URL to be authorized
      * @return a URL token
      */
@@ -168,32 +174,18 @@ public class AuthToken {
 
     /**
      * Escape url using lowercase hex code
+     *
      * @param url a url string
      * @return escaped url
      */
     private String escapeToLower(String url) {
-        String escaped;
-        String encodedUrl = null;
-        try {
-            encodedUrl = URLEncoder.encode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Cannot escape string.", e);
-        }
-        StringBuilder sb= new StringBuilder(encodedUrl);
-        String regex= "%..";
-        Pattern p = Pattern.compile(regex); // Create the pattern.
-        Matcher matcher = p.matcher(sb); // Create the matcher.
-        while (matcher.find()) {
-            String buf= sb.substring(matcher.start(), matcher.end()).toLowerCase();
-            sb.replace(matcher.start(), matcher.end(), buf);
-        }
-        escaped = sb.toString();
-        return escaped;
+        String encodedUrl = StringUtils.urlEncode(url, UNSAFE_URL_CHARS_PATTERN, Charset.forName("UTF-8"));
+        return encodedUrl;
     }
-
 
     /**
      * Create a copy of this AuthToken
+     *
      * @return a new AuthToken object
      */
     public AuthToken copy() {
@@ -209,11 +201,12 @@ public class AuthToken {
 
     /**
      * Merge this token with another, creating a new token. Other's members who are not <code>null</code> or <code>0</code> will override this object's members.
+     *
      * @param other the token to merge from
      * @return a new token
      */
     public AuthToken merge(AuthToken other) {
-        if(other.equals(NULL_AUTH_TOKEN)) {
+        if (other.equals(NULL_AUTH_TOKEN)) {
             // NULL_AUTH_TOKEN can't merge
             return other;
         }
@@ -250,16 +243,16 @@ public class AuthToken {
 
     @Override
     public boolean equals(Object o) {
-        if(o instanceof AuthToken) {
+        if (o instanceof AuthToken) {
             AuthToken other = (AuthToken) o;
-            return  (isNullToken && other.isNullToken)  ||
+            return (isNullToken && other.isNullToken) ||
                     (key == null ? other.key == null : key.equals(other.key)) &&
-                    tokenName.equals(other.tokenName) &&
-                    startTime == other.startTime &&
-                    expiration == other.expiration &&
-                    duration == other.duration &&
-                    (ip == null ? other.ip == null : ip.equals(other.ip)) &&
-                    (acl == null ? other.acl == null : acl.equals(other.acl));
+                            tokenName.equals(other.tokenName) &&
+                            startTime == other.startTime &&
+                            expiration == other.expiration &&
+                            duration == other.duration &&
+                            (ip == null ? other.ip == null : ip.equals(other.ip)) &&
+                            (acl == null ? other.acl == null : acl.equals(other.acl));
         } else {
             return false;
         }
@@ -267,7 +260,7 @@ public class AuthToken {
 
     @Override
     public int hashCode() {
-        if(isNullToken) {
+        if (isNullToken) {
             return 0;
         } else {
             return Arrays.asList(tokenName, startTime, expiration, duration, ip, acl).hashCode();

@@ -12,7 +12,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Transformation<T extends Transformation> implements Serializable{
+public class Transformation<T extends Transformation> implements Serializable {
     public static final String VAR_NAME_RE = "^\\$[a-zA-Z][a-zA-Z0-9]+$";
     protected Map transformation;
     protected List<Map> transformations;
@@ -27,6 +27,27 @@ public class Transformation<T extends Transformation> implements Serializable{
     protected static Map responsiveWidthTransformation = null;
     private static final Pattern RANGE_VALUE_RE = Pattern.compile("^((?:\\d+\\.)?\\d+)([%pP])?$");
     private static final Pattern RANGE_RE = Pattern.compile("^(\\d+\\.)?\\d+[%pP]?\\.\\.(\\d+\\.)?\\d+[%pP]?$");
+    private static final String[] SIMPLE_PARAMS = new String[]{
+            "ac", "audio_codec",
+            "af", "audio_frequency",
+            "bo", "border",
+            "br", "bit_rate",
+            "cs", "color_space",
+            "d", "default_image",
+            "dl", "delay",
+            "dn", "density",
+            "f", "fetch_format",
+            "fn", "custom_action",
+            "fps", "fps",
+            "g", "gravity",
+            "l", "overlay",
+            "p", "prefix",
+            "pg", "page",
+            "u", "underlay",
+            "vs", "video_sampling",
+            "sp", "streaming_profile",
+            "ki", "keyframe_interval"
+    };
 
     public Transformation(Transformation transformation) {
         this(dup(transformation.transformations));
@@ -94,7 +115,7 @@ public class Transformation<T extends Transformation> implements Serializable{
     }
 
     public T border(int width, String color) {
-        return param("border", "" + width + "px_solid_" + color.replaceFirst("^#", "rgb:"));
+        return param("border", "" + width + "px_solid_" + replaceColorPrefix(color));
     }
 
     public T x(Object value) {
@@ -123,6 +144,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Set the keyframe interval parameter
+     *
      * @param value Interval in seconds
      * @return The transformation for chaining
      */
@@ -132,6 +154,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Set the keyframe interval parameter
+     *
      * @param value Interval in seconds.
      * @return The transformation for chaining
      */
@@ -371,6 +394,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Start defining a condition, which will be completed with a call {@link Condition#then()}
+     *
      * @return condition
      */
     public Condition ifCondition() {
@@ -379,6 +403,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Define a conditional transformation defined by the condition string
+     *
      * @param condition a condition string
      * @return the transformation for chaining
      */
@@ -389,6 +414,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Define a conditional transformation
+     *
      * @param expression a condition
      * @return the transformation for chaining
      */
@@ -398,6 +424,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Define a conditional transformation
+     *
      * @param condition a condition
      * @return the transformation for chaining
      */
@@ -434,6 +461,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * fps (frames per second) parameter for video
+     *
      * @param value Either a single value int or float or a range in the format <code>&lt;start&gt;[-&lt;end&gt;]</code>.  <br>
      *              For example, <code>23-29.7</code>
      * @return the transformation for chaining
@@ -444,6 +472,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * fps (frames per second) parameter for video
+     *
      * @param value the desired fps
      * @return the transformation for chaining
      */
@@ -453,6 +482,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * fps (frames per second) parameter for video
+     *
      * @param value the desired fps
      * @return the transformation for chaining
      */
@@ -460,7 +490,7 @@ public class Transformation<T extends Transformation> implements Serializable{
         return param("fps", new Integer(value));
     }
 
-    public T streamingProfile(String value){
+    public T streamingProfile(String value) {
         return param("streaming_profile", value);
     }
 
@@ -515,7 +545,7 @@ public class Transformation<T extends Transformation> implements Serializable{
     public String generate(Iterable<Map> optionsList) {
         List<String> components = new ArrayList<String>();
         for (Map options : optionsList) {
-            if(options.size() > 0){
+            if (options.size() > 0) {
                 components.add(generate(options));
             }
         }
@@ -549,12 +579,12 @@ public class Transformation<T extends Transformation> implements Serializable{
 
         String background = (String) options.get("background");
         if (background != null) {
-            background = background.replaceFirst("^#", "rgb:");
+            background = replaceColorPrefix(background);
         }
 
         String color = (String) options.get("color");
         if (color != null) {
-            color = color.replaceFirst("^#", "rgb:");
+            color = replaceColorPrefix(color);
         }
 
         List transformations = ObjectUtils.asArray(options.get("transformation"));
@@ -600,66 +630,18 @@ public class Transformation<T extends Transformation> implements Serializable{
         String videoCodec = processVideoCodecParam(options.get("video_codec"));
         String dpr = ObjectUtils.asString(options.get("dpr"), null == defaultDPR ? null : defaultDPR.toString());
 
-        SortedMap<String, String> params = new TreeMap<String, String>();
 
-        params.put("a", Expression.normalize(angle));
-        params.put("ar", Expression.normalize( options.get("aspect_ratio")));
-        params.put("b", background);
-        params.put("c", crop);
-        params.put("co", color);
-        params.put("dpr", Expression.normalize(dpr));
-        params.put("du", duration);
-        params.put("e", Expression.normalize( options.get("effect")));
-        params.put("eo", endOffset);
-        params.put("fl", flags);
-        params.put("h", Expression.normalize(height));
-        params.put("o", Expression.normalize( options.get("opacity")));
-        params.put("q", Expression.normalize( options.get("quality")));
-        params.put("r", Expression.normalize( options.get("radius")));
-        params.put("so", startOffset);
-        params.put("t", namedTransformation);
-        params.put("vc", videoCodec);
-        params.put("w", Expression.normalize(width));
-        params.put("x", Expression.normalize( options.get("x")));
-        params.put("y", Expression.normalize( options.get("y")));
-        params.put("z", Expression.normalize( options.get("zoom")));
-
-        String[] simple_params = new String[]{
-                "ac", "audio_codec",
-                "af", "audio_frequency",
-                "bo", "border",
-                "br", "bit_rate",
-                "cs", "color_space",
-                "d", "default_image",
-                "dl", "delay",
-                "dn", "density",
-                "f", "fetch_format",
-                "fn", "custom_action",
-                "fps", "fps",
-                "g", "gravity",
-                "l", "overlay",
-                "p", "prefix",
-                "pg", "page",
-                "u", "underlay",
-                "vs", "video_sampling",
-                "sp", "streaming_profile",
-                "ki", "keyframe_interval"
-                };
-
-        for (int i = 0; i < simple_params.length; i += 2) {
-            params.put(simple_params[i], ObjectUtils.asString(options.get(simple_params[i + 1])));
-        }
         List<String> components = new ArrayList<String>();
 
         String ifValue = (String) options.get("if");
-        if(ifValue != null){
+        if (ifValue != null) {
             components.add(0, "if_" + Expression.normalize(ifValue));
         }
 
         SortedSet<String> varParams = new TreeSet<String>();
-        for( Object k: options.keySet()) {
+        for (Object k : options.keySet()) {
             String key = (String) k;
-            if(key.matches(VAR_NAME_RE)) {
+            if (StringUtils.isVariable(key)) {
                 varParams.add(key + "_" + ObjectUtils.asString(options.get(k)));
             }
         }
@@ -672,6 +654,36 @@ public class Transformation<T extends Transformation> implements Serializable{
         if (variables != null) {
             components.add(variables);
         }
+
+        Map<String, String> params = new HashMap<>(64);
+
+        params.put("a", Expression.normalize(angle));
+        params.put("ar", Expression.normalize(options.get("aspect_ratio")));
+        params.put("b", background);
+        params.put("c", crop);
+        params.put("co", color);
+        params.put("dpr", Expression.normalize(dpr));
+        params.put("du", duration);
+        params.put("e", Expression.normalize(options.get("effect")));
+        params.put("eo", endOffset);
+        params.put("fl", flags);
+        params.put("h", Expression.normalize(height));
+        params.put("o", Expression.normalize(options.get("opacity")));
+        params.put("q", Expression.normalize(options.get("quality")));
+        params.put("r", Expression.normalize(options.get("radius")));
+        params.put("so", startOffset);
+        params.put("t", namedTransformation);
+        params.put("vc", videoCodec);
+        params.put("w", Expression.normalize(width));
+        params.put("x", Expression.normalize(options.get("x")));
+        params.put("y", Expression.normalize(options.get("y")));
+        params.put("z", Expression.normalize(options.get("zoom")));
+
+        for (int i = 0; i < SIMPLE_PARAMS.length; i += 2) {
+            params.put(SIMPLE_PARAMS[i], ObjectUtils.asString(options.get(SIMPLE_PARAMS[i + 1])));
+        }
+
+        params = new TreeMap<>(params);
 
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (StringUtils.isNotBlank(param.getValue())) {
@@ -702,12 +714,16 @@ public class Transformation<T extends Transformation> implements Serializable{
         return StringUtils.join(transformations, "/");
     }
 
+    private String replaceColorPrefix(String color) {
+        return StringUtils.replaceIfFirstChar(color, '#', "rgb:");
+    }
+
     private String processVar(Expression[] variables) {
-        if(variables == null) {
+        if (variables == null) {
             return null;
         }
         List<String> s = new ArrayList<String>(variables.length);
-        for(Expression variable: variables) {
+        for (Expression variable : variables) {
             s.add(variable.toString());
         }
         return StringUtils.join(s, ",");
@@ -715,6 +731,7 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Check if the value is a float >= 1
+     *
      * @param value
      * @return true if the value is a float >= 1
      */
@@ -825,7 +842,8 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Add a variable assignment. Each call to this method will add a new variable assignments, but the order of the assignments may change. To enforce a particular order, use {@link #variables(Expression...)}
-     * @param name the name of the variable
+     *
+     * @param name  the name of the variable
      * @param value the value to assign to the variable
      * @return this for chaining
      */
@@ -835,10 +853,11 @@ public class Transformation<T extends Transformation> implements Serializable{
 
     /**
      * Add a sequence of variable assignments. The order of the assignments will be honored.
+     *
      * @param variables variable expressions
      * @return this for chaining
      */
-    public T variables(Expression...variables) {
+    public T variables(Expression... variables) {
         return param("variables", variables);
     }
 

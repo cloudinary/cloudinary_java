@@ -242,4 +242,160 @@ public class StringUtils {
         matcher.appendTail(sb);
         return sb.toString();
     }
+
+    /**
+     * Merge all consecutive underscores and spaces into a single underscore, e.g. "ab___c_  _d" -> "ab_c_d"
+     *
+     * @param s String to process
+     * @return The resulting string.
+     */
+    public static String mergeToSingleUnderscore(String s) {
+        StringBuffer buffer = new StringBuffer();
+        boolean inMerge = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == ' ' || c == '_') {
+                if (!inMerge) {
+                    buffer.append('_');
+                }
+                inMerge = true;
+
+            } else {
+                inMerge = false;
+                buffer.append(c);
+            }
+        }
+
+        return buffer.toString();
+    }
+
+    /**
+     * Checks whether the String fits the template for a transformation variable -  $[a-zA-Z][a-zA-Z0-9]+
+     * e.g.  $a4, $Bd, $abcdef, etc
+     *
+     * @param s The string to test
+     * @return Whether it's a variable or not
+     */
+    public static boolean isVariable(String s) {
+        if (s == null ||
+                s.length() < 3 ||
+                !s.startsWith("$") ||
+                !Character.isLetter(s.charAt(1))) {
+            return false;
+        }
+
+        // check that the rest of the string is comprised of letters and digits only:
+        for (int i = 2; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Replaces the char c in the string S, if it's the first character in the string.
+     * @param s The string to search
+     * @param c The character to replace
+     * @param replacement The string to replace the character in S
+     * @return The string with the character replaced (or the original string if the char is not found)
+     */
+    public static String replaceIfFirstChar(String s, char c, String replacement) {
+        return s.charAt(0) == c ? replacement + s.substring(1) : s;
+    }
+
+    /**
+     * Check if the given string starts with http:// or https://
+     * @param s The string to check
+     * @return Whether it's an http url or not
+     */
+    public static boolean isHttpUrl(String s) {
+        String lowerCaseSource = s.toLowerCase();
+        return lowerCaseSource.startsWith("https:/") || lowerCaseSource.startsWith("http:/");
+    }
+
+    /**
+     * Remove all consecutive chars c from the beginning of the string
+     * @param s String to process
+     * @param c Char to search for
+     * @return The string stripped from the starting chars.
+     */
+    public static String removeStartingChars(String s, char c) {
+        int lastToRemove = -1;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                lastToRemove = i;
+                continue;
+            }
+
+            if (s.charAt(i) != c) {
+                break;
+            }
+        }
+
+        if (lastToRemove < 0) return s;
+        return s.substring(lastToRemove + 1);
+    }
+
+    /**
+     * Checks whether the url contains a versioning string (v + number, e.g. v12345)
+     * @param url The url to check
+     * @return Whether a version string is contained within the url
+     */
+    public static boolean hasVersionString(String url) {
+        boolean inVersion = false;
+        for (int i = 0; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == 'v') {
+                inVersion = true;
+            } else if (Character.isDigit(c) && inVersion) {
+                return true;
+            } else {
+                inVersion = false;
+            }
+
+
+        }
+
+        return false;
+    }
+
+    /**
+     * Merges all occurrences of multiple slashes into a single slash (e.g. "a///b//c/d" -> "a/b/c/d")
+     * @param url The string to process
+     * @return The resulting string with merged slashes.
+     */
+    public static String mergeSlashesInUrl(String url) {
+        StringBuilder builder = new StringBuilder();
+        boolean prevIsColon = false;
+        boolean inMerge = false;
+        for (int i = 0; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == ':') {
+                prevIsColon = true;
+                builder.append(c);
+            } else {
+                if (c == '/') {
+                    if (prevIsColon) {
+                        builder.append(c);
+                        inMerge = false;
+                    } else {
+                        if (!inMerge) {
+                            builder.append(c);
+                        }
+                        inMerge = true;
+                    }
+                } else {
+                    inMerge = false;
+                    builder.append(c);
+                }
+
+                prevIsColon = false;
+            }
+        }
+
+        return builder.toString();
+    }
 }

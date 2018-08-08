@@ -210,7 +210,7 @@ public class StringUtils {
     }
 
     /**
-     * Merge all consecutive underscores and spaces into a single underscore, e.g. "ab___c_  _d" -> "ab_c_d"
+     * Merge all consecutive underscores and spaces into a single underscore, e.g. "ab___c_  _d" becomes "ab_c_d"
      *
      * @param s String to process
      * @return The resulting string.
@@ -329,7 +329,7 @@ public class StringUtils {
     }
 
     /**
-     * Merges all occurrences of multiple slashes into a single slash (e.g. "a///b//c/d" -> "a/b/c/d")
+     * Merges all occurrences of multiple slashes into a single slash (e.g. "a///b//c/d" becomes "a/b/c/d")
      * @param url The string to process
      * @return The resulting string with merged slashes.
      */

@@ -10,10 +10,11 @@ import java.util.regex.Pattern;
 
 /**
  * Defines an expression used in transformation parameter values
+ *
  * @param <T> Children must define themselves as T
  */
 public abstract class BaseExpression<T extends BaseExpression> {
-    public static final Map<String,String> OPERATORS = ObjectUtils.asMap(
+    public static final Map<String, String> OPERATORS = ObjectUtils.asMap(
             "=", "eq",
             "!=", "ne",
             "<", "lt",
@@ -27,7 +28,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "+", "add",
             "-", "sub"
     );
-    public static final Map<String,String> PREDEFINED_VARS = ObjectUtils.asMap(
+    public static final Map<String, String> PREDEFINED_VARS = ObjectUtils.asMap(
             "width", "w",
             "height", "h",
             "initialWidth", "iw",
@@ -47,7 +48,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "pageY", "py"
 
     );
-    private static final String PATTERN = getpattern();
+    private static final Pattern PATTERN = getPattern();
 
     protected List<String> expressions = null;
     protected Transformation parent = null;
@@ -58,19 +59,23 @@ public abstract class BaseExpression<T extends BaseExpression> {
 
     /**
      * Normalize an expression string, replace "nice names" with their coded values and spaces with "_".
-     * @param expresion an expression
+     *
+     * @param expression an expression
      * @return a parsed expression
      */
-    public static String normalize(Object expresion) {
-
-        String replacement;
-        if (expresion == null) {
+    public static String normalize(Object expression) {
+        if (expression == null) {
             return null;
         }
-        String conditionStr = String.valueOf(expresion);
-        conditionStr = conditionStr.replaceAll("[ _]+", "_");
-        Pattern replaceRE = Pattern.compile(PATTERN);
-        Matcher matcher = replaceRE.matcher(conditionStr);
+
+        // If it's a number it's not an expression
+        if (expression instanceof Number){
+            return String.valueOf(expression);
+        }
+
+        String replacement;
+        String conditionStr = StringUtils.mergeToSingleUnderscore(String.valueOf(expression));
+        Matcher matcher = PATTERN.matcher(conditionStr);
         StringBuffer result = new StringBuffer(conditionStr.length());
         while (matcher.find()) {
             if (OPERATORS.containsKey(matcher.group())) {
@@ -89,18 +94,18 @@ public abstract class BaseExpression<T extends BaseExpression> {
     /**
      * @return a regex pattern for operators and predefined vars as /((operators)(?=[ _])|variables)/
      */
-    private static String getpattern() {
+    private static Pattern getPattern() {
         String pattern;
         final ArrayList<String> operators = new ArrayList<String>(OPERATORS.keySet());
         Collections.sort(operators, Collections.<String>reverseOrder());
-        StringBuffer sb = new StringBuffer("((");
-        for(String op: operators) {
+        StringBuilder sb = new StringBuilder("((");
+        for (String op : operators) {
             sb.append(Pattern.quote(op)).append("|");
         }
         sb.deleteCharAt(sb.length() - 1);
         sb.append(")(?=[ _])|").append(StringUtils.join(PREDEFINED_VARS.keySet(), "|")).append(")");
         pattern = sb.toString();
-        return pattern;
+        return Pattern.compile(pattern);
     }
 
     public Transformation getParent() {

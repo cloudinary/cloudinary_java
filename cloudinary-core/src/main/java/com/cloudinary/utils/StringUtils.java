@@ -11,7 +11,8 @@ public class StringUtils {
 
     /**
      * Join a list of Strings
-     * @param list strings to join
+     *
+     * @param list      strings to join
      * @param separator the separator to insert between the strings
      * @return a string made of the strings in list separated by separator
      */
@@ -25,7 +26,8 @@ public class StringUtils {
 
     /**
      * Join a array of Strings
-     * @param array strings to join
+     *
+     * @param array     strings to join
      * @param separator the separator to insert between the strings
      * @return a string made of the strings in array separated by separator
      */
@@ -38,8 +40,9 @@ public class StringUtils {
 
     /**
      * Join a collection of Strings
+     *
      * @param collection strings to join
-     * @param separator the separator to insert between the strings
+     * @param separator  the separator to insert between the strings
      * @return a string made of the strings in collection separated by separator
      */
     public static String join(Collection<String> collection, String separator) {
@@ -51,10 +54,11 @@ public class StringUtils {
 
     /**
      * Join a array of Strings from startIndex to endIndex
-     * @param array strings to join
-     * @param separator the separator to insert between the strings
+     *
+     * @param array      strings to join
+     * @param separator  the separator to insert between the strings
      * @param startIndex the string to start from
-     * @param endIndex the last string to join
+     * @param endIndex   the last string to join
      * @return a string made of the strings in array separated by separator
      */
     public static String join(final Object[] array, String separator, final int startIndex, final int endIndex) {
@@ -87,6 +91,7 @@ public class StringUtils {
 
     /**
      * Convert an array of bytes to a string of hex values
+     *
      * @param bytes bytes to convert
      * @return a string of hex values.
      */
@@ -102,6 +107,7 @@ public class StringUtils {
 
     /**
      * Convert a string of hex values to an array of bytes
+     *
      * @param s a string of two digit Hex numbers. The length of string to parse must be even.
      * @return bytes representation of the string
      */
@@ -125,7 +131,7 @@ public class StringUtils {
      *
      * @param input The String to escape
      * @return The escaped String
-     * @see HtmlEscape#escapeTextArea(String) 
+     * @see HtmlEscape#escapeTextArea(String)
      */
     public static String escapeHtml(String input) {
         return HtmlEscape.escapeTextArea(input);
@@ -133,6 +139,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has non whitespace characters in it
+     *
      * @param input a String-like object
      * @return true if input has non whitespace characters in it
      */
@@ -143,6 +150,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has non whitespace characters in it
+     *
      * @param input a String
      * @return true if input has non whitespace characters in it
      */
@@ -152,6 +160,7 @@ public class StringUtils {
 
     /**
      * Verify that the input has no characters
+     *
      * @param input a string
      * @return true if input is null or has no characters
      */
@@ -161,7 +170,8 @@ public class StringUtils {
 
     /**
      * Verify that the input is an empty string or contains only whitespace characters.<br>
-     *     see {@link Character#isWhitespace(char)}
+     * see {@link Character#isWhitespace(char)}
+     *
      * @param input a string
      * @return true if input is an empty string or contains only whitespace characters
      */
@@ -180,6 +190,7 @@ public class StringUtils {
 
     /**
      * Read the entire input stream in 1KB chunks
+     *
      * @param in input stream to read from
      * @return a String generated from the input stream
      * @throws IOException thrown by the input stream
@@ -198,4 +209,159 @@ public class StringUtils {
         return file.matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)");
     }
 
+    /**
+     * Merge all consecutive underscores and spaces into a single underscore, e.g. "ab___c_  _d" becomes "ab_c_d"
+     *
+     * @param s String to process
+     * @return The resulting string.
+     */
+    public static String mergeToSingleUnderscore(String s) {
+        StringBuffer buffer = new StringBuffer();
+        boolean inMerge = false;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == ' ' || c == '_') {
+                if (!inMerge) {
+                    buffer.append('_');
+                }
+                inMerge = true;
+
+            } else {
+                inMerge = false;
+                buffer.append(c);
+            }
+        }
+
+        return buffer.toString();
+    }
+
+    /**
+     * Checks whether the String fits the template for a transformation variable -  $[a-zA-Z][a-zA-Z0-9]+
+     * e.g.  $a4, $Bd, $abcdef, etc
+     *
+     * @param s The string to test
+     * @return Whether it's a variable or not
+     */
+    public static boolean isVariable(String s) {
+        if (s == null ||
+                s.length() < 3 ||
+                !s.startsWith("$") ||
+                !Character.isLetter(s.charAt(1))) {
+            return false;
+        }
+
+        // check that the rest of the string is comprised of letters and digits only:
+        for (int i = 2; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!Character.isLetterOrDigit(c)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Replaces the char c in the string S, if it's the first character in the string.
+     * @param s The string to search
+     * @param c The character to replace
+     * @param replacement The string to replace the character in S
+     * @return The string with the character replaced (or the original string if the char is not found)
+     */
+    public static String replaceIfFirstChar(String s, char c, String replacement) {
+        return s.charAt(0) == c ? replacement + s.substring(1) : s;
+    }
+
+    /**
+     * Check if the given string starts with http:// or https://
+     * @param s The string to check
+     * @return Whether it's an http url or not
+     */
+    public static boolean isHttpUrl(String s) {
+        String lowerCaseSource = s.toLowerCase();
+        return lowerCaseSource.startsWith("https:/") || lowerCaseSource.startsWith("http:/");
+    }
+
+    /**
+     * Remove all consecutive chars c from the beginning of the string
+     * @param s String to process
+     * @param c Char to search for
+     * @return The string stripped from the starting chars.
+     */
+    public static String removeStartingChars(String s, char c) {
+        int lastToRemove = -1;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                lastToRemove = i;
+                continue;
+            }
+
+            if (s.charAt(i) != c) {
+                break;
+            }
+        }
+
+        if (lastToRemove < 0) return s;
+        return s.substring(lastToRemove + 1);
+    }
+
+    /**
+     * Checks whether the url contains a versioning string (v + number, e.g. v12345)
+     * @param url The url to check
+     * @return Whether a version string is contained within the url
+     */
+    public static boolean hasVersionString(String url) {
+        boolean inVersion = false;
+        for (int i = 0; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == 'v') {
+                inVersion = true;
+            } else if (Character.isDigit(c) && inVersion) {
+                return true;
+            } else {
+                inVersion = false;
+            }
+
+
+        }
+
+        return false;
+    }
+
+    /**
+     * Merges all occurrences of multiple slashes into a single slash (e.g. "a///b//c/d" becomes "a/b/c/d")
+     * @param url The string to process
+     * @return The resulting string with merged slashes.
+     */
+    public static String mergeSlashesInUrl(String url) {
+        StringBuilder builder = new StringBuilder();
+        boolean prevIsColon = false;
+        boolean inMerge = false;
+        for (int i = 0; i < url.length(); i++) {
+            char c = url.charAt(i);
+            if (c == ':') {
+                prevIsColon = true;
+                builder.append(c);
+            } else {
+                if (c == '/') {
+                    if (prevIsColon) {
+                        builder.append(c);
+                        inMerge = false;
+                    } else {
+                        if (!inMerge) {
+                            builder.append(c);
+                        }
+                        inMerge = true;
+                    }
+                } else {
+                    inMerge = false;
+                    builder.append(c);
+                }
+
+                prevIsColon = false;
+            }
+        }
+
+        return builder.toString();
+    }
 }

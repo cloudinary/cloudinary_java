@@ -3,6 +3,7 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.ResponsiveBreakpoint;
 import com.cloudinary.Transformation;
+import com.cloudinary.Url;
 import com.cloudinary.transformation.*;
 import com.cloudinary.utils.ObjectUtils;
 import junitparams.JUnitParamsRunner;
@@ -18,10 +19,7 @@ import org.junit.runner.RunWith;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +43,38 @@ public class CloudinaryTest {
         this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
     }
 
+    @Test
+    public void testUrlSuffixWithDotOrSlash(){
+        Boolean[] errors = new Boolean[4];
+        try {
+            cloudinary.url().suffix("dsfdfd.adsfad").generate("publicId");
+        } catch (IllegalArgumentException e){
+            errors[0] = true;
+        }
+
+        try {
+            cloudinary.url().suffix("dsfdfd/adsfad").generate("publicId");
+        } catch (IllegalArgumentException e){
+            errors[1] = true;
+        }
+
+        try {
+            cloudinary.url().suffix("dsfd.fd/adsfad").generate("publicId");
+        } catch (IllegalArgumentException e){
+            errors[2] = true;
+        }
+
+        try {
+            cloudinary.url().suffix("dsfdfdaddsfad").generate("publicId");
+        } catch (IllegalArgumentException e){
+            errors[3] = true;
+        }
+
+        assertTrue(errors[0]);
+        assertTrue(errors[1]);
+        assertTrue(errors[2]);
+        assertNull(errors[3]);
+    }
     @Test
     public void testCloudName() {
         // should use cloud_name from config
@@ -236,7 +266,7 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testSupportUrlSuffixForPrivateImages(){
+    public void testSupportUrlSuffixForPrivateImages() {
         String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("image").type("private").generate("test");
         assertEquals("http://test123-res.cloudinary.com/private_images/test/hello", actual);
     }
@@ -291,28 +321,30 @@ public class CloudinaryTest {
     @Test
     @TestCaseName("{method}: {params}")
     @Parameters
-    public void testQuality( Object quality, String result) {
+    public void testQuality(Object quality, String result) {
         Transformation transformation = new Transformation().quality(quality);
         assertEquals(result, transformation.generate());
     }
+
     @SuppressWarnings("unused")
     private Object[][] parametersForTestQuality() {
         return new Object[][]{
-            {0.4, "q_0.4"},
-            {"0.4", "q_0.4"},
-            {"auto", "q_auto"},
-            {"auto:good", "q_auto:good"}};
+                {0.4, "q_0.4"},
+                {"0.4", "q_0.4"},
+                {"auto", "q_auto"},
+                {"auto:good", "q_auto:good"}};
 
     }
 
     @Test
     @TestCaseName("{method}: {0}")
     @Parameters
-    public void testAutoGravity(String value, String serialized){
+    public void testAutoGravity(String value, String serialized) {
         Transformation transformation = new Transformation().crop("crop").gravity(value).width(0.5f);
         String result = cloudinary.url().transformation(transformation).generate("test");
-        assertEquals(DEFAULT_UPLOAD_PATH + "c_crop,"+ serialized + ",w_0.5/test", result);
+        assertEquals(DEFAULT_UPLOAD_PATH + "c_crop," + serialized + ",w_0.5/test", result);
     }
+
     @SuppressWarnings("unused")
     private String[][] parametersForTestAutoGravity() {
         return new String[][]{
@@ -429,7 +461,7 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testArtisticFilter(){
+    public void testArtisticFilter() {
         Transformation transformation = new Transformation().effect("art", "incognito");
         String result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "e_art:incognito/test", result);
@@ -520,16 +552,17 @@ public class CloudinaryTest {
                 .width("auto")
                 .dpr("auto");
         testTag = cloudinary.url().transformation(trans).imageTag("sample.jpg");
-        assertTrue(testTag.startsWith("<img") );
+        assertTrue(testTag.startsWith("<img"));
         assertFalse(message, testTag.contains("class="));
         assertFalse(message, testTag.contains("data-src"));
         assertTrue(message, testTag.contains("src='http://res.cloudinary.com/test123/image/upload/c_scale,dpr_auto,w_auto/sample.jpg'"));
         testTag = cloudinary.url().transformation(trans).imageTag("sample.jpg");
-        assertTrue(testTag.startsWith("<img") );
+        assertTrue(testTag.startsWith("<img"));
         assertFalse(testTag.contains("class="));
         assertFalse(message, testTag.contains("data-src"));
         assertTrue(message, testTag.contains("src='http://res.cloudinary.com/test123/image/upload/c_scale,dpr_auto,w_auto/sample.jpg'"));
-}
+    }
+
     @Test
     public void testFolders() {
         // should add version if public_id contains /
@@ -637,14 +670,14 @@ public class CloudinaryTest {
             "auto:breakpoints:json|c_fill\\,w_auto:breakpoints:json"})
     @TestCaseName("Width {0}: {1}")
     @Test
-    public void testShouldSupportAutoWidth(String width, String result){
+    public void testShouldSupportAutoWidth(String width, String result) {
         String trans;
         trans = new Transformation().width(width).crop("fill").generate();
         assertEquals(result, trans);
     }
 
     @Test
-    public void testShouldSupportIhIw(){
+    public void testShouldSupportIhIw() {
         String trans = new Transformation().width("iw").height("ih").crop("crop").generate();
         assertEquals("c_crop,h_ih,w_iw", trans);
     }
@@ -1091,7 +1124,7 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testKeyframeInterval(){
+    public void testKeyframeInterval() {
         assertEquals("ki_10.0", new Transformation().keyframeInterval(10).generate());
         assertEquals("ki_0.05", new Transformation().keyframeInterval(0.05f).generate());
         assertEquals("ki_3.45", new Transformation().keyframeInterval(3.45f).generate());

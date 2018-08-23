@@ -9,7 +9,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -57,7 +56,8 @@ public class Url {
         cloned.fallbackContent = this.fallbackContent;
         cloned.format = this.format;
         cloned.posterSource = this.posterSource;
-        if (this.posterTransformation != null) cloned.posterTransformation = new Transformation(this.posterTransformation);
+        if (this.posterTransformation != null)
+            cloned.posterTransformation = new Transformation(this.posterTransformation);
         if (this.posterUrl != null) cloned.posterUrl = this.posterUrl.clone();
         cloned.publicId = this.publicId;
         cloned.resourceType = this.resourceType;
@@ -216,24 +216,23 @@ public class Url {
 
     /**
      * Set the authorization token. If <code>authToken</code> has already been set the parameter is <b>merged</b> with the current value unless the parameter value is <code>null</code> or <code>NULL_AUTH_TOKEN</code>.<br><br>
-     *  For example, to generate an authorized URL with a different duration:<br>
-     *  <pre class="prettyprint">
+     * For example, to generate an authorized URL with a different duration:<br>
+     * <pre class="prettyprint">
      *  {@code
      *   cloudinary.config.authToken = new AuthToken(KEY).duration(500);
      *   // later...
      *   cloudinary.url().signed(true).authToken(new AuthToken().duration(300))
      *                   .type("authenticated").version("1486020273").generate("sample.jpg");
      *  }
-     *</pre>
+     * </pre>
+     *
      * @param authToken an authorization token object
      * @return this
-     *
-     *
      */
     public Url authToken(AuthToken authToken) {
         if (this.authToken == null) {
             this.authToken = authToken;
-        } else if(authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
+        } else if (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
             this.authToken = authToken;
         } else {
             this.authToken = this.authToken.merge(authToken);
@@ -339,26 +338,26 @@ public class Url {
             }
         }
 
-        if (source.toLowerCase(Locale.US).matches("^https?:/.*")) {
+        boolean httpSource = StringUtils.isHttpUrl(source);
+        if (httpSource) {
             if (StringUtils.isEmpty(type) || "asset".equals(type)) {
                 return source;
             }
         }
 
-
         if (type != null && type.equals("fetch") && !StringUtils.isEmpty(format)) {
             transformation().fetchFormat(format);
             this.format = null;
         }
+
         String transformationStr = transformation().generate();
         String signature = "";
-
 
         String[] finalizedSource = finalizeSource(source, format, urlSuffix);
         source = finalizedSource[0];
         String sourceToSign = finalizedSource[1];
 
-        if (sourceToSign.contains("/") && !sourceToSign.matches("v[0-9]+.*") && !sourceToSign.matches("https?:/.*") && StringUtils.isEmpty(version)) {
+        if (sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) && !httpSource && StringUtils.isEmpty(version)) {
             version = "1";
         }
 
@@ -377,7 +376,8 @@ public class Url {
             }
 
             String toSign = StringUtils.join(new String[]{transformationStr, sourceToSign}, "/");
-            toSign = toSign.replaceAll("^/+", "").replaceAll("([^:])\\/+", "$1/");
+            toSign = StringUtils.removeStartingChars(toSign, '/');
+            toSign = StringUtils.mergeSlashesInUrl(toSign);
 
             byte[] digest = md.digest(cloudinary.getUTF8Bytes(toSign + this.config.apiSecret));
             signature = Base64Coder.encodeURLSafeString(digest);
@@ -389,7 +389,8 @@ public class Url {
         String finalResourceType = finalizeResourceType(resourceType, type, urlSuffix, useRootPath, config.shorten);
         String prefix = unsignedDownloadUrlPrefix(source, config.cloudName, config.privateCdn, config.cdnSubdomain, config.secureCdnSubdomain, config.cname, config.secure, config.secureDistribution);
 
-        String url = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/").replaceAll("([^:])\\/+", "$1/");
+        String join = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/");
+        String url = StringUtils.mergeSlashesInUrl(join);
 
         if (signUrl && authToken != null && !authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
             try {
@@ -404,11 +405,10 @@ public class Url {
     }
 
     private String[] finalizeSource(String source, String format, String urlSuffix) {
+        source = StringUtils.mergeSlashesInUrl(source);
         String[] result = new String[2];
-        source = source.replaceAll("([^:])//", "\1/");
-
         String sourceToSign;
-        if (source.toLowerCase().matches("^https?:/.*")) {
+        if (StringUtils.isHttpUrl(source)) {
             source = SmartUrlEncoder.encode(source);
             sourceToSign = source;
         } else {
@@ -419,9 +419,7 @@ public class Url {
             }
             sourceToSign = source;
             if (StringUtils.isNotBlank(urlSuffix)) {
-                Pattern pattern = Pattern.compile("[\\./]");
-                Matcher matcher = pattern.matcher(urlSuffix);
-                if (matcher.find()) {
+                if (urlSuffix.contains(".") || urlSuffix.contains("/")) {
                     throw new IllegalArgumentException("url_suffix should not include . or /");
                 }
                 source = source + "/" + urlSuffix;
@@ -448,13 +446,13 @@ public class Url {
             } else if (resourceType.equals("image") && type.equals("private")) {
                 resourceType = "private_images";
                 type = null;
-            } else if (resourceType.equals("image") && type.equals("authenticated")){
+            } else if (resourceType.equals("image") && type.equals("authenticated")) {
                 resourceType = "authenticated_images";
                 type = null;
             } else if (resourceType.equals("raw") && type.equals("upload")) {
                 resourceType = "files";
                 type = null;
-            } else if (resourceType.equals("video") && type.equals("upload")){
+            } else if (resourceType.equals("video") && type.equals("upload")) {
                 resourceType = "videos";
                 type = null;
             } else {

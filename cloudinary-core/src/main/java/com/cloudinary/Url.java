@@ -353,7 +353,7 @@ public class Url {
         String transformationStr = transformation().generate();
         String signature = "";
 
-        String[] finalizedSource = finalizeSource(source, httpSource, format, urlSuffix);
+        String[] finalizedSource = finalizeSource(source, format, urlSuffix);
         source = finalizedSource[0];
         String sourceToSign = finalizedSource[1];
 
@@ -404,11 +404,11 @@ public class Url {
         return url;
     }
 
-    private String[] finalizeSource(String source, boolean isHttpSource, String format, String urlSuffix) {
+    private String[] finalizeSource(String source, String format, String urlSuffix) {
         source = StringUtils.mergeSlashesInUrl(source);
         String[] result = new String[2];
         String sourceToSign;
-        if (isHttpSource) {
+        if (StringUtils.isHttpUrl(source)) {
             source = SmartUrlEncoder.encode(source);
             sourceToSign = source;
         } else {

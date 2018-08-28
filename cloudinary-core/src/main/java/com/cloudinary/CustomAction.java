@@ -26,6 +26,6 @@ public class CustomAction extends BaseParam{
      * @return A new instance of custom action param
      */
     public static CustomAction remote(String url){
-        return new CustomAction("remote", Base64Coder.encodeString(url));
+        return new CustomAction("remote", Base64Coder.encodeURLSafeString(url));
     }
 }

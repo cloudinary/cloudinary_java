@@ -280,6 +280,10 @@ public class Base64Coder {
     private Base64Coder() {
     }
 
+    public static String encodeURLSafeString(String s) {
+        return encodeURLSafeString(s.getBytes());
+    }
+
     public static String encodeURLSafeString(byte[] digest) {
         char[] encode = encode(digest);
         for (int i = 0; i < encode.length; i++) {

@@ -634,6 +634,7 @@ public class Transformation<T extends Transformation> implements Serializable{
                 "dl", "delay",
                 "dn", "density",
                 "f", "fetch_format",
+                "fn", "custom_action",
                 "fps", "fps",
                 "g", "gravity",
                 "l", "overlay",
@@ -841,4 +842,12 @@ public class Transformation<T extends Transformation> implements Serializable{
         return param("variables", variables);
     }
 
+    /**
+     * Set a custom action, such as a call to a lambda function or a web-assembly function.
+     * @param action The custom action to perform, see {@link CustomAction}.
+     * @return The transformation for chaining
+     */
+    public T customAction(CustomAction action) {
+        return param("custom_action", action.toString());
+    }
 }

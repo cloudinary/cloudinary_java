@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.cloudinary.CustomAction.remote;
+import static com.cloudinary.CustomAction.wasm;
 import static com.cloudinary.utils.ObjectUtils.asMap;
 import static com.cloudinary.utils.ObjectUtils.emptyMap;
 import static org.junit.Assert.*;
@@ -1099,6 +1101,13 @@ public class CloudinaryTest {
         assertEquals("ki_10", new Transformation().keyframeInterval("10").generate());
         assertEquals("", new Transformation().keyframeInterval("").generate());
         assertEquals("", new Transformation().keyframeInterval(null).generate());
+    }
+
+    @Test
+    public void testCustomAction(){
+        assertEquals("fn_wasm:blur_wasm", new Transformation().customAction(wasm("blur_wasm")).generate());
+        assertEquals("fn_remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlBY3Rpb24=",
+                new Transformation().customAction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryAction")).generate());
     }
 
     public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

@@ -3,7 +3,6 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.ResponsiveBreakpoint;
 import com.cloudinary.Transformation;
-import com.cloudinary.Url;
 import com.cloudinary.transformation.*;
 import com.cloudinary.utils.ObjectUtils;
 import junitparams.JUnitParamsRunner;
@@ -23,8 +22,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.cloudinary.CustomAction.remote;
-import static com.cloudinary.CustomAction.wasm;
+import static com.cloudinary.CustomFunction.remote;
+import static com.cloudinary.CustomFunction.wasm;
 import static com.cloudinary.utils.ObjectUtils.asMap;
 import static com.cloudinary.utils.ObjectUtils.emptyMap;
 import static org.junit.Assert.*;
@@ -1137,10 +1136,10 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testCustomAction(){
-        assertEquals("fn_wasm:blur_wasm", new Transformation().customAction(wasm("blur_wasm")).generate());
-        assertEquals("fn_remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlBY3Rpb24=",
-                new Transformation().customAction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryAction")).generate());
+    public void testCustomFunction(){
+        assertEquals("fn_wasm:blur_wasm", new Transformation().customFunction(wasm("blur_wasm")).generate());
+        assertEquals("fn_remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==",
+                new Transformation().customFunction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction")).generate());
     }
 
     public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {

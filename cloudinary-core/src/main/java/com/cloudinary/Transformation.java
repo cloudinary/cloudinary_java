@@ -863,10 +863,10 @@ public class Transformation<T extends Transformation> implements Serializable {
 
     /**
      * Set a custom action, such as a call to a lambda function or a web-assembly function.
-     * @param action The custom action to perform, see {@link CustomAction}.
+     * @param action The custom action to perform, see {@link CustomFunction}.
      * @return The transformation for chaining
      */
-    public T customAction(CustomAction action) {
+    public T customFunction(CustomFunction action) {
         return param("custom_action", action.toString());
     }
 }

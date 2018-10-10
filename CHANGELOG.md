@@ -1,4 +1,18 @@
 
+1.20.0 / 2018-10-10
+===================
+
+New functionality
+-----------------
+
+  * Add support for web assembly and lambda functions in transformations
+
+Other changes
+-------------
+
+  * Improve performance of `url.generate()` method.
+  * Fix url encoding for AuthToken generation
+
 1.19.0 / 2018-07-22
 ===================
 

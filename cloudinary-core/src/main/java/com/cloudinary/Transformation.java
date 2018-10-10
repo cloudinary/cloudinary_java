@@ -37,7 +37,7 @@ public class Transformation<T extends Transformation> implements Serializable {
             "dl", "delay",
             "dn", "density",
             "f", "fetch_format",
-            "fn", "custom_action",
+            "fn", "custom_function",
             "fps", "fps",
             "g", "gravity",
             "l", "overlay",
@@ -867,6 +867,6 @@ public class Transformation<T extends Transformation> implements Serializable {
      * @return The transformation for chaining
      */
     public T customFunction(CustomFunction action) {
-        return param("custom_action", action.toString());
+        return param("custom_function", action.toString());
     }
 }

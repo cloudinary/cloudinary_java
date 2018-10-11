@@ -27,6 +27,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private static final String UPLOADER_TAG = SDK_TEST_TAG + "_uploader";
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
+    private static Map<String,Set<String>> toDelete = new HashMap<>();
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -57,6 +58,13 @@ abstract public class AbstractUploaderTest extends MockableTest {
             api.deleteResourcesByTag(UPLOADER_TAG, ObjectUtils.asMap("resource_type", "raw"));
         } catch (Exception ignored) {
         }
+        for (String type : toDelete.keySet()) {
+            try {
+                api.deleteResources(toDelete.get(type), Collections.singletonMap("type", type));
+            }catch ( Exception ignored){}
+        }
+
+        toDelete.clear();
     }
 
     @Rule
@@ -220,10 +228,9 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Test
     public void testText() throws Exception {
         Map result = cloudinary.uploader().text("hello world", asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        addToDeleteList("text", result.get("public_id").toString());
         assertTrue(((Integer) result.get("width")) > 1);
         assertTrue(((Integer) result.get("height")) > 1);
-        cloudinary.api().deleteResources(asArray(result.get("public_id").toString()), Collections.singletonMap("type", "text"));
-
     }
 
 
@@ -241,21 +248,18 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testSprite() throws Exception {
-        List<String> toRemove = new ArrayList<>(3);
         final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime());
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_1" + SUFFIX));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_2" + SUFFIX));
         Map result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
-        toRemove.add(result.get("public_id").toString());
+        addToDeleteList("sprite", result.get("public_id").toString());
         assertEquals(2, ((Map) result.get("image_infos")).size());
         result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("transformation", "w_100"));
-        toRemove.add(result.get("public_id").toString());
+        addToDeleteList("sprite", result.get("public_id").toString());
         assertTrue(((String) result.get("css_url")).contains("w_100"));
         result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("transformation", new Transformation().width(100), "format", "jpg"));
-        toRemove.add(result.get("public_id").toString());
+        addToDeleteList("sprite", result.get("public_id").toString());
         assertTrue(((String) result.get("css_url")).contains("f_jpg,w_100"));
-
-        cloudinary.api().deleteResources(toRemove, Collections.singletonMap("type", "sprite"));
     }
 
     @Test
@@ -266,27 +270,24 @@ abstract public class AbstractUploaderTest extends MockableTest {
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
         List<String> ids = new ArrayList<String>();
         Map result = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", "c_crop,w_0.5"));
-        ids.add((String) result.get("public_id"));
+        addToDeleteList("multi", result.get("public_id").toString());
         Map pdfResult = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", new Transformation().width(111), "format", "pdf"));
-        ids.add((String) pdfResult.get("public_id"));
-        try {
-            cloudinary.api().deleteResources(ids, ObjectUtils.emptyMap());
-        } catch (Exception ignored) {
-        }
+        addToDeleteList("multi", pdfResult.get("public_id").toString());
+
         assertTrue(((String) result.get("url")).endsWith(".gif"));
         assertTrue(((String) result.get("url")).contains("w_0.5"));
         assertTrue(((String) pdfResult.get("url")).contains("w_111"));
         assertTrue(((String) pdfResult.get("url")).endsWith(".pdf"));
-
-        cloudinary.api().deleteResources(Arrays.asList((result.get("public_id")).toString(), pdfResult.get("public_id").toString()), asMap("type", "multi"));
     }
 
     @Test
     public void testTags() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
         String public_id = (String) result.get("public_id");
+        addToDeleteList("upload", public_id);
         Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
         String public_id2 = (String) result2.get("public_id");
+        addToDeleteList("upload", public_id2);
         cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, ObjectUtils.emptyMap());
         cloudinary.uploader().addTag("tag2", new String[]{public_id}, ObjectUtils.emptyMap());
         List<String> tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
@@ -301,10 +302,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals(tags, asArray(new String[]{"tag3"}));
         result = cloudinary.uploader().removeAllTags(new String[]{public_id, public_id2, "noSuchId"}, ObjectUtils.emptyMap());
         List<String> publicIds = (List<String>) result.get("public_ids");
+
         assertThat(publicIds, containsInAnyOrder(public_id, public_id2)); // = and not containing "noSuchId"
         result = cloudinary.api().resource(public_id, ObjectUtils.emptyMap());
         assertThat((Map<? extends String, ?>) result, not(hasKey("tags")));
-        cloudinary.api().deleteResources(publicIds, Collections.emptyMap());
     }
 
     @Test
@@ -657,5 +658,15 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals("anonymous", accessControlResponse.get(0).get("access_type"));
         assertEquals("2019-02-22T14:20:57Z", accessControlResponse.get(0).get("start"));
         assertEquals("2019-03-21T22:00:00Z", accessControlResponse.get(0).get("end"));
+    }
+
+    private void addToDeleteList(String type, String id){
+        Set<String> ids = toDelete.get(type);
+        if (ids == null){
+            ids = new HashSet<>();
+            toDelete.put(type, ids);
+        }
+
+        ids.add(id);
     }
 }

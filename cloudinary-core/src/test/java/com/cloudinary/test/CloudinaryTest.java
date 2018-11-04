@@ -3,6 +3,7 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.ResponsiveBreakpoint;
 import com.cloudinary.Transformation;
+import com.cloudinary.Url;
 import com.cloudinary.transformation.*;
 import com.cloudinary.utils.ObjectUtils;
 import junitparams.JUnitParamsRunner;
@@ -1156,5 +1157,10 @@ public class CloudinaryTest {
         return params;
     }
 
-
+    @Test
+    public void testUrlCloneConfig(){
+        // verify that secure (from url.config) is cloned as well:
+        Url url = cloudinary.url().cloudName("cloud").format("frmt").publicId("123").secure(true);
+        assertEquals("https://res.cloudinary.com/cloud/image/upload/123.frmt", url.clone().generate());
+    }
 }

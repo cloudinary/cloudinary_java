@@ -52,7 +52,7 @@ public class Url {
 
     public Url clone() {
         Url cloned = cloudinary.url();
-
+        cloned.config.update(config.asMap());
         cloned.fallbackContent = this.fallbackContent;
         cloned.format = this.format;
         cloned.posterSource = this.posterSource;

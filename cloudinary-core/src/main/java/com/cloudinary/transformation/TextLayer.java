@@ -13,6 +13,8 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     protected Integer fontSize = null;
     protected String fontWeight = null;
     protected String fontStyle = null;
+    protected String fontAntialiasing = null;
+    protected String fontHinting=null;
     protected String textDecoration = null;
     protected String textAlign = null;
     protected String stroke = null;
@@ -41,6 +43,17 @@ public class TextLayer extends AbstractLayer<TextLayer> {
         this.fontFamily = fontFamily;
         return getThis();
     }
+
+    public TextLayer fontAntialiasing(String fontAntialiasing) {
+        this.fontAntialiasing = fontAntialiasing;
+        return getThis();
+    }
+
+    public TextLayer fontHinting(String fontHinting) {
+        this.fontHinting = fontHinting;
+        return getThis();
+    }
+
 
     public TextLayer fontSize(int fontSize) {
         this.fontSize = fontSize;
@@ -137,6 +150,10 @@ public class TextLayer extends AbstractLayer<TextLayer> {
             components.add(this.fontWeight);
         if (StringUtils.isNotBlank(this.fontStyle) && !this.fontStyle.equals("normal"))
             components.add(this.fontStyle);
+        if (StringUtils.isNotBlank(this.fontAntialiasing))
+            components.add("antialias_"+this.fontAntialiasing);
+        if (StringUtils.isNotBlank(this.fontHinting))
+            components.add("hinting_"+this.fontHinting);
         if (StringUtils.isNotBlank(this.textDecoration) && !this.textDecoration.equals("none"))
             components.add(this.textDecoration);
         if (StringUtils.isNotBlank(this.textAlign))

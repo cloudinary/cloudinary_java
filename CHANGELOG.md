@@ -1,4 +1,15 @@
 
+1.21.0 / 2018-11-05
+===================
+
+New functionality
+-----------------
+  * Add support for font antialiasing and font hinting for text overlays
+
+Other changes
+-------------
+  * Clone configuration in `Url.clone()`
+
 1.20.0 / 2018-10-10
 ===================
 

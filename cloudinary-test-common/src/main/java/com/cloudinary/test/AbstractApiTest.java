@@ -449,7 +449,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testListTransformationByNamed() throws Exception {
-        String name = "a_named_transformation_" + SUFFIX;
+        String name = "a_test_named_transformation_param" + SUFFIX;
         api.createTransformation(name, "w_100", null);
         name = "t_" + name;
         List<Map> named = (List) api.transformations(ObjectUtils.asMap("max_results", 30, "named", true)).get("transformations");
@@ -477,6 +477,8 @@ abstract public class AbstractApiTest extends MockableTest {
 
         assertTrue("Named transformation wasn't returned with named=true param", namedFound);
         assertFalse("Named transformation returned with named=false param", unnamedFound);
+
+        api.deleteTransformation(name, null);
     }
 
     @Test

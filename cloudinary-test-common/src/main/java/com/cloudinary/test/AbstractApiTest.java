@@ -450,35 +450,40 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void testListTransformationByNamed() throws Exception {
         String name = "a_test_named_transformation_param" + SUFFIX;
-        api.createTransformation(name, "w_100", null);
-        name = "t_" + name;
-        List<Map> named = (List) api.transformations(ObjectUtils.asMap("max_results", 30, "named", true)).get("transformations");
-        List<Map> unnamed = (List) api.transformations(ObjectUtils.asMap("max_results", 30, "named", false)).get("transformations");
+        try {
+            api.createTransformation(name, "w_100", null);
+            name = "t_" + name;
+            List<Map> named = (List) api.transformations(ObjectUtils.asMap("max_results", 30, "named", true)).get("transformations");
+            List<Map> unnamed = (List) api.transformations(ObjectUtils.asMap("max_results", 30, "named", false)).get("transformations");
 
-        // the named transformation should be present only in the named list:
-        boolean unnamedFound = false;
-        boolean namedFound = false;
+            // the named transformation should be present only in the named list:
+            boolean unnamedFound = false;
+            boolean namedFound = false;
 
-        for (Map t : unnamed) {
-            if (t.get("name").equals(name)){
-                unnamedFound = true;
-                break;
-            }
-        }
-
-        if (!unnamedFound) {
-            for (Map t : named) {
+            for (Map t : unnamed) {
                 if (t.get("name").equals(name)) {
-                    namedFound = true;
+                    unnamedFound = true;
                     break;
                 }
             }
+
+            if (!unnamedFound) {
+                for (Map t : named) {
+                    if (t.get("name").equals(name)) {
+                        namedFound = true;
+                        break;
+                    }
+                }
+            }
+
+            assertTrue("Named transformation wasn't returned with named=true param", namedFound);
+            assertFalse("Named transformation returned with named=false param", unnamedFound);
+
+        } finally {
+            try {
+                api.deleteTransformation(name, null);
+            } catch (Exception ignored){}
         }
-
-        assertTrue("Named transformation wasn't returned with named=true param", namedFound);
-        assertFalse("Named transformation returned with named=false param", unnamedFound);
-
-        api.deleteTransformation(name, null);
     }
 
     @Test

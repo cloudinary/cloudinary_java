@@ -660,6 +660,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals("2019-03-21T22:00:00Z", accessControlResponse.get(0).get("end"));
     }
 
+    @Test
+    public void testQualityAnalysis() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("quality_analysis", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        assertNotNull(result.get("quality_analysis"));
+        result = cloudinary.uploader().explicit(result.get("public_id").toString(), ObjectUtils.asMap("type", "upload", "resource_type", "image", "quality_analysis", true));
+        assertNotNull(result.get("quality_analysis"));
+
+    }
     private void addToDeleteList(String type, String id){
         Set<String> ids = toDelete.get(type);
         if (ids == null){

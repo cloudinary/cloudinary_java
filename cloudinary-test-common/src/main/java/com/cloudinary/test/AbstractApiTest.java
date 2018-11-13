@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.cloudinary.utils.ObjectUtils.asMap;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
@@ -939,5 +940,11 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals(resource.get("public_id"), publicId);
         assertEquals(resource.get("access_mode"), "public");
         cloudinary.uploader().destroy(publicId, null);
+    }
+
+    @Test
+    public void testQualityAnalysis() throws Exception {
+        ApiResponse result = cloudinary.api().resource(API_TEST, ObjectUtils.asMap("quality_analysis", true));
+        assertNotNull(result.get("quality_analysis"));
     }
 }

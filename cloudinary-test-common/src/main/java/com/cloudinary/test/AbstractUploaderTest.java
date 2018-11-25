@@ -27,7 +27,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private static final String UPLOADER_TAG = SDK_TEST_TAG + "_uploader";
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
-    private static Map<String,Set<String>> toDelete = new HashMap<>();
+    private static Map<String, Set<String>> toDelete = new HashMap<>();
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -61,7 +61,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
         for (String type : toDelete.keySet()) {
             try {
                 api.deleteResources(toDelete.get(type), Collections.singletonMap("type", type));
-            }catch ( Exception ignored){}
+            } catch (Exception ignored) {
+            }
         }
 
         toDelete.clear();
@@ -77,7 +78,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assumeNotNull(cloudinary.config.apiSecret);
     }
 
-    
+
     @Test
     public void testUtf8Upload() throws IOException {
 
@@ -215,7 +216,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testUploadAsync() throws IOException {
-        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("transformation", new Transformation().crop("scale").width(2.0), "async", true,  "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("transformation", new Transformation().crop("scale").width(2.0), "async", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         assertEquals((String) result.get("status"), "pending");
     }
 
@@ -438,13 +439,15 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Test
     public void testDetectionRequest() {
         //should support requesting detection
+        String message = null;
         try {
             cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("detection", "illegal", "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         } catch (Exception e) {
-            assertTrue(e.getMessage().matches("(.*)(Illegal value|not a valid)(.*)"));
+            message = e.getMessage();
         }
-    }
 
+        assertTrue("Detection is invalid".equals(message));
+    }
 
 
     @Test
@@ -573,7 +576,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         cloudinary.api().deleteResources(toDelete, asMap("resource_type", "raw"));
     }
 
-    
+
     @Test
     public void testCreateArchiveRaw() throws Exception {
         Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[]{ARCHIVE_TAG}).resourceType("raw"));
@@ -668,9 +671,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertNotNull(result.get("quality_analysis"));
 
     }
-    private void addToDeleteList(String type, String id){
+
+    private void addToDeleteList(String type, String id) {
         Set<String> ids = toDelete.get(type);
-        if (ids == null){
+        if (ids == null) {
             ids = new HashSet<>();
             toDelete.put(type, ids);
         }

@@ -209,7 +209,7 @@ public class StringUtils {
     }
 
     public static boolean isRemoteUrl(String file) {
-        return file.matches("ftp:.*|https?:.*|s3:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)");
+        return file.matches("ftp:.*|https?:.*|s3:.*|gs:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)");
     }
 
     /**

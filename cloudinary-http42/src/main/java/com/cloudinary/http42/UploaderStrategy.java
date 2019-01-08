@@ -85,14 +85,14 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
                 }
             }
         }
-
-        if (file instanceof String && !((String) file).matches("ftp:.*|https?:.*|s3:.*|gs:.*|data:[^;]*;base64,([a-zA-Z0-9/+\n=]+)")) {
+        if(file instanceof String && !(StringUtils.isRemoteUrl((String)file))){
             File _file = new File((String) file);
             if (!_file.isFile() && !_file.canRead()) {
                 throw new IOException("File not found or unreadable: " + file);
             }
             file = _file;
         }
+
         String filename = (String) options.get("filename");
         if (file instanceof File) {
             multipart.addPart("file", new FileBody((File) file, filename, "application/octet-stream", null));

@@ -449,17 +449,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertTrue("Detection is invalid".equals(message));
     }
 
-
-    @Test
-    public void testAutoTaggingRequest() {
-        //should support requesting auto tagging
-        try {
-            cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("auto_tagging", 0.5f, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
-        } catch (Exception e) {
-            assertTrue(e.getMessage().matches("^Must use(.*)"));
-        }
-    }
-
     @Test
     public void testUploadLarge() throws Exception {
         // support uploading large files

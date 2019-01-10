@@ -490,6 +490,30 @@ public class Transformation<T extends Transformation> implements Serializable {
         return param("fps", new Integer(value));
     }
 
+    /**
+     * fps (frames per second) parameter for video
+     * @param rangeStart String or Number, can be null for open range.
+     * @param rangeEnd String or Number, can be null for open range.
+     * @return the transformation for chaining.
+     */
+    public T fps(Object rangeStart, Object rangeEnd){
+        if (rangeEnd == null && rangeStart == null){
+            throw new IllegalArgumentException("At least one of [rangeStart, rangeEnd] must be provided");
+        }
+        StringBuilder builder = new StringBuilder();
+        if (rangeStart != null){
+            builder.append(rangeStart);
+        }
+
+        builder.append("-");
+
+        if (rangeEnd != null){
+            builder.append(rangeEnd);
+        }
+
+        return param("fps", builder.toString());
+    }
+
     public T streamingProfile(String value) {
         return param("streaming_profile", value);
     }

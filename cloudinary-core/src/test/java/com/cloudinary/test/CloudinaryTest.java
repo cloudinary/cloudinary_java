@@ -1117,15 +1117,22 @@ public class CloudinaryTest {
 
     @Test
     public void testFps() {
-        Transformation t = new Transformation().fps(12);
-        assertEquals("fps_12", t.generate());
-        t = new Transformation().fps(12.5);
-        assertEquals("fps_12.5", t.generate());
-        t = new Transformation().fps("12");
-        assertEquals("fps_12", t.generate());
-        t = new Transformation().fps("12-25.6");
-        assertEquals("fps_12-25.6", t.generate());
-
+        Transformation t = new Transformation().fps("24-29.97");
+        assertEquals("fps_24-29.97", t.generate());
+        t = new Transformation().fps(24);
+        assertEquals("fps_24", t.generate());
+        t = new Transformation().fps(24.5);
+        assertEquals("fps_24.5", t.generate());
+        t = new Transformation().fps("24");
+        assertEquals("fps_24", t.generate());
+        t = new Transformation().fps("-24");
+        assertEquals("fps_-24", t.generate());
+        t = new Transformation().fps(24,29.97);
+        assertEquals("fps_24-29.97", t.generate());
+        t = new Transformation().fps(24,null);
+        assertEquals("fps_24-", t.generate());
+        t = new Transformation().fps(null,29.97);
+        assertEquals("fps_-29.97", t.generate());
     }
 
     @Test

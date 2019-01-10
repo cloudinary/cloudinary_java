@@ -33,7 +33,7 @@ public class Cloudinary {
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
     public final static String VERSION = "1.21.0";
-    public final static String USER_AGENT = "CloudinaryJava/" + VERSION;
+    public final static String USER_AGENT = "CloudinaryJava/" + VERSION + " (Java " + System.getProperty("java.version") + ")";
 
     public final Configuration config;
     private AbstractUploaderStrategy uploaderStrategy;

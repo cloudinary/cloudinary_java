@@ -1,4 +1,13 @@
 
+1.22.0 / 2019-01-22
+===================
+
+  * Add JVM version to user agent (#157)
+  * Add support for range value in `Transformation.fps()` (#155)
+  * Add support for google-storage URLs (`gs://`) in uploads (#154)
+  * Add `quality_analysis` param in upload, explicit and api.resource calls
+  * Add `named` parameter to list-transformations api.
+
 1.21.0 / 2018-11-05
 ===================
 

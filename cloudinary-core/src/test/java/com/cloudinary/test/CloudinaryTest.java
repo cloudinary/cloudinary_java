@@ -1,9 +1,6 @@
 package com.cloudinary.test;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.ResponsiveBreakpoint;
-import com.cloudinary.Transformation;
-import com.cloudinary.Url;
+import com.cloudinary.*;
 import com.cloudinary.transformation.*;
 import com.cloudinary.utils.ObjectUtils;
 import junitparams.JUnitParamsRunner;
@@ -16,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -676,6 +674,18 @@ public class CloudinaryTest {
         String trans;
         trans = new Transformation().width(width).crop("fill").generate();
         assertEquals(result, trans);
+    }
+
+    @Test
+    public void testEagerWithStreamingProfile() throws IOException {
+        Transformation transformation = new EagerTransformation().format("m3u8").streamingProfile("full_hd");
+        assertEquals("sp_full_hd/m3u8", transformation.generate());
+    }
+
+    @Test
+    public void testEagerWithChaining() throws IOException {
+        Transformation transformation = new EagerTransformation().angle(13).chain().effect("sepia").chain().format("webp");
+        assertEquals("a_13/e_sepia/webp", transformation.generate());
     }
 
     @Test

@@ -28,6 +28,22 @@ public class EagerTransformation extends Transformation<EagerTransformation> {
     }
 
     @Override
+    public String generate(Iterable<Map> optionsList) {
+        List<String> components = new ArrayList<String>();
+        for (Map options : optionsList) {
+            if (options.size() > 0) {
+                components.add(super.generate(options));
+            }
+        }
+
+        if (StringUtils.isNotBlank(format)){
+            components.add(format);
+        }
+
+        return StringUtils.join(components, "/");
+    }
+
+    @Override
     public String generate(Map options) {
         List<String> eager = new ArrayList<>();
         eager.add(super.generate(options));

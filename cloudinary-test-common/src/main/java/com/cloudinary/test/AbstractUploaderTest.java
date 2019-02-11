@@ -27,7 +27,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private static final String UPLOADER_TAG = SDK_TEST_TAG + "_uploader";
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
-    private static Map<String, Set<String>> toDelete = new HashMap<>();
+    private static Map<String, Set<String>> toDelete = new HashMap<String, Set<String>>();
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -546,7 +546,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testCreateArchive() throws Exception {
-        List<String> toDelete = new ArrayList<>(2);
+        List<String> toDelete = new ArrayList<String>(2);
         Map result = cloudinary.uploader().createArchive(new ArchiveParams().tags(new String[]{ARCHIVE_TAG}));
         toDelete.add(result.get("public_id").toString());
         assertEquals(2, result.get("file_count"));
@@ -658,7 +658,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private void addToDeleteList(String type, String id) {
         Set<String> ids = toDelete.get(type);
         if (ids == null) {
-            ids = new HashSet<>();
+            ids = new HashSet<String>();
             toDelete.put(type, ids);
         }
 

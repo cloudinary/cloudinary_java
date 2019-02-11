@@ -228,7 +228,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testTransformationsWithCursor() throws Exception {
         String name = "testTransformation" + SDK_TEST_TAG + System.currentTimeMillis();
         api.createTransformation(name, "c_scale,w_100", null);
-        final List<Map> transformations = new ArrayList<>();
+        final List<Map> transformations = new ArrayList<Map>();
         String next_cursor = null;
         do {
             Map result = api.transformations(ObjectUtils.asMap("max_results", 500, "next_cursor", next_cursor));

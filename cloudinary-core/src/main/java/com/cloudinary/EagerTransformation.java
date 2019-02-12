@@ -45,7 +45,7 @@ public class EagerTransformation extends Transformation<EagerTransformation> {
 
     @Override
     public String generate(Map options) {
-        List<String> eager = new ArrayList<>();
+        List<String> eager = new ArrayList<String>();
         eager.add(super.generate(options));
 
         if (StringUtils.isNotBlank(format)){

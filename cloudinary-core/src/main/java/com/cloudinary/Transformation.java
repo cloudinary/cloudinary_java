@@ -679,7 +679,7 @@ public class Transformation<T extends Transformation> implements Serializable {
             components.add(variables);
         }
 
-        Map<String, String> params = new HashMap<>(64);
+        Map<String, String> params = new HashMap<String, String>(64);
 
         params.put("a", Expression.normalize(angle));
         params.put("ar", Expression.normalize(options.get("aspect_ratio")));
@@ -707,7 +707,7 @@ public class Transformation<T extends Transformation> implements Serializable {
             params.put(SIMPLE_PARAMS[i], ObjectUtils.asString(options.get(SIMPLE_PARAMS[i + 1])));
         }
 
-        params = new TreeMap<>(params);
+        params = new TreeMap<String, String>(params);
 
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (StringUtils.isNotBlank(param.getValue())) {

@@ -1163,6 +1163,13 @@ public class CloudinaryTest {
                 new Transformation().customFunction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction")).generate());
     }
 
+    @Test
+    public void testCustomPreFunction(){
+        assertEquals("fn_pre:wasm:blur_wasm", new Transformation().customPreFunction(wasm("blur_wasm")).generate());
+        assertEquals("fn_pre:remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==",
+                new Transformation().customPreFunction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction")).generate());
+    }
+
     public static Map<String, String> getUrlParameters(URI uri) throws UnsupportedEncodingException {
         Map<String, String> params = new HashMap<String, String>();
         for (String param : uri.getRawQuery().split("&")) {

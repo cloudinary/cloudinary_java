@@ -891,6 +891,15 @@ public class Transformation<T extends Transformation> implements Serializable {
      * @return The transformation for chaining
      */
     public T customFunction(CustomFunction action) {
-        return param("custom_function", action.toString());
+        return param("custom_pre_function", action.toString());
+    }
+
+    /**
+     * Set a custom pre-function, such as a call to a lambda function or a web-assembly function.
+     * @param action The custom action to perform, see {@link CustomFunction}.
+     * @return The transformation for chaining
+     */
+    public T customPreFunction(CustomFunction action) {
+        return param("custom_function", "pre:" + action.toString());
     }
 }

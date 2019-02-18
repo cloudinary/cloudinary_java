@@ -891,7 +891,7 @@ public class Transformation<T extends Transformation> implements Serializable {
      * @return The transformation for chaining
      */
     public T customFunction(CustomFunction action) {
-        return param("custom_pre_function", action.toString());
+        return param("custom_function", action.toString());
     }
 
     /**

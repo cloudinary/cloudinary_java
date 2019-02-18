@@ -597,18 +597,6 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testSimilaritySearchUpdate() {
-        // should support requesting similarity search
-        try {
-            Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
-            api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("similarity_search", "illegal"));
-        } catch (Exception e) {
-            assertTrue(e instanceof BadRequest);
-            assertTrue(e.getMessage().matches("^Illegal value(.*)"));
-        }
-    }
-
-    @Test
     public void testUpdateCustomCoordinates() throws IOException, Exception {
         // should update custom coordinates
         Coordinates coordinates = new Coordinates("121,31,110,151");

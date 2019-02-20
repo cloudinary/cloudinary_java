@@ -1,6 +1,5 @@
 language: java
-dist: precise
-sudo: required
+dist: trusty
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -10,9 +9,19 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+addons:
+  apt:
+    packages:
+    - openjdk-6-jdk
 jdk:
-  - oraclejdk7
   - oraclejdk8
+  - oraclejdk9
+  - oraclejdk11
+  - openjdk6
+  - openjdk7
+  - openjdk8
+  - openjdk10
+
 env:
   - MODULE=core
   - MODULE=http42
@@ -24,5 +33,5 @@ branches:
   - staging-test
 
 # ciTest is configured to skip the various timeout tests that don't work in travis
-script: ./gradlew clean ciTest -p cloudinary-${MODULE} -i
+script: ./gradlew clean -DCLOUDINARY_URL=$CLOUDINARY_URL ciTest -p cloudinary-${MODULE} -i
 

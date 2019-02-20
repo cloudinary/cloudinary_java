@@ -9,15 +9,10 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
-addons:
-  apt:
-    packages:
-    - openjdk-6-jdk
 jdk:
   - oraclejdk8
   - oraclejdk9
   - oraclejdk11
-  - openjdk6
   - openjdk7
   - openjdk8
   - openjdk10

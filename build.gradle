@@ -18,6 +18,7 @@ allprojects {
 
 subprojects {
     tasks.withType(Test) {
+        environment 'CLOUDINARY_URL', System.getProperty('CLOUDINARY_URL')
         maxParallelForks = Runtime.runtime.availableProcessors()
 
         // show standard out and standard error of the test JVM(s) on the console

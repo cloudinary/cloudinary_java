@@ -3,7 +3,6 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -18,13 +17,13 @@ public class MockableTest {
     protected Cloudinary cloudinary;
 
     protected Object getParam(String name){
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
     protected String getURL(){
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
     protected String getHttpMethod(){
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     protected Map preloadResource(Map options) throws IOException {

@@ -39,6 +39,7 @@ public class Url {
     Transformation posterTransformation = null;
     String posterSource = null;
     Url posterUrl = null;
+    boolean excludeVersion = false;
 
     private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
     public static final String[] DEFAULT_VIDEO_SOURCE_TYPES = {"webm", "mp4", "ogv"};
@@ -312,6 +313,11 @@ public class Url {
         }
     }
 
+    public Url excludeVersion(boolean excludeVersion){
+        this.excludeVersion = excludeVersion;
+        return this;
+    }
+
     public String generate() {
         return generate(null);
     }
@@ -357,7 +363,8 @@ public class Url {
         source = finalizedSource[0];
         String sourceToSign = finalizedSource[1];
 
-        if (sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) && !httpSource && StringUtils.isEmpty(version)) {
+        if (!excludeVersion && sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) &&
+                !httpSource && StringUtils.isEmpty(version)) {
             version = "1";
         }
 

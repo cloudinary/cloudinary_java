@@ -573,6 +573,13 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testFoldersWithExcludeVersion(){
+        // should not add version if user explicitly requested to exclude it:
+        String result = cloudinary.url().excludeVersion(true).generate("folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "folder/test", result);
+    }
+
+    @Test
     public void testFoldersWithVersion() {
         // should not add version if public_id contains version already
         String result = cloudinary.url().generate("v1234/test");

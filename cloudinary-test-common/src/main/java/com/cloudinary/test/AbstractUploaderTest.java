@@ -17,6 +17,7 @@ import java.util.zip.ZipInputStream;
 
 import static com.cloudinary.utils.ObjectUtils.asArray;
 import static com.cloudinary.utils.ObjectUtils.asMap;
+import static com.cloudinary.utils.StringUtils.isRemoteUrl;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
@@ -121,6 +122,28 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals(result.get("signature"), expected_signature);
     }
 
+    @Test
+    public void testIsRemoteUrl() {
+        String[] urls = new String[]{
+                "ftp://ftp.cloudinary.com/images/old_logo.png",
+                "http://cloudinary.com/images/old_logo.png",
+                "https://cloudinary.com/images/old_logo.png",
+                "s3://s3-us-west-2.amazonaws.com/cloudinary/images/old_logo.png",
+                "gs://cloudinary/images/old_logo.png",
+                "data:image/gif;charset=utf8;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+                "data:image/gif;param1=value1;param2=value2;base64," +
+                        "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"};
+
+        for (String url : urls) {
+            assertTrue(isRemoteUrl(url));
+        }
+
+        String[] invalidUrls = new String[]{"adsadasdasdasd", "     ", ""};
+
+        for (String url : invalidUrls) {
+            assertFalse(isRemoteUrl(url));
+        }
+    }
 
     @Test
     public void testUploadUrl() throws IOException {

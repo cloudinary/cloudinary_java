@@ -574,9 +574,25 @@ public class CloudinaryTest {
 
     @Test
     public void testFoldersWithExcludeVersion(){
-        // should not add version if user explicitly requested to exclude it:
-        String result = cloudinary.url().excludeVersion(true).generate("folder/test");
+        // should not add version if the user turned off forceVersion
+        String result = cloudinary.url().forceVersion(false).generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "folder/test", result);
+
+        // should still show explicit version if passed by the user
+        result = cloudinary.url().forceVersion(false).version("1234").generate("folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1234/folder/test", result);
+
+        // should add version no value specified for forceVersion:
+        result = cloudinary.url().generate("folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
+
+        // should add version if forceVersion is true
+        result = cloudinary.url().forceVersion(true).generate("folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
+
+        // should not use v1 if explicit version is passed
+        result = cloudinary.url().forceVersion(true).version("1234").generate("folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1234/folder/test", result);
     }
 
     @Test

@@ -39,6 +39,7 @@ public class Url {
     Transformation posterTransformation = null;
     String posterSource = null;
     Url posterUrl = null;
+    boolean forceVersion = true;
 
     private static final String CL_BLANK = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
     public static final String[] DEFAULT_VIDEO_SOURCE_TYPES = {"webm", "mp4", "ogv"};
@@ -312,6 +313,19 @@ public class Url {
         }
     }
 
+    /**
+     *  Indicates whether to add '/v1/' to the URL when the public ID includes folders and a 'version' value was
+     *  not defined.
+     *  When no version is explicitly specified and the public id contains folders, a default v1 version
+     *  is added to the url. This boolean can disable that behaviour.
+     * @param forceVersion  Whether to add the version to the url.
+     * @return This same Url instance for chaining.
+     */
+    public Url forceVersion(boolean forceVersion){
+        this.forceVersion = forceVersion;
+        return this;
+    }
+
     public String generate() {
         return generate(null);
     }
@@ -357,7 +371,8 @@ public class Url {
         source = finalizedSource[0];
         String sourceToSign = finalizedSource[1];
 
-        if (sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) && !httpSource && StringUtils.isEmpty(version)) {
+        if (forceVersion && sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) &&
+                !httpSource && StringUtils.isEmpty(version)) {
             version = "1";
         }
 

@@ -56,7 +56,20 @@ public class AuthToken {
             this.acl = (String) options.get("acl");
             this.duration = ObjectUtils.asLong(options.get("duration"), 0L);
         }
+    }
 
+    public Map<String,Object> asMap(){
+        Map<String,Object> result = new HashMap<String, Object>();
+
+        result.put("tokenName", this.tokenName);
+        result.put("key", this.key);
+        result.put("startTime", this.startTime);
+        result.put("expiration", this.expiration);
+        result.put("ip", this.ip);
+        result.put("acl", this.acl);
+        result.put("duration", this.duration);
+
+        return result;
     }
 
     /**

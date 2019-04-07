@@ -40,15 +40,12 @@ public class Configuration {
     public boolean loadStrategies = true;
     public boolean clientHints = false;
     public AuthToken authToken;
+    public boolean forceVersion = true;
 
     public Configuration() {
     }
 
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath) {
-        this(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, 0, true);
-    }
-
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean forceVersion) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -66,6 +63,7 @@ public class Configuration {
         this.useRootPath = useRootPath;
         this.timeout = 0;
         this.loadStrategies = loadStrategies;
+        this.forceVersion = forceVersion;
     }
 
     @SuppressWarnings("rawtypes")
@@ -97,6 +95,11 @@ public class Configuration {
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);
         }
+        this.forceVersion = ObjectUtils.asBoolean(config.get("force_version"), true);
+        Map properties = (Map) config.get("properties");
+        if (properties != null) {
+            this.properties.putAll(properties);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -121,8 +124,10 @@ public class Configuration {
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
         if (authToken != null) {
-            map.put("auth_token", authToken.copy());
+            map.put("auth_token", authToken.asMap());
         }
+        map.put("force_version", forceVersion);
+        map.put("properties", new HashMap<String,Object>(properties));
         return map;
     }
 
@@ -148,6 +153,9 @@ public class Configuration {
         if (other.authToken != null) {
             this.authToken = other.authToken.copy();
         }
+        this.forceVersion = other.forceVersion;
+        this.loadStrategies = other.loadStrategies;
+        this.properties.putAll(other.properties);
     }
 
     /**
@@ -253,6 +261,7 @@ public class Configuration {
         private int timeout;
         private boolean clientHints = false;
         private AuthToken authToken;
+        private boolean forceVersion = true;
 
         /**
          * Set the HTTP connection timeout.
@@ -269,7 +278,7 @@ public class Configuration {
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
         public Configuration build() {
-            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies);
+            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, forceVersion);
             configuration.clientHints = clientHints;
             return configuration;
         }
@@ -383,6 +392,10 @@ public class Configuration {
             this.authToken = authToken;
             return this;
         }
+        public Builder setForceVersion(boolean forceVersion) {
+            this.forceVersion = forceVersion;
+            return this;
+        }
 
         /**
          * Initialize builder from existing {@link Configuration}
@@ -410,6 +423,7 @@ public class Configuration {
             this.timeout = other.timeout;
             this.clientHints = other.clientHints;
             this.authToken = other.authToken == null ? null : other.authToken.copy();
+            this.forceVersion = other.forceVersion;
             return this;
         }
     }

@@ -313,6 +313,14 @@ public class Url {
         }
     }
 
+    /**
+     *  Indicates whether to add '/v1/' to the URL when the public ID includes folders and a 'version' value was
+     *  not defined.
+     *  When no version is explicitly specified and the public id contains folders, a default v1 version
+     *  is added to the url. This boolean can disable that behaviour.
+     * @param forceVersion  Whether to add the version to the url.
+     * @return This same Url instance for chaining.
+     */
     public Url forceVersion(boolean forceVersion){
         this.forceVersion = forceVersion;
         return this;

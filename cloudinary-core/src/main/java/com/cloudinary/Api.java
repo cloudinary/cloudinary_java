@@ -5,6 +5,9 @@ import java.util.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.*;
+import com.cloudinary.metadata.AbstractMetadataField;
+import com.cloudinary.metadata.MetadataDataSource;
+import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -15,6 +18,7 @@ public class Api {
 
 
     public enum HttpMethod {GET, POST, PUT, DELETE;}
+
     public final static Map<Integer, Class<? extends Exception>> CLOUDINARY_API_ERROR_CLASSES = new HashMap<Integer, Class<? extends Exception>>();
 
     static {
@@ -30,6 +34,7 @@ public class Api {
     public final Cloudinary cloudinary;
 
     private AbstractApiStrategy strategy;
+
     protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
         return this.strategy.callApi(method, uri, params, options);
     }
@@ -78,18 +83,18 @@ public class Api {
     }
 
     public ApiResponse resourcesByContext(String key, Map options) throws Exception {
-      return resourcesByContext(key,null,options);
+        return resourcesByContext(key, null, options);
     }
 
-    public ApiResponse resourcesByContext(String key,String value, Map options) throws Exception {
+    public ApiResponse resourcesByContext(String key, String value, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations");
-        params.put("key",key);
+        params.put("key", key);
         if (StringUtils.isNotBlank(value)) {
-          params.put("value",value);
+            params.put("value", value);
         }
-        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType,"context"), params , options);
+        return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "context"), params, options);
     }
 
     public ApiResponse resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
@@ -372,7 +377,8 @@ public class Api {
 
     /**
      * Get a streaming profile information
-     * @param name the name of the profile to fetch
+     *
+     * @param name    the name of the profile to fetch
      * @param options additional options
      * @return a streaming profile
      * @throws Exception an exception
@@ -395,6 +401,7 @@ public class Api {
 
     /**
      * List Streaming profiles
+     *
      * @param options additional options
      * @return a list of all streaming profiles defined for the current cloud
      * @throws Exception an exception
@@ -416,7 +423,8 @@ public class Api {
 
     /**
      * Delete a streaming profile information. Predefined profiles are restored to the default setting.
-     * @param name the name of the profile to delete
+     *
+     * @param name    the name of the profile to delete
      * @param options additional options
      * @return a streaming profile
      * @throws Exception an exception
@@ -481,11 +489,11 @@ public class Api {
      * @param accessMode The new access mode, "public" or  "authenticated"
      * @param prefix     The prefix by which to filter applicable resources
      * @param options    additional options
-     * <ul>
-     * <li>resource_type - (default "image") - the type of resources to modify</li>
-     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
-     * <li>next_cursor - optional - provided by a previous call to the method</li>
-     * </ul>
+     *                   <ul>
+     *                   <li>resource_type - (default "image") - the type of resources to modify</li>
+     *                   <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     *                   <li>next_cursor - optional - provided by a previous call to the method</li>
+     *                   </ul>
      * @return a map of the returned values
      * <ul>
      * <li>updated - an array of resources</li>
@@ -503,11 +511,11 @@ public class Api {
      * @param accessMode The new access mode, "public" or  "authenticated"
      * @param tag        The tag by which to filter applicable resources
      * @param options    additional options
-     * <ul>
-     * <li>resource_type - (default "image") - the type of resources to modify</li>
-     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
-     * <li>next_cursor - optional - provided by a previous call to the method</li>
-     * </ul>
+     *                   <ul>
+     *                   <li>resource_type - (default "image") - the type of resources to modify</li>
+     *                   <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     *                   <li>next_cursor - optional - provided by a previous call to the method</li>
+     *                   </ul>
      * @return a map of the returned values
      * <ul>
      * <li>updated - an array of resources</li>
@@ -525,11 +533,11 @@ public class Api {
      * @param accessMode The new access mode, "public" or  "authenticated"
      * @param publicIds  A list of public ids of resources to be updated
      * @param options    additional options
-     * <ul>
-     * <li>resource_type - (default "image") - the type of resources to modify</li>
-     * <li>max_results - optional - the maximum resources to process in a single invocation</li>
-     * <li>next_cursor - optional - provided by a previous call to the method</li>
-     * </ul>
+     *                   <ul>
+     *                   <li>resource_type - (default "image") - the type of resources to modify</li>
+     *                   <li>max_results - optional - the maximum resources to process in a single invocation</li>
+     *                   <li>next_cursor - optional - provided by a previous call to the method</li>
+     *                   </ul>
      * @return a map of the returned values
      * <ul>
      * <li>updated - an array of resources</li>
@@ -552,4 +560,81 @@ public class Api {
         return callApi(HttpMethod.POST, uri, params, options);
     }
 
+    /**
+     * Add a new metadata field definition
+     * @param field The field to add.
+     * @return A map representing the newlay added field.
+     * @throws Exception
+     */
+    public ApiResponse addMetadataField(AbstractMetadataField field) throws Exception {
+        List<String> uri = Collections.singletonList("metadata_fields");
+        return callApi(HttpMethod.POST, uri, Collections.singletonMap ("json", field), ObjectUtils.asMap ("content_type", "json"));
+    }
+
+    /**
+     * List all the metadata field definitions (structure, not values)
+     * @return A map containing the list of field definitions.
+     * @throws Exception
+     */
+    public ApiResponse listMetadataFields() throws Exception {
+        return callApi(HttpMethod.GET, Collections.singletonList("metadata_fields"), Collections.<String, Object>emptyMap(), Collections.emptyMap());
+    }
+
+    /**
+     * Get a metadata field definition by id
+     * @param externalId The if of the field to retrive
+     * @return The fields definitions.
+     * @throws Exception
+     */
+    public ApiResponse metadataFieldByFieldId(String externalId) throws Exception {
+        return callApi(HttpMethod.GET, Arrays.asList("metadata_fields", externalId), Collections.<String, Object>emptyMap(), Collections.emptyMap());
+    }
+
+    /**
+     * Update the definitions of a single metadata field.
+     * @param externalId The id of the field to update
+     * @param field The field definition
+     * @return The updated fields definition.
+     * @throws Exception
+     */
+    public ApiResponse updateMetadataField(String externalId, StringMetadataField field) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", externalId);
+        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("json", field), Collections.singletonMap("content_type", "json"));
+    }
+
+    /**
+     * Update the datasource entries for a given field
+     * @param fieldExternalId The id of the field to update
+     * @param entries A list of datasource entries. Existing entries (according to entry id) will be updated,
+     *                new entries will be added.
+     * @return The updated field definition.
+     * @throws Exception
+     */
+    public ApiResponse updateMetadataFieldDatasource(String fieldExternalId, List<MetadataDataSource.Entry> entries) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
+        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("json", entries), Collections.singletonMap("content_type", "json"));
+    }
+
+    /**
+     * Delete data source entries for a given field
+     * @param fieldExternalId The id of the field to update
+     * @param entriesExternalId The ids of all the entries to delete from the data source
+     * @return TODO
+     * @throws Exception
+     */
+    public ApiResponse deleteDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
+        return callApi(HttpMethod.DELETE, uri,Collections.singletonMap("ids", entriesExternalId) , Collections.emptyMap());
+    }
+
+    /**
+     * Delete a field definition.
+     * @param externalId The id of the field to delete
+     * @return A map with a "message" key. "ok" value indicates a successful deletion.
+     * @throws Exception
+     */
+    public ApiResponse deleteMetadataField(String externalId) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", externalId);
+        return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), Collections.emptyMap());
+    }
 }

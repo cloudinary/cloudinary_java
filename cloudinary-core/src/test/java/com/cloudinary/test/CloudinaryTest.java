@@ -99,7 +99,7 @@ public class CloudinaryTest {
     @Test
     public void testSecureDistributionOverwrite() {
         // should allow overwriting secure distribution if secure=TRUE
-        String result = cloudinary.url().secure(true).secureDistribution("something.else.com").generate("test");
+        String result = cloudinary.url().secureDistribution("something.else.com").generate("test");
         assertEquals("https://something.else.com/test123/image/upload/test", result);
     }
 

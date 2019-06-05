@@ -95,6 +95,8 @@ public class Util {
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         if (options.get("context") != null)
             params.put("context", encodeContext(options.get("context")));
+        if (options.get("metadata") != null)
+            params.put("metadata", encodeContext(options.get("metadata")));
         if (options.get("access_control") != null) {
             params.put("access_control", encodeAccessControl(options.get("access_control")));
         }

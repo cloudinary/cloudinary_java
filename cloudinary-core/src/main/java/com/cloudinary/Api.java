@@ -567,8 +567,8 @@ public class Api {
      * @throws Exception
      */
     public ApiResponse addMetadataField(AbstractMetadataField field) throws Exception {
-        List<String> uri = Collections.singletonList("metadata_fields");
-        return callApi(HttpMethod.POST, uri, Collections.singletonMap ("json", field), ObjectUtils.asMap ("content_type", "json"));
+        return callApi(HttpMethod.POST, Collections.singletonList("metadata_fields"),
+                ObjectUtils.toMap(field), ObjectUtils.asMap ("content_type", "json"));
     }
 
     /**
@@ -597,9 +597,9 @@ public class Api {
      * @return The updated fields definition.
      * @throws Exception
      */
-    public ApiResponse updateMetadataField(String externalId, StringMetadataField field) throws Exception {
+    public ApiResponse updateMetadataField(String externalId, AbstractMetadataField field) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", externalId);
-        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("json", field), Collections.singletonMap("content_type", "json"));
+        return callApi(HttpMethod.PUT, uri, ObjectUtils.toMap(field), Collections.singletonMap("content_type", "json"));
     }
 
     /**
@@ -619,12 +619,12 @@ public class Api {
      * Delete data source entries for a given field
      * @param fieldExternalId The id of the field to update
      * @param entriesExternalId The ids of all the entries to delete from the data source
-     * @return TODO
+     * @return The remaining datasource entries.
      * @throws Exception
      */
     public ApiResponse deleteDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
-        return callApi(HttpMethod.DELETE, uri,Collections.singletonMap("ids", entriesExternalId) , Collections.emptyMap());
+        return callApi(HttpMethod.DELETE, uri,Collections.singletonMap("external_ids", entriesExternalId) , Collections.emptyMap());
     }
 
     /**

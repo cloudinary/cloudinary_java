@@ -30,19 +30,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-
-
-        // TODO remove from this line
         Api api = new Cloudinary().api();
-        ApiResponse fields = api.listMetadataFields();
-        List list = (List) api.listMetadataFields().get("fields");
-        for (Object o : list) {
-            try {
-                api.deleteMetadataField(((Map) o).get("external_id").toString());
-            } catch (Exception ignored) {
-            }
-        }
-        // TODO until this one!!
 
         for (String externalId : metadataFieldExternalIds) {
             try {
@@ -65,8 +53,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testCreateMetadata() throws Exception {
-        StringMetadataField stringField = createStringField("testCreateMetadata_1");
-        ApiResponse result = getFieldResult(stringField);
+        StringMetadataField stringField = newFieldInstance("testCreateMetadata_1");
+        ApiResponse result = addFieldToAccount(stringField);
         assertNotNull(result);
         assertEquals(stringField.getLabel(), result.get("label"));
 
@@ -78,18 +66,16 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testListFields() throws Exception {
-        StringMetadataField stringField = createStringField("testListFields");
-        getFieldResult(stringField);
+        StringMetadataField stringField = newFieldInstance("testListFields");
+        addFieldToAccount(stringField);
 
         ApiResponse result = cloudinary.api().listMetadataFields();
         assertNotNull(result);
-        // TODO server returns array in json root, waiting for fix
-
     }
 
     @Test
     public void testGetMetadata() throws Exception {
-        ApiResponse fieldResult = getFieldResult(createStringField("testGetMetadata"));
+        ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testGetMetadata"));
         ApiResponse result = api.metadataFieldByFieldId(fieldResult.get("external_id").toString());
         assertNotNull(result);
         assertEquals(fieldResult.get("label"), result.get("label"));
@@ -97,7 +83,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUpdateField() throws Exception {
-        ApiResponse fieldResult = getFieldResult(createStringField("testUpdateField"));
+        ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testUpdateField"));
         assertNotEquals("new_def", fieldResult.get("default_value"));
         StringMetadataField field = new StringMetadataField();
         field.setDefaultValue("new_def");
@@ -108,7 +94,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testDeleteField() throws Exception {
-        ApiResponse fieldResult = getFieldResult(createStringField("testDeleteField"));
+        ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testDeleteField"));
         ApiResponse result = api.deleteMetadataField(fieldResult.get("external_id").toString());
         assertNotNull(result);
         assertEquals("ok", result.get("message"));
@@ -116,8 +102,9 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUpdateDatasource() throws Exception {
+        // TODO - expected an array
         SetMetadataField setField = createSetField("testUpdateDatasource");
-        ApiResponse fieldResult = getFieldResult(setField);
+        ApiResponse fieldResult = addFieldToAccount(setField);
         MetadataDataSource.Entry newEntry = new MetadataDataSource.Entry("id1", "new1");
         ApiResponse result = api.updateMetadataFieldDatasource(fieldResult.get("external_id").toString(), Collections.singletonList(newEntry));
         assertNotNull(result);
@@ -126,21 +113,16 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testDeleteDatasourceEntries() throws Exception {
-        // TODO server responds with html page 404
         SetMetadataField setField = createSetField("testDeleteDatasourceEntries");
-        ApiResponse fieldResult = getFieldResult(setField);
-        MetadataDataSource.Entry newEntry = new MetadataDataSource.Entry("id1", "new1");
-
-        api.updateMetadataFieldDatasource(fieldResult.get("external_id").toString(), Collections.singletonList(newEntry));
+        ApiResponse fieldResult = addFieldToAccount(setField);
         ApiResponse result = api.deleteDatasourceEntries(fieldResult.get("external_id").toString(), Collections.singletonList("id1"));
         assertNotNull(result);
-        assertEquals("new1", ((Map) ((List) result.get("values")).get(0)).get("value"));
     }
 
     @Test
     public void testUploadWithMetadata() throws Exception {
-        StringMetadataField field = createStringField("testUploadWithMetadata");
-        ApiResponse fieldResult = getFieldResult(field);
+        StringMetadataField field = newFieldInstance("testUploadWithMetadata");
+        ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
         Map<String, Object> metadata = Collections.<String, Object>singletonMap(fieldId, "123456");
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("metadata", metadata, "tags", Arrays.asList(SDK_TEST_TAG, METADATA_UPLOADER_TAG)));
@@ -148,7 +130,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertEquals("123456", ((Map) result.get("metadata")).get(fieldId));
     }
 
-    private ApiResponse getFieldResult(AbstractMetadataField field) throws Exception {
+    private ApiResponse addFieldToAccount(AbstractMetadataField field) throws Exception {
         ApiResponse apiResponse = api.addMetadataField(field);
         metadataFieldExternalIds.add(apiResponse.get("external_id").toString());
         return apiResponse;
@@ -158,8 +140,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     public void testExplicitWithMetadata() throws Exception {
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, METADATA_UPLOADER_TAG)));
         String publicId = uploadResult.get("public_id").toString();
-        StringMetadataField field = createStringField("testExplicitWithMetadata");
-        ApiResponse fieldResult = getFieldResult(field);
+        StringMetadataField field = newFieldInstance("testExplicitWithMetadata");
+        ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
         Map<String, Object> metadata = Collections.<String, Object>singletonMap(fieldId, "123456");
         Map result = cloudinary.uploader().explicit(publicId, asMap("type", "upload", "resource_type", "image", "metadata", metadata));
@@ -171,8 +153,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     public void testUpdateWithMetadata() throws Exception {
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, METADATA_UPLOADER_TAG)));
         String publicId = uploadResult.get("public_id").toString();
-        StringMetadataField field = createStringField("testUpdateWithMetadata");
-        ApiResponse fieldResult = getFieldResult(field);
+        StringMetadataField field = newFieldInstance("testUpdateWithMetadata");
+        ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
         Map<String, Object> metadata = Collections.<String, Object>singletonMap(fieldId, "123456");
         Map result = cloudinary.api().update(publicId, asMap("type", "upload", "resource_type", "image", "metadata", metadata));
@@ -182,8 +164,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUploaderUpdateMetadata() throws Exception {
-        StringMetadataField field = createStringField("testUploaderUpdateMetadata");
-        ApiResponse fieldResult = getFieldResult(field);
+        StringMetadataField field = newFieldInstance("testUploaderUpdateMetadata");
+        ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
         Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{"sample"}, null);
         assertNotNull(result);
@@ -208,7 +190,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         return setField;
     }
 
-    private StringMetadataField createStringField(String labelPrefix) throws Exception {
+    private StringMetadataField newFieldInstance(String labelPrefix) throws Exception {
         StringMetadataField field = new StringMetadataField();
         String label = labelPrefix + "_" + SUFFIX;
         field.setLabel(label);

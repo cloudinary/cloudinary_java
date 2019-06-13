@@ -166,8 +166,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
                     throw new IllegalArgumentException("Unknown HTTP method");
             }
             if (contentType.equals("json")) {
-                JSONObject asJSON = ObjectUtils.toJSON(paramsCopy);
-                StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);
+                StringEntity requestEntity = new StringEntity(getJsonStringFromParams(paramsCopy), ContentType.APPLICATION_JSON);
                 ((HttpEntityEnclosingRequestBase) request).setEntity(requestEntity);
             } else {
                 ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(prepareParams(paramsCopy), Consts.UTF_8));

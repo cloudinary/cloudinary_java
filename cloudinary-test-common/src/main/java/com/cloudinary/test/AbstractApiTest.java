@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.cloudinary.utils.ObjectUtils.asMap;
+import static com.cloudinary.utils.ObjectUtils.emptyMap;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
@@ -934,5 +935,14 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testQualityAnalysis() throws Exception {
         ApiResponse result = cloudinary.api().resource(API_TEST, ObjectUtils.asMap("quality_analysis", true));
         assertNotNull(result.get("quality_analysis"));
+    }
+
+    @Test
+    public void testDeleteFolder() throws Exception {
+        String toDelete = "todelete_" + SUFFIX;
+        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", UPLOAD_TAGS, "folder", toDelete));
+        api.deleteResources(Collections.singletonList(uploadResult.get("public_id").toString()), emptyMap());
+        ApiResponse result = api.deleteFolder(toDelete, emptyMap());
+        assertTrue(((ArrayList)result.get("deleted")).contains(toDelete));
     }
 }

@@ -519,6 +519,11 @@ public class Api {
         return updateResourcesAccessMode(accessMode, "tag", tag, options);
     }
 
+    public ApiResponse deleteFolder(String folder, Map options) throws Exception {
+        List<String> uri = Arrays.asList("folders", folder);
+        return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
     /**
      * Update access mode of one or more resources by publicIds
      *

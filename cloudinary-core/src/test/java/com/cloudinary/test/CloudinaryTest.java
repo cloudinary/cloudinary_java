@@ -15,6 +15,9 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.*;
@@ -44,29 +47,29 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testUrlSuffixWithDotOrSlash(){
+    public void testUrlSuffixWithDotOrSlash() {
         Boolean[] errors = new Boolean[4];
         try {
             cloudinary.url().suffix("dsfdfd.adsfad").generate("publicId");
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             errors[0] = true;
         }
 
         try {
             cloudinary.url().suffix("dsfdfd/adsfad").generate("publicId");
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             errors[1] = true;
         }
 
         try {
             cloudinary.url().suffix("dsfd.fd/adsfad").generate("publicId");
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             errors[2] = true;
         }
 
         try {
             cloudinary.url().suffix("dsfdfdaddsfad").generate("publicId");
-        } catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             errors[3] = true;
         }
 
@@ -75,6 +78,7 @@ public class CloudinaryTest {
         assertTrue(errors[2]);
         assertNull(errors[3]);
     }
+
     @Test
     public void testCloudName() {
         // should use cloud_name from config
@@ -573,7 +577,7 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testFoldersWithExcludeVersion(){
+    public void testFoldersWithExcludeVersion() {
         // should not add version if the user turned off forceVersion
         String result = cloudinary.url().forceVersion(false).generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "folder/test", result);
@@ -582,7 +586,7 @@ public class CloudinaryTest {
         result = cloudinary.url().forceVersion(false).version("1234").generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1234/folder/test", result);
 
-        // should add version no value specified for forceVersion:
+        // should add version if no value specified for forceVersion:
         result = cloudinary.url().generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
 
@@ -1160,11 +1164,11 @@ public class CloudinaryTest {
         assertEquals("fps_24", t.generate());
         t = new Transformation().fps("-24");
         assertEquals("fps_-24", t.generate());
-        t = new Transformation().fps(24,29.97);
+        t = new Transformation().fps(24, 29.97);
         assertEquals("fps_24-29.97", t.generate());
-        t = new Transformation().fps(24,null);
+        t = new Transformation().fps(24, null);
         assertEquals("fps_24-", t.generate());
-        t = new Transformation().fps(null,29.97);
+        t = new Transformation().fps(null, 29.97);
         assertEquals("fps_-29.97", t.generate());
     }
 
@@ -1180,14 +1184,14 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testCustomFunction(){
+    public void testCustomFunction() {
         assertEquals("fn_wasm:blur_wasm", new Transformation().customFunction(wasm("blur_wasm")).generate());
         assertEquals("fn_remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==",
                 new Transformation().customFunction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction")).generate());
     }
 
     @Test
-    public void testCustomPreFunction(){
+    public void testCustomPreFunction() {
         assertEquals("fn_pre:wasm:blur_wasm", new Transformation().customPreFunction(wasm("blur_wasm")).generate());
         assertEquals("fn_pre:remote:aHR0cHM6Ly9kZjM0cmE0YS5leGVjdXRlLWFwaS51cy13ZXN0LTIuYW1hem9uYXdzLmNvbS9kZWZhdWx0L2Nsb3VkaW5hcnlGdW5jdGlvbg==",
                 new Transformation().customPreFunction(remote("https://df34ra4a.execute-api.us-west-2.amazonaws.com/default/cloudinaryFunction")).generate());
@@ -1208,9 +1212,65 @@ public class CloudinaryTest {
     }
 
     @Test
-    public void testUrlCloneConfig(){
+    public void testUrlCloneConfig() {
         // verify that secure (from url.config) is cloned as well:
         Url url = cloudinary.url().cloudName("cloud").format("frmt").publicId("123").secure(true);
         assertEquals("https://res.cloudinary.com/cloud/image/upload/123.frmt", url.clone().generate());
+    }
+
+    @Test
+    public void testConfiguration() throws IllegalAccessException {
+        Configuration config = new Configuration();
+        randomizeFields(config);
+        Map<String, Object> map = config.asMap();
+        Configuration copy = new Configuration(map);
+        assertFieldsEqual(config, copy);
+
+        copy = new Configuration(config);
+        assertFieldsEqual(config, copy);
+    }
+
+    private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {
+        assertEquals("Two objects must be the same class", a.getClass(), b.getClass());
+        Field[] fields = a.getClass().getFields();
+        for (Field field : fields) {
+            assertEquals("Field " + field.getName() + " should have equal values", field.get(a), field.get(b));
+        }
+    }
+
+    private void randomizeFields(Object instance) throws IllegalAccessException {
+        Random rand = new Random();
+        Field[] fields = instance.getClass().getDeclaredFields();
+        for (Field field : fields) {
+            setRandomValue(rand, field, instance);
+        }
+    }
+
+    private void setRandomValue(Random rand, Field field, Object instance) throws IllegalAccessException {
+        field.setAccessible(true);
+        Type fieldType = field.getGenericType();
+        if (Modifier.isFinal(field.getModifiers()) || Modifier.isStatic(field.getModifiers())) {
+            return;
+        }
+
+        if (fieldType.equals(boolean.class) || fieldType.equals(Boolean.class)) {
+            field.set(instance, rand.nextBoolean());
+        } else if (fieldType.equals(int.class) || fieldType.equals(Integer.class)) {
+            field.set(instance, rand.nextInt());
+        } else if (fieldType.equals(long.class) || fieldType.equals(Long.class)) {
+            field.set(instance, rand.nextLong());
+        } else if (fieldType.equals(String.class)) {
+            field.set(instance, cloudinary.randomPublicId());
+        } else if (fieldType.equals(AuthToken.class)) {
+            AuthToken authToken = new AuthToken();
+            randomizeFields(authToken);
+            field.set(instance, authToken);
+        } else if (field.get(instance) instanceof HashMap) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(cloudinary.randomPublicId(), rand.nextInt());
+            field.set(instance, map);
+        } else {
+            throw new IllegalArgumentException("Object have unexpected field type, randomizing not supported: " + field.getName() + ", type: " + field.getType().getSimpleName());
+        }
     }
 }

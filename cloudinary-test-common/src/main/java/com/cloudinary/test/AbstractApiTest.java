@@ -937,7 +937,7 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(result.get("quality_analysis"));
     }
 
-    @Test
+    @Test(expected = NotFound.class)
     public void testDeleteFolder() throws Exception {
         String toDelete = "todelete_" + SUFFIX;
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", UPLOAD_TAGS, "folder", toDelete));
@@ -945,5 +945,8 @@ abstract public class AbstractApiTest extends MockableTest {
         api.deleteResources(Collections.singletonList(uploadResult.get("public_id").toString()), emptyMap());
         ApiResponse result = api.deleteFolder(toDelete, emptyMap());
         assertTrue(((ArrayList)result.get("deleted")).contains(toDelete));
+
+        // should throw exception (folder not found):
+        api.deleteFolder(cloudinary.randomPublicId(), emptyMap());
     }
 }

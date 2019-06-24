@@ -519,6 +519,13 @@ public class Api {
         return updateResourcesAccessMode(accessMode, "tag", tag, options);
     }
 
+    /**
+     * Delete a folder (must be empty).
+     * @param folder The full path of the folder to delete
+     * @param options additional options.
+     * @return The operation result.
+     * @throws Exception When the folder isn't empty or doesn't exist.
+     */
     public ApiResponse deleteFolder(String folder, Map options) throws Exception {
         List<String> uri = Arrays.asList("folders", folder);
         return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);

@@ -1,6 +1,9 @@
 package com.cloudinary.metadata;
 
-public class EnumMetadataField extends AbstractMetadataField<String>{
+/**
+ * Represents a metadata field with 'Enum' type.
+ */
+public class EnumMetadataField extends AbstractMetadataValuesField<String>{
     EnumMetadataField() {
         super(MetadataFieldType.ENUM);
     }

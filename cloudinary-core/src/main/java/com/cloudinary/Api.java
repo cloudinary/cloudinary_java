@@ -612,7 +612,7 @@ public class Api {
      */
     public ApiResponse updateMetadataFieldDatasource(String fieldExternalId, List<MetadataDataSource.Entry> entries) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
-        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("json", entries), Collections.singletonMap("content_type", "json"));
+        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("values", entries), Collections.singletonMap("content_type", "json"));
     }
 
     /**

@@ -1,5 +1,8 @@
 package com.cloudinary.metadata;
 
+/**
+ * Enum represneting all the valid field types.
+ */
 public enum MetadataFieldType  {
     STRING,
     INTEGER,

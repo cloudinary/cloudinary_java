@@ -3,11 +3,14 @@ package com.cloudinary.test;
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.metadata.*;
+import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 import static com.cloudinary.utils.ObjectUtils.asMap;
@@ -65,6 +68,43 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     @Test
+    public void testDateFieldBehaviour() throws Exception {
+        // now minus 3 days hours.
+        Date max = new Date();
+        Date min = new Date(max.getTime() - 72 * 60 * 60 * 1000);
+
+        Date legalValue = new Date(min.getTime() + 36 * 60 * 60 * 1000);
+        Date illegalValue = new Date(max.getTime() + 36 * 60 * 60 * 1000);
+
+        DateMetadataField dateMetadataField = new DateMetadataField();
+        dateMetadataField.setLabel("Start date" + new Date().getTime());
+
+        List<MetadataValidation> rules = new ArrayList<MetadataValidation>();
+        rules.add(new MetadataValidation.DateGreaterThan(min));
+        rules.add(new MetadataValidation.DateLessThan(max));
+        dateMetadataField.setValidation(new MetadataValidation.AndValidator(rules));
+
+        String message = null;
+        ApiResponse res = null;
+        try {
+            // should fail
+            dateMetadataField.setDefaultValue(illegalValue);
+            res = api.addMetadataField(dateMetadataField);
+            // this line should not be reached if all is working well, but when it's not we still want to clean it up:
+            metadataFieldExternalIds.add(res.get("external_id").toString());
+        } catch (BadRequest e) {
+            message = e.getMessage();
+        }
+
+        assertEquals(message, "default_value is invalid");
+
+        // should work:
+        dateMetadataField.setDefaultValue(legalValue);
+        res = api.addMetadataField(dateMetadataField);
+        metadataFieldExternalIds.add(res.get("external_id").toString());
+    }
+
+    @Test
     public void testListFields() throws Exception {
         StringMetadataField stringField = newFieldInstance("testListFields");
         addFieldToAccount(stringField);
@@ -102,7 +142,6 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUpdateDatasource() throws Exception {
-        // TODO - expected an array
         SetMetadataField setField = createSetField("testUpdateDatasource");
         ApiResponse fieldResult = addFieldToAccount(setField);
         MetadataDataSource.Entry newEntry = new MetadataDataSource.Entry("id1", "new1");
@@ -128,12 +167,6 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("metadata", metadata, "tags", Arrays.asList(SDK_TEST_TAG, METADATA_UPLOADER_TAG)));
         assertNotNull(result.get("metadata"));
         assertEquals("123456", ((Map) result.get("metadata")).get(fieldId));
-    }
-
-    private ApiResponse addFieldToAccount(AbstractMetadataField field) throws Exception {
-        ApiResponse apiResponse = api.addMetadataField(field);
-        metadataFieldExternalIds.add(apiResponse.get("external_id").toString());
-        return apiResponse;
     }
 
     @Test
@@ -169,7 +202,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         String fieldId = fieldResult.get("external_id").toString();
         Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{"sample"}, null);
         assertNotNull(result);
-        assertEquals("sample", ((List)result.get("public_ids")).get(0).toString());
+        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
     }
 
     // Metadata test helpers
@@ -198,5 +231,11 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         field.setValidation(new MetadataValidation.StringLength(3, 9));
         field.setDefaultValue("val_test");
         return field;
+    }
+
+    private ApiResponse addFieldToAccount(AbstractMetadataField field) throws Exception {
+        ApiResponse apiResponse = api.addMetadataField(field);
+        metadataFieldExternalIds.add(apiResponse.get("external_id").toString());
+        return apiResponse;
     }
 }

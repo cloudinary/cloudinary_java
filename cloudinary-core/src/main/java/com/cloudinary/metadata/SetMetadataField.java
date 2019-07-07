@@ -2,7 +2,10 @@ package com.cloudinary.metadata;
 
 import java.util.List;
 
-public class SetMetadataField extends AbstractMetadataField<List<String>> {
+/**
+ * Represents a metadata field with 'Set' type.
+ */
+public class SetMetadataField extends AbstractMetadataValuesField<List<String>> {
     public SetMetadataField() {
         super(MetadataFieldType.SET);
     }

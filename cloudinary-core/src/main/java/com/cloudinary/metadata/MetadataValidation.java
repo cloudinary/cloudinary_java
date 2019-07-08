@@ -121,7 +121,7 @@ public abstract class MetadataValidation extends JSONObject {
 
         @Override
         protected void putValue(Date value) {
-            put(VALUE, ObjectUtils.toMetadataFormat(value));
+            put(VALUE, ObjectUtils.toISO8601DateOnly(value));
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class MetadataValidation extends JSONObject {
 
         @Override
         protected void putValue(Date value) {
-            put(VALUE, ObjectUtils.toMetadataFormat(value));
+            put(VALUE, ObjectUtils.toISO8601DateOnly(value));
         }
     }
 }

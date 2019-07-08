@@ -20,7 +20,7 @@ public class DateMetadataField extends AbstractMetadataField<Date> {
      */
     @Override
     public void setDefaultValue(Date defaultValue) {
-        put(DEFAULT_VALUE, ObjectUtils.toMetadataFormat(defaultValue));
+        put(DEFAULT_VALUE, ObjectUtils.toISO8601DateOnly(defaultValue));
     }
 
     /**
@@ -35,6 +35,6 @@ public class DateMetadataField extends AbstractMetadataField<Date> {
             return null;
         }
 
-        return ObjectUtils.fromMetadataFormat(value.toString());
+        return ObjectUtils.fromISO8601DateOnly(value.toString());
     }
 }

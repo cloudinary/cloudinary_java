@@ -215,11 +215,11 @@ public class ObjectUtils {
         }
     }
 
-    public static String toMetadataFormat(Date defaultValue) {
-        return new SimpleDateFormat("yyyy-MM-dd").format(defaultValue);
+    public static String toISO8601DateOnly(Date date) {
+        return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
 
-    public static Date fromMetadataFormat(String toString) throws ParseException {
-        return new SimpleDateFormat("yyyy-MM-dd").parse(toString);
+    public static Date fromISO8601DateOnly(String string) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd").parse(string);
     }
 }

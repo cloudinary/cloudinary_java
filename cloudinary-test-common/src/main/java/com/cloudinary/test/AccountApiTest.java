@@ -1,6 +1,6 @@
 package com.cloudinary.test;
 
-import com.cloudinary.Account;
+import com.cloudinary.provisioning.Account;
 import com.cloudinary.api.ApiResponse;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -33,31 +33,33 @@ public class AccountApiTest extends MockableTest {
     @Before
     public void setUp() throws Exception {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-        this.account = new Account(ACCOUNT_ID, API_KEY, API_SECRET);
+        this.account = new Account();
     }
 
     @AfterClass
     public static void tearDownClass() {
-        Account account = new Account(ACCOUNT_ID, API_KEY, API_SECRET);
+        Account account = new Account();
         for (String createdSubAccountId : createdSubAccountIds) {
             try {
                 account.deleteSubAccount(createdSubAccountId, emptyMap());
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
         for (String userId : createdUserIds) {
             try {
                 account.deleteUser(userId, null);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
         for (String groupId : createdGroupIds) {
             try {
                 account.deleteUserGroup(groupId, null);
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -219,8 +221,9 @@ public class AccountApiTest extends MockableTest {
     // Helpers
     private ApiResponse createGroup() throws Exception {
         String name = randomLetters();
-        createdGroupIds.add(name);
-        return account.createUserGroup(name, null);
+        Account.ApiResponse userGroup = account.createUserGroup(name, null);
+        createdGroupIds.add(userGroup.get("id").toString());
+        return userGroup;
 
     }
 
@@ -230,7 +233,9 @@ public class AccountApiTest extends MockableTest {
 
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        return account.createUser(email, "TestName", Account.Role.BILLING, subAccountsIds, null);
+        Account.ApiResponse user = account.createUser(email, "TestName", Account.Role.BILLING, subAccountsIds, null);
+        createdUserIds.add(user.get("id").toString());
+        return user;
     }
 
     private ApiResponse createSubAccount() throws Exception {

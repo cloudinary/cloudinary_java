@@ -1,5 +1,6 @@
-package com.cloudinary;
+package com.cloudinary.provisioning;
 
+import com.cloudinary.Api;
 import com.cloudinary.api.RateLimit;
 import com.cloudinary.api.exceptions.GeneralError;
 import com.cloudinary.utils.Base64Coder;
@@ -21,7 +22,7 @@ import java.text.ParseException;
 import java.util.*;
 
 public class Account {
-    // TODO where to put account id?
+    private final Configuration configuration;
 
 
     public static final String SUB_ACCOUNTS = "sub_accounts";
@@ -34,16 +35,22 @@ public class Account {
     private final String secret;
 
     public Account() {
-        // TODO
-        this.key = null;
-        accountId = null;
-        secret = null;
+        String provisioningData = System.getProperty("CLOUDINARY_PROVISIONING_CONFIG", System.getenv("CLOUDINARY_PROVISIONING_CONFIG"));
+        if (provisioningData != null) {
+            this.configuration = Configuration.from(provisioningData);
+            this.accountId = configuration.accountId;
+            this.key = configuration.provisioningApiKey;
+            this.secret = configuration.provisioningApiSecret;
+        } else {
+            throw new IllegalArgumentException("Must provide configuration instance or set an ENV variable: CLOUDINARY_PROVISIONING_CONFIG=account_id:key:secret");
+        }
     }
 
-    public Account(String accountId, String key, String secret) {
-        this.accountId = accountId;
-        this.key = key;
-        this.secret = secret;
+    public Account(Configuration configuration) {
+        this.configuration = configuration;
+        this.accountId = configuration.accountId;
+        this.key = configuration.provisioningApiKey;
+        this.secret = configuration.provisioningApiSecret;
     }
 
     // TODO verify current list of roles
@@ -232,13 +239,12 @@ public class Account {
 
         int code = con.getResponseCode();
         InputStream responseStream = code == 200 ? con.getInputStream() : con.getErrorStream();
-        String responseData = StringUtils.read( responseStream);
+        String responseData = StringUtils.read(responseStream);
 
         Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
         if (code != 200 && exceptionClass == null) {
             throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
         }
-
         Map result;
 
         try {
@@ -295,7 +301,7 @@ public class Account {
 
         con.addRequestProperty("Authorization", "Basic " + Base64Coder.encodeString(key + ":" + secret));
 
-        if (StringUtils.isNotBlank(content)){
+        if (StringUtils.isNotBlank(content)) {
             byte[] input = content.getBytes("utf-8");
             OutputStream os = con.getOutputStream();
             os.write(input, 0, input.length);
@@ -303,10 +309,16 @@ public class Account {
             os.close();
         }
 
+        int timeout = configuration.getTimeout();
+        if (timeout > 0) {
+            con.setConnectTimeout(timeout * 1000);
+            con.setReadTimeout(timeout * 1000);
+        }
+
         return con;
     }
 
-    public static final class ApiResponse extends HashMap implements com.cloudinary.api.ApiResponse{
+    public static final class ApiResponse extends HashMap implements com.cloudinary.api.ApiResponse {
         public ApiResponse(Map result) {
             super(result);
         }
@@ -334,17 +346,5 @@ public class Account {
 
         // TODO shouldn't have last &
         return builder.toString();
-    }
-
-    private void setRequestParams(HttpURLConnection con, Map<String, ?> params) {
-        for (Map.Entry<String, ?> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (Object single : (Iterable<?>) param.getValue()) {
-                    con.addRequestProperty(param.getKey() + "[]", ObjectUtils.asString(single));
-                }
-            } else {
-                con.addRequestProperty(param.getKey(), ObjectUtils.asString(param.getValue()));
-            }
-        }
     }
 }

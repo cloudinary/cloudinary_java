@@ -1,7 +1,7 @@
 package com.cloudinary.provisioning;
 
 public class Configuration {
-    private static final String SEPERATOR = ":";
+    private static final String SEPARATOR = ":";
     String accountId;
     String provisioningApiKey;
     String provisioningApiSecret;
@@ -14,7 +14,7 @@ public class Configuration {
     }
 
     public static Configuration from(String provisioningData) {
-        String[] split = provisioningData.split(SEPERATOR);
+        String[] split = provisioningData.split(SEPARATOR);
         return new Configuration(split[0], split[1], split[2]);
     }
 

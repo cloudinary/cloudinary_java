@@ -1,21 +1,19 @@
 package com.cloudinary.test;
 
+
 import com.cloudinary.provisioning.Account;
-import com.cloudinary.api.ApiResponse;
+import com.cloudinary.provisioning.Account.ApiResponse;
 import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.util.*;
 
-import static com.cloudinary.utils.ObjectUtils.emptyMap;
-import static org.junit.Assert.*;
+import static java.util.Collections.emptyMap;
+import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class AccountApiTest extends MockableTest {
-
-    // TODO this data should be fetched from env/gradle
-    public static final String ACCOUNT_ID = "";
-    public static final String API_KEY = "";
-    public static final String API_SECRET = "";
     private static Random rand = new Random();
     protected Account account;
     private static Set<String> createdSubAccountIds = new HashSet<String>();
@@ -90,7 +88,7 @@ public class AccountApiTest extends MockableTest {
     public void testUpdateSubAccount() throws Exception {
         ApiResponse subAccount = createSubAccount();
         String newCloudName = randomLetters();
-        ApiResponse result = account.updateSubAccount(subAccount.get("id").toString(), newCloudName, null, emptyMap(), null, null);
+        ApiResponse result = account.updateSubAccount(subAccount.get("id").toString(), newCloudName, null, Collections.<String, String>emptyMap(), null, null);
         assertNotNull(result);
         assertEquals(result.get("cloud_name"), newCloudName);
     }
@@ -98,9 +96,11 @@ public class AccountApiTest extends MockableTest {
     @Test
     public void testDeleteSubAccount() throws Exception {
         ApiResponse createResult = createSubAccount();
-        ApiResponse result = account.deleteSubAccount(createResult.get("id").toString(), emptyMap());
+        String id = createResult.get("id").toString();
+        ApiResponse result = account.deleteSubAccount(id, emptyMap());
         assertNotNull(result);
         assertEquals(result.get("message"), "ok");
+        createdSubAccountIds.remove(id);
     }
 
     // Users test
@@ -139,9 +139,10 @@ public class AccountApiTest extends MockableTest {
     @Test
     public void testDeleteUser() throws Exception {
         ApiResponse user = createUser(Collections.<String>emptyList());
-        ApiResponse result = account.deleteUser(user.get("id").toString(), null);
+        String id = user.get("id").toString();
+        ApiResponse result = account.deleteUser(id, null);
         assertEquals(result.get("message"), "ok");
-
+        createdUserIds.remove(id);
     }
 
     // groups
@@ -162,9 +163,11 @@ public class AccountApiTest extends MockableTest {
     @Test
     public void testDeleteUserGroup() throws Exception {
         ApiResponse group = createGroup();
-        ApiResponse result = account.deleteUserGroup(group.get("id").toString(), null);
+        String id = group.get("id").toString();
+        ApiResponse result = account.deleteUserGroup(id, null);
         assertNotNull(result);
         assertEquals(result.get("ok"), true);
+        createdGroupIds.remove(id);
     }
 
     @Test
@@ -183,7 +186,6 @@ public class AccountApiTest extends MockableTest {
         String userId = user.get("id").toString();
         account.addUserToGroup(groupId, userId, null);
         ApiResponse result = account.removeUserFromGroup(groupId, userId, null);
-        // TODO
         assertNotNull(result);
     }
 

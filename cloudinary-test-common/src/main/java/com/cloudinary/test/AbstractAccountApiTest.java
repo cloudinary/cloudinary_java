@@ -1,8 +1,9 @@
 package com.cloudinary.test;
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.api.ApiResponse;
 import com.cloudinary.provisioning.Account;
-import com.cloudinary.provisioning.Account.ApiResponse;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -13,7 +14,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class AccountApiTest extends MockableTest {
+public class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();
     protected Account account;
     private static Set<String> createdSubAccountIds = new HashSet<String>();
@@ -31,15 +32,15 @@ public class AccountApiTest extends MockableTest {
     @Before
     public void setUp() throws Exception {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-        this.account = new Account();
+        this.account = new Account(new Cloudinary());
     }
 
     @AfterClass
     public static void tearDownClass() {
-        Account account = new Account();
+        Account account = new Account(new Cloudinary());
         for (String createdSubAccountId : createdSubAccountIds) {
             try {
-                account.deleteSubAccount(createdSubAccountId, emptyMap());
+                account.deleteSubAccount(createdSubAccountId, null);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -66,14 +67,14 @@ public class AccountApiTest extends MockableTest {
     @Test
     public void testGetSubAccount() throws Exception {
         ApiResponse accountResponse = createSubAccount();
-        ApiResponse account = this.account.getSubAccount(accountResponse.get("id").toString(), emptyMap());
+        ApiResponse account = this.account.getSubAccount(accountResponse.get("id").toString(), null);
         assertNotNull(account);
     }
 
     @Test
     public void testGetSubAccounts() throws Exception {
         createSubAccount();
-        ApiResponse accounts = account.getSubAccounts(null, null, null, emptyMap());
+        ApiResponse accounts = account.getSubAccounts(null, null, null, null);
         assertNotNull(accounts);
         assertTrue(((ArrayList) accounts.get("sub_accounts")).size() >= 1);
     }
@@ -97,7 +98,7 @@ public class AccountApiTest extends MockableTest {
     public void testDeleteSubAccount() throws Exception {
         ApiResponse createResult = createSubAccount();
         String id = createResult.get("id").toString();
-        ApiResponse result = account.deleteSubAccount(id, emptyMap());
+        ApiResponse result = account.deleteSubAccount(id, null);
         assertNotNull(result);
         assertEquals(result.get("message"), "ok");
         createdSubAccountIds.remove(id);
@@ -223,7 +224,7 @@ public class AccountApiTest extends MockableTest {
     // Helpers
     private ApiResponse createGroup() throws Exception {
         String name = randomLetters();
-        Account.ApiResponse userGroup = account.createUserGroup(name, null);
+        ApiResponse userGroup = account.createUserGroup(name, null);
         createdGroupIds.add(userGroup.get("id").toString());
         return userGroup;
 
@@ -235,7 +236,7 @@ public class AccountApiTest extends MockableTest {
 
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        Account.ApiResponse user = account.createUser(email, "TestName", Account.Role.BILLING, subAccountsIds, null);
+        ApiResponse user = account.createUser(email, "TestName", Account.Role.BILLING, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;
     }

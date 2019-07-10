@@ -1,12 +1,15 @@
 package com.cloudinary.http42;
 
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.net.URI;
-import java.util.Arrays;
-import java.util.Map;
-
+import com.cloudinary.Api;
+import com.cloudinary.Api.HttpMethod;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.api.exceptions.GeneralError;
+import com.cloudinary.http42.api.Response;
 import com.cloudinary.strategies.AbstractApiStrategy;
+import com.cloudinary.utils.Base64Coder;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
@@ -19,15 +22,11 @@ import org.apache.http.params.HttpParams;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
-import com.cloudinary.Api;
-import com.cloudinary.Api.HttpMethod;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.api.ApiResponse;
-import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.http42.api.Response;
-import com.cloudinary.utils.Base64Coder;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Map;
 
 public class ApiStrategy extends AbstractApiStrategy {
 
@@ -50,6 +49,28 @@ public class ApiStrategy extends AbstractApiStrategy {
             apiUrl = apiUrl + "/" + component;
         }
 
+        return getApiResponse(method, params, apiKey, apiSecret, contentType, timeout, apiUrl);
+    }
+
+    @Override
+    public ApiResponse callAccountApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+        String prefix = ObjectUtils.asString(options.get("upload_prefix"), "https://api.cloudinary.com");
+        String apiKey = ObjectUtils.asString(options.get("provisioning_api_key"));
+        if (apiKey == null) throw new IllegalArgumentException("Must supply provisioning_api_key");
+        String apiSecret = ObjectUtils.asString(options.get("provisioning_api_secret"));
+        if (apiSecret == null) throw new IllegalArgumentException("Must supply provisioning_api_secret");
+        String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
+        int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
+
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1"), "/");
+        for (String component : uri) {
+            apiUrl = apiUrl + "/" + component;
+        }
+
+        return getApiResponse(method, params, apiKey, apiSecret, contentType, timeout, apiUrl);
+    }
+
+    private ApiResponse getApiResponse(HttpMethod method, Map<String, ?> params, String apiKey, String apiSecret, String contentType, int timeout, String apiUrl) throws Exception {
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
         if (!contentType.equals("json")) {
             for (Map.Entry<String, ? extends Object> param : params.entrySet()) {

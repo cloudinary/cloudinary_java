@@ -15,4 +15,6 @@ public abstract class AbstractApiStrategy {
 
     @SuppressWarnings("rawtypes")
     public abstract ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception;
+
+    public abstract ApiResponse callAccountApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception;
 }

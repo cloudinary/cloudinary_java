@@ -21,7 +21,7 @@ public class Cloudinary {
             "com.cloudinary.http42.UploaderStrategy",
             "com.cloudinary.http43.UploaderStrategy",
             "com.cloudinary.http44.UploaderStrategy"));
-    private static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
+    public static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.ApiStrategy",
             "com.cloudinary.http42.ApiStrategy",
             "com.cloudinary.http43.ApiStrategy",

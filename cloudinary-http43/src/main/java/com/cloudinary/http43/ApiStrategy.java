@@ -11,7 +11,6 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
@@ -22,7 +21,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -32,7 +30,6 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,6 +92,10 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
 
+        return getApiResponse(request);
+    }
+
+    private ApiResponse getApiResponse(HttpUriRequest request) throws Exception {
         String responseData = null;
         int code = 0;
         CloseableHttpResponse response = client.execute(request);
@@ -126,6 +127,29 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
             throw exceptionConstructor.newInstance(message);
         }
+    }
+
+    @Override
+    public ApiResponse callAccountApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+
+        String prefix = ObjectUtils.asString(options.get("upload_prefix"), "https://api.cloudinary.com");
+        String apiKey = ObjectUtils.asString(options.get("provisioning_api_key"));
+        if (apiKey == null) throw new IllegalArgumentException("Must supply provisioning_api_key");
+        String apiSecret = ObjectUtils.asString(options.get("provisioning_api_secret"));
+        if (apiSecret == null) throw new IllegalArgumentException("Must supply provisioning_api_secret");
+
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1"), "/");
+        for (String component : uri) {
+            apiUrl = apiUrl + "/" + component;
+        }
+
+        HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
+
+        request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
+
+        return getApiResponse(request);
     }
 
     /**

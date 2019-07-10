@@ -58,12 +58,12 @@ public abstract class MetadataValidation extends JSONObject {
      * Base class for all comparison (greater than/less than) validation rules.
      * @param <T>
      */
-    abstract static class ComparisonRule<T> extends MetadataValidation {
-        ComparisonRule(String type, T value) {
+     public abstract static class ComparisonRule<T> extends MetadataValidation {
+        public ComparisonRule(String type, T value) {
             this(type, value, null);
         }
 
-        ComparisonRule(String type, T value, Boolean equals) {
+        public ComparisonRule(String type, T value, Boolean equals) {
             put(TYPE, type);
             putValue(value);
             if (equals != null) {

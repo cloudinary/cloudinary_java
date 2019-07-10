@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * Represents a metadata field with type 'date'
  */
-public class DateMetadataField extends AbstractMetadataField<Date> {
+public class DateMetadataField extends MetadataField<Date> {
 
     public DateMetadataField() {
         super(MetadataFieldType.DATE);

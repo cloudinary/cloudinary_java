@@ -1,11 +1,10 @@
 package com.cloudinary.strategies;
 
-import java.util.Map;
-
 import com.cloudinary.Api;
 import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.api.ApiResponse;
-import com.cloudinary.utils.ObjectUtils;
+
+import java.util.Map;
 
 public abstract class AbstractApiStrategy {
     protected Api api;

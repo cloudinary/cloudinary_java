@@ -8,7 +8,7 @@ import java.text.ParseException;
  * Represents a single metadata field. Use one of the derived classes in the metadata API calls.
  * @param <T>
  */
-public class AbstractMetadataField<T> extends JSONObject {
+public class MetadataField<T> extends JSONObject {
 
     public static final String DEFAULT_VALUE = "default_value";
     public static final String EXTERNAL_ID = "external_id";
@@ -17,8 +17,12 @@ public class AbstractMetadataField<T> extends JSONObject {
     public static final String TYPE = "type";
     public static final String VALIDATION = "validation";
 
-    AbstractMetadataField(MetadataFieldType type) {
+    public MetadataField(MetadataFieldType type) {
         put(TYPE, type.toString());
+    }
+
+    public MetadataField(String type) {
+        put(TYPE, type);
     }
 
     /**
@@ -109,5 +113,21 @@ public class AbstractMetadataField<T> extends JSONObject {
      */
     public void setValidation(MetadataValidation validation) {
         put(VALIDATION, validation);
+    }
+
+    /**
+     * Get the data source definition of this field.
+     * @return The data source.
+     */
+    public MetadataDataSource getDataSource() {
+        return (MetadataDataSource) optJSONObject("datasource");
+    }
+
+    /**
+     * Set the datasource for the field.
+     * @param dataSource The datasource to set.
+     */
+    public void setDataSource(MetadataDataSource dataSource) {
+        put("datasource", dataSource);
     }
 }

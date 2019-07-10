@@ -5,9 +5,8 @@ import java.util.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.*;
-import com.cloudinary.metadata.AbstractMetadataField;
+import com.cloudinary.metadata.MetadataField;
 import com.cloudinary.metadata.MetadataDataSource;
-import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -566,14 +565,14 @@ public class Api {
      * @return A map representing the newlay added field.
      * @throws Exception
      */
-    public ApiResponse addMetadataField(AbstractMetadataField field) throws Exception {
+    public ApiResponse addMetadataField(MetadataField field) throws Exception {
         return callApi(HttpMethod.POST, Collections.singletonList("metadata_fields"),
                 ObjectUtils.toMap(field), ObjectUtils.asMap ("content_type", "json"));
     }
 
     /**
      * List all the metadata field definitions (structure, not values)
-     * @return A map containing the list of field definitions.
+     * @return A map containing the list of field definitions maps.
      * @throws Exception
      */
     public ApiResponse listMetadataFields() throws Exception {
@@ -582,23 +581,23 @@ public class Api {
 
     /**
      * Get a metadata field definition by id
-     * @param externalId The if of the field to retrive
+     * @param fieldExternalId The id of the field to retrieve
      * @return The fields definitions.
      * @throws Exception
      */
-    public ApiResponse metadataFieldByFieldId(String externalId) throws Exception {
-        return callApi(HttpMethod.GET, Arrays.asList("metadata_fields", externalId), Collections.<String, Object>emptyMap(), Collections.emptyMap());
+    public ApiResponse metadataFieldByFieldId(String fieldExternalId) throws Exception {
+        return callApi(HttpMethod.GET, Arrays.asList("metadata_fields", fieldExternalId), Collections.<String, Object>emptyMap(), Collections.emptyMap());
     }
 
     /**
      * Update the definitions of a single metadata field.
-     * @param externalId The id of the field to update
+     * @param fieldExternalId The id of the field to update
      * @param field The field definition
      * @return The updated fields definition.
      * @throws Exception
      */
-    public ApiResponse updateMetadataField(String externalId, AbstractMetadataField field) throws Exception {
-        List<String> uri = Arrays.asList("metadata_fields", externalId);
+    public ApiResponse updateMetadataField(String fieldExternalId, MetadataField field) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", fieldExternalId);
         return callApi(HttpMethod.PUT, uri, ObjectUtils.toMap(field), Collections.singletonMap("content_type", "json"));
     }
 
@@ -629,12 +628,12 @@ public class Api {
 
     /**
      * Delete a field definition.
-     * @param externalId The id of the field to delete
+     * @param fieldExternalId The id of the field to delete
      * @return A map with a "message" key. "ok" value indicates a successful deletion.
      * @throws Exception
      */
-    public ApiResponse deleteMetadataField(String externalId) throws Exception {
-        List<String> uri = Arrays.asList("metadata_fields", externalId);
+    public ApiResponse deleteMetadataField(String fieldExternalId) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", fieldExternalId);
         return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), Collections.emptyMap());
     }
 }

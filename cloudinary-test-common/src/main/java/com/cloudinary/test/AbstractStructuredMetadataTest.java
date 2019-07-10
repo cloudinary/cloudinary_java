@@ -5,12 +5,10 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.metadata.*;
-import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.*;
 
 import static com.cloudinary.utils.ObjectUtils.asMap;
@@ -233,7 +231,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         return field;
     }
 
-    private ApiResponse addFieldToAccount(AbstractMetadataField field) throws Exception {
+    private ApiResponse addFieldToAccount(MetadataField field) throws Exception {
         ApiResponse apiResponse = api.addMetadataField(field);
         metadataFieldExternalIds.add(apiResponse.get("external_id").toString());
         return apiResponse;

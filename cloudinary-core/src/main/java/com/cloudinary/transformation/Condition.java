@@ -58,6 +58,13 @@ public class Condition extends BaseExpression<Condition> {
     public Condition aspectRatio(String operator, Object value) {
         return predicate("ar", operator, value);
     }
+    public Condition duration(String operator, Object value) {
+        return predicate("du", operator, value);
+    }
+    public Condition initialDuration(String operator, Object value) {
+        return predicate("idu", operator, value);
+    }
+
 
     /**
      * @deprecated Use {@link #faceCount(String, Object)} instead

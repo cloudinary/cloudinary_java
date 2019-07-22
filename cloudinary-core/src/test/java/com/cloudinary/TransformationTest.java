@@ -89,6 +89,17 @@ public class TransformationTest {
     }
 
     @Test
+    public void testDuration() throws Exception {
+        Transformation transformation = new Transformation().ifCondition().duration("gt", "30").then().width(100).crop("scale");
+        assertEquals("passing an operator and a value adds a condition", "if_du_gt_30,c_scale,w_100", transformation.toString());
+        transformation = new Transformation().ifCondition().initialDuration("gt", "30").then().width(100).crop("scale");
+        assertEquals("passing an operator and a value adds a condition", "if_idu_gt_30,c_scale,w_100", transformation.toString());
+        transformation=new Transformation().ifCondition("initialDuration > 20").crop("scale").width(200);
+        assertEquals("if_idu_gt_20,c_scale,w_200", transformation.generate());
+    }
+
+
+    @Test
     public void chainedConditions() throws Exception {
         Transformation transformation = new Transformation().ifCondition().aspectRatio("gt", "3:4").then().width(100).crop("scale");
         assertEquals("passing an operator and a value adds a condition", "if_ar_gt_3:4,c_scale,w_100", transformation.toString());

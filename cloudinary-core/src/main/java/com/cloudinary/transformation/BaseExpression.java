@@ -45,7 +45,10 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "currentPage", "cp",
             "tags", "tags",
             "pageX", "px",
-            "pageY", "py"
+            "pageY", "py",
+            "duration","du",
+            "initial_duration","idu",
+            "initialDuration","idu"
 
     );
     private static final Pattern PATTERN = getPattern();

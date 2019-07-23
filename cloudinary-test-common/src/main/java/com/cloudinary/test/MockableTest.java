@@ -11,6 +11,8 @@ import java.util.Random;
 public class MockableTest {
 
     public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
+    public static final String SRC_TEST_VIDEO = "http://res.cloudinary.com/demo/video/upload/dog.mp4";
+    public static final String SRC_TEST_RAW = "../cloudinary-test-common/src/main/resources/docx.docx";
     public static final String REMOTE_TEST_IMAGE = "http://cloudinary.com/images/old_logo.png";
     protected static String SUFFIX = StringUtils.isNotBlank(System.getenv("TRAVIS_JOB_ID")) ? System.getenv("TRAVIS_JOB_ID") : String.valueOf(new Random().nextInt(99999));
     protected static final String SDK_TEST_TAG = "cloudinary_java_test_" + SUFFIX;

@@ -236,7 +236,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = Util.buildUploadParams(options);
         Util.clearEmpty(params);
-        params.putAll(ObjectUtils.only(options, "unsigned", "disallow_public_id"));
+        params.putAll(ObjectUtils.only(options, "unsigned", "disallow_public_id","live"));
         return callApi(HttpMethod.PUT, Arrays.asList("upload_presets", name), params, options);
     }
 
@@ -244,7 +244,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = Util.buildUploadParams(options);
         Util.clearEmpty(params);
-        params.putAll(ObjectUtils.only(options, "name", "unsigned", "disallow_public_id"));
+        params.putAll(ObjectUtils.only(options, "name", "unsigned", "disallow_public_id","live"));
         return callApi(HttpMethod.POST, Arrays.asList("upload_presets"), params, options);
     }
 

@@ -653,13 +653,14 @@ abstract public class AbstractApiTest extends MockableTest {
         String[] tags = {"a", "b", "c"};
         Map context = ObjectUtils.asMap("a", "b", "c", "d");
         Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", EXPLICIT_TRANSFORMATION, "tags", tags, "context",
-                context));
+                context,"live",true));
         String name = result.get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(preset.get("name"), name);
         assertEquals(Boolean.TRUE, preset.get("unsigned"));
         Map settings = (Map) preset.get("settings");
         assertEquals(settings.get("folder"), "folder");
+        assertEquals(settings.get("live"), Boolean.TRUE);
         Map outTransformation = (Map) ((java.util.ArrayList) settings.get("transformation")).get(0);
         assertEquals(outTransformation.get("width"), 100);
         assertEquals(outTransformation.get("crop"), "scale");
@@ -692,12 +693,13 @@ abstract public class AbstractApiTest extends MockableTest {
         String name = api.createUploadPreset(ObjectUtils.asMap("folder", "folder")).get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         Map settings = (Map) preset.get("settings");
-        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true));
+        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true,"live",true));
         api.updateUploadPreset(name, settings);
         settings.remove("unsigned");
         preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(name, preset.get("name"));
         assertEquals(Boolean.TRUE, preset.get("unsigned"));
+        assertEquals(settings.get("live"), Boolean.TRUE);
         assertEquals(settings, preset.get("settings"));
         api.deleteUploadPreset(name, ObjectUtils.emptyMap());
     }

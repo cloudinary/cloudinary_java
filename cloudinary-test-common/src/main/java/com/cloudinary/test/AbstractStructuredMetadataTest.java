@@ -66,7 +66,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     @Test
-    public void testDateFieldBehaviour() throws Exception {
+    public void testDateFieldDefaultValueValidation() throws Exception {
         // now minus 3 days hours.
         Date max = new Date();
         Date min = new Date(max.getTime() - 72 * 60 * 60 * 1000);
@@ -178,6 +178,17 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         Map result = cloudinary.uploader().explicit(publicId, asMap("type", "upload", "resource_type", "image", "metadata", metadata));
         assertNotNull(result.get("metadata"));
         assertEquals("123456", ((Map) result.get("metadata")).get(fieldId));
+
+        // explicit with invalid data, should fail:
+        metadata = Collections.<String, Object>singletonMap(fieldId, "12");
+        String message = "";
+        try {
+            result = cloudinary.uploader().explicit(publicId, asMap("type", "upload", "resource_type", "image", "metadata", metadata));
+        } catch (Exception e){
+            message = e.getMessage();
+        }
+
+        assertTrue(message.contains("Value 12 is invalid for field") );
     }
 
     @Test

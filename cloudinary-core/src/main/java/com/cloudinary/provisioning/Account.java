@@ -8,12 +8,12 @@ import com.cloudinary.utils.ObjectUtils;
 import java.util.*;
 
 public class Account {
-    private final Configuration configuration;
-
-
+    private static final String CLOUDINARY_ACCOUNT_URL = "CLOUDINARY_ACCOUNT_URL";
     private static final String SUB_ACCOUNTS = "sub_accounts";
     private static final String USERS = "users";
     private static final String USER_GROUPS = "user_groups";
+
+    private final AccountConfiguration configuration;
     private final String PROVISIONING = "provisioning";
     private final String ACCOUNTS = "accounts";
     private final String accountId;
@@ -22,25 +22,26 @@ public class Account {
     private final Api api;
 
     public Account(Cloudinary cloudinary) {
-        String provisioningData = System.getProperty("CLOUDINARY_PROVISIONING_CONFIG", System.getenv("CLOUDINARY_PROVISIONING_CONFIG"));
+        String provisioningData = System.getProperty(CLOUDINARY_ACCOUNT_URL, System.getenv(CLOUDINARY_ACCOUNT_URL));
         if (provisioningData != null) {
-            this.configuration = Configuration.from(provisioningData);
+            this.configuration = AccountConfiguration.from(provisioningData);
             this.accountId = configuration.accountId;
             this.key = configuration.provisioningApiKey;
             this.secret = configuration.provisioningApiSecret;
         } else {
-            throw new IllegalArgumentException("Must provide configuration instance or set an ENV variable: CLOUDINARY_PROVISIONING_CONFIG=account_id:key:secret");
+            throw new IllegalArgumentException("Must provide configuration instance or set an ENV variable: " +
+                    "CLOUDINARY_ACCOUNT_URL=account://provisioning_api_key:provisioning_api_secret@account_id");
         }
         
         this.api = cloudinary.api();
     }
 
-    public Account(Configuration configuration, Cloudinary cloudinary) {
-        this.configuration = configuration;
+    public Account(AccountConfiguration accountConfiguration, Cloudinary cloudinary) {
+        this.configuration = accountConfiguration;
         this.api = cloudinary.api();
-        this.accountId = configuration.accountId;
-        this.key = configuration.provisioningApiKey;
-        this.secret = configuration.provisioningApiSecret;
+        this.accountId = accountConfiguration.accountId;
+        this.key = accountConfiguration.provisioningApiKey;
+        this.secret = accountConfiguration.provisioningApiSecret;
     }
 
     private ApiResponse callAccountApi(Api.HttpMethod method, List<String> uri, Map<String, Object> params, Map<String, Object> options) throws Exception {
@@ -53,7 +54,6 @@ public class Account {
 
         return api.getStrategy().callAccountApi(method, uri, params, options);
     }
-
 
     // TODO verify current list of roles
     public enum Role {

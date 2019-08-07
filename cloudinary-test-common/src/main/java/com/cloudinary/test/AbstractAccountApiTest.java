@@ -14,7 +14,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class AbstractAccountApiTest extends MockableTest {
+public abstract class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();
     protected Account account;
     private static Set<String> createdSubAccountIds = new HashSet<String>();

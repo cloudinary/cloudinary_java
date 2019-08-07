@@ -98,6 +98,43 @@ public class TransformationTest {
         assertEquals("if_idu_gt_20,c_scale,w_200", transformation.generate());
     }
 
+    @Test
+    public void testRadius() throws Exception {
+        Radius radiusTestValue=new Radius(40);
+        assertEquals("r_40", radiusTestValue.toString());
+        radiusTestValue=new Radius(40,20);
+        assertEquals("r_40:20", radiusTestValue.toString());
+        radiusTestValue=new Radius(40,20,30);
+        assertEquals("r_40:20:30", radiusTestValue.toString());
+        radiusTestValue=new Radius(40,20,"$v");
+        assertEquals("r_40:20:$v", radiusTestValue.toString());
+        radiusTestValue=new Radius(40,20,30,10);
+        assertEquals("r_40:20:30:10",radiusTestValue.toString());
+        radiusTestValue=new Radius("40:20:30:10");
+        assertEquals("r_40:20:30:10",radiusTestValue.toString());
+        radiusTestValue=new Radius(new Object[]{10,20,30,40});
+        assertEquals("r_10:20:30:40", radiusTestValue.toString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRadiusException(){
+        Radius radiusTestValue=new Radius(null);
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(40,null);
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(40,null,30);
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(null,null,30,50);
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(new Object[]{null,20,30,40});
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(new Object[]{null});
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(new Object[]{1,2,3,4,5});
+        radiusTestValue.toString();
+        radiusTestValue=new Radius(new Object[]{});
+        radiusTestValue.toString();
+    }
 
     @Test
     public void chainedConditions() throws Exception {

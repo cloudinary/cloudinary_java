@@ -10,6 +10,7 @@ import org.junit.rules.TestName;
 import java.util.*;
 
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -63,6 +64,38 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         }
     }
 
+    @Test
+    public void testPassingCredentialsThroughOptions() throws Exception {
+        int exceptions = 0;
+
+        Map<String, Object> map = singletonMap("provisioning_api_secret", new Object()) ;
+        try {
+            this.account.getSubAccounts(true, null, null, map);
+        } catch (IllegalArgumentException ignored){
+            exceptions++;
+        }
+
+        map = singletonMap("provisioning_api_key", new Object()) ;
+        try {
+            this.account.getSubAccounts(true, null, null, map);
+        } catch (IllegalArgumentException ignored){
+            exceptions++;
+        }
+
+        map = new HashMap<String, Object>();
+        map.put("provisioning_api_key", "abc");
+        map.put("provisioning_api_secret", "def");
+
+        try {
+            this.account.getSubAccounts(true, null, null, map);
+        } catch (Exception ex){
+            assertTrue(ex.getMessage().contains("Invalid credentials"));
+            exceptions++;
+        }
+
+        assertEquals(3, exceptions);
+    }
+
     // Sub accounts tests
     @Test
     public void testGetSubAccount() throws Exception {
@@ -83,6 +116,16 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     public void testCreateSubAccount() throws Exception {
         ApiResponse result = createSubAccount();
         assertNotNull(result);
+
+        String message = "";
+        try {
+            // test that the parameters are passed correctly - throws exception since the from-account id doesn't exist:
+            account.createSubAccount(randomLetters(), null, emptyMap(), true, "non-existing-id", null);
+        } catch (Exception ex){
+            message = ex.getMessage();
+        }
+
+        assertTrue(message.contains("cannot find sub account"));
     }
 
     @Test
@@ -114,7 +157,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsers() throws Exception {
-        createUser();
+        createUser(Account.Role.MASTER_ADMIN);
         ApiResponse result = account.getUsers(null, null, null, null, null);
         assertNotNull(result);
         assertTrue(((ArrayList) result.get("users")).size() >= 1);
@@ -129,7 +172,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testUpdateUser() throws Exception {
-        ApiResponse user = createUser();
+        ApiResponse user = createUser(Account.Role.ADMIN);
 
         String newName = randomLetters();
         ApiResponse result = account.updateUser(user.get("id").toString(), newName, null, null, null, null);
@@ -181,7 +224,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testRemoveUserFromUserGroup() throws Exception {
-        ApiResponse user = createUser();
+        ApiResponse user = createUser(Account.Role.MEDIA_LIBRARY_ADMIN);
         ApiResponse group = createGroup();
         String groupId = group.get("id").toString();
         String userId = user.get("id").toString();
@@ -230,13 +273,21 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     }
 
+    private ApiResponse createUser(Account.Role role) throws Exception {
+        return createUser(Collections.<String>emptyList(), role);
+    }
+
     private ApiResponse createUser() throws Exception {
         return createUser(Collections.<String>emptyList());
     }
 
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {
+        return createUser(subAccountsIds, Account.Role.BILLING);
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        ApiResponse user = account.createUser("TestName", email, Account.Role.BILLING, subAccountsIds, null);
+        ApiResponse user = account.createUser("TestName", email, role, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;
     }

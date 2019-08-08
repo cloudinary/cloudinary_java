@@ -61,7 +61,14 @@ public class Account {
     private ApiResponse callAccountApi(Api.HttpMethod method, List<String> uri, Map<String, Object> params, Map<String, Object> options) throws Exception {
         options = verifyOptions(options);
 
-        if (!options.containsKey("provisioning_api_key")) {
+        if (options.containsKey("provisioning_api_key")){
+            if (!options.containsKey("provisioning_api_secret")){
+                throw new IllegalArgumentException("When providing key or secret through options, both must be provided");
+            }
+        } else {
+            if (options.containsKey("provisioning_api_secret")){
+                throw new IllegalArgumentException("When providing key or secret through options, both must be provided");
+            }
             options.put("provisioning_api_key", key);
             options.put("provisioning_api_secret", secret);
         }
@@ -69,17 +76,17 @@ public class Account {
         return api.getStrategy().callAccountApi(method, uri, params, options);
     }
 
-    // TODO verify current list of roles
-
     /**
      * A user role to use in the user management API (create/update user).
      */
     public enum Role {
         MASTER_ADMIN("master_admin"),
         ADMIN("admin"),
-        BILLING("billing"),
         TECHNICAL_ADMIN("technical_admin"),
-        EDITOR("editor");
+        BILLING("billing"),
+        REPORTS("reports"),
+        MEDIA_LIBRARY_ADMIN("media_library_admin"),
+        MEDIA_LIBRARY_USER("media_library_user");
 
         private final String serializedValue;
 
@@ -145,7 +152,7 @@ public class Account {
                 "name", name,
                 "custom_attributes", customAttributes,
                 "enabled", enabled,
-                "from_base_account", baseAccount),
+                "base_sub_account_id", baseAccount),
                 options);
     }
 

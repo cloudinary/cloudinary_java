@@ -16,6 +16,10 @@ import org.cloudinary.json.JSONArray;
 public class Api {
 
 
+    public AbstractApiStrategy getStrategy() {
+        return strategy;
+    }
+
     public enum HttpMethod {GET, POST, PUT, DELETE;}
 
     public final static Map<Integer, Class<? extends Exception>> CLOUDINARY_API_ERROR_CLASSES = new HashMap<Integer, Class<? extends Exception>>();

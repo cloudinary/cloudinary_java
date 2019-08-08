@@ -1,6 +1,8 @@
 package com.cloudinary.test;
 
 import com.cloudinary.*;
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;

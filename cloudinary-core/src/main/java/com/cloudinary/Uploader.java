@@ -516,4 +516,23 @@ public class Uploader {
     public Map deleteByToken(String token) throws Exception {
         return callApi("delete_by_token", ObjectUtils.asMap("token", token), ObjectUtils.emptyMap(), null);
     }
+
+    /**
+     * Populates metadata fields with the given values. Existing values will be overwritten.
+     * @param metadata a map of field name and value.
+     * @param publicIds the public IDs of the resources to update
+     * @param options additional options passed to the request
+     * @return a list of public IDs that were updated
+     * @throws IOException
+     */
+    public Map updateMetadata(Map metadata, String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = new HashMap();
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("metadata", Util.encodeContext(metadata));
+        params.put("public_ids", Arrays.asList(publicIds));
+
+        return callApi("metadata", params, options, null);
+    }
 }

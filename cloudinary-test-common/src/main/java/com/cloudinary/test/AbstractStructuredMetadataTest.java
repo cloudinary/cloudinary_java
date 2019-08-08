@@ -109,6 +109,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
         ApiResponse result = cloudinary.api().listMetadataFields();
         assertNotNull(result);
+        assertNotNull(result.get("metadata_fields"));
+        assertTrue(((List)result.get("metadata_fields")).size() > 0);
     }
 
     @Test

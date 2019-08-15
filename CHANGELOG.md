@@ -1,4 +1,23 @@
 
+1.23.0 / 2019-08-15
+===================
+
+New functionality
+-----------------
+  * Add account API support (user and cloud management) (#176)
+  * Add structured metadata APIs and entities (#171)
+  * Add duration to conditions in video (#172)
+  * Add support for `live` parameter to Upload Preset (#173)
+  * Add support for folder deletion (#170)
+  * Add support for forcing a version when generating URLs.
+  * Add support for custom pre-functions in transformation (wasm/remote). (#162)
+
+Other changes
+-------------
+  * Fix base64 url validation (accept parameters). (#165)
+  * Fix build script and travis.yml to support more java versions.
+  * Remove test for similarity search (#163)
+
 1.22.1 / 2019-02-13
 ===================
 

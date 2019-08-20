@@ -596,7 +596,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testCreateZipMultipleResourceTypes() throws Exception {
-        Map result = cloudinary.uploader().createZip(ObjectUtils.asMap("fully_qualified_public_ids",(new String[]{SRC_FULLY_QUALIFIED_IMAGE,SRC_FULLY_QUALIFIED_VIDEO})));
+        Map result = cloudinary.uploader().createZip(ObjectUtils.asMap("fully_qualified_public_ids",(new String[]{SRC_FULLY_QUALIFIED_IMAGE,SRC_FULLY_QUALIFIED_VIDEO}),"resource_type","auto"));
         assertEquals(2, result.get("file_count"));
         cloudinary.api().deleteResources(Arrays.asList(result.get("public_id").toString()), asMap("resource_type", "raw"));
     }

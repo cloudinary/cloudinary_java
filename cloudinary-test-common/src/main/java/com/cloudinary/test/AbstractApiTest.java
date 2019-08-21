@@ -939,6 +939,13 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(result.get("quality_analysis"));
     }
 
+    @Test
+    public void testQualityOverride() throws Exception {
+        Map response = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("tags", UPLOAD_TAGS));
+        ApiResponse result = cloudinary.api().update(response.get("public_id").toString(), ObjectUtils.asMap("quality_override",10));
+        assertNotNull(result.get("public_id"));
+    }
+
     @Test(expected = NotFound.class)
     public void testDeleteFolder() throws Exception {
         String toDelete = "todelete_" + SUFFIX;

@@ -31,6 +31,7 @@ public class Util {
         params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
         params.put("moderation", options.get("moderation"));
         params.put("access_mode", (String) options.get("access_mode"));
+        params.put("quality_override", options.get("quality_override"));
         Object responsive_breakpoints = options.get("responsive_breakpoints");
         if (responsive_breakpoints != null) {
             params.put("responsive_breakpoints", JSONObject.wrap(responsive_breakpoints));
@@ -95,6 +96,8 @@ public class Util {
             params.put("custom_coordinates", Coordinates.parseCoordinates(options.get("custom_coordinates")).toString());
         if (options.get("context") != null)
             params.put("context", encodeContext(options.get("context")));
+        if (options.get("quality_override") != null)
+            params.put("quality_override", options.get("quality_override"));
         if (options.get("access_control") != null) {
             params.put("access_control", encodeAccessControl(options.get("access_control")));
         }

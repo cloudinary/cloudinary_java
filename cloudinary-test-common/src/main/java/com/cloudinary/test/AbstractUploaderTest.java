@@ -678,6 +678,13 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     }
 
+    @Test
+    public void testQualityOverride() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        result = cloudinary.uploader().explicit(result.get("public_id").toString(), ObjectUtils.asMap("type", "upload", "resource_type", "image", "quality_override", "auto:best"));
+        assertNotNull(result.get("public_id"));
+
+    }
     private void addToDeleteList(String type, String id) {
         Set<String> ids = toDelete.get(type);
         if (ids == null) {

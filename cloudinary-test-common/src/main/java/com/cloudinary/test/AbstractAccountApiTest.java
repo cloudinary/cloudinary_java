@@ -70,14 +70,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
         Map<String, Object> map = singletonMap("provisioning_api_secret", new Object()) ;
         try {
-            this.account.getSubAccounts(true, null, null, map);
+            this.account.subAccounts(true, null, null, map);
         } catch (IllegalArgumentException ignored){
             exceptions++;
         }
 
         map = singletonMap("provisioning_api_key", new Object()) ;
         try {
-            this.account.getSubAccounts(true, null, null, map);
+            this.account.subAccounts(true, null, null, map);
         } catch (IllegalArgumentException ignored){
             exceptions++;
         }
@@ -87,7 +87,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         map.put("provisioning_api_secret", "def");
 
         try {
-            this.account.getSubAccounts(true, null, null, map);
+            this.account.subAccounts(true, null, null, map);
         } catch (Exception ex){
             assertTrue(ex.getMessage().contains("Invalid credentials"));
             exceptions++;
@@ -100,14 +100,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testGetSubAccount() throws Exception {
         ApiResponse accountResponse = createSubAccount();
-        ApiResponse account = this.account.getSubAccount(accountResponse.get("id").toString(), null);
+        ApiResponse account = this.account.subAccount(accountResponse.get("id").toString(), null);
         assertNotNull(account);
     }
 
     @Test
     public void testGetSubAccounts() throws Exception {
         createSubAccount();
-        ApiResponse accounts = account.getSubAccounts(null, null, null, null);
+        ApiResponse accounts = account.subAccounts(null, null, null, null);
         assertNotNull(accounts);
         assertTrue(((ArrayList) accounts.get("sub_accounts")).size() >= 1);
     }
@@ -151,14 +151,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testGetUser() throws Exception {
         ApiResponse user = createUser();
-        ApiResponse result = account.getUser(user.get("id").toString(), null);
+        ApiResponse result = account.user(user.get("id").toString(), null);
         assertNotNull(result);
     }
 
     @Test
     public void testGetUsers() throws Exception {
         createUser(Account.Role.MASTER_ADMIN);
-        ApiResponse result = account.getUsers(null, null, null, null, null);
+        ApiResponse result = account.users(null, null, null, null, null);
         assertNotNull(result);
         assertTrue(((ArrayList) result.get("users")).size() >= 1);
     }
@@ -236,7 +236,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testListUserGroups() throws Exception {
         createGroup();
-        ApiResponse result = account.listUserGroups(null);
+        ApiResponse result = account.userGroups();
         assertNotNull(result);
         assertTrue(((List) result.get("user_groups")).size() >= 1);
     }
@@ -244,7 +244,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testListUserGroup() throws Exception {
         ApiResponse group = createGroup();
-        ApiResponse result = account.getUserGroup(group.get("id").toString(), null);
+        ApiResponse result = account.userGroup(group.get("id").toString(), null);
         assertNotNull(result);
     }
 
@@ -258,7 +258,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         String user2Id = user2.get("id").toString();
         account.addUserToGroup(groupId, user1Id, null);
         account.addUserToGroup(groupId, user2Id, null);
-        ApiResponse result = account.listUserGroupUsers(groupId, null);
+        ApiResponse result = account.userGroupUsers(groupId, null);
         assertNotNull(result);
         assertTrue(((List) result.get("users")).size() >= 2);
     }
@@ -267,7 +267,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     // Helpers
     private ApiResponse createGroup() throws Exception {
         String name = randomLetters();
-        ApiResponse userGroup = account.createUserGroup(name, null);
+        ApiResponse userGroup = account.createUserGroup(name);
         createdGroupIds.add(userGroup.get("id").toString());
         return userGroup;
 
@@ -293,7 +293,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     private ApiResponse createSubAccount() throws Exception {
-        ApiResponse subAccount = account.createSubAccount(randomLetters(), null, emptyMap(), true, null, null);
+        ApiResponse subAccount = account.createSubAccount(randomLetters(), null, emptyMap(), true, null);
         createdSubAccountIds.add(subAccount.get("id").toString());
         return subAccount;
     }

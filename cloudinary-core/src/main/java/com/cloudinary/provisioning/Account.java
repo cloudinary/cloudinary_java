@@ -101,6 +101,16 @@ public class Account {
     }
 
     // Sub accounts
+    /**
+     * Get details of a specific sub account
+     *
+     * @param subAccountId The id of the sub account
+     * @return the sub account details.
+     * @throws Exception If the request fails
+     */
+    public ApiResponse subAccount(String subAccountId) throws Exception {
+        return subAccount(subAccountId, Collections.<String, Object>emptyMap());
+    }
 
     /**
      * Get details of a specific sub account
@@ -110,9 +120,22 @@ public class Account {
      * @return the sub account details.
      * @throws Exception If the request fails
      */
-    public ApiResponse getSubAccount(String subAccountId, Map<String, Object> options) throws Exception {
+    public ApiResponse subAccount(String subAccountId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, "sub_accounts", subAccountId);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    /**
+     * Get a list of sub accounts.
+     *
+     * @param enabled Optional. Whether to fetch enabled or disabled accounts. Default is all.
+     * @param ids     Optional. List of sub-account IDs. Up to 100. When provided, other filters are ignored.
+     * @param prefix  Optional. Search by prefix of the sub-account name. Case-insensitive.
+     * @return the list of sub-accounts details.
+     * @throws Exception If the request fails
+     */
+    public ApiResponse subAccounts(Boolean enabled, List<String> ids, String prefix) throws Exception {
+        return subAccounts(enabled, ids, prefix, Collections.<String, Object>emptyMap());
     }
 
     /**
@@ -125,7 +148,7 @@ public class Account {
      * @return the list of sub-accounts details.
      * @throws Exception If the request fails
      */
-    public ApiResponse getSubAccounts(Boolean enabled, List<String> ids, String prefix, Map<String, Object> options) throws Exception {
+    public ApiResponse subAccounts(Boolean enabled, List<String> ids, String prefix, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, "sub_accounts");
         return callAccountApi(Api.HttpMethod.GET, uri,
                 ObjectUtils.asMap("accountId", accountId, "enabled", enabled, "ids", ids, "prefix", prefix), options);
@@ -134,7 +157,20 @@ public class Account {
     /**
      * @param name             Required. The name displayed in the management console.
      * @param cloudName        Optional, unique (case insensitive)
-     * @param customAttributes Advanced custom attributes for the sub-account.
+     * @param customAttributes Custom attributes associated with the sub-account, as a map of key/value pairs.
+     * @param enabled          Optional. Whether to create the account as enabled (default is enabled).
+     * @param baseAccount      Optional. ID of sub-account from which to copy settings
+     * @return details of the created sub-account
+     * @throws Exception If the request fails
+     */
+    public ApiResponse createSubAccount(String name, String cloudName, Map customAttributes, boolean enabled, String baseAccount) throws Exception {
+        return createSubAccount(name, cloudName, customAttributes, enabled, baseAccount, Collections.<String, Object>emptyMap());
+    }
+
+    /**
+     * @param name             Required. The name displayed in the management console.
+     * @param cloudName        Optional, unique (case insensitive)
+     * @param customAttributes Custom attributes associated with the sub-account, as a map of key/value pairs.
      * @param enabled          Optional. Whether to create the account as enabled (default is enabled).
      * @param baseAccount      Optional. ID of sub-account from which to copy settings
      * @param options          Generic advanced options map, see online documentation.
@@ -160,7 +196,20 @@ public class Account {
      * @param subAccountId     The id of the sub-account to update
      * @param name             The name displayed in the management console.
      * @param cloudName        The cloud name to set.
-     * @param customAttributes Advanced custom attributes for the sub-account.
+     * @param customAttributes ACustom attributes associated with the sub-account, as a map of key/value pairs.
+     * @param enabled          Set the sub-account as enabled or not.
+     * @return details of the updated sub-account
+     * @throws Exception If the request fails
+     */
+    public ApiResponse updateSubAccount(String subAccountId, String name, String cloudName, Map<String, String> customAttributes, Boolean enabled) throws Exception {
+        return updateSubAccount(subAccountId, name, cloudName, customAttributes, enabled, Collections.<String, Object>emptyMap());
+    }
+
+    /**
+     * @param subAccountId     The id of the sub-account to update
+     * @param name             The name displayed in the management console.
+     * @param cloudName        The cloud name to set.
+     * @param customAttributes ACustom attributes associated with the sub-account, as a map of key/value pairs.
      * @param enabled          Set the sub-account as enabled or not.
      * @param options          Generic advanced options map, see online documentation.
      * @return details of the updated sub-account
@@ -184,6 +233,17 @@ public class Account {
      * Deletes the sub-account.
      *
      * @param subAccountId The id of the sub-account to delete
+     * @return result message.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse deleteSubAccount(String subAccountId) throws Exception {
+        return deleteSubAccount(subAccountId, Collections.<String, Object>emptyMap());
+    }
+
+    /**
+     * Deletes the sub-account.
+     *
+     * @param subAccountId The id of the sub-account to delete
      * @param options      Generic advanced options map, see online documentation.
      * @return result message.
      * @throws Exception If the request fails.
@@ -194,6 +254,16 @@ public class Account {
     }
 
     // Users
+    /**
+     * Get details of a specific user.
+     *
+     * @param userId  The id of the user to fetch
+     * @return details of the user.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse user(String userId) throws Exception {
+        return user(userId,null);
+    }
 
     /**
      * Get details of a specific user.
@@ -203,9 +273,23 @@ public class Account {
      * @return details of the user.
      * @throws Exception If the request fails.
      */
-    public ApiResponse getUser(String userId, Map<String, Object> options) throws Exception {
+    public ApiResponse user(String userId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS, userId);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    /**
+     * Get a list of the users according to filters.
+     *
+     * @param pending      Optional. Whether to fetch pending users. Default all.
+     * @param userIds      Optionals. List of user IDs. Up to 100
+     * @param prefix       Optional. Search by prefix of the user's name or email. Case-insensitive
+     * @param subAccountId Optional. Return only users who have access to the given sub-account
+     * @return the users' details.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse users(Boolean pending, List<String> userIds, String prefix, String subAccountId) throws Exception {
+        return users(pending, userIds, prefix, subAccountId,null);
     }
 
     /**
@@ -219,7 +303,7 @@ public class Account {
      * @return the users' details.
      * @throws Exception If the request fails.
      */
-    public ApiResponse getUsers(Boolean pending, List<String> userIds, String prefix, String subAccountId, Map<String, Object> options) throws Exception {
+    public ApiResponse users(Boolean pending, List<String> userIds, String prefix, String subAccountId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS);
         return callAccountApi(Api.HttpMethod.GET, uri,
                 ObjectUtils.asMap("accountId", accountId,
@@ -227,6 +311,21 @@ public class Account {
                         "user_ids", userIds,
                         "prefix", prefix,
                         "sub_account_id", subAccountId), options);
+    }
+
+    /**
+     * Create a new user.
+     *
+     * @param name           Required. Username.
+     * @param email          Required. User's email.
+     * @param role           Required. User's role.
+     * @param subAccountsIds Optional. Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @return The newly created user details.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds) throws Exception {
+        return createUser(name, email, role, subAccountsIds);
     }
 
     /**
@@ -254,7 +353,23 @@ public class Account {
      * @param email          User's email.
      * @param role           User's role.
      * @param subAccountsIds Sub-accounts for which the user should have access.
-     *                       *                       If not provided or empty, user should have access to all accounts.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @return The updated user details
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse updateUser(String userId, String name, String email, Role role, List<String> subAccountsIds) throws Exception {
+        return updateUser(userId, name, email, role, subAccountsIds,null);
+    }
+
+    /**
+     * Update an existing user.
+     *
+     * @param userId         The id of the user to update.
+     * @param name           Username.
+     * @param email          User's email.
+     * @param role           User's role.
+     * @param subAccountsIds Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
      * @param options        Generic advanced options map, see online documentation.
      * @return The updated user details
      * @throws Exception If the request fails.
@@ -262,6 +377,17 @@ public class Account {
     public ApiResponse updateUser(String userId, String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS, userId);
         return performUserAction(Api.HttpMethod.PUT, uri, email, name, role, subAccountsIds, options);
+    }
+
+    /**
+     * Delete a user.
+     *
+     * @param userId  Id of the user to delete.
+     * @return result message.
+     * @throws Exception
+     */
+    public ApiResponse deleteUser(String userId) throws Exception {
+        return deleteUser(userId,null);
     }
 
     /**
@@ -278,6 +404,15 @@ public class Account {
     }
 
     // Groups
+    /**
+     * Create a new user group
+     * @param name Required. Name for the group.
+     * @return The newly created group.
+     * @throws Exception If the request fails
+     */
+    public ApiResponse createUserGroup(String name) throws Exception {
+        return createUserGroup(name,null);
+    }
 
     /**
      * Create a new user group
@@ -289,6 +424,18 @@ public class Account {
     public ApiResponse createUserGroup(String name, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USER_GROUPS);
         return callAccountApi(Api.HttpMethod.POST, uri, ObjectUtils.asMap("name", name), options);
+    }
+
+    /**
+     * Update an existing user group
+     *
+     * @param groupId The id of the group to update
+     * @param name The name of the group.
+     * @return The updated group.
+     * @throws Exception If the request fails
+     */
+    public ApiResponse updateUserGroup(String groupId, String name) throws Exception {
+        return updateUserGroup(groupId, name,null);
     }
 
     /**
@@ -309,6 +456,17 @@ public class Account {
      * Delete a user group
      *
      * @param groupId The group id to delete
+     * @return A result message.
+     * @throws Exception if the request fails.
+     */
+    public ApiResponse deleteUserGroup(String groupId) throws Exception {
+        return deleteUserGroup(groupId,null);
+    }
+
+    /**
+     * Delete a user group
+     *
+     * @param groupId The group id to delete
      * @param options Generic advanced options map, see online documentation.
      * @return A result message.
      * @throws Exception if the request fails.
@@ -318,6 +476,15 @@ public class Account {
         return callAccountApi(Api.HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);
     }
 
+    /**
+     * Add an existing user to a group.
+     * @param groupId The group id.
+     * @param userId The user id to add.
+     * @throws Exception If the request fails
+     */
+    public ApiResponse addUserToGroup(String groupId, String userId) throws Exception {
+        return addUserToGroup(groupId, userId,null);
+    }
     /**
      * Add an existing user to a group.
      * @param groupId The group id.
@@ -334,6 +501,16 @@ public class Account {
      * Removes a user from a group.
      * @param groupId The group id.
      * @param userId The id of the user to remove
+     * @return A result message
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse removeUserFromGroup(String groupId, String userId) throws Exception {
+        return removeUserFromGroup(groupId, userId,null);
+    }
+    /**
+     * Removes a user from a group.
+     * @param groupId The group id.
+     * @param userId The id of the user to remove
      * @param options Generic advanced options map, see online documentation.
      * @return A result message
      * @throws Exception If the request fails.
@@ -346,13 +523,32 @@ public class Account {
     /**
      * Get details of a group.
      * @param groupId The group id to fetch
+     * @return Details of the group.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse userGroup(String groupId) throws Exception {
+        return userGroup(groupId,null);
+    }
+
+    /**
+     * Get details of a group.
+     * @param groupId The group id to fetch
      * @param options Generic advanced options map, see online documentation.
      * @return Details of the group.
      * @throws Exception If the request fails.
      */
-    public ApiResponse getUserGroup(String groupId, Map<String, Object> options) throws Exception {
+    public ApiResponse userGroup(String groupId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USER_GROUPS, groupId);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    /**
+     * Gets a list of all the user groups.
+     * @return The list of the groups.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse userGroups() throws Exception {
+        return userGroups(Collections.<String, Object>emptyMap());
     }
 
     /**
@@ -361,7 +557,7 @@ public class Account {
      * @return The list of the groups.
      * @throws Exception If the request fails.
      */
-    public ApiResponse listUserGroups(Map<String, Object> options) throws Exception {
+    public ApiResponse userGroups(Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USER_GROUPS);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
     }
@@ -369,11 +565,20 @@ public class Account {
     /**
      * Lists the users belonging to this user group.
      * @param groupId The id of the user group.
+     * @return The list of users in that group.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse userGroupUsers(String groupId) throws Exception {
+        return userGroupUsers(groupId,null);
+    }
+    /**
+     * Lists the users belonging to this user group.
+     * @param groupId The id of the user group.
      * @param options Generic advanced options map, see online documentation.
      * @return The list of users in that group.
      * @throws Exception If the request fails.
      */
-    public ApiResponse listUserGroupUsers(String groupId, Map<String, Object> options) throws Exception {
+    public ApiResponse userGroupUsers(String groupId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USER_GROUPS, groupId, USERS);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
     }
@@ -403,7 +608,7 @@ public class Account {
     }
 
     private Map<String, Object> verifyOptions(Map<String, Object> options) {
-        if (options == null) {
+        if (options == null || options == Collections.EMPTY_MAP) {
             return new HashMap<String, Object>(2); // Two, since api key and secret will be populated later
         }
 

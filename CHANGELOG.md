@@ -1,4 +1,10 @@
 
+1.24.0 / 2019-09-12
+===================
+
+  * Add support for `cinemagraph_analysis` parameter. (#182)
+  * Rename Account API methods, add convenience overloads. (#181)
+
 1.23.0 / 2019-08-15
 ===================
 

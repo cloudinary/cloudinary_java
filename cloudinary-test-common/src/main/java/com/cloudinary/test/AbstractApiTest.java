@@ -951,4 +951,11 @@ abstract public class AbstractApiTest extends MockableTest {
         // should throw exception (folder not found):
         api.deleteFolder(cloudinary.randomPublicId(), emptyMap());
     }
+
+
+    @Test
+    public void testCinemagraphAnalysisResource() throws Exception {
+        ApiResponse res = api.resource(API_TEST, Collections.singletonMap("cinemagraph_analysis", true));
+        assertNotNull(res.get("cinemagraph_analysis"));
+    }
 }

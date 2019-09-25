@@ -181,7 +181,7 @@ public class ArchiveParams {
         return fullyQualifiedPublicIds;
     }
 
-    public ArchiveParams fully_qualified_public_ids(String[] fullyQualifiedPublicIds) {
+    public ArchiveParams fullyQualifiedPublicIds(String[] fullyQualifiedPublicIds) {
         this.fullyQualifiedPublicIds = fullyQualifiedPublicIds;
         return this;
     }

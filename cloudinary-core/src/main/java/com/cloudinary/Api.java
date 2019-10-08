@@ -124,7 +124,7 @@ public class Api {
         String type = ObjectUtils.asString(options.get("type"), "upload");
 
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
-                ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
+                ObjectUtils.only(options, "exif", "colors", "faces", "coordinates", "derived_next_cursor",
                         "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis"), options);
 
         return response;

@@ -119,12 +119,19 @@ public class Util {
     }
 
     protected static String encodeContext(Object context) {
-        if (context != null && context instanceof Map) {
-            Map<String, String> mapArg = (Map<String, String>) context;
+        if (context instanceof Map) {
+            Map<String, Object> mapArg = (Map<String, Object>) context;
             HashSet out = new HashSet();
-            for (Map.Entry<String, String> entry : mapArg.entrySet()) {
-                final String value = entry.getValue().replaceAll("([=\\|])","\\\\$1");
-                out.add(entry.getKey() + "=" + value);
+            for (Map.Entry<String, Object> entry : mapArg.entrySet()) {
+                final String value;
+                if (entry.getValue() instanceof List) {
+                    value = encodeList(((List) entry.getValue()).toArray());
+                } else if (entry.getValue() instanceof String[]) {
+                    value = encodeList((String[]) entry.getValue());
+                } else {
+                    value = entry.getValue().toString();
+                }
+                out.add(entry.getKey() + "=" + encodeSingleContextString(value));
             }
             return StringUtils.join(out.toArray(), "|");
         } else if (context == null) {
@@ -132,6 +139,26 @@ public class Util {
         } else {
             return context.toString();
         }
+    }
+
+    private static String encodeList(Object[] list) {
+        StringBuilder builder = new StringBuilder("[");
+
+        boolean first = true;
+        for (Object s : list) {
+            if (!first) {
+                builder.append(",");
+            }
+
+            builder.append("\"").append(encodeSingleContextString(s.toString())).append("\"");
+            first = false;
+        }
+
+        return builder.append("]").toString();
+    }
+
+    private static String encodeSingleContextString(String value) {
+        return value.replaceAll("([=\\|])", "\\\\$1");
     }
 
     @SuppressWarnings("unchecked")
@@ -165,7 +192,7 @@ public class Util {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildArchiveParams(Map options, String targetFormat) {
         Map<String, Object> params = new HashMap<String, Object>();
-        if (options != null && options.size() > 0){
+        if (options != null && options.size() > 0) {
             params.put("type", options.get("type"));
             params.put("mode", options.get("mode"));
             params.put("target_format", targetFormat);
@@ -197,7 +224,7 @@ public class Util {
 
     private static void putBoolean(String name, Map from, Map<String, Object> to) {
         final Object value = from.get(name);
-        if(value != null){
+        if (value != null) {
             to.put(name, ObjectUtils.asBoolean(value));
         }
     }
@@ -208,16 +235,16 @@ public class Util {
 
     private static void putObject(String name, Map from, Map<String, Object> to, Object defaultValue) {
         final Object value = from.get(name);
-        if (value != null){
+        if (value != null) {
             to.put(name, value);
-        } else if(defaultValue != null){
+        } else if (defaultValue != null) {
             to.put(name, defaultValue);
         }
     }
 
     private static void putArray(String name, Map from, Map<String, Object> to) {
         final Object value = from.get(name);
-        if (value != null){
+        if (value != null) {
             to.put(name, ObjectUtils.asArray(value));
         }
     }

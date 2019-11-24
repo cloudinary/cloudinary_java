@@ -118,8 +118,7 @@ public class AuthTokenTest {
     }
 
     @Test
-    public void testIgnoreUrlIfAclIsProvided(){
-
+    public void testIgnoreUrlIfAclIsProvided() {
         String user = "foobar"; // username taken from elsewhere
         AuthToken token = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
         String cookieToken = token.generate();

@@ -186,6 +186,9 @@ public class Configuration {
     static protected Map parseConfigUrl(String cloudinaryUrl) {
         Map params = new HashMap();
         URI cloudinaryUri = URI.create(cloudinaryUrl);
+        if (cloudinaryUri.getScheme() == null || !cloudinaryUri.getScheme().equalsIgnoreCase("cloudinary")){
+            throw new IllegalArgumentException("Invalid CLOUDINARY_URL scheme. Expecting to start with 'cloudinary://'");
+        }
         params.put("cloud_name", cloudinaryUri.getHost());
         if (cloudinaryUri.getUserInfo() != null) {
             String[] creds = cloudinaryUri.getUserInfo().split(":");

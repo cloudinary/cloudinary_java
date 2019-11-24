@@ -124,7 +124,7 @@ public class AuthTokenTest {
         AuthToken token = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
         String cookieToken = token.generate();
         AuthToken aclToken = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
-        String cookieAclToken = aclToken.generate("http://res.cloudinary.com/test123/image/authenticated/v1486020273/sample.jpg");
+        String cookieAclToken = aclToken.generate("http://res.cloudinary.com/test123/image/upload/v1486020273/sample.jpg");
         assertEquals(cookieToken, cookieAclToken);
     }
 }

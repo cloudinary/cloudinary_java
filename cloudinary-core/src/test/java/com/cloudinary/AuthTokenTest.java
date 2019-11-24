@@ -116,4 +116,15 @@ public class AuthTokenTest {
         assertThat(url, Matchers.matchesPattern("<img.*src='http://res.cloudinary.com/test123/image/authenticated/v1486020273/sample.jpg\\?__cld_token__=st=11111111~exp=11111411~hmac=9bd6f41e2a5893da8343dc8eb648de8bf73771993a6d1457d49851250caf3b80.*>"));
 
     }
+
+    @Test
+    public void testIgnoreUrlIfAclIsProvided(){
+
+        String user = "foobar"; // username taken from elsewhere
+        AuthToken token = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
+        String cookieToken = token.generate();
+        AuthToken aclToken = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
+        String cookieAclToken = aclToken.generate("http://res.cloudinary.com/test123/image/authenticated/v1486020273/sample.jpg");
+        assertEquals(cookieToken, cookieAclToken);
+    }
 }

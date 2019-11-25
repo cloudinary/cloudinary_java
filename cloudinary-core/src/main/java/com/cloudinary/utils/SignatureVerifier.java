@@ -19,7 +19,7 @@ public class SignatureVerifier {
         boolean bodySignatureValid;
         try {
             String payload = body + timestamp + apiSecret;
-            bodySignatureValid = signature != null && signature.equals(CryptoUtil.sha1(payload));
+            bodySignatureValid = CryptoUtil.sha1(payload).equals(signature);
         } catch (NoSuchAlgorithmException e) {
             return false;
         } catch (UnsupportedEncodingException e) {

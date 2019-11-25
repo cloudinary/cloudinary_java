@@ -43,11 +43,7 @@ public class ApiStrategy extends AbstractApiStrategy {
         if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
         String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
         int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
-        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
-
-        for (String component : uri) {
-            apiUrl = apiUrl + "/" + component;
-        }
+        String apiUrl = createApiUrl(uri, prefix, cloudName);
 
         return getApiResponse(method, params, apiKey, apiSecret, contentType, timeout, apiUrl);
     }

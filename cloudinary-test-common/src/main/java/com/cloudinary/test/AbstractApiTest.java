@@ -794,6 +794,15 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+  public void testEncodeUrlInApiCall() throws Exception {
+        try {
+            Map result = api.subFolders("sub^folder test", null);
+            assertEquals("sub%5Efolder%20test", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("path"));
+        } catch (Exception ignored) {
+
+        }
+    }
+    @Test
     public void testUploadMapping() throws Exception {
         String aptTestUploadMapping = "api_test_upload_mapping" + SUFFIX;
         try {

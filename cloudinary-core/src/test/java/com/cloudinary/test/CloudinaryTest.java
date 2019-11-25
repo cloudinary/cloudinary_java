@@ -1243,7 +1243,7 @@ public class CloudinaryTest {
     }
 
     @Test (expected = IllegalArgumentException.class)
-    public void testCloudinaryUrlInvalidScheme1() {
+    public void testCloudinaryUrlEmptyScheme() {
         String cloudinaryUrl=" ";
         Configuration.from(cloudinaryUrl);
     }

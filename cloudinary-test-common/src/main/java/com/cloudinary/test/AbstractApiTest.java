@@ -484,7 +484,8 @@ abstract public class AbstractApiTest extends MockableTest {
         } finally {
             try {
                 api.deleteTransformation(name, null);
-            } catch (Exception ignored){}
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -653,7 +654,7 @@ abstract public class AbstractApiTest extends MockableTest {
         String[] tags = {"a", "b", "c"};
         Map context = ObjectUtils.asMap("a", "b", "c", "d");
         Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", EXPLICIT_TRANSFORMATION, "tags", tags, "context",
-                context,"live",true));
+                context, "live", true));
         String name = result.get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(preset.get("name"), name);
@@ -693,7 +694,7 @@ abstract public class AbstractApiTest extends MockableTest {
         String name = api.createUploadPreset(ObjectUtils.asMap("folder", "folder")).get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         Map settings = (Map) preset.get("settings");
-        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true,"live",true));
+        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true, "live", true));
         api.updateUploadPreset(name, settings);
         settings.remove("unsigned");
         preset = api.uploadPreset(name, ObjectUtils.emptyMap());
@@ -778,14 +779,11 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-  public void testEncodeUrlInApiCall() throws Exception {
-        try {
-            Map result = api.subFolders("sub^folder test", null);
-            assertEquals("sub%5Efolder%20test", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("path"));
-        } catch (Exception ignored) {
-
-        }
+    public void testEncodeUrlInApiCall() throws Exception {
+        Map result = api.subFolders("sub^folder test", null);
+        assertEquals("sub%5Efolder%20test", ((Map) ((org.cloudinary.json.JSONArray) result.get("folders")).get(0)).get("path"));
     }
+
     @Test
     public void testUploadMapping() throws Exception {
         String aptTestUploadMapping = "api_test_upload_mapping" + SUFFIX;
@@ -955,7 +953,7 @@ abstract public class AbstractApiTest extends MockableTest {
         Thread.sleep(5000);
         api.deleteResources(Collections.singletonList(uploadResult.get("public_id").toString()), emptyMap());
         ApiResponse result = api.deleteFolder(toDelete, emptyMap());
-        assertTrue(((ArrayList)result.get("deleted")).contains(toDelete));
+        assertTrue(((ArrayList) result.get("deleted")).contains(toDelete));
 
         // should throw exception (folder not found):
         api.deleteFolder(cloudinary.randomPublicId(), emptyMap());

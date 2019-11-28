@@ -1230,6 +1230,24 @@ public class CloudinaryTest {
         assertFieldsEqual(config, copy);
     }
 
+    @Test
+    public void testCloudinaryUrlValidScheme() {
+        String cloudinaryUrl = "cloudinary://123456789012345:ALKJdjklLJAjhkKJ45hBK92baj3@test";
+        Configuration.from(cloudinaryUrl);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCloudinaryUrlInvalidScheme() {
+        String cloudinaryUrl = "https://123456789012345:ALKJdjklLJAjhkKJ45hBK92baj3@test";
+        Configuration.from(cloudinaryUrl);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testCloudinaryUrlEmptyScheme() {
+        String cloudinaryUrl = " ";
+        Configuration.from(cloudinaryUrl);
+    }
+
     private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {
         assertEquals("Two objects must be the same class", a.getClass(), b.getClass());
         Field[] fields = a.getClass().getFields();

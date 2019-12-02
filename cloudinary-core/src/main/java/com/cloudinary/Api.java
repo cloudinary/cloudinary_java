@@ -244,7 +244,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = Util.buildUploadParams(options);
         Util.clearEmpty(params);
-        params.putAll(ObjectUtils.only(options, "unsigned", "disallow_public_id","live"));
+        params.putAll(ObjectUtils.only(options, "unsigned", "disallow_public_id", "live"));
         return callApi(HttpMethod.PUT, Arrays.asList("upload_presets", name), params, options);
     }
 
@@ -252,7 +252,7 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = Util.buildUploadParams(options);
         Util.clearEmpty(params);
-        params.putAll(ObjectUtils.only(options, "name", "unsigned", "disallow_public_id","live"));
+        params.putAll(ObjectUtils.only(options, "name", "unsigned", "disallow_public_id", "live"));
         return callApi(HttpMethod.POST, Arrays.asList("upload_presets"), params, options);
     }
 
@@ -266,6 +266,13 @@ public class Api {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
+    }
+
+    //Creates an empty folder
+    public ApiResponse createFolder(String folderName, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callApi(HttpMethod.POST, Arrays.asList("folders", folderName), ObjectUtils.emptyMap(), options);
     }
 
     public ApiResponse restore(Iterable<String> publicIds, Map options) throws Exception {
@@ -583,7 +590,7 @@ public class Api {
      */
     public ApiResponse addMetadataField(MetadataField field) throws Exception {
         return callApi(HttpMethod.POST, Collections.singletonList("metadata_fields"),
-                ObjectUtils.toMap(field), ObjectUtils.asMap ("content_type", "json"));
+                ObjectUtils.toMap(field), ObjectUtils.asMap("content_type", "json"));
     }
 
     /**
@@ -639,7 +646,7 @@ public class Api {
      */
     public ApiResponse deleteDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
-        return callApi(HttpMethod.DELETE, uri,Collections.singletonMap("external_ids", entriesExternalId) , Collections.emptyMap());
+        return callApi(HttpMethod.DELETE, uri, Collections.singletonMap("external_ids", entriesExternalId), Collections.emptyMap());
     }
 
     /**

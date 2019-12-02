@@ -46,6 +46,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final Transformation DELETE_TRANSFORMATION = new Transformation().width(100).crop("scale").overlay(new TextLayer().text(SUFFIX + "_delete").fontFamily("Arial").fontSize(60));
     public static final String TEST_KEY = "test-key" + SUFFIX;
     public static final String API_TEST_RESTORE = "api_test_restore" + SUFFIX;
+    public static final Set<String> createdFolders = new HashSet<String>();
 
     protected Api api;
 
@@ -117,6 +118,12 @@ abstract public class AbstractApiTest extends MockableTest {
         }
         try {
             api.deleteUploadPreset(API_TEST_UPLOAD_PRESET_4, ObjectUtils.emptyMap());
+        } catch (Exception ignored) {
+        }
+        try {
+            for (String folder : createdFolders) {
+                api.deleteFolder(folder, ObjectUtils.emptyMap());
+            }
         } catch (Exception ignored) {
         }
 
@@ -484,7 +491,8 @@ abstract public class AbstractApiTest extends MockableTest {
         } finally {
             try {
                 api.deleteTransformation(name, null);
-            } catch (Exception ignored){}
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -653,7 +661,7 @@ abstract public class AbstractApiTest extends MockableTest {
         String[] tags = {"a", "b", "c"};
         Map context = ObjectUtils.asMap("a", "b", "c", "d");
         Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", EXPLICIT_TRANSFORMATION, "tags", tags, "context",
-                context,"live",true));
+                context, "live", true));
         String name = result.get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(preset.get("name"), name);
@@ -693,7 +701,7 @@ abstract public class AbstractApiTest extends MockableTest {
         String name = api.createUploadPreset(ObjectUtils.asMap("folder", "folder")).get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         Map settings = (Map) preset.get("settings");
-        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true,"live",true));
+        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true, "live", true));
         api.updateUploadPreset(name, settings);
         settings.remove("unsigned");
         preset = api.uploadPreset(name, ObjectUtils.emptyMap());
@@ -756,6 +764,14 @@ abstract public class AbstractApiTest extends MockableTest {
             assertTrue(e instanceof NotFound);
         }
         api.deleteResourcesByPrefix("test_folder", ObjectUtils.emptyMap());
+    }
+
+    @Test
+    public void testCreateFolder() throws Exception {
+        String apTestCreateFolder = "api_test_create_folder" + "_" + SUFFIX;
+        createdFolders.add(apTestCreateFolder);
+        Map result = api.createFolder("apTestCreateFolder", null);
+        assertTrue((Boolean) result.get("success"));
     }
 
     @Test
@@ -946,7 +962,7 @@ abstract public class AbstractApiTest extends MockableTest {
         Thread.sleep(5000);
         api.deleteResources(Collections.singletonList(uploadResult.get("public_id").toString()), emptyMap());
         ApiResponse result = api.deleteFolder(toDelete, emptyMap());
-        assertTrue(((ArrayList)result.get("deleted")).contains(toDelete));
+        assertTrue(((ArrayList) result.get("deleted")).contains(toDelete));
 
         // should throw exception (folder not found):
         api.deleteFolder(cloudinary.randomPublicId(), emptyMap());

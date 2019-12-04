@@ -585,7 +585,7 @@ public class Api {
     /**
      * Add a new metadata field definition
      * @param field The field to add.
-     * @return A map representing the newlay added field.
+     * @return A map representing the newly added field.
      * @throws Exception
      */
     public ApiResponse addMetadataField(MetadataField field) throws Exception {

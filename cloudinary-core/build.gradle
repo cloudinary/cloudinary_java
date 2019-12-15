@@ -6,6 +6,8 @@ plugins {
     id "de.marcphilipp.nexus-publish" version "0.4.0"
 }
 
+task ciTest( type: Test )
+
 dependencies {
     testImplementation "org.hamcrest:java-hamcrest:2.0.0.0"
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'

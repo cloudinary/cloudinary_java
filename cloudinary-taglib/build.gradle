@@ -7,6 +7,9 @@ plugins {
 }
 
 apply from: "../java_shared.gradle"
+
+task ciTest( type: Test )
+
 dependencies {
     compile project(':cloudinary-core')
     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.1'

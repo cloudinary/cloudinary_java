@@ -1,3 +1,11 @@
+plugins {
+    id 'java-library'
+    id 'signing'
+    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.21.1'
+    id "de.marcphilipp.nexus-publish" version "0.4.0"
+}
+
 apply from: "../java_shared.gradle"
 
 task ciTest( type: Test ) {
@@ -18,59 +26,93 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+signing {
+    sign configurations.archives
+}
 
-            repository(url: publishRepo) {
-                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
-            }
+nexusStaging {
+    packageGroup = group
+    username = project.getProperty('ossrhUsername')
+    password = project.getProperty('ossrhPassword')
+}
 
-            snapshotRepository(url: snapshotRepo) {
-                authentication(userName: project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : "", password: project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : "")
-            }
-
-            pom.project {
-                groupId publishGroupId
-                artifactId 'cloudinary-http42'
-                name 'Cloudinary Apache HTTP 4.2 Library'
-                description publishDescription
-                packaging jar
-                version version
-
-                url githubUrl
-
-                scm {
-                    connection scmConnection
-                    developerConnection scmDeveloperConnection
-                    url scmUrl
-                }
-
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourcesJar
+            artifact javadocJar
+            pom {
+                name = 'Cloudinary Apache HTTP 4.2 Library'
+                packaging = 'jar'
+                groupId = publishGroupId
+                artifactId = 'cloudinary-http42'
+                description = publishDescription
+                url = githubUrl
                 licenses {
                     license {
-                        name licenseName
-                        url licenseUrl
+                        name = licenseName
+                        url = licenseUrl
                     }
                 }
 
                 developers {
                     developer {
-                        id developerId
-                        name developerName
-                        email developerEmail
+                        id = developerId
+                        name = developerName
+                        email = developerEmail
                     }
+                }
+                scm {
+                    connection = scmConnection
+                    developerConnection = scmDeveloperConnection
+                    url = scmUrl
                 }
             }
 
-            pom.whenConfigured { pom ->
-                pom.dependencies.forEach { dep ->
-                    if (dep.getVersion() == "unspecified") {
-                        dep.setGroupId(publishGroupId)
-                        dep.setVersion(version)
-                    }
+            pom.withXml {
+                def pomFile = file("${project.buildDir}/generated-pom.xml")
+                writeTo(pomFile)
+                def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                artifact(pomAscFile) {
+                    classifier = null
+                    extension = 'pom.asc'
                 }
             }
+
+            // create the signed artifacts
+            project.tasks.signArchives.signatureFiles.each {
+                artifact(it) {
+                    def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                    if (matcher.find()) {
+                        classifier = matcher.group(1)
+                    } else {
+                        classifier = null
+                    }
+                    extension = 'jar.asc'
+                }
+            }
+        }
+    }
+
+    nexusPublishing {
+        repositories {
+            sonatype {
+                username = project.getProperty('ossrhUsername')
+                password = project.getProperty('ossrhPassword')
+            }
+        }
+    }
+
+    model {
+        tasks.generatePomFileForMavenJavaPublication {
+            destination = file("$buildDir/generated-pom.xml")
+        }
+        tasks.publishMavenJavaPublicationToMavenLocal {
+            dependsOn project.tasks.signArchives
+        }
+        tasks.publishMavenJavaPublicationToSonatypeRepository {
+            dependsOn project.tasks.signArchives
         }
     }
 }

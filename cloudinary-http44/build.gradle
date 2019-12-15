@@ -31,8 +31,8 @@ signing {
 
 nexusStaging {
     packageGroup = group
-    username = project.getProperty('ossrhUsername')
-    password = project.getProperty('ossrhPassword')
+    username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
+    password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
 }
 
 publishing {
@@ -97,8 +97,8 @@ publishing {
     nexusPublishing {
         repositories {
             sonatype {
-                username = project.getProperty('ossrhUsername')
-                password = project.getProperty('ossrhPassword')
+                username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
+                password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
             }
         }
     }

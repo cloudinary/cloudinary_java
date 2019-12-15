@@ -39,9 +39,3 @@ tasks.withType(Test) {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-
-tasks.each { task ->
-    if (!hasProperty("ossrhPassword") && "signArchives" == task.name) {
-        task.enabled = false
-    }
-}

@@ -31,6 +31,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
     private static Map<String, Set<String>> toDelete = new HashMap<String, Set<String>>();
+    public static final String SRC_FULLY_QUALIFIED_IMAGE="image/upload/sample";
+    public static final String SRC_FULLY_QUALIFIED_VIDEO="video/upload/dog";
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -40,6 +42,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         }
 
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}));
+        cloudinary.uploader().upload(SRC_TEST_VIDEO, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "public_id", "dog", "resource_type", "video"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
                 asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG},
@@ -591,6 +594,13 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals(1, result.get("file_count"));
         cloudinary.api().deleteResources(Arrays.asList(result.get("public_id").toString()), asMap("resource_type", "raw"));
 
+    }
+
+    @Test
+    public void testCreateZipMultipleResourceTypes() throws Exception {
+        Map result = cloudinary.uploader().createZip(ObjectUtils.asMap("fully_qualified_public_ids",(new String[]{SRC_FULLY_QUALIFIED_IMAGE,SRC_FULLY_QUALIFIED_VIDEO}),"resource_type","auto"));
+        assertEquals(2, result.get("file_count"));
+        cloudinary.api().deleteResources(Arrays.asList(result.get("public_id").toString()), asMap("resource_type", "raw"));
     }
 
     @Test

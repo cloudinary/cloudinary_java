@@ -26,6 +26,7 @@ public class ArchiveParams {
     private String[] targetTags = null;
     private String[] tags = null;
     private String[] publicIds = null;
+    private String[] fullyQualifiedPublicIds = null;
     private String[] prefixes = null;
     private Transformation[] transformations = null;
     private Long expiresAt = null;
@@ -176,6 +177,15 @@ public class ArchiveParams {
         return this;
     }
 
+    public String[] fully_qualified_public_ids() {
+        return fullyQualifiedPublicIds;
+    }
+
+    public ArchiveParams fullyQualifiedPublicIds(String[] fullyQualifiedPublicIds) {
+        this.fullyQualifiedPublicIds = fullyQualifiedPublicIds;
+        return this;
+    }
+
     public String[] prefixes() {
         return prefixes;
     }
@@ -225,6 +235,9 @@ public class ArchiveParams {
             params.put("tags", tags);
         if (publicIds != null)
             params.put("public_ids", publicIds);
+        if(fullyQualifiedPublicIds !=null){
+            params.put("fully_qualified_public_ids", fullyQualifiedPublicIds);
+        }
         if (prefixes != null)
             params.put("prefixes", prefixes);
         if (transformations != null) {

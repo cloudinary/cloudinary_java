@@ -179,6 +179,7 @@ public class Util {
             putArray("target_tags", options, params);
             putArray("tags", options, params);
             putArray("public_ids", options, params);
+            putArray("fully_qualified_public_ids", options, params);
             putArray("prefixes", options, params);
             putEager("transformations", options, params);
             putObject("timestamp", options, params, Util.timestamp());

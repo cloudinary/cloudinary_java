@@ -1,10 +1,5 @@
-apply plugin: 'java'
-
 sourceCompatibility = 1.6
 targetCompatibility = 1.6
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
 
 javadoc {
     options.encoding = 'UTF-8'
@@ -26,12 +21,21 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
-    archives sourcesJar
-    archives javadocJar
+    archives javadocJar, sourcesJar
 }
 
-tasks.each { task ->
-    if (!project.hasProperty("ossrhPassword") && "signArchives" == task.name) {
-        task.enabled = false
-    }
+tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+}
+
+tasks.withType(Test) {
+    environment 'CLOUDINARY_URL', System.getProperty('CLOUDINARY_URL')
+    maxParallelForks = Runtime.runtime.availableProcessors()
+
+    // show standard out and standard error of the test JVM(s) on the console
+    testLogging.showStandardStreams = true
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }

@@ -393,7 +393,7 @@ public class Url {
             toSign = StringUtils.removeStartingChars(toSign, '/');
             toSign = StringUtils.mergeSlashesInUrl(toSign);
 
-            byte[] digest = md.digest(cloudinary.getUTF8Bytes(toSign + this.config.apiSecret));
+            byte[] digest = md.digest(Util.getUTF8Bytes(toSign + this.config.apiSecret));
             signature = Base64Coder.encodeURLSafeString(digest);
             signature = "s--" + signature.substring(0, 8) + "--";
         }
@@ -536,7 +536,7 @@ public class Url {
 
     private String shard(String input) {
         CRC32 crc32 = new CRC32();
-        crc32.update(cloudinary.getUTF8Bytes(input));
+        crc32.update(Util.getUTF8Bytes(input));
         return String.valueOf((crc32.getValue() % 5 + 5) % 5 + 1);
     }
 

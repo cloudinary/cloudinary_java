@@ -4,6 +4,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Util {
@@ -225,5 +227,37 @@ public class Util {
 
     protected static String timestamp() {
         return Long.toString(System.currentTimeMillis() / 1000L);
+    }
+
+    public static byte[] getUTF8Bytes(String string) {
+        try {
+            return string.getBytes("UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+    }
+
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
+        Collection<String> params = new ArrayList<String>();
+        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
+            if (param.getValue() instanceof Collection) {
+                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
+            } else if (param.getValue() instanceof Object[]) {
+                params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
+            } else {
+                if (StringUtils.isNotBlank(param.getValue())) {
+                    params.add(param.getKey() + "=" + param.getValue().toString());
+                }
+            }
+        }
+        String to_sign = StringUtils.join(params, "&");
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+        byte[] digest = md.digest(getUTF8Bytes(to_sign + apiSecret));
+        return StringUtils.encodeHexString(digest);
     }
 }

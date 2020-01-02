@@ -6,7 +6,7 @@ import com.cloudinary.utils.StringUtils;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import static com.cloudinary.api.signing.SigningUtils.safeString;
+import static com.cloudinary.utils.StringUtils.emptyIfNull;
 
 class SignedPayloadValidator {
     private final String secretKey;
@@ -24,7 +24,7 @@ class SignedPayloadValidator {
     boolean validateSignedPayload(String signedPayload, String signature) {
         String expectedSignature =
                 StringUtils.encodeHexString(
-                        messageDigest.digest(Util.getUTF8Bytes(safeString(signedPayload) + secretKey)));
+                        messageDigest.digest(Util.getUTF8Bytes(emptyIfNull(signedPayload) + secretKey)));
 
         return expectedSignature.equals(signature);
     }

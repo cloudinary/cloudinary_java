@@ -8,9 +8,9 @@ import static org.junit.Assert.assertTrue;
 public class NotificationRequestSignatureVerifierTest {
     @Test
     public void testVerifySignature() {
-        NotificationRequestSignatureVerifier impl = new NotificationRequestSignatureVerifier("someApiSecret");
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret");
 
-        boolean actual = impl.verifySignature(
+        boolean actual = verifier.verifySignature(
                 "{}",
                 "0",
                 "f9aa4471d2a88ff244424cca2444edf7d7ac3596");
@@ -20,9 +20,9 @@ public class NotificationRequestSignatureVerifierTest {
 
     @Test
     public void testVerifySignatureFailWhenSignatureDoesntMatch() {
-        NotificationRequestSignatureVerifier impl = new NotificationRequestSignatureVerifier("someApiSecret");
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret");
 
-        boolean actual = impl.verifySignature(
+        boolean actual = verifier.verifySignature(
                 "{}",
                 "0",
                 "notMatchingForSure");
@@ -32,9 +32,9 @@ public class NotificationRequestSignatureVerifierTest {
 
     @Test
     public void testVerifySignatureFailWhenTooOld() {
-        NotificationRequestSignatureVerifier impl = new NotificationRequestSignatureVerifier("someApiSecret");
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret");
 
-        boolean actual = impl.verifySignature(
+        boolean actual = verifier.verifySignature(
                 "{}",
                 "0",
                 "f9aa4471d2a88ff244424cca2444edf7d7ac3596",
@@ -45,9 +45,9 @@ public class NotificationRequestSignatureVerifierTest {
 
     @Test
     public void testVerifySignaturePassWhenStillValid() {
-        NotificationRequestSignatureVerifier impl = new NotificationRequestSignatureVerifier("someApiSecret");
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret");
 
-        boolean actual = impl.verifySignature(
+        boolean actual = verifier.verifySignature(
                 "{}",
                 "0",
                 "f9aa4471d2a88ff244424cca2444edf7d7ac3596",
@@ -58,9 +58,9 @@ public class NotificationRequestSignatureVerifierTest {
 
     @Test
     public void testVerifySignatureFailWhenStillValidButSignatureDoesntMatch() {
-        NotificationRequestSignatureVerifier impl = new NotificationRequestSignatureVerifier("someApiSecret");
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret");
 
-        boolean actual = impl.verifySignature(
+        boolean actual = verifier.verifySignature(
                 "{}",
                 "0",
                 "notMatchingForSure",

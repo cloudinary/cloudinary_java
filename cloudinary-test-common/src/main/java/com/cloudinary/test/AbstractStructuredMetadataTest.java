@@ -216,6 +216,21 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
     }
 
+    @Test
+    public void testSetField() throws Exception {
+        SetMetadataField field = createSetField("test123");
+        ApiResponse fieldResult = addFieldToAccount(field);
+        String fieldId = fieldResult.get("external_id").toString();
+        Map result = cloudinary.uploader().updateMetadata(asMap(fieldId, new String[]{"id2", "id3"}), new String[]{"sample"}, null);
+        assertNotNull(result);
+        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
+        List<String> list = new ArrayList<String>(2);
+        list.add("id1");
+        list.add("id2");
+        result = cloudinary.uploader().updateMetadata(asMap(fieldId, list), new String[]{"sample"}, null);
+        assertNotNull(result);
+        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
+    }
     // Metadata test helpers
     private SetMetadataField createSetField(String labelPrefix) {
         SetMetadataField setField = new SetMetadataField();

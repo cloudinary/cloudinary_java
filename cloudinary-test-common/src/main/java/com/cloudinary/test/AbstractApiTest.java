@@ -794,6 +794,14 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testEncodeUrlInApiCall() throws Exception {
+        String apiTestEncodeUrlInApiCall = "sub^folder test";
+        createdFolders.add(apiTestEncodeUrlInApiCall);
+        Map result = api.createFolder(apiTestEncodeUrlInApiCall, null);
+        assertEquals("sub^folder test", result.get("path"));
+    }
+
+    @Test
     public void testUploadMapping() throws Exception {
         String aptTestUploadMapping = "api_test_upload_mapping" + SUFFIX;
         try {

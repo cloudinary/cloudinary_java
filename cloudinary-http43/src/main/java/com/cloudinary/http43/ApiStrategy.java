@@ -84,10 +84,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
 
 
-        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
-        for (String component : uri) {
-            apiUrl = apiUrl + "/" + component;
-        }
+        String apiUrl = createApiUrl(uri, prefix, cloudName);
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
         request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));

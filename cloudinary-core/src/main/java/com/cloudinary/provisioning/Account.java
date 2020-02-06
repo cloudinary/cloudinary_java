@@ -2,6 +2,7 @@ package com.cloudinary.provisioning;
 
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Util;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 
@@ -73,6 +74,7 @@ public class Account {
             options.put("provisioning_api_secret", secret);
         }
 
+        Util.clearEmpty(params);
         return api.getStrategy().callAccountApi(method, uri, params, options);
     }
 
@@ -308,7 +310,7 @@ public class Account {
         return callAccountApi(Api.HttpMethod.GET, uri,
                 ObjectUtils.asMap("accountId", accountId,
                         "pending", pending,
-                        "user_ids", userIds,
+                        "ids", userIds,
                         "prefix", prefix,
                         "sub_account_id", subAccountId), options);
     }

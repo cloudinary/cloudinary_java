@@ -157,10 +157,20 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsers() throws Exception {
-        createUser(Account.Role.MASTER_ADMIN);
-        ApiResponse result = account.users(null, null, null, null, null);
+        String id1 = createUser(Account.Role.MASTER_ADMIN).get("id").toString();
+        String id2 = createUser(Account.Role.MASTER_ADMIN).get("id").toString();
+        ApiResponse result = account.users(null, Arrays.asList(id1, id2), null, null, null);
         assertNotNull(result);
-        assertTrue(((ArrayList) result.get("users")).size() >= 1);
+        final ArrayList users = (ArrayList) result.get("users");
+        ArrayList<String> returnedIds = new ArrayList<String>(2);
+
+        assertEquals("Should return two users", 2, users.size());
+
+        returnedIds.add(((Map) users.get(0)).get("id").toString());
+        returnedIds.add(((Map) users.get(1)).get("id").toString());
+
+        assertTrue("User1 id should be in the result set", returnedIds.contains(id1));
+        assertTrue("User2 id should be in the result set", returnedIds.contains(id2));
     }
 
     @Test

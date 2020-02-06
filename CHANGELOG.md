@@ -1,4 +1,20 @@
 
+1.25.0 / 2020-02-06
+===================
+
+New functionality
+-----------------
+  * Allow generating archive with multiple resource types (#174)
+  * Add validation for `CLOUDINARY_URL` scheme (#185)
+  * Support create folder API (#188)
+  
+Other changes
+-------------
+  * Fix/provisioning api params (#195)
+  * Encode URLs in API calls (#186)
+  * Improve support for modifying `set` type metadata fields. (#194)
+  * Ignore `URL` in AuthToken generation if `ACL` is provided (#184)
+
 1.24.0 / 2019-09-12
 ===================
 

@@ -22,7 +22,7 @@
         </repository>
         <repository>
             <id>gmultipart</id>
-            <url>http://gmultipart.googlecode.com/svn/repo/m2</url>
+            <url>https://gmultipart.googlecode.com/svn/repo/m2</url>
         </repository>
     </repositories>
 

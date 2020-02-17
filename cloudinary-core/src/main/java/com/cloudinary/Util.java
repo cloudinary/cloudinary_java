@@ -4,6 +4,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Util {
@@ -252,5 +254,56 @@ public class Util {
 
     protected static String timestamp() {
         return Long.toString(System.currentTimeMillis() / 1000L);
+    }
+
+    /**
+     * Encodes passed string value into a sequence of bytes using the UTF-8 charset.
+     *
+     * @param string string value to encode
+     * @return byte array representing passed string value
+     */
+    public static byte[] getUTF8Bytes(String string) {
+        try {
+            return string.getBytes("UTF-8");
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+    }
+
+    /**
+     * Calculates signature, or hashed message authentication code (HMAC) of provided parameters name-value pairs and
+     * secret value using SHA-1 hashing algorithm.
+     * <p>
+     * Argument for hashing function is built by joining sorted parameter name-value pairs into single string in the
+     * same fashion as HTTP GET method uses, and concatenating the result with secret value in the end. Method supports
+     * arrays/collections as parameter values. In this case, the elements of array/collection are joined into single
+     * comma-delimited string prior to inclusion into the result.
+     *
+     * @param paramsToSign parameter name-value pairs list represented as instance of {@link Map}
+     * @param apiSecret    secret value
+     * @return hex-string representation of signature calculated based on provided parameters map and secret
+     */
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
+        Collection<String> params = new ArrayList<String>();
+        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
+            if (param.getValue() instanceof Collection) {
+                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
+            } else if (param.getValue() instanceof Object[]) {
+                params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
+            } else {
+                if (StringUtils.isNotBlank(param.getValue())) {
+                    params.add(param.getKey() + "=" + param.getValue().toString());
+                }
+            }
+        }
+        String to_sign = StringUtils.join(params, "&");
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
+        byte[] digest = md.digest(getUTF8Bytes(to_sign + apiSecret));
+        return StringUtils.encodeHexString(digest);
     }
 }

@@ -398,4 +398,14 @@ public class StringUtils {
 
         return builder.toString();
     }
+
+    /**
+     * Returns empty string value when passed string value is null or empty, the passed string itself otherwise.
+     *
+     * @param str string value to evaluate
+     * @return passed string value or empty string, if the passed string is null or empty
+     */
+    public static String emptyIfNull(String str) {
+        return isEmpty(str) ? "" : str;
+    }
 }

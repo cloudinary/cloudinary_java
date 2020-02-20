@@ -210,4 +210,12 @@ public class TransformationTest {
                 ).fontFamily("Arial").fontSize(18));
         assertEquals("c_scale,l_text:Arial_18:$(start)Hello%20$(name)$(ext)%252C%20%24%28no%20%29%20%24%28%20no%29$(end)", t.generate());
     }
+
+    @Test
+    public void testShouldSupportPowOperator() {
+        Transformation t = new Transformation()
+                .variables(variable("$small", 150), variable("$big", "$small ^ 1.5"));
+
+        assertEquals("$small_150,$big_$small_pow_1.5", t.generate());
+    }
 }

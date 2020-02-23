@@ -26,7 +26,8 @@ public abstract class BaseExpression<T extends BaseExpression> {
             "*", "mul",
             "/", "div",
             "+", "add",
-            "-", "sub"
+            "-", "sub",
+            "^", "pow"
     );
     public static final Map<String, String> PREDEFINED_VARS = ObjectUtils.asMap(
             "width", "w",
@@ -242,6 +243,29 @@ public abstract class BaseExpression<T extends BaseExpression> {
 
     public T sub() {
         expressions.add("sub");
+        return (T) this;
+    }
+
+    /**
+     * Utility shortcut method which invokes on this Expression instance {@link #pow()} method, takes its result and
+     * invokes {@link #value(Object)} method on it. Effectively, invocation of this shortcut results in
+     * "to the power of value" sub-expression added to the end of current expression instance.
+     *
+     * @param value argument for {@link #value(Object)} call
+     * @return result of {@link #value(Object)} call
+     */
+    public T pow(Object value) {
+        return (T) pow().value(value);
+    }
+
+    /**
+     * Adds "to the power of" sub-expression to the end of the list of already present sub-expressions in this
+     * expression instance.
+     *
+     * @return this expression instance
+     */
+    public T pow() {
+        expressions.add("pow");
         return (T) this;
     }
 

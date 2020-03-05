@@ -262,10 +262,35 @@ public class Api {
         return callApi(HttpMethod.GET, Arrays.asList("folders"), ObjectUtils.emptyMap(), options);
     }
 
+    /**
+     * Overloaded {@link #rootFolders(Map)} with paging parameters support.
+     *
+     * @param params paging params to control response size (use {@link PagingParamsBuilder} to construct or pass null
+     *              for default behavior)
+     */
+    public ApiResponse rootFolders(PagingParams params, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callApi(HttpMethod.GET, Arrays.asList("folders"), PagingParamsTranslator.toMap(params), options);
+    }
+
     public ApiResponse subFolders(String ofFolderPath, Map options) throws Exception {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
+    }
+
+    /**
+     * Overloaded {@link #subFolders(String, Map)} with paging parameters support.
+     *
+     * @param params paging params to control response size (use {@link PagingParamsBuilder} to construct or pass null
+     *              for default behavior)
+     */
+    public ApiResponse subFolders(String ofFolderPath, PagingParams params, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), PagingParamsTranslator.toMap(params),
+                options);
     }
 
     //Creates an empty folder

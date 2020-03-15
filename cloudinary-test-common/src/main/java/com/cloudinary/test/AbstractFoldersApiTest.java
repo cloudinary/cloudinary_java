@@ -2,8 +2,8 @@ package com.cloudinary.test;
 
 import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
-import com.cloudinary.PagingParamsBuilder;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.utils.ObjectUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,7 +39,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
 
         Thread.sleep(500);
 
-        ApiResponse rootResponse1 = api.rootFolders(PagingParamsBuilder.newInstance().maxResults(1).build(), null);
+        ApiResponse rootResponse1 = api.rootFolders(ObjectUtils.asMap("max_results", 1));
         List rootFolders1 = (List) rootResponse1.get("folders");
         assertNotNull(rootFolders1);
         assertEquals(1, rootFolders1.size());
@@ -47,7 +47,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
         String nextCursor = (String) rootResponse1.get("next_cursor");
         assertNotNull(nextCursor);
 
-        ApiResponse rootResponse2 = api.rootFolders(PagingParamsBuilder.newInstance().maxResults(1).nextCursor(nextCursor).build(), null);
+        ApiResponse rootResponse2 = api.rootFolders(ObjectUtils.asMap("max_results", 1, "next_cursor", nextCursor));
         List folders2 = (List) rootResponse2.get("folders");
         assertNotNull(folders2);
         assertEquals(1, folders2.size());
@@ -69,7 +69,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
 
         Thread.sleep(500);
 
-        ApiResponse response = api.subFolders(rootFolderName, PagingParamsBuilder.newInstance().maxResults(1).build(), null);
+        ApiResponse response = api.subFolders(rootFolderName, ObjectUtils.asMap("max_results", 1));
         List folders = (List) response.get("folders");
         assertNotNull(folders);
         assertEquals(1, folders.size());
@@ -77,7 +77,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
         String nextCursor = (String) response.get("next_cursor");
         assertNotNull(nextCursor);
 
-        ApiResponse response2 = api.subFolders(rootFolderName, PagingParamsBuilder.newInstance().maxResults(1).nextCursor(nextCursor).build(), null);
+        ApiResponse response2 = api.subFolders(rootFolderName, ObjectUtils.asMap("max_results", 1, "next_cursor", nextCursor));
         List folders2 = (List) response2.get("folders");
         assertNotNull(folders2);
         assertEquals(1, folders2.size());

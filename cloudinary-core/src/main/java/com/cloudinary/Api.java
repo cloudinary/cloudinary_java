@@ -259,13 +259,17 @@ public class Api {
     public ApiResponse rootFolders(Map options) throws Exception {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.GET, Arrays.asList("folders"), ObjectUtils.emptyMap(), options);
+        return callApi(HttpMethod.GET, Arrays.asList("folders"),
+                extractParams(options, Arrays.asList("max_results", "next_cursor")),
+                options);
     }
 
     public ApiResponse subFolders(String ofFolderPath, Map options) throws Exception {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath), ObjectUtils.emptyMap(), options);
+        return callApi(HttpMethod.GET, Arrays.asList("folders", ofFolderPath),
+                extractParams(options, Arrays.asList("max_results", "next_cursor")),
+                options);
     }
 
     //Creates an empty folder
@@ -658,5 +662,17 @@ public class Api {
     public ApiResponse deleteMetadataField(String fieldExternalId) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId);
         return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), Collections.emptyMap());
+    }
+
+    private Map<String, ?> extractParams(Map options, List<String> keys) {
+        Map<String, Object> result = new HashMap<String, Object>();
+        for (String key : keys) {
+            Object option = options.get(key);
+
+            if (option != null) {
+                result.put(key, option);
+            }
+        }
+        return result;
     }
 }

@@ -19,6 +19,7 @@ public class Configuration {
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
     public final static String VERSION = "1.0.2";
     public final static String USER_AGENT = "cld-android-" + VERSION;
+    public static final boolean DEFAULT_IS_LONG_SIGNATURE = false;
 
     public String cloudName;
     public String apiKey;
@@ -41,11 +42,12 @@ public class Configuration {
     public boolean clientHints = false;
     public AuthToken authToken;
     public boolean forceVersion = true;
+    public boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
 
     public Configuration() {
     }
 
-    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean forceVersion) {
+    private Configuration(String cloudName, String apiKey, String apiSecret, String secureDistribution, String cname, String uploadPrefix, boolean secure, boolean privateCdn, boolean cdnSubdomain, boolean shorten, String callback, String proxyHost, int proxyPort, Boolean secureCdnSubdomain, boolean useRootPath, int timeout, boolean loadStrategies, boolean forceVersion, boolean longUrlSignature) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -64,6 +66,7 @@ public class Configuration {
         this.timeout = 0;
         this.loadStrategies = loadStrategies;
         this.forceVersion = forceVersion;
+        this.longUrlSignature = longUrlSignature;
     }
 
     @SuppressWarnings("rawtypes")
@@ -100,6 +103,7 @@ public class Configuration {
         if (properties != null) {
             this.properties.putAll(properties);
         }
+        this.longUrlSignature = ObjectUtils.asBoolean(config.get("long_url_signature"), DEFAULT_IS_LONG_SIGNATURE);
     }
 
     @SuppressWarnings("rawtypes")
@@ -128,6 +132,7 @@ public class Configuration {
         }
         map.put("force_version", forceVersion);
         map.put("properties", new HashMap<String,Object>(properties));
+        map.put("long_url_signature", longUrlSignature);
         return map;
     }
 
@@ -156,6 +161,7 @@ public class Configuration {
         this.forceVersion = other.forceVersion;
         this.loadStrategies = other.loadStrategies;
         this.properties.putAll(other.properties);
+        this.longUrlSignature = other.longUrlSignature;
     }
 
     /**
@@ -265,6 +271,7 @@ public class Configuration {
         private boolean clientHints = false;
         private AuthToken authToken;
         private boolean forceVersion = true;
+        private boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
 
         /**
          * Set the HTTP connection timeout.
@@ -281,7 +288,7 @@ public class Configuration {
          * Creates a {@link Configuration} with the arguments supplied to this builder
          */
         public Configuration build() {
-            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, forceVersion);
+            final Configuration configuration = new Configuration(cloudName, apiKey, apiSecret, secureDistribution, cname, uploadPrefix, secure, privateCdn, cdnSubdomain, shorten, callback, proxyHost, proxyPort, secureCdnSubdomain, useRootPath, timeout, loadStrategies, forceVersion, longUrlSignature);
             configuration.clientHints = clientHints;
             return configuration;
         }
@@ -400,6 +407,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setIsLongUrlSignature(boolean isLong) {
+            this.longUrlSignature = isLong;
+            return this;
+        }
+
         /**
          * Initialize builder from existing {@link Configuration}
          *
@@ -427,6 +439,7 @@ public class Configuration {
             this.clientHints = other.clientHints;
             this.authToken = other.authToken == null ? null : other.authToken.copy();
             this.forceVersion = other.forceVersion;
+            this.longUrlSignature = other.longUrlSignature;
             return this;
         }
     }

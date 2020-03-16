@@ -252,6 +252,15 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testSignatureLength(){
+        String url = cloudinary.url().signed(true).generate("sample.jpg");
+        assertEquals("http://res.cloudinary.com/test123/image/upload/s--v2fTPYTu--/sample.jpg", url);
+
+        url = cloudinary.url().signed(true).longUrlSignature(true).generate("sample.jpg");
+        assertEquals("http://res.cloudinary.com/test123/image/upload/s--2hbrSMPOjj5BJ4xV7SgFbRDevFaQNUFf--/sample.jpg", url);
+    }
+
+    @Test
     public void testSupportUrlSuffixForRawUploads() {
         String actual = cloudinary.url().suffix("hello").privateCdn(true).resourceType("raw").generate("test");
         assertEquals("http://test123-res.cloudinary.com/files/test/hello", actual);

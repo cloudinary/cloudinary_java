@@ -22,6 +22,7 @@ import com.cloudinary.utils.StringUtils;
 public class Url {
     private final Cloudinary cloudinary;
     private final Configuration config;
+    private boolean longUrlSignature;
     String publicId = null;
     String type = null;
     String resourceType = null;
@@ -47,6 +48,7 @@ public class Url {
     public Url(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
         this.config = new Configuration(cloudinary.config);
+        this.longUrlSignature = config.longUrlSignature;
         this.authToken = config.authToken;
     }
 
@@ -73,7 +75,7 @@ public class Url {
         cloned.sourceTypes = this.sourceTypes;
         cloned.urlSuffix = this.urlSuffix;
         cloned.useRootPath = this.useRootPath;
-
+        cloned.longUrlSignature = this.longUrlSignature;
         return cloned;
     }
 
@@ -240,6 +242,11 @@ public class Url {
         return this;
     }
 
+    public Url longUrlSignature(boolean isLong) {
+        this.longUrlSignature = isLong;
+        return this;
+    }
+
     public Url sourceTransformation(Map<String, Transformation> sourceTransformation) {
         this.sourceTransformation = sourceTransformation;
         return this;
@@ -384,7 +391,7 @@ public class Url {
         if (signUrl && (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN))) {
             MessageDigest md = null;
             try {
-                md = MessageDigest.getInstance("SHA-1");
+                md = MessageDigest.getInstance(longUrlSignature ? "SHA-256" : "SHA-1");
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException("Unexpected exception", e);
             }
@@ -395,7 +402,7 @@ public class Url {
 
             byte[] digest = md.digest(Util.getUTF8Bytes(toSign + this.config.apiSecret));
             signature = Base64Coder.encodeURLSafeString(digest);
-            signature = "s--" + signature.substring(0, 8) + "--";
+            signature = "s--" + signature.substring(0, longUrlSignature ? 32 : 8) + "--";
         }
 
         String resourceType = this.resourceType;

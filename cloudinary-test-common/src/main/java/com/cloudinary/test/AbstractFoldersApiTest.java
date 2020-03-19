@@ -37,7 +37,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
         String rootFolder2Name = "rootFolderWithParamsTest2" + SUFFIX;
         assertTrue((Boolean) api.createFolder(rootFolder2Name, null).get("success"));
 
-        Thread.sleep(500);
+        Thread.sleep(2000);
 
         ApiResponse rootResponse1 = api.rootFolders(ObjectUtils.asMap("max_results", 1));
         List rootFolders1 = (List) rootResponse1.get("folders");
@@ -67,7 +67,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
         String subFolder2Name = rootFolderName + "/subfolder2" + SUFFIX;
         assertTrue((Boolean) api.createFolder(subFolder2Name, null).get("success"));
 
-        Thread.sleep(500);
+        Thread.sleep(2000);
 
         ApiResponse response = api.subFolders(rootFolderName, ObjectUtils.asMap("max_results", 1));
         List folders = (List) response.get("folders");

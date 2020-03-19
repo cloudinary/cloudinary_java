@@ -181,10 +181,11 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test04ResourcesByType() throws Exception {
         // should allow listing resources by type
-        Map resource = preloadResource(ObjectUtils.asMap("tags", UPLOAD_TAGS));
-        Map result = api.resources(ObjectUtils.asMap("type", "upload", "max_results", 500));
+        Map result = api.resources(ObjectUtils.asMap("type", "upload", "max_results", 10));
         List<Map> resources = (List) result.get("resources");
-        assertThat(resources, hasItem(hasEntry("public_id", (String) resource.get("public_id"))));
+
+        // beforeClass hook uploads several type:upload resources, we can rely on it.
+        assertTrue(resources.size() > 0);
     }
 
     @Test

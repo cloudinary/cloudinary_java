@@ -218,4 +218,14 @@ public class TransformationTest {
 
         assertEquals("$small_150,$big_$small_pow_1.5", t.generate());
     }
+
+    @Test
+    public void testShouldNotChangeVariableNamesWhenTheyNamedAfterKeyword() {
+        Transformation t = new Transformation()
+                .variable("$width", 10)
+                .chain()
+                .width("$width + 10 + width");
+
+        assertEquals("$width_10/w_$width_add_10_add_w", t.generate());
+    }
 }

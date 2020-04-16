@@ -654,6 +654,18 @@ public class Api {
     }
 
     /**
+     * Restore deleted data source entries for a given field
+     * @param fieldExternalId The id of the field to operate
+     * @param entriesExternalId The ids of all the entries to restore from the data source
+     * @return The datasource entries state after restore
+     * @throws Exception
+     */
+    public ApiResponse restoreDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
+        List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource_restore");
+        return callApi(HttpMethod.POST, uri, Collections.singletonMap("external_ids", entriesExternalId), Collections.singletonMap("content_type", "json"));
+    }
+
+    /**
      * Delete a field definition.
      * @param fieldExternalId The id of the field to delete
      * @return A map with a "message" key. "ok" value indicates a successful deletion.

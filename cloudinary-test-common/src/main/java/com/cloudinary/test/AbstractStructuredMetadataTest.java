@@ -159,6 +159,16 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     @Test
+    public void testRestoreDatasourceEntries() throws Exception {
+        SetMetadataField setField = createSetField("testRestoreDatasourceEntries");
+        ApiResponse fieldResult = addFieldToAccount(setField);
+        String fieldExternalId = fieldResult.get("external_id").toString();
+        api.deleteDatasourceEntries(fieldExternalId, Collections.singletonList("id1"));
+        ApiResponse result = api.restoreDatasourceEntries(fieldExternalId, Collections.singletonList("id1"));
+        assertNotNull(result);
+    }
+
+    @Test
     public void testUploadWithMetadata() throws Exception {
         StringMetadataField field = newFieldInstance("testUploadWithMetadata");
         ApiResponse fieldResult = addFieldToAccount(field);

@@ -527,6 +527,10 @@ public class CloudinaryTest {
         Transformation transformation = new Transformation().opacity(50);
         String result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "o_50/test", result);
+
+        transformation = new Transformation().opacity("$var");
+        result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "o_$var/test", result);
     }
 
     @SuppressWarnings("unchecked")

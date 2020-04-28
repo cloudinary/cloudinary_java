@@ -202,7 +202,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         return param("delay", value);
     }
 
-    public T opacity(int value) {
+    public T opacity(Object value) {
         return param("opacity", value);
     }
 

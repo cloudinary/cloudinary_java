@@ -1,4 +1,22 @@
 
+1.26.0 / 2020-05-05
+===================
+
+New functionality
+-----------------
+
+  * Add variable support to `Transformation.opacity()` (#209)
+  * Add support for restoring deleted datasource entries (#207)
+  * Add support for 32 char SHA-256 URL signatures.
+  * Add support for `pow` operator in expressions (#198)
+  * Add signature checking methods (#193)
+  
+Other changes
+-------------
+
+  * Fix handling of `max_results` and `next_cursor` parameters for folders api (#203)
+  * Fix `normalize_expression` when a keyword is used in a variable name (#205)
+
 1.25.0 / 2020-02-06
 ===================
 

@@ -55,14 +55,23 @@ public class Api {
 
     public ApiResponse usage(Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        Map params = ObjectUtils.only(options, "date");
-        Object date = params.get("date");
-        if (date instanceof Date) {
-            params.put("date", ObjectUtils.toUsageApiDateFormat((Date)date));
+
+        final List<String> uri = new ArrayList<String>();
+        uri.add("usage");
+
+        Object date = options.get("date");
+
+        if (date != null) {
+            if (date instanceof Date) {
+                date = ObjectUtils.toUsageApiDateFormat((Date) date);
+            }
+
+            uri.add(date.toString());
         }
 
-        return callApi(HttpMethod.GET, Arrays.asList("usage"), params, options);
+        return callApi(HttpMethod.GET, uri, ObjectUtils.emptyMap(), options);
     }
+
 
     public ApiResponse resourceTypes(Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
@@ -549,7 +558,8 @@ public class Api {
 
     /**
      * Delete a folder (must be empty).
-     * @param folder The full path of the folder to delete
+     *
+     * @param folder  The full path of the folder to delete
      * @param options additional options.
      * @return The operation result.
      * @throws Exception When the folder isn't empty or doesn't exist.
@@ -594,6 +604,7 @@ public class Api {
 
     /**
      * Add a new metadata field definition
+     *
      * @param field The field to add.
      * @return A map representing the newly added field.
      * @throws Exception
@@ -605,6 +616,7 @@ public class Api {
 
     /**
      * List all the metadata field definitions (structure, not values)
+     *
      * @return A map containing the list of field definitions maps.
      * @throws Exception
      */
@@ -614,6 +626,7 @@ public class Api {
 
     /**
      * Get a metadata field definition by id
+     *
      * @param fieldExternalId The id of the field to retrieve
      * @return The fields definitions.
      * @throws Exception
@@ -624,8 +637,9 @@ public class Api {
 
     /**
      * Update the definitions of a single metadata field.
+     *
      * @param fieldExternalId The id of the field to update
-     * @param field The field definition
+     * @param field           The field definition
      * @return The updated fields definition.
      * @throws Exception
      */
@@ -636,9 +650,10 @@ public class Api {
 
     /**
      * Update the datasource entries for a given field
+     *
      * @param fieldExternalId The id of the field to update
-     * @param entries A list of datasource entries. Existing entries (according to entry id) will be updated,
-     *                new entries will be added.
+     * @param entries         A list of datasource entries. Existing entries (according to entry id) will be updated,
+     *                        new entries will be added.
      * @return The updated field definition.
      * @throws Exception
      */
@@ -649,7 +664,8 @@ public class Api {
 
     /**
      * Delete data source entries for a given field
-     * @param fieldExternalId The id of the field to update
+     *
+     * @param fieldExternalId   The id of the field to update
      * @param entriesExternalId The ids of all the entries to delete from the data source
      * @return The remaining datasource entries.
      * @throws Exception
@@ -661,7 +677,8 @@ public class Api {
 
     /**
      * Restore deleted data source entries for a given field
-     * @param fieldExternalId The id of the field to operate
+     *
+     * @param fieldExternalId   The id of the field to operate
      * @param entriesExternalId The ids of all the entries to restore from the data source
      * @return The datasource entries state after restore
      * @throws Exception
@@ -673,6 +690,7 @@ public class Api {
 
     /**
      * Delete a field definition.
+     *
      * @param fieldExternalId The id of the field to delete
      * @return A map with a "message" key. "ok" value indicates a successful deletion.
      * @throws Exception

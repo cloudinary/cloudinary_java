@@ -55,7 +55,13 @@ public class Api {
 
     public ApiResponse usage(Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.GET, Arrays.asList("usage"), ObjectUtils.emptyMap(), options);
+        Map params = ObjectUtils.only(options, "date");
+        Object date = params.get("date");
+        if (date instanceof Date) {
+            params.put("date", ObjectUtils.toUsageApiDateFormat((Date)date));
+        }
+
+        return callApi(HttpMethod.GET, Arrays.asList("usage"), params, options);
     }
 
     public ApiResponse resourceTypes(Map options) throws Exception {

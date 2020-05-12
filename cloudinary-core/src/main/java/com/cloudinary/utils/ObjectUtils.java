@@ -215,6 +215,10 @@ public class ObjectUtils {
         }
     }
 
+    public static String toUsageApiDateFormat(Date date){
+        return new SimpleDateFormat("dd-MM-yyy").format(date);
+    }
+
     public static String toISO8601DateOnly(Date date) {
         return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }

@@ -512,7 +512,12 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void test18Usage() throws Exception {
         // should support usage API call
-        Map result = api.usage(ObjectUtils.asMap("date", yesterday()));
+        final Date yesterday = yesterday();
+
+        Map result = api.usage(ObjectUtils.asMap("date", yesterday));
+        assertNotNull(result.get("last_updated"));
+
+        result = api.usage(ObjectUtils.asMap("date", ObjectUtils.toUsageApiDateFormat(yesterday)));
         assertNotNull(result.get("last_updated"));
 
         result = api.usage(ObjectUtils.emptyMap());

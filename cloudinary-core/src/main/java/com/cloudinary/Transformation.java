@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import com.cloudinary.transformation.AbstractLayer;
 import com.cloudinary.transformation.Condition;
 import com.cloudinary.transformation.Expression;
+import com.cloudinary.transformation.RadiusOption;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -126,8 +127,70 @@ public class Transformation<T extends Transformation> implements Serializable {
         return param("y", value);
     }
 
+    /**
+     * Add rounding transformation.
+     * <p>
+     * Radius can be specified either as value in pixels or expression. Specify 0 to keep corner untouched.
+     *
+     * @param value rounding radius for all four corners
+     * @return updated transformation instance for chaining
+     */
     public T radius(Object value) {
-        return param("radius", value);
+        return radius(new Object[]{value});
+    }
+
+    /**
+     * Add rounding transformation.
+     * <p>
+     * Radius can be specified either as value in pixels or expression. Specify 0 to keep corner untouched.
+     *
+     * @param topLeftBottomRight rounding radius for top-left and bottom-right corners
+     * @param topRightBottomLeft rounding radius for top-right and bottom-left corners
+     * @return updated transformation instance for chaining
+     */
+    public T radius(Object topLeftBottomRight, Object topRightBottomLeft) {
+        return radius(new Object[]{topLeftBottomRight, topRightBottomLeft});
+    }
+
+    /**
+     * Add rounding transformation.
+     * <p>
+     * Radius can be specified either as value in pixels or expression. Specify 0 to keep corner untouched.
+     *
+     * @param topLeft            rounding radius for top-left corner
+     * @param topRightBottomLeft rounding radius for top-right and bottom-left corners
+     * @param bottomRight        rounding radius for bottom-right corner
+     * @return updated transformation instance for chaining
+     */
+    public T radius(Object topLeft, Object topRightBottomLeft, Object bottomRight) {
+        return radius(new Object[]{topLeft, topRightBottomLeft, bottomRight});
+    }
+
+    /**
+     * Add rounding transformation.
+     * <p>
+     * Radius can be specified either as value in pixels or expression. Specify 0 to keep corner untouched.
+     *
+     * @param topLeft     rounding radius for top-left corner
+     * @param topRight    rounding radius for top-right corner
+     * @param bottomRight rounding radius for bottom-right corner
+     * @param bottomLeft  rounding radius for bottom-left corner
+     * @return updated transformation instance for chaining
+     */
+    public T radius(Object topLeft, Object topRight, Object bottomRight, Object bottomLeft) {
+        return radius(new Object[]{topLeft, topRight, bottomRight, bottomLeft});
+    }
+
+    /**
+     * Add rounding transformation.
+     * <p>
+     * Radius can be specified either as value in pixels or expression. Specify 0 to keep corner untouched.
+     *
+     * @param cornerRadiuses rounding radiuses for corners as array
+     * @return updated transformation instance for chaining
+     */
+    public T radius(Object[] cornerRadiuses) {
+        return param("radius", cornerRadiuses);
     }
 
     public T quality(Object value) {
@@ -694,7 +757,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         params.put("h", Expression.normalize(height));
         params.put("o", Expression.normalize(options.get("opacity")));
         params.put("q", Expression.normalize(options.get("quality")));
-        params.put("r", Expression.normalize(options.get("radius")));
+        params.put("r", Expression.normalize(RadiusOption.toExpression((Object[]) options.get("radius"))));
         params.put("so", startOffset);
         params.put("t", namedTransformation);
         params.put("vc", videoCodec);

@@ -8,10 +8,13 @@ import com.cloudinary.strategies.StrategyLoader;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.*;
+
+import static com.cloudinary.Util.buildMultiParams;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
@@ -224,6 +227,51 @@ public class Cloudinary {
         return downloadArchive(options, "zip");
     }
 
+    public String downloadGeneratedSprite(String tag, Map options) throws IOException {
+        if (options == null)
+            options = new HashMap();
+
+        options.put("tag", tag);
+        options.put("mode", ArchiveParams.MODE_DOWNLOAD);
+
+        Map params = Util.buildGenerateSpriteParams(options);
+        signRequest(params, options);
+
+        return buildUrl(cloudinaryApiUrl("sprite", options), params);
+    }
+
+    public String downloadGeneratedSprite(String[] urls, Map options) throws IOException {
+        if (options == null)
+            options = new HashMap();
+
+        options.put("urls", urls);
+        options.put("mode", ArchiveParams.MODE_DOWNLOAD);
+
+        Map params = Util.buildGenerateSpriteParams(options);
+        signRequest(params, options);
+
+        return buildUrl(cloudinaryApiUrl("sprite", options), params);
+    }
+
+    public String downloadMulti(String tag, Map options) throws IOException {
+        if (options == null)
+            options = new HashMap();
+
+        options.put("tag", tag);
+        options.put("mode", ArchiveParams.MODE_DOWNLOAD);
+
+        return buildUrl(cloudinaryApiUrl("multi", options), buildMultiParams(options));
+    }
+
+    public String downloadMulti(String[] urls, Map options) throws IOException {
+        if (options == null)
+            options = new HashMap();
+
+        options.put("urls", urls);
+        options.put("mode", ArchiveParams.MODE_DOWNLOAD);
+
+        return buildUrl(cloudinaryApiUrl("multi", options), buildMultiParams(options));
+    }
 
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
         StringBuilder urlBuilder = new StringBuilder();
@@ -233,6 +281,8 @@ public class Cloudinary {
         }
         boolean first = true;
         for (Map.Entry<String, Object> param : params.entrySet()) {
+            if (param.getValue() == null) continue;
+
             String keyValue = null;
             Object value = param.getValue();
             if (!first) urlBuilder.append("&");

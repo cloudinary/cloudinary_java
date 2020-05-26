@@ -6,10 +6,10 @@ import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+
+import static com.cloudinary.Util.buildGenerateSpriteParams;
+import static com.cloudinary.Util.buildMultiParams;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Uploader {
@@ -265,74 +265,45 @@ public class Uploader {
     }
 
     public Map generateSprite(String tag, Map options) throws IOException {
-        options.put("tag", tag);
-        return generateSprite(options);
+        if (options == null)
+            options = Collections.singletonMap("tag", tag);
+        else
+            options.put("tag", tag);
+
+        return callApi("sprite", buildGenerateSpriteParams(options), options, null);
     }
 
     public Map generateSprite(String[] urls, Map options) throws IOException {
-        options.put("urls", urls);
-        return generateSprite(options);
-    }
-
-    private Map generateSprite(Map options) throws IOException {
         if (options == null)
-            options = ObjectUtils.emptyMap();
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        Object transParam = options.get("transformation");
-        Transformation transformation = null;
-        if (transParam instanceof Transformation) {
-            transformation = new Transformation((Transformation) transParam);
-        } else if (transParam instanceof String) {
-            transformation = new Transformation().rawTransformation((String) transParam);
-        } else {
-            transformation = new Transformation();
-        }
-        String format = (String) options.get("format");
-        if (format != null) {
-            transformation.fetchFormat(format);
-        }
-        params.put("transformation", transformation.generate());
-        params.put("tag", options.get("tag"));
-        if (options.containsKey("urls")) {
-            params.put("urls", Arrays.asList((String[]) options.get("urls")));
-        }
-        params.put("notification_url", (String) options.get("notification_url"));
-        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
-        params.put("mode", options.get("mode"));
+            options = Collections.singletonMap("urls", urls);
+        else
+            options.put("urls", urls);
 
-        return callApi("sprite", params, options, null);
+        return callApi("sprite", buildGenerateSpriteParams(options), options, null);
     }
 
     public Map multi(String[] urls, Map options) throws IOException {
-        options.put("urls", urls);
+        if (options == null) {
+            options = Collections.singletonMap("urls", urls);
+        } else {
+            options.put("urls", urls);
+        }
+
         return multi(options);
     }
 
     public Map multi(String tag, Map options) throws IOException {
-       options.put("tag", tag);
-       return multi(options);
+        if (options == null) {
+            options = Collections.singletonMap("tag", tag);
+        } else {
+            options.put("tag", tag);
+        }
+
+        return multi(options);
     }
 
     private Map multi(Map options) throws IOException {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-        Map<String, Object> params = new HashMap<String, Object>();
-        Object transformation = options.get("transformation");
-        if (transformation != null) {
-            if (transformation instanceof Transformation) {
-                transformation = ((Transformation) transformation).generate();
-            }
-            params.put("transformation", transformation.toString());
-        }
-        params.put("tag", options.get("tag"));
-        if (options.containsKey("urls")) {
-            params.put("urls", Arrays.asList((String[]) options.get("urls")));
-        }
-        params.put("notification_url", (String) options.get("notification_url"));
-        params.put("format", (String) options.get("format"));
-        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
-
-        return callApi("multi", params, options, null);
+        return callApi("multi", buildMultiParams(options), options, null);
     }
 
     public Map explode(String public_id, Map options) throws IOException {

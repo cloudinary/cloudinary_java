@@ -12,13 +12,13 @@ import org.junit.rules.TestName;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipInputStream;
 
-import static com.cloudinary.utils.ObjectUtils.asArray;
-import static com.cloudinary.utils.ObjectUtils.asMap;
+import static com.cloudinary.utils.ObjectUtils.*;
 import static com.cloudinary.utils.StringUtils.isRemoteUrl;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -255,7 +255,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertTrue(((Integer) result.get("width")) > 1);
         assertTrue(((Integer) result.get("height")) > 1);
     }
-
 
     @Test
     public void testImageUploadTag() {

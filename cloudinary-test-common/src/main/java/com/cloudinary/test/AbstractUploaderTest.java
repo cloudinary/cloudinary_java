@@ -268,13 +268,19 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
     }
 
-
     @Test
     public void testSprite() throws Exception {
         final String sprite_test_tag = String.format("sprite_test_tag_%d", new java.util.Date().getTime());
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_1" + SUFFIX));
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_2" + SUFFIX));
-        Map result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        Map uploadResult1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_1" + SUFFIX));
+        Map uploadResult2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{sprite_test_tag, SDK_TEST_TAG, UPLOADER_TAG}, "public_id", "sprite_test_tag_2" + SUFFIX));
+
+        String[] urls = new String[]{uploadResult1.get("url").toString(), uploadResult2.get("url").toString()};
+
+        Map result = cloudinary.uploader().generateSprite(urls, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        addToDeleteList("sprite", result.get("public_id").toString());
+        assertEquals(2, ((Map) result.get("image_infos")).size());
+
+        result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         addToDeleteList("sprite", result.get("public_id").toString());
         assertEquals(2, ((Map) result.get("image_infos")).size());
         result = cloudinary.uploader().generateSprite(sprite_test_tag, asMap("transformation", "w_100"));
@@ -289,10 +295,19 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public void testMulti() throws Exception {
         final String MULTI_TEST_TAG = "multi_test_tag" + SUFFIX;
         final Map options = asMap("tags", new String[]{MULTI_TEST_TAG, SDK_TEST_TAG, UPLOADER_TAG});
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        Map uploadResult1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        Map uploadResult2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+
+        String[] urls = new String[]{uploadResult1.get("url").toString(), uploadResult2.get("url").toString()};
+
+        Map result = cloudinary.uploader().multi(urls, asMap("transformation", "c_crop,w_0.5"));
+        addToDeleteList("multi", result.get("public_id").toString());
+
+        assertTrue(((String) result.get("url")).endsWith(".gif"));
+        assertTrue(((String) result.get("url")).contains("w_0.5"));
+
         List<String> ids = new ArrayList<String>();
-        Map result = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", "c_crop,w_0.5"));
+        result = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", "c_crop,w_0.5"));
         addToDeleteList("multi", result.get("public_id").toString());
         Map pdfResult = cloudinary.uploader().multi(MULTI_TEST_TAG, asMap("transformation", new Transformation().width(111), "format", "pdf"));
         addToDeleteList("multi", pdfResult.get("public_id").toString());

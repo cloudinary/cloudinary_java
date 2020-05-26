@@ -265,9 +265,19 @@ public class Uploader {
     }
 
     public Map generateSprite(String tag, Map options) throws IOException {
+        options.put("tag", tag);
+        return generateSprite(options);
+    }
+
+    public Map generateSprite(String[] urls, Map options) throws IOException {
+        options.put("urls", urls);
+        return generateSprite(options);
+    }
+
+    private Map generateSprite(Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
-        Map<String, Object> params = new HashMap<String, Object>();
+        HashMap<String, Object> params = new HashMap<String, Object>();
         Object transParam = options.get("transformation");
         Transformation transformation = null;
         if (transParam instanceof Transformation) {
@@ -282,13 +292,28 @@ public class Uploader {
             transformation.fetchFormat(format);
         }
         params.put("transformation", transformation.generate());
-        params.put("tag", tag);
+        params.put("tag", options.get("tag"));
+        if (options.containsKey("urls")) {
+            params.put("urls", Arrays.asList((String[]) options.get("urls")));
+        }
         params.put("notification_url", (String) options.get("notification_url"));
         params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
+        params.put("mode", options.get("mode"));
+
         return callApi("sprite", params, options, null);
     }
 
+    public Map multi(String[] urls, Map options) throws IOException {
+        options.put("urls", urls);
+        return multi(options);
+    }
+
     public Map multi(String tag, Map options) throws IOException {
+       options.put("tag", tag);
+       return multi(options);
+    }
+
+    private Map multi(Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         Map<String, Object> params = new HashMap<String, Object>();
@@ -299,10 +324,14 @@ public class Uploader {
             }
             params.put("transformation", transformation.toString());
         }
-        params.put("tag", tag);
+        params.put("tag", options.get("tag"));
+        if (options.containsKey("urls")) {
+            params.put("urls", Arrays.asList((String[]) options.get("urls")));
+        }
         params.put("notification_url", (String) options.get("notification_url"));
         params.put("format", (String) options.get("format"));
         params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
+
         return callApi("multi", params, options, null);
     }
 

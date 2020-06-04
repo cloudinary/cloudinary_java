@@ -10,30 +10,32 @@ allprojects {
     project.ext.set("publishGroupId", group)
 }
 
-task createTestCloud {
-    println("Task CreateTestCloud called with module $moduleName")
+tasks.create('createTestCloud') {
+    doFirst {
+        println("Task CreateTestCloud called with module $moduleName")
 
-    // core does not use test clouds, skip
-    if (moduleName == "core") {
-        println "Skipping test cloud creation..."
-        return
-    }
+        // core does not use test clouds, skip
+        if (moduleName == "core") {
+            println "Skipping test cloud creation..."
+            return
+        }
 
-    println "Creating test cloud..."
-    def baseUrl = new URL('https://sub-account-testing.cloudinary.com/create_sub_account')
-    def connection = baseUrl.openConnection()
-    connection.with {
+        println "Creating test cloud..."
+        def baseUrl = new URL('https://sub-account-testing.cloudinary.com/create_sub_account')
+        def connection = baseUrl.openConnection()
+        connection.with {
 
-        doOutput = true
-        requestMethod = 'POST'
-        def json = new JsonSlurper().parseText(content.text)
-        def cloud = json["payload"]["cloudName"]
-        def key = json["payload"]["cloudApiKey"]
-        def secret = json["payload"]["cloudApiSecret"]
-        def cloudinaryUrl = "cloudinary://$key:$secret@$cloud"
+            doOutput = true
+            requestMethod = 'POST'
+            def json = new JsonSlurper().parseText(content.text)
+            def cloud = json["payload"]["cloudName"]
+            def key = json["payload"]["cloudApiKey"]
+            def secret = json["payload"]["cloudApiSecret"]
+            def cloudinaryUrl = "cloudinary://$key:$secret@$cloud"
 
-        System.setProperty("CLOUDINARY_URL", cloudinaryUrl)
+            System.setProperty("CLOUDINARY_URL", cloudinaryUrl)
 
-        println("Test cloud created succesfully!")
+            println("Test cloud created succesfully!")
+        }
     }
 }

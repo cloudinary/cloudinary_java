@@ -17,7 +17,7 @@ import static org.junit.Assume.assumeNotNull;
 
 public abstract class AbstractStructuredMetadataTest extends MockableTest {
     private static final String METADATA_UPLOADER_TAG = SDK_TEST_TAG + "_uploader";
-
+    private static final String PUBLIC_ID = "before_class_public_id" + SUFFIX;
     protected Api api;
     public static final List<String> metadataFieldExternalIds = new ArrayList<String>();
 
@@ -27,6 +27,8 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         if (cloudinary.config.apiSecret == null) {
             System.err.println("Please setup environment for Upload test to run");
         }
+
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("public_id", PUBLIC_ID));
     }
 
     @AfterClass
@@ -221,9 +223,9 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         StringMetadataField field = newFieldInstance("testUploaderUpdateMetadata");
         ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
-        Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{"sample"}, null);
+        Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PUBLIC_ID}, null);
         assertNotNull(result);
-        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
+        assertEquals(PUBLIC_ID, ((List) result.get("public_ids")).get(0).toString());
     }
 
     @Test
@@ -231,15 +233,15 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         SetMetadataField field = createSetField("test123");
         ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
-        Map result = cloudinary.uploader().updateMetadata(asMap(fieldId, new String[]{"id2", "id3"}), new String[]{"sample"}, null);
+        Map result = cloudinary.uploader().updateMetadata(asMap(fieldId, new String[]{"id2", "id3"}), new String[]{PUBLIC_ID}, null);
         assertNotNull(result);
-        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
+        assertEquals(PUBLIC_ID, ((List) result.get("public_ids")).get(0).toString());
         List<String> list = new ArrayList<String>(2);
         list.add("id1");
         list.add("id2");
-        result = cloudinary.uploader().updateMetadata(asMap(fieldId, list), new String[]{"sample"}, null);
+        result = cloudinary.uploader().updateMetadata(asMap(fieldId, list), new String[]{PUBLIC_ID}, null);
         assertNotNull(result);
-        assertEquals("sample", ((List) result.get("public_ids")).get(0).toString());
+        assertEquals(PUBLIC_ID, ((List) result.get("public_ids")).get(0).toString());
     }
     // Metadata test helpers
     private SetMetadataField createSetField(String labelPrefix) {

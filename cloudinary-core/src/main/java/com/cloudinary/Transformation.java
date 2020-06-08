@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 import com.cloudinary.transformation.AbstractLayer;
 import com.cloudinary.transformation.Condition;
 import com.cloudinary.transformation.Expression;
-import com.cloudinary.transformation.RadiusOption;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -757,7 +756,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         params.put("h", Expression.normalize(height));
         params.put("o", Expression.normalize(options.get("opacity")));
         params.put("q", Expression.normalize(options.get("quality")));
-        params.put("r", Expression.normalize(RadiusOption.toExpression((Object[]) options.get("radius"))));
+        params.put("r", Expression.normalize(radiusToExpression((Object[]) options.get("radius"))));
         params.put("so", startOffset);
         params.put("t", namedTransformation);
         params.put("vc", videoCodec);
@@ -964,5 +963,23 @@ public class Transformation<T extends Transformation> implements Serializable {
      */
     public T customPreFunction(CustomFunction action) {
         return param("custom_function", "pre:" + action.toString());
+    }
+
+    private String radiusToExpression(Object[] radiusOption) {
+        if (radiusOption == null) {
+            return null;
+        }
+
+        if (radiusOption.length == 0 || radiusOption.length > 4) {
+            throw new IllegalArgumentException("Radius array should contain between 1 and 4 values");
+        }
+
+        for (Object o : radiusOption) {
+            if (o == null) {
+                throw new IllegalArgumentException("Radius options array should not contain nulls");
+            }
+        }
+
+        return StringUtils.join(radiusOption, ":");
     }
 }

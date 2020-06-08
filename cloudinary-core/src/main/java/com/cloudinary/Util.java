@@ -69,6 +69,57 @@ public class Util {
         return params;
     }
 
+    public static Map buildMultiParams(Map options) {
+        Map<String, Object> params = new HashMap<String, Object>();
+
+        Object transformation = options.get("transformation");
+        if (transformation != null) {
+            if (transformation instanceof Transformation) {
+                transformation = ((Transformation) transformation).generate();
+            }
+            params.put("transformation", transformation.toString());
+        }
+        params.put("tag", options.get("tag"));
+        if (options.containsKey("urls")) {
+            params.put("urls", Arrays.asList((String[]) options.get("urls")));
+        }
+        params.put("notification_url", (String) options.get("notification_url"));
+        params.put("format", (String) options.get("format"));
+        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
+        params.put("mode", options.get("mode"));
+        putObject("timestamp", options, params, Util.timestamp());
+
+        return params;
+    }
+
+    public static Map<String, Object> buildGenerateSpriteParams(Map options) {
+        HashMap<String, Object> params = new HashMap<String, Object>();
+        Object transParam = options.get("transformation");
+        Transformation transformation = null;
+        if (transParam instanceof Transformation) {
+            transformation = new Transformation((Transformation) transParam);
+        } else if (transParam instanceof String) {
+            transformation = new Transformation().rawTransformation((String) transParam);
+        } else {
+            transformation = new Transformation();
+        }
+        String format = (String) options.get("format");
+        if (format != null) {
+            transformation.fetchFormat(format);
+        }
+        params.put("transformation", transformation.generate());
+        params.put("tag", options.get("tag"));
+        if (options.containsKey("urls")) {
+            params.put("urls", Arrays.asList((String[]) options.get("urls")));
+        }
+        params.put("notification_url", (String) options.get("notification_url"));
+        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
+        params.put("mode", options.get("mode"));
+        putObject("timestamp", options, params, Util.timestamp());
+
+        return params;
+    }
+
     protected static final String buildEager(List<? extends Transformation> transformations) {
         if (transformations == null) {
             return null;

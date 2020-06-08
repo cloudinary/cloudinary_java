@@ -6,10 +6,10 @@ import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+
+import static com.cloudinary.Util.buildGenerateSpriteParams;
+import static com.cloudinary.Util.buildMultiParams;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Uploader {
@@ -266,44 +266,44 @@ public class Uploader {
 
     public Map generateSprite(String tag, Map options) throws IOException {
         if (options == null)
-            options = ObjectUtils.emptyMap();
-        Map<String, Object> params = new HashMap<String, Object>();
-        Object transParam = options.get("transformation");
-        Transformation transformation = null;
-        if (transParam instanceof Transformation) {
-            transformation = new Transformation((Transformation) transParam);
-        } else if (transParam instanceof String) {
-            transformation = new Transformation().rawTransformation((String) transParam);
+            options = Collections.singletonMap("tag", tag);
+        else
+            options.put("tag", tag);
+
+        return callApi("sprite", buildGenerateSpriteParams(options), options, null);
+    }
+
+    public Map generateSprite(String[] urls, Map options) throws IOException {
+        if (options == null)
+            options = Collections.singletonMap("urls", urls);
+        else
+            options.put("urls", urls);
+
+        return callApi("sprite", buildGenerateSpriteParams(options), options, null);
+    }
+
+    public Map multi(String[] urls, Map options) throws IOException {
+        if (options == null) {
+            options = Collections.singletonMap("urls", urls);
         } else {
-            transformation = new Transformation();
+            options.put("urls", urls);
         }
-        String format = (String) options.get("format");
-        if (format != null) {
-            transformation.fetchFormat(format);
-        }
-        params.put("transformation", transformation.generate());
-        params.put("tag", tag);
-        params.put("notification_url", (String) options.get("notification_url"));
-        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
-        return callApi("sprite", params, options, null);
+
+        return multi(options);
     }
 
     public Map multi(String tag, Map options) throws IOException {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-        Map<String, Object> params = new HashMap<String, Object>();
-        Object transformation = options.get("transformation");
-        if (transformation != null) {
-            if (transformation instanceof Transformation) {
-                transformation = ((Transformation) transformation).generate();
-            }
-            params.put("transformation", transformation.toString());
+        if (options == null) {
+            options = Collections.singletonMap("tag", tag);
+        } else {
+            options.put("tag", tag);
         }
-        params.put("tag", tag);
-        params.put("notification_url", (String) options.get("notification_url"));
-        params.put("format", (String) options.get("format"));
-        params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
-        return callApi("multi", params, options, null);
+
+        return multi(options);
+    }
+
+    private Map multi(Map options) throws IOException {
+        return callApi("multi", buildMultiParams(options), options, null);
     }
 
     public Map explode(String public_id, Map options) throws IOException {

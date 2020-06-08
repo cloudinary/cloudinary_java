@@ -20,6 +20,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -651,6 +652,56 @@ public class CloudinaryTest {
         assertEquals("/v1_1/test123/image/download_tag.zip", uri.getPath());
     }
 
+    @Test
+    public void testDownloadSprite() throws Exception{
+        final String spriteTestTag = "sprite_tag";
+        final String url1 = "https://res.cloudinary.com/demo/image/upload/sample";
+        final String url2 = "https://res.cloudinary.com/demo/image/upload/car";
+
+        String urlFromTag = cloudinary.downloadGeneratedSprite(spriteTestTag, null);
+        String urlFromUrls = cloudinary.downloadGeneratedSprite(new String[]{url1, url2}, null);
+
+        assertTrue(urlFromTag.startsWith("https://api.cloudinary.com/v1_1/" + cloudinary.config.cloudName + "/image/sprite?mode=download"));
+        assertTrue(urlFromUrls.startsWith("https://api.cloudinary.com/v1_1/" + cloudinary.config.cloudName + "/image/sprite?mode=download"));
+        assertTrue(urlFromUrls.contains("urls[]=" + URLEncoder.encode(url1, "UTF-8")));
+        assertTrue(urlFromUrls.contains("urls[]=" + URLEncoder.encode(url2, "UTF-8")));
+
+        Map<String, String> parameters = getUrlParameters(new URI(urlFromTag));
+        assertEquals(spriteTestTag, parameters.get("tag"));
+        assertNotNull(parameters.get("timestamp"));
+        assertNotNull(parameters.get("signature"));
+
+        parameters = getUrlParameters(new URI(urlFromUrls));
+        assertNotNull(parameters.get("timestamp"));
+        assertNotNull(parameters.get("signature"));
+    }
+
+    @Test
+    public void testDownloadMulti() throws Exception{
+        cloudinary = new Cloudinary("cloudinary://571927874334573:yABWqlfSV2d5pRW4ujHJYA7SD34@nitzanj?load_strategies=false");
+
+        final String multiTestTag = "multi_test_tag";
+        final String url1 = "https://res.cloudinary.com/demo/image/upload/sample";
+        final String url2 = "https://res.cloudinary.com/demo/image/upload/car";
+
+        String urlFromTag = cloudinary.downloadMulti(multiTestTag, null);
+        String urlFromUrls = cloudinary.downloadMulti(new String[]{url1, url2}, null);
+
+        assertTrue(urlFromTag.startsWith("https://api.cloudinary.com/v1_1/" + cloudinary.config.cloudName + "/image/multi?mode=download"));
+        assertTrue(urlFromUrls.startsWith("https://api.cloudinary.com/v1_1/" + cloudinary.config.cloudName + "/image/multi?mode=download"));
+        assertTrue(urlFromUrls.contains("urls[]=" + URLEncoder.encode(url1, "UTF-8")));
+        assertTrue(urlFromUrls.contains("urls[]=" + URLEncoder.encode(url2, "UTF-8")));
+
+        Map<String, String> parameters = getUrlParameters(new URI(urlFromTag));
+        assertEquals(multiTestTag, parameters.get("tag"));
+        assertNotNull(parameters.get("timestamp"));
+        assertNotNull(parameters.get("signature"));
+
+        parameters = getUrlParameters(new URI(urlFromUrls));
+        assertNotNull(parameters.get("timestamp"));
+        assertNotNull(parameters.get("signature"));
+
+    }
     @Test
     public void testSpriteCss() {
         String result = cloudinary.url().generateSpriteCss("test");

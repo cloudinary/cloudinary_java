@@ -31,7 +31,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public static final int SRC_TEST_IMAGE_W = 241;
     public static final int SRC_TEST_IMAGE_H = 51;
     private static Map<String, Set<String>> toDelete = new HashMap<String, Set<String>>();
-    public static final String SRC_FULLY_QUALIFIED_IMAGE="image/upload/sample";
+    private static final String UPLOADER_TEST_PUBLIC_ID = "uploader_test";
+    public static final String SRC_FULLY_QUALIFIED_IMAGE="image/upload/" + UPLOADER_TEST_PUBLIC_ID;
     public static final String SRC_FULLY_QUALIFIED_VIDEO="video/upload/dog";
 
     @BeforeClass
@@ -42,6 +43,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         }
 
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG}, "public_id", UPLOADER_TEST_PUBLIC_ID, "transformation", "f_jpg"));
         cloudinary.uploader().upload(SRC_TEST_VIDEO, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "public_id", "dog", "resource_type", "video"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
@@ -225,8 +227,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testExplicit() throws IOException {
-        Map result = cloudinary.uploader().explicit("sample", asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "upload", "moderation", "manual"));
-        String url = cloudinary.url().transformation(new Transformation().crop("scale").width(2.0)).format("jpg").version(result.get("version")).generate("sample");
+        Map result = cloudinary.uploader().explicit(UPLOADER_TEST_PUBLIC_ID, asMap("eager", Collections.singletonList(new Transformation().crop("scale").width(2.0)), "type", "upload", "moderation", "manual"));
+        String url = cloudinary.url().transformation(new Transformation().crop("scale").width(2.0)).format("jpg").version(result.get("version")).generate(UPLOADER_TEST_PUBLIC_ID);
         String eagerUrl = (String) ((Map) ((List) result.get("eager")).get(0)).get("url");
         String cloudName = cloudinary.config.cloudName;
         assertEquals(eagerUrl.substring(eagerUrl.indexOf(cloudName)), url.substring(url.indexOf(cloudName)));

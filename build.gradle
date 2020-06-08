@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 allprojects {
 
     repositories {
@@ -6,4 +8,37 @@ allprojects {
     }
 
     project.ext.set("publishGroupId", group)
+}
+
+tasks.create('createTestSubAccount') {
+    doFirst {
+        println("Task createTestSubAccount called with module $moduleName")
+
+        def cloudinaryUrl = ""
+
+        // core does not use test clouds, skip (keep empty file for a more readable generic travis test script)
+        if (moduleName != "core") {
+            println "Creating test cloud..."
+            def baseUrl = new URL('https://sub-account-testing.cloudinary.com/create_sub_account')
+            def connection = baseUrl.openConnection()
+            connection.with {
+                doOutput = true
+                requestMethod = 'POST'
+                def json = new JsonSlurper().parseText(content.text)
+                def cloud = json["payload"]["cloudName"]
+                def key = json["payload"]["cloudApiKey"]
+                def secret = json["payload"]["cloudApiSecret"]
+                cloudinaryUrl = "CLOUDINARY_URL=cloudinary://$key:$secret@$cloud"
+            }
+
+        }
+
+        def dir = new File("${projectDir.path}${File.separator}tools")
+        dir.mkdir()
+        def file = new File(dir, "cloudinary_url.txt")
+        file.createNewFile()
+        file.text = cloudinaryUrl
+
+        println("Test sub-account created succesfully!")
+    }
 }

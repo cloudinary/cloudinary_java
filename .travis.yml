@@ -26,6 +26,7 @@ branches:
   except:
   - staging-test
 
-# ciTest is configured to skip the various timeout tests that don't work in travis
-script: ./gradlew clean -DCLOUDINARY_URL=$CLOUDINARY_URL -DCLOUDINARY_ACCOUNT_URL=$CLOUDINARY_ACCOUNT_URL ciTest -p cloudinary-${MODULE} -i
+before_script: ./gradlew createTestSubAccount -PmoduleName=${MODULE}
 
+# ciTest is configured to skip the various timeout tests that don't work in travis
+script: source tools/cloudinary_url.txt && ./gradlew -DCLOUDINARY_URL=$CLOUDINARY_URL -DCLOUDINARY_ACCOUNT_URL=$CLOUDINARY_ACCOUNT_URL ciTest -p cloudinary-${MODULE} -i

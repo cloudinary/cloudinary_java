@@ -228,6 +228,8 @@ public class Cloudinary {
     }
 
     public String downloadGeneratedSprite(String tag, Map options) throws IOException {
+        if (StringUtils.isEmpty(tag)) throw new IllegalArgumentException("Tag cannot be empty");
+
         if (options == null)
             options = new HashMap();
 
@@ -241,6 +243,7 @@ public class Cloudinary {
     }
 
     public String downloadGeneratedSprite(String[] urls, Map options) throws IOException {
+        if (urls.length < 1) throw new IllegalArgumentException("Request must contain at least one URL.");
         if (options == null)
             options = new HashMap();
 
@@ -254,23 +257,31 @@ public class Cloudinary {
     }
 
     public String downloadMulti(String tag, Map options) throws IOException {
+        if (StringUtils.isEmpty(tag)) throw new IllegalArgumentException("Tag cannot be empty");
         if (options == null)
             options = new HashMap();
 
         options.put("tag", tag);
         options.put("mode", ArchiveParams.MODE_DOWNLOAD);
 
-        return buildUrl(cloudinaryApiUrl("multi", options), buildMultiParams(options));
+        Map params = buildMultiParams(options);
+        signRequest(params, options);
+
+        return buildUrl(cloudinaryApiUrl("multi", options), params);
     }
 
     public String downloadMulti(String[] urls, Map options) throws IOException {
+        if (urls.length < 1) throw new IllegalArgumentException("Request must contain at least one URL.");
         if (options == null)
             options = new HashMap();
 
         options.put("urls", urls);
         options.put("mode", ArchiveParams.MODE_DOWNLOAD);
 
-        return buildUrl(cloudinaryApiUrl("multi", options), buildMultiParams(options));
+        Map params = buildMultiParams(options);
+        signRequest(params, options);
+
+        return buildUrl(cloudinaryApiUrl("multi", options), params);
     }
 
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {

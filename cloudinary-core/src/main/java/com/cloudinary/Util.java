@@ -87,6 +87,7 @@ public class Util {
         params.put("format", (String) options.get("format"));
         params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
         params.put("mode", options.get("mode"));
+        putObject("timestamp", options, params, Util.timestamp());
 
         return params;
     }
@@ -114,6 +115,7 @@ public class Util {
         params.put("notification_url", (String) options.get("notification_url"));
         params.put("async", ObjectUtils.asBoolean(options.get("async"), false).toString());
         params.put("mode", options.get("mode"));
+        putObject("timestamp", options, params, Util.timestamp());
 
         return params;
     }

@@ -228,4 +228,52 @@ public class TransformationTest {
 
         assertEquals("$width_10/w_$width_add_10_add_w", t.generate());
     }
+
+    @Test
+    public void testRadiusTwoCornersAsValues() {
+        Transformation t = new Transformation()
+                .radius(10, 20);
+
+        assertEquals("r_10:20", t.generate());
+    }
+
+    @Test
+    public void testRadiusTwoCornersAsExpressions() {
+        Transformation t = new Transformation()
+                .radius("10", "$v");
+
+        assertEquals("r_10:$v", t.generate());
+    }
+
+    @Test
+    public void testRadiusThreeCorners() {
+        Transformation t = new Transformation()
+                .radius(10, "$v", "30");
+
+        assertEquals("r_10:$v:30", t.generate());
+    }
+
+    @Test
+    public void testRadiusFourCorners() {
+        Transformation t = new Transformation()
+                .radius(10, "$v", "30", 40);
+
+        assertEquals("r_10:$v:30:40", t.generate());
+    }
+
+    @Test
+    public void testRadiusArray1() {
+        Transformation t = new Transformation()
+                .radius(new Object[]{10});
+
+        assertEquals("r_10", t.generate());
+    }
+
+    @Test
+    public void testRadiusArray2() {
+        Transformation t = new Transformation()
+                .radius(new Object[]{10, "$v"});
+
+        assertEquals("r_10:$v", t.generate());
+    }
 }

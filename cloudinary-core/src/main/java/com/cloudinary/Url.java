@@ -4,8 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -389,18 +387,13 @@ public class Url {
 
 
         if (signUrl && (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN))) {
-            MessageDigest md = null;
-            try {
-                md = MessageDigest.getInstance(longUrlSignature ? "SHA-256" : "SHA-1");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Unexpected exception", e);
-            }
+            Signer signer = longUrlSignature ? Signer.SHA256 : config.signatureAlgorithm;
 
             String toSign = StringUtils.join(new String[]{transformationStr, sourceToSign}, "/");
             toSign = StringUtils.removeStartingChars(toSign, '/');
             toSign = StringUtils.mergeSlashesInUrl(toSign);
 
-            byte[] digest = md.digest(Util.getUTF8Bytes(toSign + this.config.apiSecret));
+            byte[] digest = signer.sign(toSign + this.config.apiSecret);
             signature = Base64Coder.encodeURLSafeString(digest);
             signature = "s--" + signature.substring(0, longUrlSignature ? 32 : 8) + "--";
         }

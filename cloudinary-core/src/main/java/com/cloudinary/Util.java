@@ -4,8 +4,6 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Util {
@@ -323,18 +321,19 @@ public class Util {
 
     /**
      * Calculates signature, or hashed message authentication code (HMAC) of provided parameters name-value pairs and
-     * secret value using SHA-1 hashing algorithm.
+     * secret value using supported hashing algorithm.
      * <p>
      * Argument for hashing function is built by joining sorted parameter name-value pairs into single string in the
      * same fashion as HTTP GET method uses, and concatenating the result with secret value in the end. Method supports
      * arrays/collections as parameter values. In this case, the elements of array/collection are joined into single
      * comma-delimited string prior to inclusion into the result.
      *
-     * @param paramsToSign parameter name-value pairs list represented as instance of {@link Map}
-     * @param apiSecret    secret value
+     * @param paramsToSign  parameter name-value pairs list represented as instance of {@link Map}
+     * @param apiSecret     secret value
+     * @param algorithmType type of hashing algorithm to use for calculation of HMAC
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, Signer algorithmType) {
         Collection<String> params = new ArrayList<String>();
         for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
             if (param.getValue() instanceof Collection) {
@@ -348,13 +347,7 @@ public class Util {
             }
         }
         String to_sign = StringUtils.join(params, "&");
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Unexpected exception", e);
-        }
-        byte[] digest = md.digest(getUTF8Bytes(to_sign + apiSecret));
+        byte[] digest = algorithmType.sign(to_sign + apiSecret);
         return StringUtils.encodeHexString(digest);
     }
 }

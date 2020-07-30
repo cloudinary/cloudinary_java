@@ -4,6 +4,8 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Util {
@@ -321,7 +323,7 @@ public class Util {
 
     /**
      * Calculates signature, or hashed message authentication code (HMAC) of provided parameters name-value pairs and
-     * secret value using supported hashing algorithm.
+     * secret value using default hashing algorithm (SHA1).
      * <p>
      * Argument for hashing function is built by joining sorted parameter name-value pairs into single string in the
      * same fashion as HTTP GET method uses, and concatenating the result with secret value in the end. Method supports
@@ -330,10 +332,27 @@ public class Util {
      *
      * @param paramsToSign  parameter name-value pairs list represented as instance of {@link Map}
      * @param apiSecret     secret value
-     * @param algorithmType type of hashing algorithm to use for calculation of HMAC
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, Signer algorithmType) {
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
+        return produceSignature(paramsToSign, apiSecret, SignatureAlgorithm.SHA1);
+    }
+
+    /**
+     * Calculates signature, or hashed message authentication code (HMAC) of provided parameters name-value pairs and
+     * secret value using specified hashing algorithm.
+     * <p>
+     * Argument for hashing function is built by joining sorted parameter name-value pairs into single string in the
+     * same fashion as HTTP GET method uses, and concatenating the result with secret value in the end. Method supports
+     * arrays/collections as parameter values. In this case, the elements of array/collection are joined into single
+     * comma-delimited string prior to inclusion into the result.
+     *
+     * @param paramsToSign  parameter name-value pairs list represented as instance of {@link Map}
+     * @param apiSecret     secret value
+     * @param signatureAlgorithm type of hashing algorithm to use for calculation of HMAC
+     * @return hex-string representation of signature calculated based on provided parameters map and secret
+     */
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
         Collection<String> params = new ArrayList<String>();
         for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
             if (param.getValue() instanceof Collection) {
@@ -347,7 +366,22 @@ public class Util {
             }
         }
         String to_sign = StringUtils.join(params, "&");
-        byte[] digest = algorithmType.sign(to_sign + apiSecret);
-        return StringUtils.encodeHexString(digest);
+        byte[] hash = Util.hash(to_sign + apiSecret, signatureAlgorithm);
+        return StringUtils.encodeHexString(hash);
+    }
+
+    /**
+     * Computes hash from input string using specified algorithm.
+     * 
+     * @param input              string which to compute hash from
+     * @param signatureAlgorithm algorithm to use for computing hash
+     * @return array of bytes of computed hash value
+     */
+    public static byte[] hash(String input, SignatureAlgorithm signatureAlgorithm) {
+        try {
+            return MessageDigest.getInstance(signatureAlgorithm.getAlgorithmId()).digest(Util.getUTF8Bytes(input));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Unexpected exception", e);
+        }
     }
 }

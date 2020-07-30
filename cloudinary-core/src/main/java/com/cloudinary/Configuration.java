@@ -20,7 +20,7 @@ public class Configuration {
     public final static String VERSION = "1.0.2";
     public final static String USER_AGENT = "cld-android-" + VERSION;
     public static final boolean DEFAULT_IS_LONG_SIGNATURE = false;
-    public static final Signer DEFAULT_SIGNATURE_ALGORITHM = Signer.SHA1;
+    public static final SignatureAlgorithm DEFAULT_SIGNATURE_ALGORITHM = SignatureAlgorithm.SHA1;
 
     private static final String CONFIG_PROP_SIGNATURE_ALGORITHM = "signature_algorithm";
 
@@ -46,7 +46,7 @@ public class Configuration {
     public AuthToken authToken;
     public boolean forceVersion = true;
     public boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
-    public Signer signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+    public SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
 
     public Configuration() {
     }
@@ -71,7 +71,7 @@ public class Configuration {
             boolean loadStrategies,
             boolean forceVersion,
             boolean longUrlSignature,
-            Signer signatureAlgorithm) {
+            SignatureAlgorithm signatureAlgorithm) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -129,7 +129,7 @@ public class Configuration {
             this.properties.putAll(properties);
         }
         this.longUrlSignature = ObjectUtils.asBoolean(config.get("long_url_signature"), DEFAULT_IS_LONG_SIGNATURE);
-        this.signatureAlgorithm = Signer.getByName(ObjectUtils.asString(config.get(CONFIG_PROP_SIGNATURE_ALGORITHM), DEFAULT_SIGNATURE_ALGORITHM.toString()));
+        this.signatureAlgorithm = SignatureAlgorithm.valueOf(ObjectUtils.asString(config.get(CONFIG_PROP_SIGNATURE_ALGORITHM), DEFAULT_SIGNATURE_ALGORITHM.name()));
     }
 
     @SuppressWarnings("rawtypes")
@@ -300,7 +300,7 @@ public class Configuration {
         private AuthToken authToken;
         private boolean forceVersion = true;
         private boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
-        private Signer signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+        private SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
 
         /**
          * Set the HTTP connection timeout.
@@ -461,7 +461,7 @@ public class Configuration {
             return this;
         }
 
-        public Builder setSignatureAlgorithm(Signer signatureAlgorithm) {
+        public Builder setSignatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
             this.signatureAlgorithm = signatureAlgorithm;
             return this;
         }

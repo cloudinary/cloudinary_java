@@ -1,6 +1,6 @@
 package com.cloudinary.api.signing;
 
-import com.cloudinary.Signer;
+import com.cloudinary.SignatureAlgorithm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -72,7 +72,7 @@ public class NotificationRequestSignatureVerifierTest {
 
     @Test
     public void testVerifySignatureSHA256() {
-        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret", Signer.SHA256);
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret", SignatureAlgorithm.SHA256);
 
         boolean actual = verifier.verifySignature(
                 "{}",

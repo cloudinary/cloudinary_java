@@ -1,26 +1,28 @@
 package com.cloudinary.api.signing;
 
-import com.cloudinary.Signer;
+import com.cloudinary.SignatureAlgorithm;
+import com.cloudinary.Util;
 import com.cloudinary.utils.StringUtils;
 
 import static com.cloudinary.utils.StringUtils.emptyIfNull;
 
 class SignedPayloadValidator {
     private final String secretKey;
-    private final Signer signer;
+    private final SignatureAlgorithm signatureAlgorithm;
 
-    SignedPayloadValidator(String secretKey, Signer signatureAlgorithmType) {
+    SignedPayloadValidator(String secretKey, SignatureAlgorithm signatureAlgorithm) {
         if (StringUtils.isBlank(secretKey)) {
             throw new IllegalArgumentException("Secret key is required");
         }
 
         this.secretKey = secretKey;
-        this.signer = signatureAlgorithmType;
+        this.signatureAlgorithm = signatureAlgorithm;
     }
 
     boolean validateSignedPayload(String signedPayload, String signature) {
         String expectedSignature =
-                StringUtils.encodeHexString(signer.sign(emptyIfNull(signedPayload) + secretKey));
+                StringUtils.encodeHexString(Util.hash(emptyIfNull(signedPayload) + secretKey,
+                        signatureAlgorithm));
 
         return expectedSignature.equals(signature);
     }

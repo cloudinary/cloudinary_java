@@ -17,6 +17,8 @@ import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
+import static com.cloudinary.SignatureAlgorithm.SHA256;
+
 public class Url {
     private final Cloudinary cloudinary;
     private final Configuration config;
@@ -387,14 +389,14 @@ public class Url {
 
 
         if (signUrl && (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN))) {
-            Signer signer = longUrlSignature ? Signer.SHA256 : config.signatureAlgorithm;
+            SignatureAlgorithm signatureAlgorithm = longUrlSignature ? SHA256 : config.signatureAlgorithm;
 
             String toSign = StringUtils.join(new String[]{transformationStr, sourceToSign}, "/");
             toSign = StringUtils.removeStartingChars(toSign, '/');
             toSign = StringUtils.mergeSlashesInUrl(toSign);
 
-            byte[] digest = signer.sign(toSign + this.config.apiSecret);
-            signature = Base64Coder.encodeURLSafeString(digest);
+            byte[] hash = Util.hash(toSign + this.config.apiSecret, signatureAlgorithm);
+            signature = Base64Coder.encodeURLSafeString(hash);
             signature = "s--" + signature.substring(0, longUrlSignature ? 32 : 8) + "--";
         }
 

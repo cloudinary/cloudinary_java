@@ -1,6 +1,6 @@
 package com.cloudinary.api.signing;
 
-import com.cloudinary.Signer;
+import com.cloudinary.SignatureAlgorithm;
 
 import static com.cloudinary.utils.StringUtils.emptyIfNull;
 
@@ -17,17 +17,17 @@ public class NotificationRequestSignatureVerifier {
      * @param secretKey shared secret key string which is used to sign and verify authenticity of notifications
      */
     public NotificationRequestSignatureVerifier(String secretKey) {
-        this.signedPayloadValidator = new SignedPayloadValidator(secretKey, Signer.SHA1);
+        this.signedPayloadValidator = new SignedPayloadValidator(secretKey, SignatureAlgorithm.SHA1);
     }
 
     /**
      * Initializes new instance of {@code NotificationRequestSignatureVerifier} with secret key value.
      *
      * @param secretKey shared secret key string which is used to sign and verify authenticity of notifications
-     * @param signatureAlgorithmType type of hashing algorithm to use for calculation of HMACs
+     * @param signatureAlgorithm type of hashing algorithm to use for calculation of HMACs
      */
-    public NotificationRequestSignatureVerifier(String secretKey, Signer signatureAlgorithmType) {
-        this.signedPayloadValidator = new SignedPayloadValidator(secretKey, signatureAlgorithmType);
+    public NotificationRequestSignatureVerifier(String secretKey, SignatureAlgorithm signatureAlgorithm) {
+        this.signedPayloadValidator = new SignedPayloadValidator(secretKey, signatureAlgorithm);
     }
 
     /**

@@ -4,8 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +16,8 @@ import java.util.zip.CRC32;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
+
+import static com.cloudinary.SignatureAlgorithm.SHA256;
 
 public class Url {
     private final Cloudinary cloudinary;
@@ -389,19 +389,14 @@ public class Url {
 
 
         if (signUrl && (authToken == null || authToken.equals(AuthToken.NULL_AUTH_TOKEN))) {
-            MessageDigest md = null;
-            try {
-                md = MessageDigest.getInstance(longUrlSignature ? "SHA-256" : "SHA-1");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Unexpected exception", e);
-            }
+            SignatureAlgorithm signatureAlgorithm = longUrlSignature ? SHA256 : config.signatureAlgorithm;
 
             String toSign = StringUtils.join(new String[]{transformationStr, sourceToSign}, "/");
             toSign = StringUtils.removeStartingChars(toSign, '/');
             toSign = StringUtils.mergeSlashesInUrl(toSign);
 
-            byte[] digest = md.digest(Util.getUTF8Bytes(toSign + this.config.apiSecret));
-            signature = Base64Coder.encodeURLSafeString(digest);
+            byte[] hash = Util.hash(toSign + this.config.apiSecret, signatureAlgorithm);
+            signature = Base64Coder.encodeURLSafeString(hash);
             signature = "s--" + signature.substring(0, longUrlSignature ? 32 : 8) + "--";
         }
 

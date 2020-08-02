@@ -130,7 +130,7 @@ public class Cloudinary {
     }
 
     public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
-        return Util.produceSignature(paramsToSign, apiSecret);
+        return Util.produceSignature(paramsToSign, apiSecret, config.signatureAlgorithm);
     }
 
     /**
@@ -139,7 +139,7 @@ public class Cloudinary {
      * Cloudinary can asynchronously process your e.g. image uploads requests. This is achieved by calling back API you
      * specified during preparing of upload request as soon as it has been processed. See Upload Notifications in
      * Cloudinary documentation for more details. In order to make sure it is Cloudinary calling your API back, hashed
-     * message authentication codes (HMAC's) based on SHA-1 hashing function and configured Cloudinary API secret key
+     * message authentication codes (HMAC's) based on agreed hashing function and configured Cloudinary API secret key
      * are used for signing the requests.
      *
      * The following method serves as a convenient utility to perform the verification procedure.
@@ -151,14 +151,14 @@ public class Cloudinary {
      * @return whether request signature is valid or not
      */
     public boolean verifyNotificationSignature(String body, String timestamp, String signature, long validFor) {
-        return new NotificationRequestSignatureVerifier(config.apiSecret).verifySignature(body, timestamp, signature, validFor);
+        return new NotificationRequestSignatureVerifier(config.apiSecret, config.signatureAlgorithm).verifySignature(body, timestamp, signature, validFor);
     }
 
     /**
      * Verifies that Cloudinary API response is genuine by checking its signature.
      *
      * Cloudinary can add a signature value in the response to API methods returning public id's and versions. In order
-     * to make sure it is genuine Cloudinary response, hashed message authentication codes (HMAC's) based on SHA-1 hashing
+     * to make sure it is genuine Cloudinary response, hashed message authentication codes (HMAC's) based on agreed hashing
      * function and configured Cloudinary API secret key are used for signing the responses.
      *
      * The following method serves as a convenient utility to perform the verification procedure.
@@ -169,7 +169,7 @@ public class Cloudinary {
      * @return whether response signature is valid or not
      */
     public boolean verifyApiResponseSignature(String publicId, String version, String signature) {
-        return new ApiResponseSignatureVerifier(config.apiSecret).verifySignature(publicId, version, signature);
+        return new ApiResponseSignatureVerifier(config.apiSecret, config.signatureAlgorithm).verifySignature(publicId, version, signature);
     }
 
     public void signRequest(Map<String, Object> params, Map<String, Object> options) {

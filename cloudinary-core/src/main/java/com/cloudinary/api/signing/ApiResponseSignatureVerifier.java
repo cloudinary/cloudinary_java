@@ -1,5 +1,6 @@
 package com.cloudinary.api.signing;
 
+import com.cloudinary.SignatureAlgorithm;
 import com.cloudinary.Util;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -11,6 +12,7 @@ import static com.cloudinary.utils.StringUtils.emptyIfNull;
  */
 public class ApiResponseSignatureVerifier {
     private final String secretKey;
+    private final SignatureAlgorithm signatureAlgorithm;
 
     /**
      * Initializes new instance of {@code ApiResponseSignatureVerifier} class with a secret key required to perform
@@ -24,6 +26,23 @@ public class ApiResponseSignatureVerifier {
         }
 
         this.secretKey = secretKey;
+        this.signatureAlgorithm = SignatureAlgorithm.SHA1;
+    }
+
+    /**
+     * Initializes new instance of {@code ApiResponseSignatureVerifier} class with a secret key required to perform
+     * API response signatures verification.
+     *
+     * @param secretKey shared secret key string which is used to sign and verify authenticity of API responses
+     * @param signatureAlgorithm type of hashing algorithm to use for calculation of HMACs
+     */
+    public ApiResponseSignatureVerifier(String secretKey, SignatureAlgorithm signatureAlgorithm) {
+        if (StringUtils.isBlank(secretKey)) {
+            throw new IllegalArgumentException("Secret key is required");
+        }
+
+        this.secretKey = secretKey;
+        this.signatureAlgorithm = signatureAlgorithm;
     }
 
     /**
@@ -41,6 +60,6 @@ public class ApiResponseSignatureVerifier {
     public boolean verifySignature(String publicId, String version, String signature) {
         return Util.produceSignature(ObjectUtils.asMap(
                 "public_id", emptyIfNull(publicId),
-                "version", emptyIfNull(version)), secretKey).equals(signature);
+                "version", emptyIfNull(version)), secretKey, signatureAlgorithm).equals(signature);
     }
 }

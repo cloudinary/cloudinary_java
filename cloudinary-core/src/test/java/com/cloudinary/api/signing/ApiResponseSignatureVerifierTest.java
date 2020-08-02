@@ -1,5 +1,6 @@
 package com.cloudinary.api.signing;
 
+import com.cloudinary.SignatureAlgorithm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -22,5 +23,14 @@ public class ApiResponseSignatureVerifierTest {
         boolean actual = verifier.verifySignature("tests/logo.png", "1", "doesNotMatchForSure");
 
         assertFalse(actual);
+    }
+
+    @Test
+    public void testVerifySignatureSHA256() {
+        ApiResponseSignatureVerifier verifier = new ApiResponseSignatureVerifier("X7qLTrsES31MzxxkxPPA-pAGGfU", SignatureAlgorithm.SHA256);
+
+        boolean actual = verifier.verifySignature("tests/logo.png", "1", "cc69ae4ed73303fbf4a55f2ae5fc7e34ad3a5c387724bfcde447a2957cacdfea");
+
+        assertTrue(actual);
     }
 }

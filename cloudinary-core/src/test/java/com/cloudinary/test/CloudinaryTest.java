@@ -739,6 +739,14 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testSignedUrlSHA256() {
+        cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA256;
+
+        String url = cloudinary.url().signed(true).generate("sample.jpg");
+        assertEquals(DEFAULT_UPLOAD_PATH + "s--2hbrSMPO--/sample.jpg", url);
+    }
+
+    @Test
     public void testResponsiveWidth() {
         // should support responsive width
         Transformation trans = new Transformation().width(100).height(100).crop("crop").responsiveWidth(true);
@@ -1312,6 +1320,20 @@ public class CloudinaryTest {
         Configuration.from(cloudinaryUrl);
     }
 
+    @Test
+    public void testApiSignRequestSHA1() {
+        cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA1;
+        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
+        assertEquals("14c00ba6d0dfdedbc86b316847d95b9e6cd46d94", signature);
+    }
+
+    @Test
+    public void testApiSignRequestSHA256() {
+        cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA256;
+        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
+        assertEquals("45ddaa4fa01f0c2826f32f669d2e4514faf275fe6df053f1a150e7beae58a3bd", signature);
+    }
+
     private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {
         assertEquals("Two objects must be the same class", a.getClass(), b.getClass());
         Field[] fields = a.getClass().getFields();
@@ -1351,8 +1373,14 @@ public class CloudinaryTest {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put(cloudinary.randomPublicId(), rand.nextInt());
             field.set(instance, map);
+        } else if (fieldType instanceof Class && Enum.class.isAssignableFrom((Class) fieldType)) {
+            field.set(instance, randomEnum((Class<Enum>) fieldType, rand));
         } else {
             throw new IllegalArgumentException("Object have unexpected field type, randomizing not supported: " + field.getName() + ", type: " + field.getType().getSimpleName());
         }
+    }
+
+    private <T extends Enum<?>> T randomEnum(Class<T> clazz, Random random) {
+        return clazz.getEnumConstants()[random.nextInt(clazz.getEnumConstants().length)];
     }
 }

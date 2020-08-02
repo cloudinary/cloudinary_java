@@ -1,5 +1,6 @@
 package com.cloudinary.api.signing;
 
+import com.cloudinary.SignatureAlgorithm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -67,5 +68,17 @@ public class NotificationRequestSignatureVerifierTest {
                 Long.MAX_VALUE / 1000L);
 
         assertFalse(actual);
+    }
+
+    @Test
+    public void testVerifySignatureSHA256() {
+        NotificationRequestSignatureVerifier verifier = new NotificationRequestSignatureVerifier("someApiSecret", SignatureAlgorithm.SHA256);
+
+        boolean actual = verifier.verifySignature(
+                "{}",
+                "0",
+                "d5497e1a206ad0ba29ad09a7c0c5f22e939682d15009c15ab3199f62fefbd14b");
+
+        assertTrue(actual);
     }
 }

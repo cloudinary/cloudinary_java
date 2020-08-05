@@ -714,7 +714,7 @@ abstract public class AbstractApiTest extends MockableTest {
         String name = api.createUploadPreset(ObjectUtils.asMap("folder", "folder")).get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         Map settings = (Map) preset.get("settings");
-        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true, "live", true));
+        settings.putAll(ObjectUtils.asMap("colors", true, "unsigned", true, "disallow_public_id", true, "live", true, "eval",AbstractUploaderTest.SRC_TEST_EVAL));
         api.updateUploadPreset(name, settings);
         settings.remove("unsigned");
         preset = api.uploadPreset(name, ObjectUtils.emptyMap());
@@ -722,6 +722,7 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals(Boolean.TRUE, preset.get("unsigned"));
         assertEquals(settings.get("live"), Boolean.TRUE);
         assertEquals(settings, preset.get("settings"));
+
         api.deleteUploadPreset(name, ObjectUtils.emptyMap());
     }
 

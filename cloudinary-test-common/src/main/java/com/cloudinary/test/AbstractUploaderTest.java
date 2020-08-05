@@ -34,6 +34,9 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private static final String UPLOADER_TEST_PUBLIC_ID = "uploader_test";
     public static final String SRC_FULLY_QUALIFIED_IMAGE="image/upload/" + UPLOADER_TEST_PUBLIC_ID;
     public static final String SRC_FULLY_QUALIFIED_VIDEO="video/upload/dog";
+    public static final String SRC_TEST_EVAL= "if (resource_info['width'] < 450) { upload_options['tags'] = 'a,b' };" + "upload_options['context'] = 'width=' + resource_info['width'];";
+    private static final ArrayList<String> TEST_EVAL_TAGS_RESULT = new ArrayList<String>(Arrays.asList("a","b"));
+
 
     @BeforeClass
     public static void setUpClass() throws IOException {
@@ -268,6 +271,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertTrue(tag.contains("htmlattr='htmlvalue'"));
         tag = cloudinary.uploader().imageUploadTag("test-field", asMap("callback", "http://localhost/cloudinary_cors.html"), asMap("class", "myclass"));
         assertTrue(tag.contains("class='cloudinary-fileupload myclass'"));
+    }
+
+    @Test
+    public void testEvalUploadParameter() throws IOException {
+       Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("eval",SRC_TEST_EVAL));
+       assertEquals(result.get("tags"), TEST_EVAL_TAGS_RESULT);
+       Map custom= (Map)((Map) result.get("context")).get("custom");
+       assertEquals(custom.get("width"),Integer.toString(SRC_TEST_IMAGE_W));
     }
 
     @Test

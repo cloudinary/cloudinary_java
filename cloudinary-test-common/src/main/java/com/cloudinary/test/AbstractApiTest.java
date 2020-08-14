@@ -996,4 +996,10 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("cinemagraph_analysis", true));
         assertNotNull(res.get("cinemagraph_analysis"));
     }
+    
+    @Test
+    public void testAccessibilityAnalysisResource() throws Exception {
+        ApiResponse res = api.resource(API_TEST, Collections.singletonMap("accessibility_analysis", true));
+        assertNotNull(res.get("accessibility_analysis"));
+    }
 }

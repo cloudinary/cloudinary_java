@@ -702,6 +702,25 @@ public class CloudinaryTest {
         assertNotNull(parameters.get("signature"));
 
     }
+
+    @Test
+    public void testDownloadFolderShouldReturnURLWithResourceTypeAllByDefault() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertTrue(url.contains("all"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldAllowToOverrideResourceType() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", Collections.singletonMap("resource_type", "audio"));
+        assertTrue(url.contains("audio"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldPutFolderPathAsPrefixes() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertTrue(url.contains("prefixes[]=folder"));
+    }
+
     @Test
     public void testSpriteCss() {
         String result = cloudinary.url().generateSpriteCss("test");

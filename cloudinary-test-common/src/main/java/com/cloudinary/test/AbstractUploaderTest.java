@@ -727,6 +727,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     }
 
+    @Test
+    public void testAccessibilityAnalysisUpload() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("accessibility_analysis", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        assertNotNull(result.get("accessibility_analysis"));
+        result = cloudinary.uploader().explicit(result.get("public_id").toString(), ObjectUtils.asMap("type", "upload", "resource_type", "image", "accessibility_analysis", true));
+        assertNotNull(result.get("accessibility_analysis"));
+    }
+
     private void addToDeleteList(String type, String id) {
         Set<String> ids = toDelete.get(type);
         if (ids == null) {

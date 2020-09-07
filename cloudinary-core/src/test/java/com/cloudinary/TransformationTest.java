@@ -276,4 +276,16 @@ public class TransformationTest {
 
         assertEquals("r_10:$v", t.generate());
     }
+
+    @Test
+    public void testUserVariableNamesContainingPredefinedNamesAreNotAffected() {
+        Transformation t = new Transformation()
+                .variable("$mywidth", "100")
+                .variable("$aheight", 300)
+                .chain()
+                .width("3 + $mywidth * 3 + 4 / 2 * initialWidth * $mywidth")
+                .height("3 * initialHeight + $aheight");
+
+        assertEquals("$aheight_300,$mywidth_100/h_3_mul_ih_add_$aheight,w_3_add_$mywidth_mul_3_add_4_div_2_mul_iw_mul_$mywidth", t.generate());
+    }
 }

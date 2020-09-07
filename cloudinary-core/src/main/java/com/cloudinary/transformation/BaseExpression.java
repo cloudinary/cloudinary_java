@@ -53,6 +53,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
 
     );
     private static final Pattern PATTERN = getPattern();
+    private static final Pattern USER_VARIABLE_PATTERN = Pattern.compile("\\$_*[^_]+");
 
     protected List<String> expressions = null;
     protected Transformation parent = null;
@@ -77,10 +78,25 @@ public abstract class BaseExpression<T extends BaseExpression> {
             return String.valueOf(expression);
         }
 
-        String replacement;
         String conditionStr = StringUtils.mergeToSingleUnderscore(String.valueOf(expression));
-        Matcher matcher = PATTERN.matcher(conditionStr);
-        StringBuffer result = new StringBuffer(conditionStr.length());
+
+        Matcher m = USER_VARIABLE_PATTERN.matcher(conditionStr);
+        StringBuilder builder = new StringBuilder();
+        int lastMatchEnd = 0;
+        while (m.find()) {
+            String beforeMatch = conditionStr.substring(lastMatchEnd, m.start());
+            builder.append(normalizeBuiltins(beforeMatch));
+            builder.append(m.group());
+            lastMatchEnd = m.end();
+        }
+        builder.append(normalizeBuiltins(conditionStr.substring(lastMatchEnd)));
+        return builder.toString();
+    }
+
+    private static String normalizeBuiltins(String input) {
+        String replacement;
+        Matcher matcher = PATTERN.matcher(input);
+        StringBuffer result = new StringBuffer(input.length());
         while (matcher.find()) {
             if (OPERATORS.containsKey(matcher.group())) {
                 replacement = (String) OPERATORS.get(matcher.group());

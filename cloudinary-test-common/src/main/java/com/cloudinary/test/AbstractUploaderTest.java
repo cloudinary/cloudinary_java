@@ -496,7 +496,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
             message = e.getMessage();
         }
 
-        assertTrue("Detection is invalid".equals(message));
+        assertTrue("Detection invalid model 'illegal'".equals(message));
     }
 
     @Test

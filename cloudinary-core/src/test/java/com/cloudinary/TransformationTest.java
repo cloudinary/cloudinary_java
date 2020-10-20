@@ -288,4 +288,16 @@ public class TransformationTest {
 
         assertEquals("$aheight_300,$mywidth_100/h_3_mul_ih_add_$aheight,w_3_add_$mywidth_mul_3_add_4_div_2_mul_iw_mul_$mywidth", t.generate());
     }
+
+    @Test
+    public void testContextMetadataToUserVariables() {
+        Transformation t = new Transformation()
+                .variable("$xpos", "ctx:!x_pos!_to_f")
+                .variable("$ypos", "ctx:!y_pos!_to_f")
+                .crop("crop")
+                .x("$xpos * w")
+                .y("$ypos * h");
+
+        assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
+    }
 }

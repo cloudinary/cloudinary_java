@@ -306,7 +306,7 @@ public class Cloudinary {
         final Object resourceType = adjustedOptions.get("resource_type");
         adjustedOptions.put("resource_type", resourceType != null ? resourceType : "all");
 
-        return downloadArchive(adjustedOptions, "zip");
+        return downloadArchive(adjustedOptions, (String) adjustedOptions.get("target_format"));
     }
 
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {

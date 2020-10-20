@@ -722,6 +722,18 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testDownloadFolderShouldIncludeSpecifiedTargetFormat() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", Collections.singletonMap("target_format", "rar"));
+        assertTrue(url.contains("target_format=rar"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldNotIncludeTargetFormatIfNotSpecified() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertFalse(url.contains("target_format"));
+    }
+
+    @Test
     public void testSpriteCss() {
         String result = cloudinary.url().generateSpriteCss("test");
         assertEquals("http://res.cloudinary.com/test123/image/sprite/test.css", result);

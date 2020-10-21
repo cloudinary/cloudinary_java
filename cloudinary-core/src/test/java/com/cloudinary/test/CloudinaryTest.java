@@ -389,6 +389,14 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testNamedTransformationWithSpaces() {
+        // should support named transformations with spaces
+        Transformation transformation = new Transformation().named("blip blop");
+        String result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "t_blip%20blop/test", result);
+    }
+
+    @Test
     public void testBaseTransformations() {
         // should support base transformation
         Transformation transformation = new Transformation().x(100).y(100).crop("fill").chain().crop("crop").width(100);

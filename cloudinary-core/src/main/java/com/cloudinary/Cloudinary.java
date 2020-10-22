@@ -284,6 +284,31 @@ public class Cloudinary {
         return buildUrl(cloudinaryApiUrl("multi", options), params);
     }
 
+    /**
+     * Generates URL for executing "Download Folder" operation on Cloudinary site.
+     * 
+     * @param folderPath path of folder to generate download URL for
+     * @param options    optional, holds hints for URL generation procedure, see documentation for full list
+     * @return generated URL for downloading specified folder as ZIP archive
+     */
+    public String downloadFolder(String folderPath, Map options) throws UnsupportedEncodingException {
+        if (StringUtils.isEmpty(folderPath)) {
+            throw new IllegalArgumentException("Folder path parameter value is required");
+        }
+
+        Map adjustedOptions = new HashMap();
+        if (options != null) {
+            adjustedOptions.putAll(options);
+        }
+
+        adjustedOptions.put("prefixes", folderPath);
+
+        final Object resourceType = adjustedOptions.get("resource_type");
+        adjustedOptions.put("resource_type", resourceType != null ? resourceType : "all");
+
+        return downloadArchive(adjustedOptions, (String) adjustedOptions.get("target_format"));
+    }
+
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(base);

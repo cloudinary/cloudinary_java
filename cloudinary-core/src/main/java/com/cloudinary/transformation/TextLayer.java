@@ -21,6 +21,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     protected String letterSpacing = null;
     protected Integer lineSpacing = null;
     protected String text = null;
+    protected Object textStyle = null;
 
     @Override
     TextLayer getThis() {
@@ -118,6 +119,16 @@ public class TextLayer extends AbstractLayer<TextLayer> {
         return getThis();
     }
 
+    public TextLayer textStyle(String textStyleIdentifier) {
+        this.textStyle = textStyleIdentifier;
+        return getThis();
+    }
+
+    public TextLayer textStyle(Expression textStyleIdentifier) {
+        this.textStyle = textStyleIdentifier;
+        return getThis();
+    }
+
     @Override
     public String toString() {
         if (this.publicId == null && this.text == null) {
@@ -144,6 +155,10 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     }
 
     protected String textStyleIdentifier() {
+        if (StringUtils.isNotBlank(this.textStyle)) {
+            return textStyle.toString();
+        }
+
         ArrayList<String> components = new ArrayList<String>();
 
         if (StringUtils.isNotBlank(this.fontWeight) && !this.fontWeight.equals("normal"))
@@ -181,6 +196,5 @@ public class TextLayer extends AbstractLayer<TextLayer> {
         components.add(0, this.fontFamily);
 
         return StringUtils.join(components, "_");
-
     }
 }

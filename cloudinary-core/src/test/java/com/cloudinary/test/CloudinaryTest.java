@@ -102,6 +102,30 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testTextLayerStyleIdentifierVariables() {
+        String url = cloudinary.url().transformation(
+                new Transformation()
+                        .variable("$style", "!Arial_12!")
+                        .chain()
+                        .overlay(
+                                new TextLayer().text("hello-world").textStyle("$style")
+                        )).generate("sample");
+
+        assertEquals("http://res.cloudinary.com/test123/image/upload/$style_!Arial_12!/l_text:$style:hello-world/sample", url);
+
+        url = cloudinary.url().transformation(
+                new Transformation()
+                        .variable("$style", "!Arial_12!")
+                        .chain()
+                        .overlay(
+                                new TextLayer().text("hello-world").textStyle(new Expression("$style"))
+                        )).generate("sample");
+
+        assertEquals("http://res.cloudinary.com/test123/image/upload/$style_!Arial_12!/l_text:$style:hello-world/sample", url);
+    }
+
+
+    @Test
     public void testSecureDistributionOverwrite() {
         // should allow overwriting secure distribution if secure=TRUE
         String result = cloudinary.url().secure(true).secureDistribution("something.else.com").generate("test");

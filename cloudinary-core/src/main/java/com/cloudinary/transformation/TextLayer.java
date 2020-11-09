@@ -119,11 +119,23 @@ public class TextLayer extends AbstractLayer<TextLayer> {
         return getThis();
     }
 
+    /**
+     * Sets a text style identifier,
+     * Note: If this is used, all other style attributes are ignored in favor of this identifier
+     * @param textStyleIdentifier A variable string or an explicit style (e.g. "Arial_17_bold_antialias_best")
+     * @return Itself for chaining
+     */
     public TextLayer textStyle(String textStyleIdentifier) {
         this.textStyle = textStyleIdentifier;
         return getThis();
     }
 
+    /**
+     * Sets a text style identifier using an expression.
+     * Note: If this is used, all other style attributes are ignored in favor of this identifier
+     * @param textStyleIdentifier An expression instance referencing the style.
+     * @return Itself for chaining
+     */
     public TextLayer textStyle(Expression textStyleIdentifier) {
         this.textStyle = textStyleIdentifier;
         return getThis();
@@ -155,6 +167,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
     }
 
     protected String textStyleIdentifier() {
+        // Note: if a text-style argument is provided as a whole, it overrides everything else, no mix and match.
         if (StringUtils.isNotBlank(this.textStyle)) {
             return textStyle.toString();
         }

@@ -532,6 +532,7 @@ public class Uploader {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("metadata", Util.encodeContext(metadata));
         params.put("public_ids", Arrays.asList(publicIds));
+        params.put("type", (String)options.get("type"));
 
         return callApi("metadata", params, options, null);
     }

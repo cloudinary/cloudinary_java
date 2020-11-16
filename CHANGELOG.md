@@ -1,4 +1,26 @@
 
+1.27.0 / 2020-11-16
+===================
+
+New functionality
+-----------------
+  * Support `type` parameter in `Uploader.updateMetadata()` (#226)
+  * Add `downloadFolder` method (#219)
+  * Add eval upload parameter (#217)
+  * Add support of SHA-256 algorithm in calculation of auth signatures (#215)
+  * Support different radius for each corner  (#212)
+  * Add support for variables in text style. (#225)
+  * Add support for 'accessibility_analysis' parameter (#218)
+  * Support new parameter and modes in `generateSprite()` and `multi()` API cals.
+  * Add support for `date` param in `Api.usage()` (#210)
+
+  
+Other changes
+-------------
+  * Fix named transformation with spaces (#224)
+  * Fix normalize_expression for complex cases (#216)
+  * Detect data URLs with suffix in mime type (#213)
+
 1.26.0 / 2020-05-05
 ===================
 

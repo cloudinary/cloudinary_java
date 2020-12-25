@@ -283,7 +283,7 @@ public class Account {
     /**
      * Get a list of the users according to filters.
      *
-     * @param pending      Optional. Whether to fetch pending users. Default all.
+     * @param pending      Optional. Limit results to pending users (true), users that are not pending (false), or all users (null)
      * @param userIds      Optionals. List of user IDs. Up to 100
      * @param prefix       Optional. Search by prefix of the user's name or email. Case-insensitive
      * @param subAccountId Optional. Return only users who have access to the given sub-account
@@ -297,7 +297,7 @@ public class Account {
     /**
      * Get a list of the users according to filters.
      *
-     * @param pending      Optional. Whether to fetch pending users. Default all.
+     * @param pending      Optional. Limit results to pending users (true), users that are not pending (false), or all users (null)
      * @param userIds      Optionals. List of user IDs. Up to 100
      * @param prefix       Optional. Search by prefix of the user's name or email. Case-insensitive
      * @param subAccountId Optional. Return only users who have access to the given sub-account

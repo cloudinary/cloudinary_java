@@ -47,6 +47,7 @@ public class Configuration {
     public boolean forceVersion = true;
     public boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
     public SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+    public String oauthToken = null;
 
     public Configuration() {
     }
@@ -71,7 +72,8 @@ public class Configuration {
             boolean loadStrategies,
             boolean forceVersion,
             boolean longUrlSignature,
-            SignatureAlgorithm signatureAlgorithm) {
+            SignatureAlgorithm signatureAlgorithm,
+            String oauthToken) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -87,11 +89,12 @@ public class Configuration {
         this.proxyPort = proxyPort;
         this.secureCdnSubdomain = secureCdnSubdomain;
         this.useRootPath = useRootPath;
-        this.timeout = 0;
+        this.timeout = timeout;
         this.loadStrategies = loadStrategies;
         this.forceVersion = forceVersion;
         this.longUrlSignature = longUrlSignature;
         this.signatureAlgorithm = signatureAlgorithm;
+        this.oauthToken = oauthToken;
     }
 
     @SuppressWarnings("rawtypes")
@@ -130,6 +133,7 @@ public class Configuration {
         }
         this.longUrlSignature = ObjectUtils.asBoolean(config.get("long_url_signature"), DEFAULT_IS_LONG_SIGNATURE);
         this.signatureAlgorithm = SignatureAlgorithm.valueOf(ObjectUtils.asString(config.get(CONFIG_PROP_SIGNATURE_ALGORITHM), DEFAULT_SIGNATURE_ALGORITHM.name()));
+        this.oauthToken = (String) config.get("oauth_token");
     }
 
     @SuppressWarnings("rawtypes")
@@ -160,6 +164,7 @@ public class Configuration {
         map.put("properties", new HashMap<String,Object>(properties));
         map.put("long_url_signature", longUrlSignature);
         map.put(CONFIG_PROP_SIGNATURE_ALGORITHM, signatureAlgorithm.toString());
+        map.put("oauth_token", oauthToken);
         return map;
     }
 
@@ -190,6 +195,7 @@ public class Configuration {
         this.properties.putAll(other.properties);
         this.longUrlSignature = other.longUrlSignature;
         this.signatureAlgorithm = other.signatureAlgorithm;
+        this.oauthToken = other.oauthToken;
     }
 
     /**
@@ -301,6 +307,7 @@ public class Configuration {
         private boolean forceVersion = true;
         private boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
         private SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+        private String oauthToken = null;
 
         /**
          * Set the HTTP connection timeout.
@@ -337,7 +344,8 @@ public class Configuration {
                             loadStrategies,
                             forceVersion,
                             longUrlSignature,
-                            signatureAlgorithm);
+                            signatureAlgorithm,
+                            oauthToken);
             configuration.clientHints = clientHints;
             return configuration;
         }
@@ -466,6 +474,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setOAuthToken(String oauthToken) {
+            this.oauthToken = oauthToken;
+            return this;
+        }
+
         /**
          * Initialize builder from existing {@link Configuration}
          *
@@ -495,6 +508,7 @@ public class Configuration {
             this.forceVersion = other.forceVersion;
             this.longUrlSignature = other.longUrlSignature;
             this.signatureAlgorithm = other.signatureAlgorithm;
+            this.oauthToken = other.oauthToken;
             return this;
         }
     }

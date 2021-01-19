@@ -23,12 +23,14 @@ public class Cloudinary {
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",
             "com.cloudinary.http43.UploaderStrategy",
-            "com.cloudinary.http44.UploaderStrategy"));
+            "com.cloudinary.http44.UploaderStrategy",
+            "com.cloudinary.http45.UploaderStrategy"));
     public static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.ApiStrategy",
             "com.cloudinary.http42.ApiStrategy",
             "com.cloudinary.http43.ApiStrategy",
-            "com.cloudinary.http44.ApiStrategy"));
+            "com.cloudinary.http44.ApiStrategy",
+            "com.cloudinary.http45.ApiStrategy"));
 
     public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
     public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";

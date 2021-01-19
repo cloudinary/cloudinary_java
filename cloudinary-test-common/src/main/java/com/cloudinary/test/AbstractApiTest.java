@@ -189,6 +189,18 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testOAuthToken() {
+        String message = "";
+        try {
+            api.resource(API_TEST, Collections.singletonMap("oauth_token", "not_a_real_token"));
+        } catch (Exception e) {
+            message = e.getMessage();
+        }
+
+        assertTrue(message.contains("Invalid token"));
+    }
+
+    @Test
     public void test05ResourcesByPrefix() throws Exception {
         // should allow listing resources by prefix
         Map result = api.resources(ObjectUtils.asMap("type", "upload", "prefix", API_TEST, "tags", true, "context", true));
@@ -996,7 +1008,7 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("cinemagraph_analysis", true));
         assertNotNull(res.get("cinemagraph_analysis"));
     }
-    
+
     @Test
     public void testAccessibilityAnalysisResource() throws Exception {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("accessibility_analysis", true));

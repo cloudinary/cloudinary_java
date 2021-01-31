@@ -10,6 +10,7 @@ import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -21,6 +22,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -98,8 +100,9 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         CloseableHttpResponse response = client.execute(request);
         try {
             code = response.getStatusLine().getStatusCode();
-            InputStream responseStream = response.getEntity().getContent();
-            responseData = StringUtils.read(responseStream);
+            final HttpEntity entity = response.getEntity();
+            responseData = StringUtils.read(entity.getContent());
+            EntityUtils.consume(entity);
         } finally {
             response.close();
         }

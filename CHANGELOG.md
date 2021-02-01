@@ -1,4 +1,10 @@
 
+1.28.0 / 2021-02-01
+==================
+
+  * Add `oauth` support to Admin Api calls. (#230)
+  * Fix connection reuse when using apache-http-client (versions 4.3 and 4.4) (#231)
+
 1.27.0 / 2020-11-16
 ===================
 

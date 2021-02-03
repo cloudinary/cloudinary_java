@@ -1,5 +1,10 @@
 
-1.28.0 / 2021-02-01
+1.28.1 / 2021-02-03
+==================
+
+  * Fix `api` reuse bug when calling `cloudinary.search()` (#232)
+
+1.28.1 / 2021-02-01
 ==================
 
   * Add `oauth` support to Admin Api calls. (#230)

@@ -80,7 +80,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void normalize_initialAspectRatio_recognizedAsVariableAndReplacedWithW() {
+    public void normalize_initialAspectRatio_recognizedAsVariableAndReplacedWithIar() {
         String result = Expression.normalize("initial_aspect_ratio");
         assertEquals("iar", result);
     }

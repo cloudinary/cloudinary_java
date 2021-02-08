@@ -21,6 +21,7 @@ env:
   - MODULE=http42
   - MODULE=http43
   - MODULE=http44
+  - MODULE=http45
 
 branches:
   except:

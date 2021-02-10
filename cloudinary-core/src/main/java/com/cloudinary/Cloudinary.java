@@ -38,15 +38,16 @@ public class Cloudinary {
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
     public final static String VERSION = "1.28.1";
-    public final static String USER_AGENT = "CloudinaryJava/" + VERSION + " (Java " + System.getProperty("java.version") + ")";
+    static String USER_AGENT_PREFIX = "CloudinaryJava";
+    public final static String USER_AGENT_JAVA_VERSION = "(Java " + System.getProperty("java.version") + ")";
 
     public final Configuration config;
     private AbstractUploaderStrategy uploaderStrategy;
     private AbstractApiStrategy apiStrategy;
+    private String userAgent = USER_AGENT_PREFIX+"/"+ VERSION + " "+USER_AGENT_JAVA_VERSION;
 
     public Uploader uploader() {
         return new Uploader(this, uploaderStrategy);
-
     }
 
     public Api api() {
@@ -133,6 +134,23 @@ public class Cloudinary {
 
     public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
         return Util.produceSignature(paramsToSign, apiSecret, config.signatureAlgorithm);
+    }
+
+    /**
+     * @return the userAgent that will be sent with every API call.
+     */
+    public String getUserAgent(){
+        return userAgent;
+    }
+
+    /**
+     * Set the prefix and version for the user agent that will be sent with every API call
+     * a userAgent is built from `prefix/version (additional data)`
+     * @param prefix - the prefix of the userAgent to be set
+     * @param version - the version of the userAgent to be set
+     */
+    public void setUserAgent(String prefix, String version){
+        userAgent = prefix+"/"+ version + " ("+USER_AGENT_PREFIX+ " "+VERSION+") " + USER_AGENT_JAVA_VERSION;
     }
 
     /**

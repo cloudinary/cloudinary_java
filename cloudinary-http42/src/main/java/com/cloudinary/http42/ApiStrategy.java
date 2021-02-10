@@ -107,7 +107,7 @@ public class ApiStrategy extends AbstractApiStrategy {
                 break;
         }
         request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));
-        request.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
+        request.setHeader("User-Agent", this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.2");
         if (contentType.equals("json")) {
             JSONObject asJSON = ObjectUtils.toJSON(params);
             StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);

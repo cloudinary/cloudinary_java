@@ -47,7 +47,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         super.init(api);
 
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.3");
+        clientBuilder.useSystemProperties().setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.3");
 
         // If the configuration specifies a proxy then apply it to the client
         if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {

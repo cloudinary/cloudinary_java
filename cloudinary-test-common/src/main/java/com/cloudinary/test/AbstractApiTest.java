@@ -47,6 +47,9 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String TEST_KEY = "test-key" + SUFFIX;
     public static final String API_TEST_RESTORE = "api_test_restore" + SUFFIX;
     public static final Set<String> createdFolders = new HashSet<String>();
+    private static final String CUSTOM_USER_AGENT_PREFIX = "TEST_USER_AGENT";
+    private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
+
 
     protected Api api;
 
@@ -126,7 +129,6 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         } catch (Exception ignored) {
         }
-
     }
 
     @Rule
@@ -149,6 +151,14 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         }
         return null;
+    }
+
+    @Test
+    public void testCustomUserAgent() throws Exception {
+        // should allow setting a custom user-agent
+        cloudinary.setUserAgent(CUSTOM_USER_AGENT_PREFIX, CUSTOM_USER_AGENT_VERSION);
+        Map results = api.ping(ObjectUtils.emptyMap());
+        //TODO Mock server and assert the header
     }
 
     @Test

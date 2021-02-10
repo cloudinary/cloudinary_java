@@ -1,10 +1,23 @@
 
+1.29.0 / 2021-02-10
+===================
+
+New functionality
+-----------------
+  * Allow setting the user agent (#235)
+  * Add support for Apache http-client 4.5 (#234)
+
+Other changes
+-------------
+  * Fix test name in `ExpressionTest` (#233)
+
+
 1.28.1 / 2021-02-03
 ==================
 
   * Fix `api` reuse bug when calling `cloudinary.search()` (#232)
 
-1.28.1 / 2021-02-01
+1.28.0 / 2021-02-01
 ==================
 
   * Add `oauth` support to Admin Api calls. (#230)

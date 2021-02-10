@@ -206,7 +206,7 @@ public class TextLayer extends AbstractLayer<TextLayer> {
         }
 
         components.add(0, Integer.toString(this.fontSize));
-        components.add(0, this.fontFamily.replace(" ","%20"));
+        components.add(0, this.fontFamily);
 
         return StringUtils.join(components, "_");
     }

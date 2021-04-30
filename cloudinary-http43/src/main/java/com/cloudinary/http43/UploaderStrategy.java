@@ -1,12 +1,11 @@
 package com.cloudinary.http43;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-
 import com.cloudinary.ProgressCallback;
+import com.cloudinary.Uploader;
+import com.cloudinary.Util;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -18,15 +17,12 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Uploader;
-import com.cloudinary.Util;
-import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
@@ -56,7 +52,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
-        if (progressCallback != null){
+        if (progressCallback != null) {
             throw new IllegalArgumentException("Progress callback is not supported");
         }
 
@@ -102,7 +98,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
 
-        if(file instanceof String && !(StringUtils.isRemoteUrl((String)file))){
+        if (file instanceof String && !(StringUtils.isRemoteUrl((String) file))) {
             File _file = new File((String) file);
             if (!_file.isFile() && !_file.canRead()) {
                 throw new IOException("File not found or unreadable: " + file);
@@ -118,6 +114,9 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         } else if (file instanceof byte[]) {
             if (filename == null) filename = "file";
             multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, filename);
+        } else if (file instanceof InputStream) {
+            if (filename == null) filename = "file";
+            multipart.addBinaryBody("file", (InputStream) file, ContentType.APPLICATION_OCTET_STREAM, filename);
         } else if (file == null) {
             // no-problem
         } else {

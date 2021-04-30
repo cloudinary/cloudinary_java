@@ -1,6 +1,5 @@
 package com.cloudinary.http45;
 
-import com.cloudinary.Cloudinary;
 import com.cloudinary.ProgressCallback;
 import com.cloudinary.Uploader;
 import com.cloudinary.Util;
@@ -53,7 +52,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Map callApi(String action, Map<String, Object> params, Map options, Object file, ProgressCallback progressCallback) throws IOException {
-        if (progressCallback != null){
+        if (progressCallback != null) {
             throw new IllegalArgumentException("Progress callback is not supported");
         }
 
@@ -115,6 +114,9 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         } else if (file instanceof byte[]) {
             if (filename == null) filename = "file";
             multipart.addBinaryBody("file", (byte[]) file, ContentType.APPLICATION_OCTET_STREAM, filename);
+        } else if (file instanceof InputStream) {
+            if (filename == null) filename = "file";
+            multipart.addBinaryBody("file", (InputStream) file, ContentType.APPLICATION_OCTET_STREAM, filename);
         } else if (file == null) {
             // no-problem
         } else {

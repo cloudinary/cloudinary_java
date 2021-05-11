@@ -151,8 +151,10 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testGetUser() throws Exception {
         ApiResponse user = createUser();
-        ApiResponse result = account.user(user.get("id").toString(), null);
+        String id = user.get("id").toString();
+        ApiResponse result = account.user(id, null);
         assertNotNull(result);
+        deleteUser(id);
     }
 
     @Test
@@ -171,6 +173,9 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
         assertTrue("User1 id should be in the result set", returnedIds.contains(id1));
         assertTrue("User2 id should be in the result set", returnedIds.contains(id2));
+        deleteUser(id1);
+        deleteUser(id2);
+
     }
 
     @Test
@@ -183,11 +188,12 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testUpdateUser() throws Exception {
         ApiResponse user = createUser(Account.Role.ADMIN);
-
+        String id = user.get("id").toString();
         String newName = randomLetters();
-        ApiResponse result = account.updateUser(user.get("id").toString(), newName, null, null, null, null);
+        ApiResponse result = account.updateUser(id, newName, null, null, null, null);
         assertNotNull(result);
         assertEquals(result.get("name"), newName);
+        deleteUser(id);
     }
 
     @Test
@@ -228,8 +234,10 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     public void testAddUserToUserGroup() throws Exception {
         ApiResponse user = createUser();
         ApiResponse group = createGroup();
-        ApiResponse result = account.addUserToGroup(group.get("id").toString(), user.get("id").toString(), null);
+        String userId = user.get("id").toString();
+        ApiResponse result = account.addUserToGroup(group.get("id").toString(), userId, null);
         assertNotNull(result);
+        deleteUser(userId);
     }
 
     @Test
@@ -241,6 +249,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         account.addUserToGroup(groupId, userId, null);
         ApiResponse result = account.removeUserFromGroup(groupId, userId, null);
         assertNotNull(result);
+        deleteUser(userId);
     }
 
     @Test
@@ -271,6 +280,8 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         ApiResponse result = account.userGroupUsers(groupId, null);
         assertNotNull(result);
         assertTrue(((List) result.get("users")).size() >= 2);
+        deleteUser(user1Id);
+        deleteUser(user2Id);
     }
 
 
@@ -280,7 +291,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         ApiResponse userGroup = account.createUserGroup(name);
         createdGroupIds.add(userGroup.get("id").toString());
         return userGroup;
-
     }
 
     private ApiResponse createUser(Account.Role role) throws Exception {
@@ -313,7 +323,15 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         for (int i = 0; i < 10; i++) {
             sb.append((char) ('a' + rand.nextInt('z' - 'a' + 1)));
         }
-
         return sb.toString();
+    }
+
+    private void deleteUser(String userId) {
+        try {
+            account.deleteUser(userId, null);
+            createdUserIds.remove(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

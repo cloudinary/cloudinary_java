@@ -64,6 +64,8 @@ public class LayerTest {
         Object tests[] = {
                 new Layer().publicId("logo"),
                 "logo",
+                new Layer().publicId("logo__111"), //testing SNI-4729
+                "logo__111",
                 new Layer().publicId("folder/logo"),
                 "folder:logo",
                 new Layer().publicId("logo").type("private"),

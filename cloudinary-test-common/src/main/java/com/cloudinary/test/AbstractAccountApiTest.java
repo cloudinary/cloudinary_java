@@ -154,7 +154,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         String id = user.get("id").toString();
         ApiResponse result = account.user(id, null);
         assertNotNull(result);
-        deleteUser(id);
     }
 
     @Test
@@ -173,9 +172,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
         assertTrue("User1 id should be in the result set", returnedIds.contains(id1));
         assertTrue("User2 id should be in the result set", returnedIds.contains(id2));
-        deleteUser(id1);
-        deleteUser(id2);
-
     }
 
     @Test
@@ -193,7 +189,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         ApiResponse result = account.updateUser(id, newName, null, null, null, null);
         assertNotNull(result);
         assertEquals(result.get("name"), newName);
-        deleteUser(id);
     }
 
     @Test
@@ -237,7 +232,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         String userId = user.get("id").toString();
         ApiResponse result = account.addUserToGroup(group.get("id").toString(), userId, null);
         assertNotNull(result);
-        deleteUser(userId);
     }
 
     @Test
@@ -249,7 +243,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         account.addUserToGroup(groupId, userId, null);
         ApiResponse result = account.removeUserFromGroup(groupId, userId, null);
         assertNotNull(result);
-        deleteUser(userId);
     }
 
     @Test
@@ -280,8 +273,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         ApiResponse result = account.userGroupUsers(groupId, null);
         assertNotNull(result);
         assertTrue(((List) result.get("users")).size() >= 2);
-        deleteUser(user1Id);
-        deleteUser(user2Id);
     }
 
 
@@ -324,14 +315,5 @@ public abstract class AbstractAccountApiTest extends MockableTest {
             sb.append((char) ('a' + rand.nextInt('z' - 'a' + 1)));
         }
         return sb.toString();
-    }
-
-    private void deleteUser(String userId) {
-        try {
-            account.deleteUser(userId, null);
-            createdUserIds.remove(userId);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -40,18 +40,28 @@ public class Search {
     }
 
     public Search aggregate(String field) {
-        aggregateParam.add(field);
+        if (!aggregateParam.contains(field)) {
+            aggregateParam.add(field);
+        }
         return this;
     }
 
     public Search withField(String field) {
-        withFieldParam.add(field);
+        if (!withFieldParam.contains(field)) {
+            withFieldParam.add(field);
+        }
         return this;
     }
 
     public Search sortBy(String field, String dir) {
         HashMap<String, Object> sortBucket = new HashMap<String, Object>();
         sortBucket.put(field, dir);
+        for (int i = 0; i < sortByParam.size(); i++) {
+            if (sortByParam.get(i).containsKey(field)){
+                sortByParam.add(i, sortBucket);
+                return this;
+            }
+        }
         sortByParam.add(sortBucket);
         return this;
     }

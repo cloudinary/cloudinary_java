@@ -312,7 +312,7 @@ public class Configuration {
         /**
          * Set the HTTP connection timeout.
          *
-         * @param timeout time in milliseconds, or 0 to use the default platform value
+         * @param timeout time in seconds, or 0 to use the default platform value
          * @return builder for chaining
          */
         public Builder setTimeout(int timeout) {

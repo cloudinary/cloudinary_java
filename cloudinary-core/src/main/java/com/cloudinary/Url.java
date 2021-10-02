@@ -377,7 +377,7 @@ public class Url {
         source = finalizedSource[0];
         String sourceToSign = finalizedSource[1];
 
-        if (this.config.forceVersion && sourceToSign.contains("/") && !StringUtils.hasVersionString(sourceToSign) &&
+        if (this.config.forceVersion && sourceToSign.contains("/") && !StringUtils.startWithVersionString(sourceToSign) &&
                 !httpSource && StringUtils.isEmpty(version)) {
             version = "1";
         }

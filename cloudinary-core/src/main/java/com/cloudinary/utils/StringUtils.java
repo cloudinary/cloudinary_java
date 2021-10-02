@@ -340,26 +340,15 @@ public class StringUtils {
     }
 
     /**
-     * Checks whether the url contains a versioning string (v + number, e.g. v12345)
-     * @param url The url to check
-     * @return Whether a version string is contained within the url
+     * Checks whether a publicId starts a versioning string (v + number, e.g. v12345)
+     * @param publicId The url to check
+     * @return Whether a version string is contained within the publicId
      */
-    public static boolean hasVersionString(String url) {
-        boolean inVersion = false;
-        for (int i = 0; i < url.length(); i++) {
-            char c = url.charAt(i);
-            if (c == 'v') {
-                inVersion = true;
-            } else if (Character.isDigit(c) && inVersion) {
-                return true;
-            } else {
-                inVersion = false;
-            }
-
-
+    public static boolean startWithVersionString(String publicId){
+        if (publicId.startsWith("/")){
+            publicId = publicId.substring(1);
         }
-
-        return false;
+        return publicId.length()>1 && publicId.startsWith("v") && Character.isDigit(publicId.charAt(1));
     }
 
     /**

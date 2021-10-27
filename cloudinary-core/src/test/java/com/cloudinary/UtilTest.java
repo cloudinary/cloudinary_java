@@ -129,18 +129,27 @@ public class UtilTest {
     }
 
     @Test
-    public void testHasVersionString(){
-        assertTrue(StringUtils.hasVersionString("wqeasdlv31423423"));
-        assertTrue(StringUtils.hasVersionString("v1"));
-        assertTrue(StringUtils.hasVersionString("v1fdasfasd"));
-        assertTrue(StringUtils.hasVersionString("asdasv1fdasfasd"));
-        assertTrue(StringUtils.hasVersionString("12v1fdasfasd"));
+    public void testStartWithVersionString(){
+        assertTrue(StringUtils.startWithVersionString("v1"));
+        assertTrue(StringUtils.startWithVersionString("v1fdasfasd"));
+        assertTrue(StringUtils.startWithVersionString("v112fdasfasd"));
+        assertTrue(StringUtils.startWithVersionString("v112/fda/sfasd"));
+        assertTrue(StringUtils.startWithVersionString("v112/fda/v1sfasd"));
+        assertTrue(StringUtils.startWithVersionString("/v112/fda/v1sfasd"));
 
-        assertFalse(StringUtils.hasVersionString("121fdasfasd"));
-        assertFalse(StringUtils.hasVersionString(""));
-        assertFalse(StringUtils.hasVersionString("vvv"));
-        assertFalse(StringUtils.hasVersionString("v"));
-        assertFalse(StringUtils.hasVersionString("asdvvv"));
+        assertFalse(StringUtils.startWithVersionString("asdasv1fdasfasd"));
+        assertFalse(StringUtils.startWithVersionString("12v1fdasfasd"));
+        assertFalse(StringUtils.startWithVersionString("asdasv1fdasfasd"));
+        assertFalse(StringUtils.startWithVersionString("wqeasdlv31423423"));
+        assertFalse(StringUtils.startWithVersionString("wqeasdl/v31423423"));
+        assertFalse(StringUtils.startWithVersionString("121fdasfasd"));
+        assertFalse(StringUtils.startWithVersionString("/121fdasfasd"));
+        assertFalse(StringUtils.startWithVersionString("/"));
+        assertFalse(StringUtils.startWithVersionString("/v"));
+        assertFalse(StringUtils.startWithVersionString(""));
+        assertFalse(StringUtils.startWithVersionString("vvv"));
+        assertFalse(StringUtils.startWithVersionString("v"));
+        assertFalse(StringUtils.startWithVersionString("asdvvv"));
     }
 
     @Test

@@ -636,6 +636,14 @@ public class CloudinaryTest {
         result = cloudinary.url().generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
 
+        // should not add version if the path STARTS with 'v[num]'
+        result = cloudinary.url().generate("v1234/folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1234/folder/test", result);
+
+        // should add version if the path CONTAINS 'v[num]'
+        result = cloudinary.url().generate("folder/v123test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/v123test", result);
+
         // should add version if forceVersion is true
         result = cloudinary.url().forceVersion(true).generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);

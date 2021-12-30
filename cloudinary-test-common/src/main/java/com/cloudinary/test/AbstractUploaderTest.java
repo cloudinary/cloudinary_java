@@ -559,6 +559,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals("emanelif", result.get("original_filename"));
     }
 
+    
+    @Test
+    public void testFilenameOverrideOption() throws Exception {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("filename_override", "overridden", "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        assertEquals("overridden", result.get("original_filename"));
+    }
+
+    
     @Test
     public void testResponsiveBreakpoints() throws Exception {
         ResponsiveBreakpoint breakpoint = new ResponsiveBreakpoint()

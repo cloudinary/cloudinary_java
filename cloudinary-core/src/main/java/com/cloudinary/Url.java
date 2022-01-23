@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
+import com.cloudinary.utils.AnalyticsUtils;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -416,6 +417,9 @@ public class Url {
                 url = url + "?" + token;
             } catch (MalformedURLException ignored) {
             }
+        }
+        if (AnalyticsUtils.token != null) {
+            url = (new StringBuilder()).append(url).append(AnalyticsUtils.analyticsPrefix).append(AnalyticsUtils.token).toString();
         }
         return url;
     }

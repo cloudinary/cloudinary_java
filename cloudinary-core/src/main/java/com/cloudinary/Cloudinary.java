@@ -5,6 +5,7 @@ import com.cloudinary.api.signing.NotificationRequestSignatureVerifier;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
+import com.cloudinary.utils.AnalyticsUtils;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -151,6 +152,14 @@ public class Cloudinary {
      */
     public void setUserAgent(String prefix, String version){
         userAgent = prefix+"/"+ version + " ("+USER_AGENT_PREFIX+ " "+VERSION+") " + USER_AGENT_JAVA_VERSION;
+    }
+
+    /**
+     * Set the analytics token that will be sent with every URL generate call
+     * @param token - the analytics token to be set
+     */
+    public void setAnalyticsToken(String token) {
+        AnalyticsUtils.token = token;
     }
 
     /**

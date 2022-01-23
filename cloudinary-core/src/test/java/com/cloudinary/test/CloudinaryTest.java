@@ -2,6 +2,7 @@ package com.cloudinary.test;
 
 import com.cloudinary.*;
 import com.cloudinary.transformation.*;
+import com.cloudinary.utils.AnalyticsUtils;
 import com.cloudinary.utils.ObjectUtils;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
@@ -1453,5 +1454,20 @@ public class CloudinaryTest {
 
     private <T extends Enum<?>> T randomEnum(Class<T> clazz, Random random) {
         return clazz.getEnumConstants()[random.nextInt(clazz.getEnumConstants().length)];
+    }
+
+    @Test
+    public void testUrlWithAnalytics() {
+        AnalyticsUtils.token = "AFAACAI0";
+        String url = cloudinary.url().generate("test");
+        assertEquals(url,"http://res.cloudinary.com/test123/image/upload/test?_a=AFAACAI0");
+        AnalyticsUtils.token = null;
+    }
+
+    @Test
+    public void testUrlWithNoAnalytics() {
+        AnalyticsUtils.token = null;
+        String url = cloudinary.url().generate("test");
+        assertEquals(url,"http://res.cloudinary.com/test123/image/upload/test");
     }
 }

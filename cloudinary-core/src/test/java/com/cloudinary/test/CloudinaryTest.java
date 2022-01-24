@@ -1470,4 +1470,6 @@ public class CloudinaryTest {
         String url = cloudinary.url().generate("test");
         assertEquals(url,"http://res.cloudinary.com/test123/image/upload/test");
     }
+
+
 }

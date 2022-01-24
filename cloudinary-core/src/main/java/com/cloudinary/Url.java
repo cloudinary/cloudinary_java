@@ -419,7 +419,9 @@ public class Url {
             }
         }
         if (AnalyticsUtils.token != null) {
-            url = (new StringBuilder()).append(url).append(AnalyticsUtils.analyticsPrefix).append(AnalyticsUtils.token).toString();
+            if(!AnalyticsUtils.checkIfQueryParamExist(url)) {
+                url = (new StringBuilder()).append(url).append(AnalyticsUtils.analyticsPrefix).append(AnalyticsUtils.token).toString();
+            }
         }
         return url;
     }

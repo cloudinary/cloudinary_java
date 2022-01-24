@@ -1,5 +1,6 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.AnalyticsUtils;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -90,6 +91,15 @@ public class AuthTokenTest {
                 .type("authenticated").version("1486020273").generate("sample.jpg");
         assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=8db0d753ee7bbb9e2eaf8698ca3797436ba4c20e31f44527e43b6a6e995cfdb3", url);
 
+    }
+
+    @Test
+    public void testUrlAnalyticsWithQueryParams() {
+        cloudinary.config.privateCdn = true;
+        String url = cloudinary.url().signed(true).type("authenticated").generate("test");
+        assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
+        AnalyticsUtils.token = null;
+        cloudinary.config.privateCdn = false;
     }
 
     @Test

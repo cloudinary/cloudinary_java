@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
-import com.cloudinary.utils.AnalyticsUtils;
+import com.cloudinary.utils.Analytics;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -409,6 +409,7 @@ public class Url {
         String join = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/");
         String url = StringUtils.mergeSlashesInUrl(join);
 
+
         if (signUrl && authToken != null && !authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
             try {
                 URL tempUrl = new URL(url);
@@ -418,9 +419,14 @@ public class Url {
             } catch (MalformedURLException ignored) {
             }
         }
-        if (AnalyticsUtils.token != null) {
-            if(!AnalyticsUtils.checkIfQueryParamExist(url)) {
-                url = (new StringBuilder()).append(url).append(AnalyticsUtils.analyticsPrefix).append(AnalyticsUtils.token).toString();
+        if (cloudinary.analytics != null && cloudinary.config.analytics) {
+            try {
+                URL tempUrl = new URL(url);
+                if (tempUrl.getQuery() == null) {
+                    String path = tempUrl.getPath();
+                    url = url + "?" + cloudinary.analytics.toQueryParam();
+                }
+            } catch (MalformedURLException ignored) {
             }
         }
         return url;

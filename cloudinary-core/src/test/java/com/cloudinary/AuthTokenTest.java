@@ -1,6 +1,6 @@
 package com.cloudinary;
 
-import com.cloudinary.utils.AnalyticsUtils;
+import com.cloudinary.utils.Analytics;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
@@ -95,10 +95,11 @@ public class AuthTokenTest {
 
     @Test
     public void testUrlAnalyticsWithQueryParams() {
+        cloudinary.config.analytics = true;
+        cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version")));
         cloudinary.config.privateCdn = true;
         String url = cloudinary.url().signed(true).type("authenticated").generate("test");
         assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
-        AnalyticsUtils.token = null;
         cloudinary.config.privateCdn = false;
     }
 

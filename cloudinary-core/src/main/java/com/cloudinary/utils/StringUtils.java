@@ -4,8 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -216,7 +215,7 @@ public class StringUtils {
      * Replaces the unsafe characters in url with url-encoded values.
      * This is based on {@link java.net.URLEncoder#encode(String, String)}
      * @param url The url to encode
-     * @param unsafe Regex pattern of unsafe caracters
+     * @param unsafe Regex pattern of unsafe characters
      * @param charset
      * @return An encoded url string
      */
@@ -396,5 +395,56 @@ public class StringUtils {
      */
     public static String emptyIfNull(String str) {
         return isEmpty(str) ? "" : str;
+    }
+
+    /**
+     * Returns an array of strings in reveresed order.
+     *
+     * @param strings array of strings
+     * @return reversed array of string or empty array, if the passed array is null or empty
+     */
+    static String[] reverseStringArray(String[] strings) {
+        Collections.reverse(Arrays.asList(strings));
+        return strings;
+    }
+
+    /**
+     * Returns the padded string with requested character to the left with length equals to length param sent.
+     *
+     * @param inputString The string to process
+     * @param length The requested length to pad to
+     * @param paddingCharacter The requested character to pad with
+     * @return reversed array of string or empty array, if the passed array is null or empty
+     */
+    public static String padStart(String inputString, int length, char paddingCharacter) {
+        if (inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < length - inputString.length()) {
+            sb.append(paddingCharacter);
+        }
+        sb.append(inputString);
+
+        return sb.toString();
+    }
+
+    /**
+     * Break string into groups of n size strings
+     *
+     * @param text The string to process
+     * @param n Size of group
+     * @return List with all strings with group size n.
+     */
+    public static List<String> usingPattern(String text, int n) {
+        List<String> results = new ArrayList<>();
+
+        Pattern pattern = Pattern.compile(".{1," + n + "}");
+        Matcher matcher = pattern.matcher(text);
+        while (matcher.find()) {
+            String match = text.substring(matcher.start(), matcher.end());
+            results.add(match);
+        }
+        return results;
     }
 }

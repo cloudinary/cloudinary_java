@@ -123,8 +123,6 @@ cloudinary.url().generate("sample_remote.jpg");
 # http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
 ```
 
-![](https://res.cloudinary.com/cloudinary/image/upload/see_more_bullet.png) **See [our documentation](https://cloudinary.com/documentation/java_image_upload) for plenty more options of uploading to the cloud from your Java code**.
-
 ## Contributions
 See [contributing guidelines](/CONTRIBUTING.md).
 

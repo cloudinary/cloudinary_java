@@ -2,10 +2,7 @@ package com.cloudinary.analytics;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.Analytics;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 
 public class AnalyticsTest {
@@ -34,16 +31,12 @@ public class AnalyticsTest {
         cloudinary.setAnalytics(new Analytics("F", "2.0.0", "1.8.0"));
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AFAACMh0");
-        cloudinary.config.analytics = false;
-        cloudinary.analytics = null;
     }
 
     @Test
     public void testUrlWithNoAnalytics() {
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
-        cloudinary.config.analytics = false;
-        cloudinary.analytics = null;
     }
 
     @Test
@@ -51,8 +44,6 @@ public class AnalyticsTest {
         cloudinary.config.analytics = false;
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
-        cloudinary.config.analytics = false;
-        cloudinary.analytics = null;
     }
 
     @Test
@@ -60,8 +51,6 @@ public class AnalyticsTest {
         cloudinary.analytics = null;
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
-        cloudinary.config.analytics = false;
-        cloudinary.analytics = null;
     }
 
     @Test
@@ -70,8 +59,6 @@ public class AnalyticsTest {
         cloudinary.analytics = null;
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
-        cloudinary.config.analytics = false;
-        cloudinary.analytics = null;
     }
 
     @Test
@@ -88,6 +75,12 @@ public class AnalyticsTest {
         Analytics analytics = new Analytics("Z", "1.24.0", "0");
         String result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=E");
+    }
+
+    @After
+    public void tearDown() {
+        cloudinary.config.analytics = false;
+        cloudinary.analytics = null;
     }
 
 }

@@ -436,7 +436,7 @@ public class StringUtils {
      * @param n Size of group
      * @return List with all strings with group size n.
      */
-    public static List<String> usingPattern(String text, int n) {
+    public static List<String> getAllSubStringWithSize(String text, int n) {
         List<String> results = new ArrayList<>();
 
         Pattern pattern = Pattern.compile(".{1," + n + "}");

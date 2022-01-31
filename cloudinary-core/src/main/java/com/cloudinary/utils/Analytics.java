@@ -4,7 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Analytics {
-    private String sdkTokenQueryKey = "_a="; //sdkTokenQueryKey
+    private String sdkTokenQueryKey = "_a"; //sdkTokenQueryKey
+    private String sdkQueryDelimiter = "=";
     public String algoVersion = "A";
     public String SDKCode = ""; // Java = G, Android = F
     public String SDKSemver = ""; // Calculate the SDK version .
@@ -42,9 +43,9 @@ public class Analytics {
      */
     public String toQueryParam() {
         try {
-            return sdkTokenQueryKey + getAlgorithmVersion() + getSDKType() + getSDKVersion() + getTechVersion() + getSDKFeatureCode();
+            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + getSDKType() + getSDKVersion() + getTechVersion() + getSDKFeatureCode();
         } catch (Exception e) {
-            return sdkTokenQueryKey + "E";
+            return sdkTokenQueryKey + sdkQueryDelimiter + "E";
         }
     }
 
@@ -91,7 +92,7 @@ public class Analytics {
         }
 
         String result = "";
-        List<String> resultList = StringUtils.usingPattern(paddedBinary,6);
+        List<String> resultList = StringUtils.getAllSubStringWithSize(paddedBinary,6);
         int i = 0;
         while (i < resultList.size()) {
             result = result + Base64Map.values.get(resultList.get(i));

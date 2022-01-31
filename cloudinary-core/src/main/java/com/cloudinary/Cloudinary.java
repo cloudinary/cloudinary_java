@@ -155,9 +155,9 @@ public class Cloudinary {
     }
 
     /**
-     * Set the prefix and version for the user agent that will be sent with every API call
+     * Set the analytics object that will be sent with every URL generation call.
      * a userAgent is built from `prefix/version (additional data)`
-     * @param analytics - the analytics objec to set
+     * @param analytics - the analytics object to set
      */
     public void setAnalytics(Analytics analytics) {
         this.analytics = analytics;

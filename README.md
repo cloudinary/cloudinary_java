@@ -18,7 +18,7 @@ For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/
 - [Usage](#usage)
     - [Setup](#Setup)
     - [Transform and Optimize Assets](#Transform-and-Optimize-Assets)
-    - [File upload](#File upload)
+    - [File upload](#File-upload)
 
 ## Key Features
 - [Transform](https://cloudinary.com/documentation/java_video_manipulation) and [optimize](https://cloudinary.com/documentation/java_image_manipulation#image_optimizations) assets (links to docs).

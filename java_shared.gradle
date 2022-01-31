@@ -2,7 +2,6 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 javadoc {
-    failOnError false
     options.encoding = 'UTF-8'
 }
 

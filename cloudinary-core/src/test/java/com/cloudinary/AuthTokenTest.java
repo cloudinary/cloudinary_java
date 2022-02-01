@@ -94,16 +94,6 @@ public class AuthTokenTest {
     }
 
     @Test
-    public void testUrlNoAnalyticsWithQueryParams() {
-        cloudinary.config.analytics = true;
-        cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version")));
-        cloudinary.config.privateCdn = true;
-        String url = cloudinary.url().signed(true).type("authenticated").generate("test");
-        assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
-        cloudinary.config.privateCdn = false;
-    }
-
-    @Test
     public void testConfiguration() {
         cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false&auth_token[key]=aabbcc112233&auth_token[duration]=200");
         assertEquals(cloudinary.config.authToken, new AuthToken("aabbcc112233").duration(200));

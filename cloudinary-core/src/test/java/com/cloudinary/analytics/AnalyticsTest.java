@@ -78,7 +78,6 @@ public class AnalyticsTest {
 
     @Test
     public void testUrlWithNoAnalyticsNull() {
-        cloudinary.analytics = null;
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
     }
@@ -86,9 +85,8 @@ public class AnalyticsTest {
     @Test
     public void testUrlWithNoAnalyticsNullAndTrue() {
         cloudinary.config.analytics = true;
-        cloudinary.analytics = null;
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
+        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AGAtVAN0");
     }
 
     @Test

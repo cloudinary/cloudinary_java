@@ -1,5 +1,7 @@
 package com.cloudinary.utils;
 
+import com.cloudinary.Cloudinary;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -10,12 +12,10 @@ public class Analytics {
     public String SDKCode = ""; // Java = G, Android = F
     public String SDKSemver = ""; // Calculate the SDK version .
     public String techVersion = ""; // Calculate the Java version.
-    public void Analytics() {
-        // initilaize with Java values.
-        // From Android pick the values.
-    }
 
-    public Analytics() {}
+    public Analytics() {
+        this("G", Cloudinary.VERSION,System.getProperty("java.version"));
+    }
     public Analytics(String sdkCode, String sdkVersion, String techVersion) {
         this.SDKCode = sdkCode;
         this.SDKSemver = sdkVersion;

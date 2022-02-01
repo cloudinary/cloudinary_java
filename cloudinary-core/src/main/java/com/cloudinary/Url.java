@@ -422,6 +422,7 @@ public class Url {
         if (cloudinary.analytics != null && cloudinary.config.analytics) {
             try {
                 URL tempUrl = new URL(url);
+                // if any other query param already exist on the URL do not add analytics query param.
                 if (tempUrl.getQuery() == null) {
                     String path = tempUrl.getPath();
                     url = url + "?" + cloudinary.analytics.toQueryParam();

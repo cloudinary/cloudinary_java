@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32;
 
+import com.cloudinary.utils.Analytics;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -414,6 +415,17 @@ public class Url {
                 String path = tempUrl.getPath();
                 String token = authToken.generate(path);
                 url = url + "?" + token;
+            } catch (MalformedURLException ignored) {
+            }
+        }
+        if (cloudinary.config.analytics != null && cloudinary.config.analytics) {
+            try {
+                URL tempUrl = new URL(url);
+                // if any other query param already exist on the URL do not add analytics query param.
+                if (tempUrl.getQuery() == null) {
+                    String path = tempUrl.getPath();
+                    url = url + "?" + cloudinary.analytics.toQueryParam();
+                }
             } catch (MalformedURLException ignored) {
             }
         }

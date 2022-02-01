@@ -1,5 +1,6 @@
 package com.cloudinary;
 
+import com.cloudinary.utils.Analytics;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;

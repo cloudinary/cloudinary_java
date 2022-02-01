@@ -5,6 +5,7 @@ import com.cloudinary.api.signing.NotificationRequestSignatureVerifier;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
+import com.cloudinary.utils.Analytics;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -45,7 +46,7 @@ public class Cloudinary {
     private AbstractUploaderStrategy uploaderStrategy;
     private AbstractApiStrategy apiStrategy;
     private String userAgent = USER_AGENT_PREFIX+"/"+ VERSION + " "+USER_AGENT_JAVA_VERSION;
-
+    public Analytics analytics = new Analytics();
     public Uploader uploader() {
         return new Uploader(this, uploaderStrategy);
     }
@@ -151,6 +152,14 @@ public class Cloudinary {
      */
     public void setUserAgent(String prefix, String version){
         userAgent = prefix+"/"+ version + " ("+USER_AGENT_PREFIX+ " "+VERSION+") " + USER_AGENT_JAVA_VERSION;
+    }
+
+    /**
+     * Set the analytics object that will be sent with every URL generation call.
+     * @param analytics - the analytics object to set
+     */
+    public void setAnalytics(Analytics analytics) {
+        this.analytics = analytics;
     }
 
     /**

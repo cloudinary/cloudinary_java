@@ -409,7 +409,6 @@ public class Url {
         String join = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/");
         String url = StringUtils.mergeSlashesInUrl(join);
 
-
         if (signUrl && authToken != null && !authToken.equals(AuthToken.NULL_AUTH_TOKEN)) {
             try {
                 URL tempUrl = new URL(url);

@@ -94,7 +94,7 @@ public class AuthTokenTest {
     }
 
     @Test
-    public void testUrlAnalyticsWithQueryParams() {
+    public void testUrlNoAnalyticsWithQueryParams() {
         cloudinary.config.analytics = true;
         cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version")));
         cloudinary.config.privateCdn = true;

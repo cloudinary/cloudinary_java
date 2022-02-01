@@ -1,11 +1,16 @@
 package com.cloudinary.analytics;
 
+import com.cloudinary.AuthToken;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.Analytics;
 import org.junit.*;
 import org.junit.rules.TestName;
 
+import static org.junit.Assert.assertEquals;
+
 public class AnalyticsTest {
+
+    public static final String KEY = "00112233FF99";
 
     private Cloudinary cloudinary;
 
@@ -14,7 +19,33 @@ public class AnalyticsTest {
 
     @Before
     public void setUp() {
+        System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
         this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
+    }
+
+    @Test
+    public void testEncodeVersion() {
+        Analytics analytics = new Analytics();
+        analytics.setSDKSemver("1.24.0");
+        String result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=AGAlhAN0");
+
+        analytics.setSDKSemver("12.0");
+        result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=AGAMAN0");
+
+        analytics.setSDKSemver("43.21.26");
+        result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=AG///AN0");
+
+        analytics.setSDKSemver("0.0.0");
+        result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=AGAAAAN0");
+
+        analytics.setSDKSemver("43.21.27");
+        result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=E");
+
     }
 
     @Test
@@ -74,6 +105,21 @@ public class AnalyticsTest {
         Analytics analytics = new Analytics("Z", "1.24.0", "0");
         String result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=E");
+    }
+
+    @Test
+    public void testUrlNoAnalyticsWithQueryParams() {
+        final AuthToken authToken = new AuthToken(KEY).duration(300);
+        authToken.startTime(11111111); // start time is set for test purposes
+        cloudinary.config.authToken = authToken;
+        cloudinary.config.cloudName = "test123";
+
+        cloudinary.config.analytics = true;
+        cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version")));
+        cloudinary.config.privateCdn = true;
+        String url = cloudinary.url().signed(true).type("authenticated").generate("test");
+        assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
+        cloudinary.config.privateCdn = false;
     }
 
     @After

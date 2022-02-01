@@ -46,7 +46,7 @@ public class Cloudinary {
     private AbstractUploaderStrategy uploaderStrategy;
     private AbstractApiStrategy apiStrategy;
     private String userAgent = USER_AGENT_PREFIX+"/"+ VERSION + " "+USER_AGENT_JAVA_VERSION;
-    public Analytics analytics;
+    public Analytics analytics = new Analytics();
     public Uploader uploader() {
         return new Uploader(this, uploaderStrategy);
     }
@@ -156,7 +156,6 @@ public class Cloudinary {
 
     /**
      * Set the analytics object that will be sent with every URL generation call.
-     * a userAgent is built from `prefix/version (additional data)`
      * @param analytics - the analytics object to set
      */
     public void setAnalytics(Analytics analytics) {

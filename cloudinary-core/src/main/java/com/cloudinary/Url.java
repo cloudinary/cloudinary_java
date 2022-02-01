@@ -418,7 +418,7 @@ public class Url {
             } catch (MalformedURLException ignored) {
             }
         }
-        if (cloudinary.analytics != null && cloudinary.config.analytics) {
+        if (cloudinary.config.analytics) {
             try {
                 URL tempUrl = new URL(url);
                 // if any other query param already exist on the URL do not add analytics query param.

@@ -27,20 +27,21 @@ public class AnalyticsTest {
     public void testEncodeVersion() {
         Analytics analytics = new Analytics();
         analytics.setSDKSemver("1.24.0");
+        analytics.setTechVersion("12.0.0");
         String result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=AGAlhAN0");
+        Assert.assertEquals(result, "_a=AGAlhAM0");
 
         analytics.setSDKSemver("12.0");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=AGAMAN0");
+        Assert.assertEquals(result, "_a=AGAMAM0");
 
         analytics.setSDKSemver("43.21.26");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=AG///AN0");
+        Assert.assertEquals(result, "_a=AG///AM0");
 
         analytics.setSDKSemver("0.0.0");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=AGAAAAN0");
+        Assert.assertEquals(result, "_a=AGAAAAM0");
 
         analytics.setSDKSemver("43.21.27");
         result = analytics.toQueryParam();
@@ -85,8 +86,9 @@ public class AnalyticsTest {
     @Test
     public void testUrlWithNoAnalyticsNullAndTrue() {
         cloudinary.config.analytics = true;
+        cloudinary.analytics.setTechVersion("12.0.0");
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AGAtVAN0");
+        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AGAtVAM0");
     }
 
     @Test

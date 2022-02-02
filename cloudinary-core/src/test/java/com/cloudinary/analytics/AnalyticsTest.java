@@ -86,9 +86,10 @@ public class AnalyticsTest {
     @Test
     public void testUrlWithNoAnalyticsNullAndTrue() {
         cloudinary.config.analytics = true;
+        cloudinary.analytics.setSDKSemver("1.30.0");
         cloudinary.analytics.setTechVersion("12.0.0");
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AGAtVAM0");
+        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=AGAu5AM0");
     }
 
     @Test

@@ -1,4 +1,13 @@
 
+1.30.0 / 2022-02-02
+===================
+
+Other Changes
+-------------
+  * Update `README.md`
+  * Add feature `SDK analytics`
+  * Fix a bug where a publicId which contains 'v[num]' is considered to contain a version, therefore the version is skipped. (#242)
+
 1.29.0 / 2021-02-10
 ===================
 

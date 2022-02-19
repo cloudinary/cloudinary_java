@@ -274,7 +274,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testEvalUploadParameter() throws IOException {
-       Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("eval",SRC_TEST_EVAL));
+       Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap(
+               "eval",SRC_TEST_EVAL,
+               "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)
+               ));
        assertTrue(result.get("quality_analysis")!=null && 
     		   ((HashMap)result.get("quality_analysis")).containsKey("focus"));
        Map custom= (Map)((Map) result.get("context")).get("custom");

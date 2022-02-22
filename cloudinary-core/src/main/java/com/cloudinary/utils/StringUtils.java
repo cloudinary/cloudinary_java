@@ -278,7 +278,8 @@ public class StringUtils {
     public static boolean isVariable(String s) {
         if (s == null ||
                 s.length() < 2 ||
-                !s.startsWith("$")) {
+                !s.startsWith("$") ||
+                !Character.isLetter(s.charAt(1))) {
             return false;
         }
 

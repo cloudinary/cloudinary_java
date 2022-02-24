@@ -5,8 +5,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Util;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.*;
 
 /**

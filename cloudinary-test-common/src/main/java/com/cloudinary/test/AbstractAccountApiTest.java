@@ -213,6 +213,30 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
+    public void testUpdateUserEnabled() throws Exception {
+        ApiResponse user = createUser(Account.Role.ADMIN);
+        String userId = user.get("id").toString();
+        String newName = randomLetters();
+        ApiResponse result = account.updateUser(userId, newName, null, null, true, null, null);
+
+        assertNotNull(result);
+        assertTrue((Boolean) result.get("enabled"));
+        deleteUser(userId);
+    }
+
+    @Test
+    public void testUpdateUserDisabled() throws Exception {
+        ApiResponse user = createUser(Account.Role.ADMIN);
+        String userId = user.get("id").toString();
+        String newName = randomLetters();
+        ApiResponse result = account.updateUser(userId, newName, null, null, false, null, null);
+
+        assertNotNull(result);
+        assertFalse((Boolean) result.get("enabled"));
+        deleteUser(userId);
+    }
+
+    @Test
     public void testDeleteUser() throws Exception {
         ApiResponse user = createUser(Collections.<String>emptyList());
         String id = user.get("id").toString();

@@ -379,8 +379,26 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse updateUser(String userId, String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return updateUser(userId, name,email,role, null, subAccountsIds, options);
+    }
+
+    /**
+     * Update an existing user.
+     *
+     * @param userId         The id of the user to update.
+     * @param name           Username.
+     * @param email          User's email.
+     * @param role           User's role.
+     * @param enabled        User's status (enabled or disabled)
+     * @param subAccountsIds Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @param options        Generic advanced options map, see online documentation.
+     * @return The updated user details
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse updateUser(String userId, String name, String email, Role role, Boolean enabled, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS, userId);
-        return performUserAction(Api.HttpMethod.PUT, uri, email, name, role, true, subAccountsIds, options);
+        return performUserAction(Api.HttpMethod.PUT, uri, email, name, role, enabled, subAccountsIds, options);
     }
 
     /**

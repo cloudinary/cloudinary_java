@@ -12,8 +12,7 @@ import java.util.*;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public abstract class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();
@@ -188,6 +187,20 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
+    public void testCreateUserEnabled() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(true, Collections.singletonList(createResult.get("id").toString()));
+        assertTrue((Boolean) result.get("enabled"));
+    }
+
+    @Test
+    public void testCreateUserDisabled() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(false, Collections.singletonList(createResult.get("id").toString()));
+        assertFalse((Boolean) result.get("enabled"));
+    }
+
+    @Test
     public void testUpdateUser() throws Exception {
         ApiResponse user = createUser(Account.Role.ADMIN);
         String userId = user.get("id").toString();
@@ -308,9 +321,20 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return createUser(subAccountsIds, Account.Role.BILLING);
     }
 
+    private ApiResponse createUser(Boolean enabled, List<String> subAccountsIds) throws Exception {
+        return createUser(enabled, subAccountsIds, Account.Role.BILLING);
+    }
+
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, subAccountsIds, null);
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, null);
+        createdUserIds.add(user.get("id").toString());
+        return user;
+    }
+
+    private ApiResponse createUser(Boolean enabled,List<String> subAccountsIds, Account.Role role) throws Exception {
+        String email = String.format("%s@%s.com", randomLetters(), randomLetters());
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;
     }

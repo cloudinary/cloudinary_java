@@ -123,7 +123,7 @@ public abstract class BaseExpression<T extends BaseExpression> {
             sb.append(Pattern.quote(op)).append("|");
         }
         sb.deleteCharAt(sb.length() - 1);
-        sb.append(")(?=[ _])|(?<!\\$)(").append(StringUtils.join(PREDEFINED_VARS.keySet(), "|")).append("))");
+        sb.append(")(?=[ _])|(?<![\\$:])(").append(StringUtils.join(PREDEFINED_VARS.keySet(), "|")).append("))");
         pattern = sb.toString();
         return Pattern.compile(pattern);
     }

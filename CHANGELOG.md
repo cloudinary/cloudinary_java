@@ -1,4 +1,37 @@
 
+1.30.0 / 2022-02-02
+===================
+
+Other Changes
+-------------
+  * Update `README.md`
+  * Add feature `SDK analytics`
+  * Fix a bug where a publicId which contains 'v[num]' is considered to contain a version, therefore the version is skipped. (#242)
+
+1.29.0 / 2021-02-10
+===================
+
+New functionality
+-----------------
+  * Allow setting the user agent (#235)
+  * Add support for Apache http-client 4.5 (#234)
+
+Other changes
+-------------
+  * Fix test name in `ExpressionTest` (#233)
+
+
+1.28.1 / 2021-02-03
+==================
+
+  * Fix `api` reuse bug when calling `cloudinary.search()` (#232)
+
+1.28.0 / 2021-02-01
+==================
+
+  * Add `oauth` support to Admin Api calls. (#230)
+  * Fix connection reuse when using apache-http-client (versions 4.3 and 4.4) (#231)
+
 1.27.0 / 2020-11-16
 ===================
 

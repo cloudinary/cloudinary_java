@@ -204,7 +204,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
             message = e.getMessage();
         }
 
-        assertTrue(message.contains("Value 12 is invalid for field") );
+        assertTrue(message.contains("is not valid for field") );
     }
 
     @Test

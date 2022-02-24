@@ -47,7 +47,8 @@ public class Configuration {
     public boolean forceVersion = true;
     public boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
     public SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
-
+    public String oauthToken = null;
+    public Boolean analytics;
     public Configuration() {
     }
 
@@ -71,7 +72,9 @@ public class Configuration {
             boolean loadStrategies,
             boolean forceVersion,
             boolean longUrlSignature,
-            SignatureAlgorithm signatureAlgorithm) {
+            SignatureAlgorithm signatureAlgorithm,
+            String oauthToken,
+            boolean analytics) {
         this.cloudName = cloudName;
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
@@ -87,11 +90,13 @@ public class Configuration {
         this.proxyPort = proxyPort;
         this.secureCdnSubdomain = secureCdnSubdomain;
         this.useRootPath = useRootPath;
-        this.timeout = 0;
+        this.timeout = timeout;
         this.loadStrategies = loadStrategies;
         this.forceVersion = forceVersion;
         this.longUrlSignature = longUrlSignature;
         this.signatureAlgorithm = signatureAlgorithm;
+        this.oauthToken = oauthToken;
+        this.analytics = analytics;
     }
 
     @SuppressWarnings("rawtypes")
@@ -119,6 +124,7 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
+        this.analytics = ObjectUtils.asBoolean(config.get("analytics"), null);
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);
@@ -130,6 +136,8 @@ public class Configuration {
         }
         this.longUrlSignature = ObjectUtils.asBoolean(config.get("long_url_signature"), DEFAULT_IS_LONG_SIGNATURE);
         this.signatureAlgorithm = SignatureAlgorithm.valueOf(ObjectUtils.asString(config.get(CONFIG_PROP_SIGNATURE_ALGORITHM), DEFAULT_SIGNATURE_ALGORITHM.name()));
+        this.oauthToken = (String) config.get("oauth_token");
+
     }
 
     @SuppressWarnings("rawtypes")
@@ -160,6 +168,8 @@ public class Configuration {
         map.put("properties", new HashMap<String,Object>(properties));
         map.put("long_url_signature", longUrlSignature);
         map.put(CONFIG_PROP_SIGNATURE_ALGORITHM, signatureAlgorithm.toString());
+        map.put("oauth_token", oauthToken);
+        map.put("analytics", analytics);
         return map;
     }
 
@@ -190,6 +200,8 @@ public class Configuration {
         this.properties.putAll(other.properties);
         this.longUrlSignature = other.longUrlSignature;
         this.signatureAlgorithm = other.signatureAlgorithm;
+        this.oauthToken = other.oauthToken;
+        this.analytics = other.analytics;
     }
 
     /**
@@ -301,11 +313,13 @@ public class Configuration {
         private boolean forceVersion = true;
         private boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
         private SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+        private String oauthToken = null;
+        private boolean analytics;
 
         /**
          * Set the HTTP connection timeout.
          *
-         * @param timeout time in milliseconds, or 0 to use the default platform value
+         * @param timeout time in seconds, or 0 to use the default platform value
          * @return builder for chaining
          */
         public Builder setTimeout(int timeout) {
@@ -337,7 +351,9 @@ public class Configuration {
                             loadStrategies,
                             forceVersion,
                             longUrlSignature,
-                            signatureAlgorithm);
+                            signatureAlgorithm,
+                            oauthToken,
+                            analytics);
             configuration.clientHints = clientHints;
             return configuration;
         }
@@ -442,6 +458,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setAnalytics(boolean analytics) {
+            this.analytics = analytics;
+            return this;
+        }
+
         public Builder setClientHints(boolean clientHints) {
             this.clientHints = clientHints;
             return this;
@@ -463,6 +484,11 @@ public class Configuration {
 
         public Builder setSignatureAlgorithm(SignatureAlgorithm signatureAlgorithm) {
             this.signatureAlgorithm = signatureAlgorithm;
+            return this;
+        }
+
+        public Builder setOAuthToken(String oauthToken) {
+            this.oauthToken = oauthToken;
             return this;
         }
 
@@ -495,6 +521,8 @@ public class Configuration {
             this.forceVersion = other.forceVersion;
             this.longUrlSignature = other.longUrlSignature;
             this.signatureAlgorithm = other.signatureAlgorithm;
+            this.oauthToken = other.oauthToken;
+            this.analytics = other.analytics;
             return this;
         }
     }

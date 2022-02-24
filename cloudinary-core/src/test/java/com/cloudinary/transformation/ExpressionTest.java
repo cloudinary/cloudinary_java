@@ -80,7 +80,7 @@ public class ExpressionTest {
     }
 
     @Test
-    public void normalize_initialAspectRatio_recognizedAsVariableAndReplacedWithW() {
+    public void normalize_initialAspectRatio_recognizedAsVariableAndReplacedWithIar() {
         String result = Expression.normalize("initial_aspect_ratio");
         assertEquals("iar", result);
     }
@@ -173,5 +173,17 @@ public class ExpressionTest {
     public void normalize_doesntReplaceVariable_8() {
         String actual = Expression.normalize("$__height_100");
         assertEquals("$_height_100", actual);
+    }
+
+    @Test
+    public void normalize_duration() {
+        String actual = Expression.normalize("duration");
+        assertEquals("du", actual);
+    }
+
+    @Test
+    public void normalize_previewDuration() {
+        String actual = Expression.normalize("preview:duration_2");
+        assertEquals("preview:duration_2", actual);
     }
 }

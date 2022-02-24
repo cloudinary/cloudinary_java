@@ -10,6 +10,7 @@ import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -22,6 +23,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -47,7 +49,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         super.init(api);
 
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        clientBuilder.useSystemProperties().setUserAgent(Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.4");
+        clientBuilder.useSystemProperties().setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.4");
 
         // If the configuration specifies a proxy then apply it to the client
         if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {
@@ -81,15 +83,15 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
         if (cloudName == null) throw new IllegalArgumentException("Must supply cloud_name");
         String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
-        if (apiKey == null) throw new IllegalArgumentException("Must supply api_key");
         String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
-        if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
+        String oauthToken = ObjectUtils.asString(options.get("oauth_token"), this.api.cloudinary.config.oauthToken);
 
+        validateAuthorization(apiKey, apiSecret, oauthToken);
 
         String apiUrl = createApiUrl(uri, prefix, cloudName);
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
-        request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
+        request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));
 
         return getApiResponse(request);
     }
@@ -100,8 +102,9 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         CloseableHttpResponse response = client.execute(request);
         try {
             code = response.getStatusLine().getStatusCode();
-            InputStream responseStream = response.getEntity().getContent();
-            responseData = StringUtils.read(responseStream);
+            final HttpEntity entity = response.getEntity();
+            responseData = StringUtils.read(entity.getContent());
+            EntityUtils.consume(entity);
         } finally {
             response.close();
         }
@@ -146,7 +149,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
-        request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
+        request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, null));
 
         return getApiResponse(request);
     }

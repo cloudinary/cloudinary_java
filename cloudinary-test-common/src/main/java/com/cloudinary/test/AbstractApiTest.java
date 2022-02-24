@@ -47,6 +47,9 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String TEST_KEY = "test-key" + SUFFIX;
     public static final String API_TEST_RESTORE = "api_test_restore" + SUFFIX;
     public static final Set<String> createdFolders = new HashSet<String>();
+    private static final String CUSTOM_USER_AGENT_PREFIX = "TEST_USER_AGENT";
+    private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
+
 
     protected Api api;
 
@@ -126,7 +129,6 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         } catch (Exception ignored) {
         }
-
     }
 
     @Rule
@@ -149,6 +151,14 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         }
         return null;
+    }
+
+    @Test
+    public void testCustomUserAgent() throws Exception {
+        // should allow setting a custom user-agent
+        cloudinary.setUserAgent(CUSTOM_USER_AGENT_PREFIX, CUSTOM_USER_AGENT_VERSION);
+        Map results = api.ping(ObjectUtils.emptyMap());
+        //TODO Mock server and assert the header
     }
 
     @Test
@@ -186,6 +196,18 @@ abstract public class AbstractApiTest extends MockableTest {
 
         // beforeClass hook uploads several type:upload resources, we can rely on it.
         assertTrue(resources.size() > 0);
+    }
+
+    @Test
+    public void testOAuthToken() {
+        String message = "";
+        try {
+            api.resource(API_TEST, Collections.singletonMap("oauth_token", "not_a_real_token"));
+        } catch (Exception e) {
+            message = e.getMessage();
+        }
+
+        assertTrue(message.contains("Invalid token"));
     }
 
     @Test
@@ -1082,7 +1104,7 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("cinemagraph_analysis", true));
         assertNotNull(res.get("cinemagraph_analysis"));
     }
-    
+
     @Test
     public void testAccessibilityAnalysisResource() throws Exception {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("accessibility_analysis", true));

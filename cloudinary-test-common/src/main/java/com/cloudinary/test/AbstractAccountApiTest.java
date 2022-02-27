@@ -356,7 +356,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return user;
     }
 
-    private ApiResponse createUser(Boolean enabled,List<String> subAccountsIds, Account.Role role) throws Exception {
+    private ApiResponse createUser(Boolean enabled, List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());

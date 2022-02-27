@@ -335,6 +335,22 @@ public class Account {
      * @param name           Required. Username.
      * @param email          Required. User's email.
      * @param role           Required. User's role.
+     * @param subAccountsIds Optional. Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @param options        Generic advanced options map, see online documentation.
+     * @return The newly created user details.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return createUser(name, email, role, null, subAccountsIds, options);
+    }
+
+    /**
+     * Create a new user.
+     *
+     * @param name           Required. Username.
+     * @param email          Required. User's email.
+     * @param role           Required. User's role.
      * @param enabled        Optional. User's status (enabled or disabled).
      * @param subAccountsIds Optional. Sub-accounts for which the user should have access.
      *                       If not provided or empty, user should have access to all accounts.

@@ -377,7 +377,7 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse updateUser(String userId, String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
-        return updateUser(userId, name,email,role, null, subAccountsIds, options);
+        return updateUser(userId, name ,email ,role ,null , subAccountsIds , options);
     }
 
     /**

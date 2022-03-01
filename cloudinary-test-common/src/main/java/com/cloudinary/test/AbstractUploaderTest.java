@@ -34,8 +34,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     private static final String UPLOADER_TEST_PUBLIC_ID = "uploader_test";
     public static final String SRC_FULLY_QUALIFIED_IMAGE="image/upload/" + UPLOADER_TEST_PUBLIC_ID;
     public static final String SRC_FULLY_QUALIFIED_VIDEO="video/upload/dog";
-    public static final String SRC_TEST_EVAL= "if (resource_info['width'] < 450) { upload_options['tags'] = 'a,b' };" + "upload_options['context'] = 'width=' + resource_info['width'];";
-    private static final ArrayList<String> TEST_EVAL_TAGS_RESULT = new ArrayList<String>(Arrays.asList("a","b"));
+	public static final String SRC_TEST_EVAL= "if (resource_info['width'] < 450) { upload_options['quality_analysis'] = true };" + "upload_options['context'] = 'width=' + resource_info['width'];";
 
 
     @BeforeClass
@@ -275,8 +274,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testEvalUploadParameter() throws IOException {
-       Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("eval",SRC_TEST_EVAL));
-       assertEquals(result.get("tags"), TEST_EVAL_TAGS_RESULT);
+       Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap(
+               "eval",SRC_TEST_EVAL,
+               "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)
+               ));
+       assertTrue(result.get("quality_analysis")!=null && 
+    		   ((HashMap)result.get("quality_analysis")).containsKey("focus"));
        Map custom= (Map)((Map) result.get("context")).get("custom");
        assertEquals(custom.get("width"),Integer.toString(SRC_TEST_IMAGE_W));
     }

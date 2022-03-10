@@ -1,17 +1,17 @@
-package com.cloudinary.http43;
+package com.cloudinary.http45;
 
 import com.cloudinary.Api;
 import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.http43.api.Response;
+import com.cloudinary.http45.api.Response;
 import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
@@ -22,7 +22,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -33,10 +32,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.cloudinary.http43.ApiUtils.prepareParams;
-import static com.cloudinary.http43.ApiUtils.setTimeouts;
+import static com.cloudinary.http45.ApiUtils.prepareParams;
+import static com.cloudinary.http45.ApiUtils.setTimeouts;
 
 public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
@@ -47,7 +47,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         super.init(api);
 
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        clientBuilder.useSystemProperties().setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.3");
+        clientBuilder.useSystemProperties().setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.5");
 
         // If the configuration specifies a proxy then apply it to the client
         if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {
@@ -86,6 +86,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         validateAuthorization(apiKey, apiSecret, oauthToken);
 
+
         String apiUrl = createApiUrl(uri, prefix, cloudName);
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
@@ -100,9 +101,8 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         CloseableHttpResponse response = client.execute(request);
         try {
             code = response.getStatusLine().getStatusCode();
-            final HttpEntity entity = response.getEntity();
-            responseData = StringUtils.read(entity.getContent());
-            EntityUtils.consume(entity);
+            InputStream responseStream = response.getEntity().getContent();
+            responseData = StringUtils.read(responseStream);
         } finally {
             response.close();
         }
@@ -147,7 +147,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
-        request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
+        request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, null));
 
         return getApiResponse(request);
     }
@@ -168,20 +168,21 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
-        HashMap<String,Object>  unboxedParams = new  HashMap<String,Object>(params);
+        List<NameValuePair> urlEncodedParams = prepareParams(params);
 
         if (method == HttpMethod.GET) {
             apiUrlBuilder.setParameters(prepareParams(params));
             apiUri = apiUrlBuilder.build();
             request = new HttpGet(apiUri);
         } else {
+            Map<String,Object> paramsCopy =  new HashMap<String, Object>((Map<String,Object>) params);
             apiUri = apiUrlBuilder.build();
             switch (method) {
                 case PUT:
                     request = new HttpPut(apiUri);
                     break;
                 case DELETE: //uses HttpPost instead of HttpDelete
-                    unboxedParams.put("_method","delete");
+                    paramsCopy.put("_method", "delete");
                     //continue with POST
                 case POST:
                     request = new HttpPost(apiUri);
@@ -190,17 +191,15 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
                     throw new IllegalArgumentException("Unknown HTTP method");
             }
             if (contentType.equals("json")) {
-                JSONObject asJSON = ObjectUtils.toJSON(unboxedParams);
+                JSONObject asJSON = ObjectUtils.toJSON(paramsCopy);
                 StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);
                 ((HttpEntityEnclosingRequestBase) request).setEntity(requestEntity);
             } else {
-                ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(prepareParams(unboxedParams), Consts.UTF_8));
+                ((HttpEntityEnclosingRequestBase) request).setEntity(new UrlEncodedFormEntity(prepareParams(paramsCopy), Consts.UTF_8));
             }
         }
 
         setTimeouts(request, options);
         return request;
     }
-
-
 }

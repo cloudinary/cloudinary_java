@@ -47,6 +47,9 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final String TEST_KEY = "test-key" + SUFFIX;
     public static final String API_TEST_RESTORE = "api_test_restore" + SUFFIX;
     public static final Set<String> createdFolders = new HashSet<String>();
+    private static final String CUSTOM_USER_AGENT_PREFIX = "TEST_USER_AGENT";
+    private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
+
 
     protected Api api;
 
@@ -126,7 +129,6 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         } catch (Exception ignored) {
         }
-
     }
 
     @Rule
@@ -149,6 +151,14 @@ abstract public class AbstractApiTest extends MockableTest {
             }
         }
         return null;
+    }
+
+    @Test
+    public void testCustomUserAgent() throws Exception {
+        // should allow setting a custom user-agent
+        cloudinary.setUserAgent(CUSTOM_USER_AGENT_PREFIX, CUSTOM_USER_AGENT_VERSION);
+        Map results = api.ping(ObjectUtils.emptyMap());
+        //TODO Mock server and assert the header
     }
 
     @Test
@@ -186,6 +196,18 @@ abstract public class AbstractApiTest extends MockableTest {
 
         // beforeClass hook uploads several type:upload resources, we can rely on it.
         assertTrue(resources.size() > 0);
+    }
+
+    @Test
+    public void testOAuthToken() {
+        String message = "";
+        try {
+            api.resource(API_TEST, Collections.singletonMap("oauth_token", "not_a_real_token"));
+        } catch (Exception e) {
+            message = e.getMessage();
+        }
+
+        assertTrue(message.contains("Invalid token"));
     }
 
     @Test
@@ -808,6 +830,92 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testRestoreDifferentVersionsOfDeletedAsset() throws Exception {
+        final String TEST_RESOURCE_PUBLIC_ID = "api_test_restore_different_versions_single_asset" + SUFFIX;
+        final Uploader uploader = cloudinary.uploader();
+
+        Map firstUpload = uploader.upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap(
+                        "public_id", TEST_RESOURCE_PUBLIC_ID,
+                        "backup", true,
+                        "tags", UPLOAD_TAGS
+                ));
+        assertEquals(firstUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        ApiResponse firstDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
+        assertTrue(firstDelete.containsKey("deleted"));
+
+        Map secondUpload = uploader.upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap(
+                        "public_id", TEST_RESOURCE_PUBLIC_ID,
+                        "backup", true,
+                        "transformation", new Transformation().angle("0"),
+                        "tags", UPLOAD_TAGS
+                ));
+        assertEquals(secondUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        ApiResponse secondDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
+        assertTrue(secondDelete.containsKey("deleted"));
+
+        assertNotEquals(firstUpload.get("bytes"), secondUpload.get("bytes"));
+
+        ApiResponse getVersionsResp = api.resource(TEST_RESOURCE_PUBLIC_ID, ObjectUtils.asMap("versions", true));
+        List<Map> versions = (List<Map>) getVersionsResp.get("versions");
+        Object firstAssetVersion = versions.get(0).get("version_id");
+        Object secondAssetVersion = versions.get(1).get("version_id");
+
+        ApiResponse firstVerRestore = api.restore(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID),
+                ObjectUtils.asMap("versions", Collections.singletonList(firstAssetVersion)));
+        assertEquals(((Map) firstVerRestore.get(TEST_RESOURCE_PUBLIC_ID)).get("bytes"), firstUpload.get("bytes"));
+
+        ApiResponse secondVerRestore = api.restore(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID),
+                ObjectUtils.asMap("versions", Collections.singletonList(secondAssetVersion)));
+        assertEquals(((Map) secondVerRestore.get(TEST_RESOURCE_PUBLIC_ID)).get("bytes"), secondUpload.get("bytes"));
+
+        ApiResponse finalDeleteResp = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
+        assertTrue(finalDeleteResp.containsKey("deleted"));
+    }
+
+    @Test
+    public void testShouldRestoreTwoDifferentDeletedAssets() throws Exception {
+        final String PUBLIC_ID_BACKUP_1 = "api_test_restore_versions_different_assets_1_" + SUFFIX;
+        final String PUBLIC_ID_BACKUP_2 = "api_test_restore_versions_different_assets_2_" + SUFFIX;
+
+        final Uploader uploader = cloudinary.uploader();
+
+        Map firstUpload = uploader.upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap(
+                        "public_id", PUBLIC_ID_BACKUP_1,
+                        "backup", true,
+                        "tags", UPLOAD_TAGS
+                ));
+        Map secondUpload = uploader.upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap(
+                        "public_id", PUBLIC_ID_BACKUP_2,
+                        "backup", true,
+                        "transformation", new Transformation().angle("0"),
+                        "tags", UPLOAD_TAGS
+                ));
+
+        ApiResponse deleteAll = api.deleteResources(Arrays.asList(PUBLIC_ID_BACKUP_1, PUBLIC_ID_BACKUP_2), ObjectUtils.emptyMap());
+        assertEquals("deleted", ((Map) deleteAll.get("deleted")).get(PUBLIC_ID_BACKUP_1));
+        assertEquals("deleted", ((Map) deleteAll.get("deleted")).get(PUBLIC_ID_BACKUP_2));
+
+        ApiResponse getFirstAssetVersion = api.resource(PUBLIC_ID_BACKUP_1, ObjectUtils.asMap("versions", true));
+        ApiResponse getSecondAssetVersion = api.resource(PUBLIC_ID_BACKUP_2, ObjectUtils.asMap("versions", true));
+
+        Object firstAssetVersion = ((List<Map>) getFirstAssetVersion.get("versions")).get(0).get("version_id");
+        Object secondAssetVersion = ((List<Map>) getSecondAssetVersion.get("versions")).get(0).get("version_id");
+
+        ApiResponse restore = api.restore(Arrays.asList(PUBLIC_ID_BACKUP_1, PUBLIC_ID_BACKUP_2),
+                ObjectUtils.asMap("versions", Arrays.asList(firstAssetVersion, secondAssetVersion)));
+        assertEquals(((Map) restore.get(PUBLIC_ID_BACKUP_1)).get("bytes"), firstUpload.get("bytes"));
+        assertEquals(((Map) restore.get(PUBLIC_ID_BACKUP_2)).get("bytes"), secondUpload.get("bytes"));
+
+        ApiResponse finalDelete = api.deleteResources(Arrays.asList(PUBLIC_ID_BACKUP_1, PUBLIC_ID_BACKUP_2), ObjectUtils.emptyMap());
+        assertEquals("deleted", ((Map) finalDelete.get("deleted")).get(PUBLIC_ID_BACKUP_1));
+        assertEquals("deleted", ((Map) finalDelete.get("deleted")).get(PUBLIC_ID_BACKUP_2));
+    }
+
+    @Test
     public void testEncodeUrlInApiCall() throws Exception {
         String apiTestEncodeUrlInApiCall = "sub^folder test";
         createdFolders.add(apiTestEncodeUrlInApiCall);
@@ -996,7 +1104,7 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("cinemagraph_analysis", true));
         assertNotNull(res.get("cinemagraph_analysis"));
     }
-    
+
     @Test
     public void testAccessibilityAnalysisResource() throws Exception {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("accessibility_analysis", true));

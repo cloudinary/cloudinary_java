@@ -35,6 +35,8 @@ public class Util {
         params.put("allowed_formats", StringUtils.join(ObjectUtils.asArray(options.get("allowed_formats")), ","));
         params.put("moderation", options.get("moderation"));
         params.put("access_mode", (String) options.get("access_mode"));
+        params.put("filename_override", (String) options.get("filename_override"));
+        
         Object responsive_breakpoints = options.get("responsive_breakpoints");
         if (responsive_breakpoints != null) {
             params.put("responsive_breakpoints", JSONObject.wrap(responsive_breakpoints));

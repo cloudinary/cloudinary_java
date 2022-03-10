@@ -1,12 +1,12 @@
-package com.cloudinary.http43;
+package com.cloudinary.http45;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-
+import com.cloudinary.Cloudinary;
 import com.cloudinary.ProgressCallback;
+import com.cloudinary.Uploader;
+import com.cloudinary.Util;
+import com.cloudinary.strategies.AbstractUploaderStrategy;
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -18,15 +18,12 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
-import org.cloudinary.json.JSONException;
-import org.cloudinary.json.JSONObject;
 
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Uploader;
-import com.cloudinary.Util;
-import com.cloudinary.strategies.AbstractUploaderStrategy;
-import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
@@ -37,7 +34,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         super.init(uploader);
 
         HttpClientBuilder clientBuilder = HttpClients.custom();
-        clientBuilder.useSystemProperties().setUserAgent(this.cloudinary().getUserAgent() + " ApacheHTTPComponents/4.3");
+        clientBuilder.useSystemProperties().setUserAgent(cloudinary().getUserAgent() + " ApacheHTTPComponents/4.5");
 
         // If the configuration specifies a proxy then apply it to the client
         if (cloudinary().config.proxyHost != null && cloudinary().config.proxyPort != 0) {
@@ -102,7 +99,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             }
         }
 
-        if(file instanceof String && !(StringUtils.isRemoteUrl((String)file))){
+        if (file instanceof String && !StringUtils.isRemoteUrl((String) file)) {
             File _file = new File((String) file);
             if (!_file.isFile() && !_file.canRead()) {
                 throw new IOException("File not found or unreadable: " + file);
@@ -136,7 +133,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             response.close();
         }
 
-        return processResponse(returnError, code, responseData);
+        Map result = processResponse(returnError, code, responseData);
+        return result;
     }
-
 }

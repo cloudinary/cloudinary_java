@@ -5,6 +5,7 @@ import com.cloudinary.api.signing.NotificationRequestSignatureVerifier;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.strategies.AbstractUploaderStrategy;
 import com.cloudinary.strategies.StrategyLoader;
+import com.cloudinary.utils.Analytics;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -23,28 +24,31 @@ public class Cloudinary {
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http42.UploaderStrategy",
             "com.cloudinary.http43.UploaderStrategy",
-            "com.cloudinary.http44.UploaderStrategy"));
+            "com.cloudinary.http44.UploaderStrategy",
+            "com.cloudinary.http45.UploaderStrategy"));
     public static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.ApiStrategy",
             "com.cloudinary.http42.ApiStrategy",
             "com.cloudinary.http43.ApiStrategy",
-            "com.cloudinary.http44.ApiStrategy"));
+            "com.cloudinary.http44.ApiStrategy",
+            "com.cloudinary.http45.ApiStrategy"));
 
     public final static String CF_SHARED_CDN = "d3jpl91pxevbkh.cloudfront.net";
     public final static String OLD_AKAMAI_SHARED_CDN = "cloudinary-a.akamaihd.net";
     public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-    public final static String VERSION = "1.27.0";
-    public final static String USER_AGENT = "CloudinaryJava/" + VERSION + " (Java " + System.getProperty("java.version") + ")";
+    public final static String VERSION = "1.30.0";
+    static String USER_AGENT_PREFIX = "CloudinaryJava";
+    public final static String USER_AGENT_JAVA_VERSION = "(Java " + System.getProperty("java.version") + ")";
 
     public final Configuration config;
     private AbstractUploaderStrategy uploaderStrategy;
     private AbstractApiStrategy apiStrategy;
-
+    private String userAgent = USER_AGENT_PREFIX+"/"+ VERSION + " "+USER_AGENT_JAVA_VERSION;
+    public Analytics analytics = new Analytics();
     public Uploader uploader() {
         return new Uploader(this, uploaderStrategy);
-
     }
 
     public Api api() {
@@ -131,6 +135,31 @@ public class Cloudinary {
 
     public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
         return Util.produceSignature(paramsToSign, apiSecret, config.signatureAlgorithm);
+    }
+
+    /**
+     * @return the userAgent that will be sent with every API call.
+     */
+    public String getUserAgent(){
+        return userAgent;
+    }
+
+    /**
+     * Set the prefix and version for the user agent that will be sent with every API call
+     * a userAgent is built from `prefix/version (additional data)`
+     * @param prefix - the prefix of the userAgent to be set
+     * @param version - the version of the userAgent to be set
+     */
+    public void setUserAgent(String prefix, String version){
+        userAgent = prefix+"/"+ version + " ("+USER_AGENT_PREFIX+ " "+VERSION+") " + USER_AGENT_JAVA_VERSION;
+    }
+
+    /**
+     * Set the analytics object that will be sent with every URL generation call.
+     * @param analytics - the analytics object to set
+     */
+    public void setAnalytics(Analytics analytics) {
+        this.analytics = analytics;
     }
 
     /**
@@ -307,6 +336,34 @@ public class Cloudinary {
         adjustedOptions.put("resource_type", resourceType != null ? resourceType : "all");
 
         return downloadArchive(adjustedOptions, (String) adjustedOptions.get("target_format"));
+    }
+
+    /**
+     * Returns an URL of a specific version of a backed up asset that can be used to download that
+     * version of the asset (within an hour of the request).
+     *
+     * @param assetId   The identifier of the uploaded asset.
+     * @param versionId The identifier of a backed up version of the asset.
+     * @param options   Optional, holds hints for URL generation procedure, see documentation for
+     *                  full list
+     * @return          The download URL of the asset
+     */
+    public String downloadBackedupAsset(String assetId, String versionId, Map options) throws UnsupportedEncodingException {
+        if (StringUtils.isEmpty(assetId)) {
+            throw new IllegalArgumentException("AssetId parameter is required");
+        }
+
+        if (StringUtils.isEmpty(versionId)) {
+            throw new IllegalArgumentException("VersionId parameter is required");
+        }
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("asset_id", assetId);
+        params.put("version_id", versionId);
+        params.put("timestamp", Util.timestamp());
+
+        signRequest(params, options);
+        return buildUrl(cloudinaryApiUrl("download_backup", options), params);
     }
 
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {

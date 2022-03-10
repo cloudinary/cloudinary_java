@@ -38,14 +38,15 @@ public class ApiStrategy extends AbstractApiStrategy {
         String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
         if (cloudName == null) throw new IllegalArgumentException("Must supply cloud_name");
         String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
-        if (apiKey == null) throw new IllegalArgumentException("Must supply api_key");
         String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
-        if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
+        String oauthToken = ObjectUtils.asString(options.get("oauth_token"), this.api.cloudinary.config.oauthToken);
         String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
         int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
+        validateAuthorization(apiKey, apiSecret, oauthToken);
+
         String apiUrl = createApiUrl(uri, prefix, cloudName);
 
-        return getApiResponse(method, params, apiKey, apiSecret, contentType, timeout, apiUrl);
+        return getApiResponse(method, params, apiKey, apiSecret, oauthToken, contentType, timeout, apiUrl);
     }
 
     @Override
@@ -63,10 +64,10 @@ public class ApiStrategy extends AbstractApiStrategy {
             apiUrl = apiUrl + "/" + component;
         }
 
-        return getApiResponse(method, params, apiKey, apiSecret, contentType, timeout, apiUrl);
+        return getApiResponse(method, params, apiKey, apiSecret, null, contentType, timeout, apiUrl);
     }
 
-    private ApiResponse getApiResponse(HttpMethod method, Map<String, ?> params, String apiKey, String apiSecret, String contentType, int timeout, String apiUrl) throws Exception {
+    private ApiResponse getApiResponse(HttpMethod method, Map<String, ?> params, String apiKey, String apiSecret, String oauthToken, String contentType, int timeout, String apiUrl) throws Exception {
         URIBuilder apiUrlBuilder = new URIBuilder(apiUrl);
         if (!contentType.equals("json")) {
             for (Map.Entry<String, ? extends Object> param : params.entrySet()) {
@@ -105,8 +106,8 @@ public class ApiStrategy extends AbstractApiStrategy {
                 request = new HttpDelete(apiUri);
                 break;
         }
-        request.setHeader("Authorization", "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret));
-        request.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
+        request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));
+        request.setHeader("User-Agent", this.api.cloudinary.getUserAgent() + " ApacheHTTPComponents/4.2");
         if (contentType.equals("json")) {
             JSONObject asJSON = ObjectUtils.toJSON(params);
             StringEntity requestEntity = new StringEntity(asJSON.toString(), ContentType.APPLICATION_JSON);

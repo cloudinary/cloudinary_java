@@ -1,0 +1,120 @@
+plugins {
+    id 'java-library'
+    id 'signing'
+    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.21.1'
+    id "de.marcphilipp.nexus-publish" version "0.4.0"
+}
+
+apply from: "../java_shared.gradle"
+
+task ciTest( type: Test ) {
+    useJUnit {
+        excludeCategories 'com.cloudinary.test.TimeoutTest'
+    }
+}
+
+dependencies {
+    compile project(':cloudinary-core')
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.13'
+    testCompile project(':cloudinary-test-common')
+    testCompile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
+    testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+if (hasProperty("ossrhPassword")) {
+
+    signing {
+        sign configurations.archives
+    }
+
+    nexusStaging {
+        packageGroup = group
+        username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
+        password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+                artifact sourcesJar
+                artifact javadocJar
+                pom {
+                    name = 'Cloudinary Apache HTTP 4.5 Library'
+                    packaging = 'jar'
+                    groupId = publishGroupId
+                    artifactId = 'cloudinary-http45'
+                    description = publishDescription
+                    url = githubUrl
+                    licenses {
+                        license {
+                            name = licenseName
+                            url = licenseUrl
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = developerId
+                            name = developerName
+                            email = developerEmail
+                        }
+                    }
+                    scm {
+                        connection = scmConnection
+                        developerConnection = scmDeveloperConnection
+                        url = scmUrl
+                    }
+                }
+
+                pom.withXml {
+                    def pomFile = file("${project.buildDir}/generated-pom.xml")
+                    writeTo(pomFile)
+                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
+                    artifact(pomAscFile) {
+                        classifier = null
+                        extension = 'pom.asc'
+                    }
+                }
+
+                // create the signed artifacts
+                project.tasks.signArchives.signatureFiles.each {
+                    artifact(it) {
+                        def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
+                        if (matcher.find()) {
+                            classifier = matcher.group(1)
+                        } else {
+                            classifier = null
+                        }
+                        extension = 'jar.asc'
+                    }
+                }
+            }
+        }
+
+        nexusPublishing {
+            repositories {
+                sonatype {
+                    username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
+                    password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
+                }
+            }
+        }
+
+        model {
+            tasks.generatePomFileForMavenJavaPublication {
+                destination = file("$buildDir/generated-pom.xml")
+            }
+            tasks.publishMavenJavaPublicationToMavenLocal {
+                dependsOn project.tasks.signArchives
+            }
+            tasks.publishMavenJavaPublicationToSonatypeRepository {
+                dependsOn project.tasks.signArchives
+            }
+        }
+    }
+}

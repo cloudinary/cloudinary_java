@@ -60,7 +60,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         }
 
         HttpPost postMethod = new HttpPost(apiUrl);
-        postMethod.setHeader("User-Agent", Cloudinary.USER_AGENT + " ApacheHTTPComponents/4.2");
+        postMethod.setHeader("User-Agent", this.cloudinary().getUserAgent() + " ApacheHTTPComponents/4.2");
 
         Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");
         if (extraHeaders != null) {

@@ -141,7 +141,7 @@ public class Api {
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
                 ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
                         "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis",
-                        "accessibility_analysis"), options);
+                        "accessibility_analysis", "versions"), options);
 
         return response;
     }
@@ -302,6 +302,7 @@ public class Api {
         String type = ObjectUtils.asString(options.get("type"), "upload");
         Map params = new HashMap<String, Object>();
         params.put("public_ids", publicIds);
+        params.put("versions", options.get("versions"));
 
         ApiResponse response = callApi(HttpMethod.POST, Arrays.asList("resources", resourceType, type, "restore"), params, options);
         return response;

@@ -323,8 +323,21 @@ public class Uploader {
         return callApi("explode", params, options, null);
     }
 
+
     // options may include 'exclusive' (boolean) which causes clearing this tag
     // from all other resources
+
+    /**
+     * Add a tag to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tag - The tag to assign.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available parameters for the request.
+     * @return A map with the public ids returned from the server
+     * @throws IOException
+     */
     public Map addTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
@@ -333,22 +346,49 @@ public class Uploader {
         return callTagsApi(tag, command, publicIds, options);
     }
 
+    /**
+     * Add a tag to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tags - An array of tags to assign.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available parameters for the request.
+     * @return A map with the public ids returned from the server.
+     * @throws IOException
+     */
     public Map addTag (String[] tags, String[] publicIds, Map options) throws IOException {
         String tag = StringUtils.join(tags,",");
         return addTag(tag, publicIds, options);
     }
 
+    /**
+     * Remove a tag to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tag - The tag to remove.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available parameters for the request.
+     * @return - A map with values from the server.
+     * @throws IOException
+     */
     public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callTagsApi(tag, Command.remove, publicIds, options);
     }
 
-    public Map removeTag(String[] tags, String[] publicIds, Map options) throws IOException {
-        String tag = StringUtils.join(tags, ",");
-        return removeTag(tag, publicIds, options);
-    }
-
+    /**
+     * Remove an array of tags to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available parameters for the request.
+     * @return - A map with values from the server.
+     * @throws IOException
+     */
     public Map removeAllTags(String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();

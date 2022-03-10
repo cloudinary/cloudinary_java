@@ -344,13 +344,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
         addToDeleteList("upload", public_id2);
         cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, ObjectUtils.emptyMap());
         cloudinary.uploader().addTag("tag2", new String[]{public_id}, ObjectUtils.emptyMap());
+        cloudinary.uploader().addTag(new String[]{"tag4","tag5"}, new String[]{public_id}, ObjectUtils.emptyMap());
         List<String> tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
-        assertEquals(tags, asArray(new String[]{"tag1", "tag2"}));
+        assertEquals(tags, asArray(new String[]{"tag1", "tag2", "tag4", "tag5"}));
         tags = (List<String>) cloudinary.api().resource(public_id2, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, asArray(new String[]{"tag1"}));
         cloudinary.uploader().removeTag("tag1", new String[]{public_id}, ObjectUtils.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
-        assertEquals(tags, asArray(new String[]{"tag2"}));
+        assertEquals(tags, asArray(new String[]{"tag2", "tag4", "tag5"}));
         cloudinary.uploader().replaceTag("tag3", new String[]{public_id}, ObjectUtils.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, asArray(new String[]{"tag3"}));

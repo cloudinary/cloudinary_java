@@ -333,10 +333,20 @@ public class Uploader {
         return callTagsApi(tag, command, publicIds, options);
     }
 
+    public Map addTag (String[] tags, String[] publicIds, Map options) throws IOException {
+        String tag = StringUtils.join(tags,",");
+        return addTag(tag, publicIds, options);
+    }
+
     public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callTagsApi(tag, Command.remove, publicIds, options);
+    }
+
+    public Map removeTag(String[] tags, String[] publicIds, Map options) throws IOException {
+        String tag = StringUtils.join(tags, ",");
+        return removeTag(tag, publicIds, options);
     }
 
     public Map removeAllTags(String[] publicIds, Map options) throws IOException {

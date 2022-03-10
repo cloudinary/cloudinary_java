@@ -923,6 +923,9 @@ public class Transformation<T extends Transformation> implements Serializable {
                 outParam.append(":").append(paramMap.get("profile"));
                 if (paramMap.containsKey("level")) {
                     outParam.append(":").append(paramMap.get("level"));
+                    if (paramMap.containsKey("b_frames") && paramMap.get("b_frames") == "false") {
+                        outParam.append(":").append("bframes_no");
+                    }
                 }
             }
         }

@@ -880,6 +880,24 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testVideoCodecBFrameTrue() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "true"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1/video_id", actual);
+    }
+
+    @Test
+    public void testVideoCodecBFrameFalse() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "false"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1:bframes_no/video_id", actual);
+    }
+
+    @Test
     public void testAudioCodec() {
         // should support a string value
         String actual = cloudinary.url().resourceType("video").transformation(new Transformation().audioCodec("acc")).generate("video_id");

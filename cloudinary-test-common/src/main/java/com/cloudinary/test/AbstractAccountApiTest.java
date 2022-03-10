@@ -189,14 +189,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     @Test
     public void testCreateUserEnabled() throws Exception {
         ApiResponse createResult = createSubAccount();
-        ApiResponse result = createUser(true, Collections.singletonList(createResult.get("id").toString()));
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), true);
         assertTrue((Boolean) result.get("enabled"));
     }
 
     @Test
     public void testCreateUserDisabled() throws Exception {
         ApiResponse createResult = createSubAccount();
-        ApiResponse result = createUser(false, Collections.singletonList(createResult.get("id").toString()));
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), false);
         assertFalse((Boolean) result.get("enabled"));
     }
 
@@ -345,8 +345,8 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return createUser(subAccountsIds, Account.Role.BILLING);
     }
 
-    private ApiResponse createUser(Boolean enabled, List<String> subAccountsIds) throws Exception {
-        return createUser(enabled, subAccountsIds, Account.Role.BILLING);
+    private ApiResponse createUser(List<String> subAccountsIds, Boolean enabled) throws Exception {
+        return createUser(subAccountsIds, Account.Role.BILLING, enabled);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
@@ -356,7 +356,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return user;
     }
 
-    private ApiResponse createUser(Boolean enabled, List<String> subAccountsIds, Account.Role role) throws Exception {
+    private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Boolean enabled) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());

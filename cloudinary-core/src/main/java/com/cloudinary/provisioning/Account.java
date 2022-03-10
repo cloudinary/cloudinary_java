@@ -326,7 +326,7 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds) throws Exception {
-        return createUser(name, email, role, subAccountsIds);
+        return createUser(name, email, role, subAccountsIds, null); //TODO: ADD TEST TO THIS FUNCTION
     }
 
     /**
@@ -401,7 +401,7 @@ public class Account {
      *
      * @param userId         The id of the user to update.
      * @param name           Username.
-     * @param email          User's email.
+     * @param email              User's email.
      * @param role           User's role.
      * @param enabled        User's status (enabled or disabled)
      * @param subAccountsIds Sub-accounts for which the user should have access.

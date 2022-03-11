@@ -785,7 +785,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         }
         if (!components.isEmpty()) {
             final String joined = StringUtils.join(components, ",");
-            transformations.add(Expression.normalize(joined));
+            transformations.add(joined);
         }
 
         if (isResponsive) {

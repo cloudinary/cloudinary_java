@@ -326,7 +326,7 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds) throws Exception {
-        return createUser(name, email, role, subAccountsIds, null); //TODO: ADD TEST TO THIS FUNCTION
+        return createUser(name, email, role, subAccountsIds, null);
     }
 
     /**

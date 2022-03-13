@@ -4,6 +4,7 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.provisioning.Account;
+import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -187,6 +188,13 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
+    public void testCreateUserWithOptions() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
+    @Test
     public void testCreateUserEnabled() throws Exception {
         ApiResponse createResult = createSubAccount();
         ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), true);
@@ -345,13 +353,24 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return createUser(subAccountsIds, Account.Role.BILLING);
     }
 
+    private ApiResponse createUser(List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return createUser(subAccountsIds, Account.Role.BILLING, options);
+    }
+
     private ApiResponse createUser(List<String> subAccountsIds, Boolean enabled) throws Exception {
         return createUser(subAccountsIds, Account.Role.BILLING, enabled);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, null);
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, subAccountsIds);
+        createdUserIds.add(user.get("id").toString());
+        return user;
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Map<String, Object> options) throws Exception {
+        String email = String.format("%s@%s.com", randomLetters(), randomLetters());
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, options);
         createdUserIds.add(user.get("id").toString());
         return user;
     }

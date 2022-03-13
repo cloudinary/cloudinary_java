@@ -342,6 +342,8 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map result2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.emptyMap());
         String public_id2 = (String) result2.get("public_id");
         addToDeleteList("upload", public_id2);
+
+        //Test add tags
         cloudinary.uploader().addTag("tag1", new String[]{public_id, public_id2}, ObjectUtils.emptyMap());
         cloudinary.uploader().addTag("tag2", new String[]{public_id}, ObjectUtils.emptyMap());
         cloudinary.uploader().addTag(new String[]{"tag4","tag5"}, new String[]{public_id}, ObjectUtils.emptyMap());
@@ -349,15 +351,26 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals(tags, asArray(new String[]{"tag1", "tag2", "tag4", "tag5"}));
         tags = (List<String>) cloudinary.api().resource(public_id2, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, asArray(new String[]{"tag1"}));
+
+        //Test remove tags
         cloudinary.uploader().removeTag("tag1", new String[]{public_id}, ObjectUtils.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, asArray(new String[]{"tag2", "tag4", "tag5"}));
+        cloudinary.uploader().removeTag(new String[]{"tag4", "tag5"}, new String[]{public_id}, ObjectUtils.emptyMap());
+        tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
+        assertEquals(tags, asArray(new String[]{"tag2"}));
+
+        //Test replace tags
         cloudinary.uploader().replaceTag("tag3", new String[]{public_id}, ObjectUtils.emptyMap());
         tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
         assertEquals(tags, asArray(new String[]{"tag3"}));
+        cloudinary.uploader().replaceTag(new String[]{"tag6", "tag7"}, new String[]{public_id}, ObjectUtils.emptyMap());
+        tags = (List<String>) cloudinary.api().resource(public_id, ObjectUtils.emptyMap()).get("tags");
+        assertEquals(tags, asArray(new String[]{"tag6", "tag7"}));
+
+        //Test remove all tags
         result = cloudinary.uploader().removeAllTags(new String[]{public_id, public_id2, "noSuchId"}, ObjectUtils.emptyMap());
         List<String> publicIds = (List<String>) result.get("public_ids");
-
         assertThat(publicIds, containsInAnyOrder(public_id, public_id2)); // = and not containing "noSuchId"
         result = cloudinary.api().resource(public_id, ObjectUtils.emptyMap());
         assertThat((Map<? extends String, ?>) result, not(hasKey("tags")));

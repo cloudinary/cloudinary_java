@@ -343,7 +343,7 @@ public class Uploader {
             options = ObjectUtils.emptyMap();
         boolean exclusive = ObjectUtils.asBoolean(options.get("exclusive"), false);
         String command = exclusive ? "set_exclusive" : Command.add;
-        return callTagsApi(tag, command, publicIds, options);
+        return callTagsApi(new String[]{tag}, command, publicIds, options);
     }
 
     /**
@@ -351,15 +351,18 @@ public class Uploader {
      * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
      * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
      * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
-     * @param tags - An array of tags to assign.
+     * @param tag - An array of tags to assign.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
      * @return A map with the public ids returned from the server.
      * @throws IOException
      */
-    public Map addTag (String[] tags, String[] publicIds, Map options) throws IOException {
-        String tag = StringUtils.join(tags,",");
-        return addTag(tag, publicIds, options);
+    public Map addTag(String[] tag, String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        boolean exclusive = ObjectUtils.asBoolean(options.get("exclusive"), false);
+        String command = exclusive ? "set_exclusive" : Command.add;
+        return callTagsApi(tag, command, publicIds, options);
     }
 
     /**
@@ -370,10 +373,27 @@ public class Uploader {
      * @param tag - The tag to remove.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
-     * @return - A map with values from the server.
+     * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
     public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callTagsApi(new String[]{tag}, Command.remove, publicIds, options);
+    }
+
+    /**
+     * Remove tags to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tag - The array of tags to remove.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available parameters for the request.
+     * @return -      * @return - A map with the public ids returned from the server.
+     * @throws IOException
+     */
+    public Map removeTag(String[] tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callTagsApi(tag, Command.remove, publicIds, options);
@@ -386,7 +406,7 @@ public class Uploader {
      * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
-     * @return - A map with values from the server.
+     * @return -      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
     public Map removeAllTags(String[] publicIds, Map options) throws IOException {
@@ -395,18 +415,46 @@ public class Uploader {
         return callTagsApi(null, Command.removeAll, publicIds, options);
     }
 
+    /**
+     * Replaces a tag to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tag - The tag to replace.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available options for the request.
+     * @return - A map with the public ids returned from the server.
+     * @throws IOException
+     */
     public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        return callTagsApi(new String[]{tag}, Command.replace, publicIds, options);
+    }
+
+    /**
+     * Replaces tags to one or more assets in your cloud.
+     * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
+     * for example to delete images, create sprites, ZIP files, JSON lists, or animated GIFs.
+     * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
+     * @param tag - An array of tag to replace.
+     * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
+     * @param options - An object holding the available options for the request.
+     * @return - A map with the public ids returned from the server.
+     * @throws IOException
+     */
+    public Map replaceTag(String[] tag, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         return callTagsApi(tag, Command.replace, publicIds, options);
     }
 
-    public Map callTagsApi(String tag, String command, String[] publicIds, Map options) throws IOException {
+    public Map callTagsApi(String[] tag, String command, String[] publicIds, Map options) throws IOException {
         if (options == null)
             options = ObjectUtils.emptyMap();
         Map<String, Object> params = new HashMap<String, Object>();
         if (tag != null) {
-            params.put("tag", tag);
+            params.put("tag", StringUtils.join(tag, ","));
         }
         params.put("command", command);
         params.put("type", (String) options.get("type"));

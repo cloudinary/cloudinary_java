@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
@@ -879,6 +880,24 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testVideoCodecBFrameTrue() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "true"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1/video_id", actual);
+    }
+
+    @Test
+    public void testVideoCodecBFrameFalse() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "false"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1:bframes_no/video_id", actual);
+    }
+
+    @Test
     public void testAudioCodec() {
         // should support a string value
         String actual = cloudinary.url().resourceType("video").transformation(new Transformation().audioCodec("acc")).generate("video_id");
@@ -1403,6 +1422,21 @@ public class CloudinaryTest {
         cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA256;
         String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
         assertEquals("45ddaa4fa01f0c2826f32f669d2e4514faf275fe6df053f1a150e7beae58a3bd", signature);
+    }
+
+    @Test
+    public void testDownloadBackedupAsset() throws UnsupportedEncodingException, URISyntaxException {
+        String url = cloudinary.downloadBackedupAsset("62c2a18d622be7e190d21df8e05b1416",
+                "26fe6d95df856f6ae12f5678be94516a", ObjectUtils.emptyMap());
+
+        URI uri = new URI(url);
+        assertTrue(uri.getPath().endsWith("download_backup"));
+
+        Map params = getUrlParameters(uri);
+        assertEquals("62c2a18d622be7e190d21df8e05b1416", params.get("asset_id"));
+        assertEquals("26fe6d95df856f6ae12f5678be94516a", params.get("version_id"));
+        assertNotNull(params.get("signature"));
+        assertNotNull(params.get("timestamp"));
     }
 
     private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {

@@ -338,6 +338,34 @@ public class Cloudinary {
         return downloadArchive(adjustedOptions, (String) adjustedOptions.get("target_format"));
     }
 
+    /**
+     * Returns an URL of a specific version of a backed up asset that can be used to download that
+     * version of the asset (within an hour of the request).
+     *
+     * @param assetId   The identifier of the uploaded asset.
+     * @param versionId The identifier of a backed up version of the asset.
+     * @param options   Optional, holds hints for URL generation procedure, see documentation for
+     *                  full list
+     * @return          The download URL of the asset
+     */
+    public String downloadBackedupAsset(String assetId, String versionId, Map options) throws UnsupportedEncodingException {
+        if (StringUtils.isEmpty(assetId)) {
+            throw new IllegalArgumentException("AssetId parameter is required");
+        }
+
+        if (StringUtils.isEmpty(versionId)) {
+            throw new IllegalArgumentException("VersionId parameter is required");
+        }
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("asset_id", assetId);
+        params.put("version_id", versionId);
+        params.put("timestamp", Util.timestamp());
+
+        signRequest(params, options);
+        return buildUrl(cloudinaryApiUrl("download_backup", options), params);
+    }
+
     private String buildUrl(String base, Map<String, Object> params) throws UnsupportedEncodingException {
         StringBuilder urlBuilder = new StringBuilder();
         urlBuilder.append(base);

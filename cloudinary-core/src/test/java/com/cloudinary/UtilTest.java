@@ -76,8 +76,8 @@ public class UtilTest {
         assertTrue(StringUtils.isVariable("$ab"));
         assertTrue(StringUtils.isVariable("$asdasda"));
         assertTrue(StringUtils.isVariable("$a34asd12e"));
+        assertTrue(StringUtils.isVariable("$a"));
 
-        assertFalse(StringUtils.isVariable("$a"));
         assertFalse(StringUtils.isVariable("sda"));
         assertFalse(StringUtils.isVariable("   "));
         assertFalse(StringUtils.isVariable("... . /"));

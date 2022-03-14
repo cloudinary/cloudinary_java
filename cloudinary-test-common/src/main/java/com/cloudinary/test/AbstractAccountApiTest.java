@@ -6,6 +6,7 @@ import com.cloudinary.api.ApiResponse;
 import com.cloudinary.provisioning.Account;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
 
 import java.util.*;
@@ -29,6 +30,8 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -178,6 +181,63 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         assertTrue("User2 id should be in the result set", returnedIds.contains(user2Id));
         deleteUser(user1Id);
         deleteUser(user2Id);
+    }
+
+    @Test
+    public void testGetPendingUsers() throws Exception {
+        String id = createUser(Account.Role.BILLING).get("id").toString();
+
+        ApiResponse pending = account.users(true, Collections.singletonList(id), null, null, null);
+        assertEquals(1, ((ArrayList) pending.get("users")).size());
+
+        ApiResponse notPending = account.users(false, Collections.singletonList(id), null, null, null);
+        assertEquals(0, ((ArrayList) notPending.get("users")).size());
+
+        ApiResponse all = account.users(null, Collections.singletonList(id), null, null, null);
+        assertEquals(1, ((ArrayList) all.get("users")).size());
+    }
+
+    @Test
+    public void testGetUsersByPrefix() throws Exception {
+        final long timeMillis = System.currentTimeMillis();
+        final String userName = String.format("SDK TEST Get Users By Prefix %d", timeMillis);
+        final String userEmail = String.format("sdk-test-get-users-by-prefix+%d@cloudinary.com", timeMillis);
+
+        createUser(userName,
+                userEmail,
+                Account.Role.BILLING,
+                Collections.<String>emptyList());
+
+        ApiResponse userByPrefix = account.users(true, null, userName.substring(0, userName.length() - 1), null, null);
+        assertEquals(1, ((ArrayList) userByPrefix.get("users")).size());
+
+        ApiResponse userByNonExistingPrefix = account.users(true, null, userName + "zzz", null, null);
+        assertEquals(0, ((ArrayList) userByNonExistingPrefix.get("users")).size());
+    }
+
+    @Test
+    public void testGetUsersBySubAccountIds() throws Exception {
+        ApiResponse subAccount = createSubAccount();
+        final String subAccountId = subAccount.get("id").toString();
+
+        final long timeMillis = System.currentTimeMillis();
+        final String userName = String.format("SDK TEST Get Users By Sub Account Ids %d", timeMillis);
+        final String userEmail = String.format("sdk-test-get-users-by-sub-account-ids+%d@cloudinary.com", timeMillis);
+
+        createUser(userName,
+                userEmail,
+                Account.Role.BILLING,
+                Collections.singletonList(subAccountId));
+
+        ApiResponse usersBySubAccount = account.users(true, null, userName, subAccountId, null);
+        assertEquals(1, ((ArrayList) usersBySubAccount.get("users")).size());
+    }
+
+    @Test
+    public void testGetUsersThrowsWhenSubAccountIdDoesntExist() throws Exception {
+        final String subAccountId = randomLetters();
+        expectedException.expectMessage("Cannot find sub account with id " + subAccountId);
+        account.users(true, null, null, subAccountId, null);
     }
 
     @Test
@@ -363,9 +423,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
-        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, subAccountsIds);
-        createdUserIds.add(user.get("id").toString());
-        return user;
+        return createUser("TestName", email, role, subAccountsIds);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Map<String, Object> options) throws Exception {
@@ -378,6 +436,12 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Boolean enabled) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
+        createdUserIds.add(user.get("id").toString());
+        return user;
+    }
+
+    private ApiResponse createUser(final String name, String email, Account.Role role, List<String> subAccountsIds) throws Exception {
+        ApiResponse user = account.createUser(name, email, role, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;
     }

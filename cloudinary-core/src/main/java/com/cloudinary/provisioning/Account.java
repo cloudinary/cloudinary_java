@@ -401,7 +401,7 @@ public class Account {
      *
      * @param userId         The id of the user to update.
      * @param name           Username.
-     * @param email              User's email.
+     * @param email          User's email.
      * @param role           User's role.
      * @param enabled        User's status (enabled or disabled)
      * @param subAccountsIds Sub-accounts for which the user should have access.

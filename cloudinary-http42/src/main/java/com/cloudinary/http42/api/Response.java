@@ -32,7 +32,7 @@ public class Response extends HashMap implements ApiResponse {
     }
 
     private static final Pattern RATE_LIMIT_REGEX = Pattern
-            .compile("X-Feature(\\w*)RateLimit(-Limit|-Reset|-Remaining)");
+            .compile("X-FEATURE(\\w*)RATELIMIT(-LIMIT|-RESET|-REMAINING)", Pattern.CASE_INSENSITIVE); 
     private static final String RFC1123_PATTERN = "EEE, dd MMM yyyyy HH:mm:ss z";
     private static final DateFormat RFC1123 = new SimpleDateFormat(RFC1123_PATTERN, Locale.ENGLISH);
 

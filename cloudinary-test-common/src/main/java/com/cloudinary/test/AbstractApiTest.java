@@ -558,6 +558,14 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testRateLimits() throws Exception {
+        ApiResponse result = cloudinary.api().usage(new HashMap());
+        Assert.assertNotEquals(0, result.apiRateLimit().getLimit());
+        Assert.assertNotNull(result.apiRateLimit().getReset());
+        Assert.assertNotEquals(0, result.apiRateLimit().getRemaining());
+    }
+
+    @Test
     public void test19Ping() throws Exception {
         // should support ping API call
         Map result = api.ping(ObjectUtils.emptyMap());

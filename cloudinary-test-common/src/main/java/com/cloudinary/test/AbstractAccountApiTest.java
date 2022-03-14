@@ -401,12 +401,12 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         return userGroup;
     }
 
-    private ApiResponse createUser(Account.Role role) throws Exception {
-        return createUser(Collections.<String>emptyList(), role);
-    }
-
     private ApiResponse createUser() throws Exception {
         return createUser(Collections.<String>emptyList());
+    }
+
+    private ApiResponse createUser(Account.Role role) throws Exception {
+        return createUser(Collections.<String>emptyList(), role);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {

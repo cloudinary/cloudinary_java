@@ -323,10 +323,6 @@ public class Uploader {
         return callApi("explode", params, options, null);
     }
 
-
-    // options may include 'exclusive' (boolean) which causes clearing this tag
-    // from all other resources
-
     /**
      * Add a tag to one or more assets in your cloud.
      * Tags are used to categorize and organize your images, and can also be used to apply group actions to images,
@@ -335,6 +331,7 @@ public class Uploader {
      * @param tag - The tag to assign.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return A map with the public ids returned from the server
      * @throws IOException
      */
@@ -350,6 +347,7 @@ public class Uploader {
      * @param tag - An array of tags to assign.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return A map with the public ids returned from the server.
      * @throws IOException
      */
@@ -369,6 +367,7 @@ public class Uploader {
      * @param tag - The tag to remove.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
@@ -384,6 +383,7 @@ public class Uploader {
      * @param tag - The array of tags to remove.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return -      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
@@ -400,6 +400,7 @@ public class Uploader {
      * Each image can be assigned one or more tags, which is a short name that you can dynamically use (no need to predefine tags).
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available parameters for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return -      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
@@ -417,6 +418,7 @@ public class Uploader {
      * @param tag - The tag to replace.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available options for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */
@@ -432,6 +434,7 @@ public class Uploader {
      * @param tag - An array of tag to replace.
      * @param publicIds - An array of Public IDs of images uploaded to Cloudinary.
      * @param options - An object holding the available options for the request.
+     *                options may include 'exclusive' (boolean) which causes clearing this tag from all other resources
      * @return - A map with the public ids returned from the server.
      * @throws IOException
      */

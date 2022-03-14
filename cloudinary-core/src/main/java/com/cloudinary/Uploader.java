@@ -339,11 +339,7 @@ public class Uploader {
      * @throws IOException
      */
     public Map addTag(String tag, String[] publicIds, Map options) throws IOException {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-        boolean exclusive = ObjectUtils.asBoolean(options.get("exclusive"), false);
-        String command = exclusive ? "set_exclusive" : Command.add;
-        return callTagsApi(new String[]{tag}, command, publicIds, options);
+        return addTag(new String[]{tag}, publicIds, options);
     }
 
     /**
@@ -377,9 +373,7 @@ public class Uploader {
      * @throws IOException
      */
     public Map removeTag(String tag, String[] publicIds, Map options) throws IOException {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-        return callTagsApi(new String[]{tag}, Command.remove, publicIds, options);
+        return removeTag(new String[]{tag}, publicIds, options);
     }
 
     /**
@@ -427,9 +421,7 @@ public class Uploader {
      * @throws IOException
      */
     public Map replaceTag(String tag, String[] publicIds, Map options) throws IOException {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-        return callTagsApi(new String[]{tag}, Command.replace, publicIds, options);
+        return replaceTag(new String[]{tag}, publicIds, options);
     }
 
     /**

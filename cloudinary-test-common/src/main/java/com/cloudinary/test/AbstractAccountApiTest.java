@@ -4,6 +4,7 @@ package com.cloudinary.test;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.provisioning.Account;
+import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestName;
@@ -13,8 +14,7 @@ import java.util.*;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public abstract class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();
@@ -248,6 +248,27 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
+    public void testCreateUserWithOptions() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testCreateUserEnabled() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), true);
+        assertTrue((Boolean) result.get("enabled"));
+    }
+
+    @Test
+    public void testCreateUserDisabled() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), false);
+        assertFalse((Boolean) result.get("enabled"));
+    }
+
+    @Test
     public void testUpdateUser() throws Exception {
         ApiResponse user = createUser(Account.Role.ADMIN);
         String userId = user.get("id").toString();
@@ -256,6 +277,30 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
         assertNotNull(result);
         assertEquals(result.get("name"), newName);
+        deleteUser(userId);
+    }
+
+    @Test
+    public void testUpdateUserEnabled() throws Exception {
+        ApiResponse user = createUser(Account.Role.ADMIN);
+        String userId = user.get("id").toString();
+        String newName = randomLetters();
+        ApiResponse result = account.updateUser(userId, newName, null, null, true, null, null);
+
+        assertNotNull(result);
+        assertTrue((Boolean) result.get("enabled"));
+        deleteUser(userId);
+    }
+
+    @Test
+    public void testUpdateUserDisabled() throws Exception {
+        ApiResponse user = createUser(Account.Role.ADMIN);
+        String userId = user.get("id").toString();
+        String newName = randomLetters();
+        ApiResponse result = account.updateUser(userId, newName, null, null, false, null, null);
+
+        assertNotNull(result);
+        assertFalse((Boolean) result.get("enabled"));
         deleteUser(userId);
     }
 
@@ -354,24 +399,45 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         ApiResponse userGroup = account.createUserGroup(name);
         createdGroupIds.add(userGroup.get("id").toString());
         return userGroup;
-
-    }
-
-    private ApiResponse createUser(Account.Role role) throws Exception {
-        return createUser(Collections.<String>emptyList(), role);
     }
 
     private ApiResponse createUser() throws Exception {
         return createUser(Collections.<String>emptyList());
     }
 
+    private ApiResponse createUser(Account.Role role) throws Exception {
+        return createUser(Collections.<String>emptyList(), role);
+    }
+
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {
         return createUser(subAccountsIds, Account.Role.BILLING);
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return createUser(subAccountsIds, Account.Role.BILLING, options);
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Boolean enabled) throws Exception {
+        return createUser(subAccountsIds, Account.Role.BILLING, enabled);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
         String email = String.format("%s@%s.com", randomLetters(), randomLetters());
         return createUser("TestName", email, role, subAccountsIds);
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Map<String, Object> options) throws Exception {
+        String email = String.format("%s@%s.com", randomLetters(), randomLetters());
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, options);
+        createdUserIds.add(user.get("id").toString());
+        return user;
+    }
+
+    private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Boolean enabled) throws Exception {
+        String email = String.format("%s@%s.com", randomLetters(), randomLetters());
+        ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
+        createdUserIds.add(user.get("id").toString());
+        return user;
     }
 
     private ApiResponse createUser(final String name, String email, Account.Role role, List<String> subAccountsIds) throws Exception {
@@ -401,7 +467,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         for (int i = 0; i < 10; i++) {
             sb.append((char) ('a' + rand.nextInt('z' - 'a' + 1)));
         }
-
         return sb.toString();
     }
 }

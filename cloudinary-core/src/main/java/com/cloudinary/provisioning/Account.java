@@ -5,7 +5,6 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Util;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
-
 import java.util.*;
 
 /**
@@ -327,7 +326,7 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds) throws Exception {
-        return createUser(name, email, role, subAccountsIds);
+        return createUser(name, email, role, subAccountsIds, null);
     }
 
     /**
@@ -343,8 +342,25 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse createUser(String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return createUser(name, email, role, null, subAccountsIds, options);
+    }
+
+    /**
+     * Create a new user.
+     *
+     * @param name           Required. Username.
+     * @param email          Required. User's email.
+     * @param role           Required. User's role.
+     * @param enabled        Optional. User's status (enabled or disabled).
+     * @param subAccountsIds Optional. Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @param options        Generic advanced options map, see online documentation.
+     * @return The newly created user details.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse createUser(String name, String email, Role role, Boolean enabled, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS);
-        return performUserAction(Api.HttpMethod.POST, uri, email, name, role, subAccountsIds, options);
+        return performUserAction(Api.HttpMethod.POST, uri, email, name, role, enabled, subAccountsIds, options);
     }
 
     /**
@@ -377,8 +393,26 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse updateUser(String userId, String name, String email, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        return updateUser(userId, name ,email ,role ,null , subAccountsIds , options);
+    }
+
+    /**
+     * Update an existing user.
+     *
+     * @param userId         The id of the user to update.
+     * @param name           Username.
+     * @param email          User's email.
+     * @param role           User's role.
+     * @param enabled        User's status (enabled or disabled)
+     * @param subAccountsIds Sub-accounts for which the user should have access.
+     *                       If not provided or empty, user should have access to all accounts.
+     * @param options        Generic advanced options map, see online documentation.
+     * @return The updated user details
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse updateUser(String userId, String name, String email, Role role, Boolean enabled, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS, userId);
-        return performUserAction(Api.HttpMethod.PUT, uri, email, name, role, subAccountsIds, options);
+        return performUserAction(Api.HttpMethod.PUT, uri, email, name, role, enabled, subAccountsIds, options);
     }
 
     /**
@@ -597,7 +631,7 @@ public class Account {
      * @return The response of the api call.
      * @throws Exception If the request fails.
      */
-    private ApiResponse performUserAction(Api.HttpMethod method, List<String> uri, String email, String name, Role role, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+    private ApiResponse performUserAction(Api.HttpMethod method, List<String> uri, String email, String name, Role role, Boolean enabled, List<String> subAccountsIds, Map<String, Object> options) throws Exception {
         options = verifyOptions(options);
         options.put("content_type", "json");
 
@@ -605,6 +639,7 @@ public class Account {
                 "email", email,
                 "name", name,
                 "role", role == null ? null : role.serializedValue,
+                "enabled", enabled,
                 "sub_account_ids", subAccountsIds),
                 options);
     }

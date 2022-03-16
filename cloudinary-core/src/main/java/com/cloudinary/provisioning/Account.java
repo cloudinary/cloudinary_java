@@ -305,13 +305,34 @@ public class Account {
      * @throws Exception If the request fails.
      */
     public ApiResponse users(Boolean pending, List<String> userIds, String prefix, String subAccountId, Map<String, Object> options) throws Exception {
+        return users(pending, userIds, prefix, subAccountId, options, null, null, null);
+    }
+
+    /**
+     * Get a list of the users according to filters.
+     *
+     * @param pending      Optional. Limit results to pending users (true), users that are not pending (false), or all users (null)
+     * @param userIds      Optionals. List of user IDs. Up to 100
+     * @param prefix       Optional. Search by prefix of the user's name or email. Case-insensitive
+     * @param subAccountId Optional. Return only users who have access to the given sub-account
+     * @param options      Generic advanced options map, see online documentation.
+     * @param lastLogin    Optional. Return only users that last logged in in the specified range of dates (true), users that didn’t last logged in in that range (false), or all users (null).
+     * @param from         Optional. Last login start date.
+     * @param to           Optional. Last login end date.
+     * @return the users' details.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse users(Boolean pending, List<String> userIds, String prefix, String subAccountId, Map<String, Object> options, Boolean lastLogin, Date from, Date to) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS);
         return callAccountApi(Api.HttpMethod.GET, uri,
                 ObjectUtils.asMap("accountId", accountId,
                         "pending", pending,
                         "ids", userIds,
                         "prefix", prefix,
-                        "sub_account_id", subAccountId), options);
+                        "sub_account_id", subAccountId,
+                        "last_login", lastLogin,
+                        "from", ObjectUtils.toISO8601(from),
+                        "to", ObjectUtils.toISO8601(to)), options);
     }
 
     /**

@@ -234,6 +234,36 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
+    public void testGetUserByLastLoginTrue() throws Exception {
+        final long timeMillis = System.currentTimeMillis();
+        final String userName = String.format("SDK TEST Get Users By Last Login True %d", timeMillis);
+        final String userEmail = String.format("sdk-test-get-users-by-llt+%d@cloudinary.com", timeMillis);
+
+        createUser(userName,
+                userEmail,
+                Account.Role.BILLING,
+                Collections.<String>emptyList());
+
+        ApiResponse userByLastLogin = account.users(true, null, userName.substring(0, userName.length() - 1), null, null, true, new Date(), new Date());
+        assertEquals(0, ((ArrayList) userByLastLogin.get("users")).size());
+    }
+
+    @Test
+    public void testGetUserByLastLoginFalse() throws Exception {
+        final long timeMillis = System.currentTimeMillis();
+        final String userName = String.format("SDK TEST Get Users By Last Login False %d", timeMillis);
+        final String userEmail = String.format("sdk-test-get-users-by-llf+%d@cloudinary.com", timeMillis);
+
+        createUser(userName,
+                userEmail,
+                Account.Role.BILLING,
+                Collections.<String>emptyList());
+
+        ApiResponse userByLastLogin = account.users(true, null, userName.substring(0, userName.length() - 1), null, null, false, new Date(), new Date());
+        assertEquals(1, ((ArrayList) userByLastLogin.get("users")).size());
+    }
+
+    @Test
     public void testGetUsersThrowsWhenSubAccountIdDoesntExist() throws Exception {
         final String subAccountId = randomLetters();
         expectedException.expectMessage("Cannot find sub account with id " + subAccountId);

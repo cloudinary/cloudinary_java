@@ -5,11 +5,12 @@ import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
@@ -67,11 +68,25 @@ abstract public class AbstractSearchTest extends MockableTest {
     }
 
     @Test
+    public void testSearchAggregate() throws Exception {
+        Map result = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").aggregate("format").execute();
+        HashMap aggregations = (HashMap)result.get("aggregations");
+        assertTrue(aggregations.size() > 0);
+    }
+
+    @Test
+    public void testSearchWithField() throws Exception {
+        Map result = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").withField("tags").execute();
+        List<Map> resources = (List<Map>) result.get("resources");
+        ArrayList<String> tags = (ArrayList<String>) resources.get(0).get("tags");
+        assertTrue(tags.size() > 0);
+    }
+
+    @Test
     public void shouldPaginateResourcesLimitedByTagAndOrderdByAscendingPublicId() throws Exception {
         List<Map> resources;
         Map result = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").execute();
         resources = (List<Map>) result.get("resources");
-
         assertEquals(1, resources.size());
         assertEquals(3, result.get("total_count"));
         assertEquals(SEARCH_TEST, resources.get(0).get("public_id"));

@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
@@ -100,6 +101,30 @@ public class CloudinaryTest {
         String result = cloudinary.url().secure(true).generate("test");
         assertEquals("https://res.cloudinary.com/test123/image/upload/test", result);
     }
+
+    @Test
+    public void testTextLayerStyleIdentifierVariables() {
+        String url = cloudinary.url().transformation(
+                new Transformation()
+                        .variable("$style", "!Arial_12!")
+                        .chain()
+                        .overlay(
+                                new TextLayer().text("hello-world").textStyle("$style")
+                        )).generate("sample");
+
+        assertEquals("http://res.cloudinary.com/test123/image/upload/$style_!Arial_12!/l_text:$style:hello-world/sample", url);
+
+        url = cloudinary.url().transformation(
+                new Transformation()
+                        .variable("$style", "!Arial_12!")
+                        .chain()
+                        .overlay(
+                                new TextLayer().text("hello-world").textStyle(new Expression("$style"))
+                        )).generate("sample");
+
+        assertEquals("http://res.cloudinary.com/test123/image/upload/$style_!Arial_12!/l_text:$style:hello-world/sample", url);
+    }
+
 
     @Test
     public void testSecureDistributionOverwrite() {
@@ -389,6 +414,14 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testNamedTransformationWithSpaces() {
+        // should support named transformations with spaces
+        Transformation transformation = new Transformation().named("blip blop");
+        String result = cloudinary.url().transformation(transformation).generate("test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "t_blip%20blop/test", result);
+    }
+
+    @Test
     public void testBaseTransformations() {
         // should support base transformation
         Transformation transformation = new Transformation().x(100).y(100).crop("fill").chain().crop("crop").width(100);
@@ -604,6 +637,14 @@ public class CloudinaryTest {
         result = cloudinary.url().generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
 
+        // should not add version if the path STARTS with 'v[num]'
+        result = cloudinary.url().generate("v1234/folder/test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1234/folder/test", result);
+
+        // should add version if the path CONTAINS 'v[num]'
+        result = cloudinary.url().generate("folder/v123test");
+        assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/v123test", result);
+
         // should add version if forceVersion is true
         result = cloudinary.url().forceVersion(true).generate("folder/test");
         assertEquals(DEFAULT_UPLOAD_PATH + "v1/folder/test", result);
@@ -702,6 +743,37 @@ public class CloudinaryTest {
         assertNotNull(parameters.get("signature"));
 
     }
+
+    @Test
+    public void testDownloadFolderShouldReturnURLWithResourceTypeAllByDefault() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertTrue(url.contains("all"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldAllowToOverrideResourceType() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", Collections.singletonMap("resource_type", "audio"));
+        assertTrue(url.contains("audio"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldPutFolderPathAsPrefixes() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertTrue(url.contains("prefixes[]=folder"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldIncludeSpecifiedTargetFormat() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", Collections.singletonMap("target_format", "rar"));
+        assertTrue(url.contains("target_format=rar"));
+    }
+
+    @Test
+    public void testDownloadFolderShouldNotIncludeTargetFormatIfNotSpecified() throws UnsupportedEncodingException {
+        String url = cloudinary.downloadFolder("folder", null);
+        assertFalse(url.contains("target_format"));
+    }
+
     @Test
     public void testSpriteCss() {
         String result = cloudinary.url().generateSpriteCss("test");
@@ -805,6 +877,24 @@ public class CloudinaryTest {
                         new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1"))
                 ).generate("video_id");
         assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1/video_id", actual);
+    }
+
+    @Test
+    public void testVideoCodecBFrameTrue() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "true"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1/video_id", actual);
+    }
+
+    @Test
+    public void testVideoCodecBFrameFalse() {
+        String actual = cloudinary.url().resourceType("video")
+                .transformation(
+                        new Transformation().videoCodec(asMap("codec", "h264", "profile", "basic", "level", "3.1", "b_frames", "false"))
+                ).generate("video_id");
+        assertEquals(VIDEO_UPLOAD_PATH + "vc_h264:basic:3.1:bframes_no/video_id", actual);
     }
 
     @Test
@@ -1332,6 +1422,21 @@ public class CloudinaryTest {
         cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA256;
         String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
         assertEquals("45ddaa4fa01f0c2826f32f669d2e4514faf275fe6df053f1a150e7beae58a3bd", signature);
+    }
+
+    @Test
+    public void testDownloadBackedupAsset() throws UnsupportedEncodingException, URISyntaxException {
+        String url = cloudinary.downloadBackedupAsset("62c2a18d622be7e190d21df8e05b1416",
+                "26fe6d95df856f6ae12f5678be94516a", ObjectUtils.emptyMap());
+
+        URI uri = new URI(url);
+        assertTrue(uri.getPath().endsWith("download_backup"));
+
+        Map params = getUrlParameters(uri);
+        assertEquals("62c2a18d622be7e190d21df8e05b1416", params.get("asset_id"));
+        assertEquals("26fe6d95df856f6ae12f5678be94516a", params.get("version_id"));
+        assertNotNull(params.get("signature"));
+        assertNotNull(params.get("timestamp"));
     }
 
     private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {

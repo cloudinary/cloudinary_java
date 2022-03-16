@@ -675,10 +675,13 @@ public class Transformation<T extends Transformation> implements Serializable {
 
         List transformations = ObjectUtils.asArray(options.get("transformation"));
         boolean allNamed = true;
-        for (Object baseTransformation : transformations) {
+        for ( int i =0; i < transformations.size(); i++ ){
+            Object baseTransformation = transformations.get(i);
             if (baseTransformation instanceof Map) {
                 allNamed = false;
                 break;
+            } else if (baseTransformation instanceof String){
+                transformations.set(i, ((String) baseTransformation).replaceAll(" ", "%20"));
             }
         }
         String namedTransformation = null;
@@ -920,6 +923,9 @@ public class Transformation<T extends Transformation> implements Serializable {
                 outParam.append(":").append(paramMap.get("profile"));
                 if (paramMap.containsKey("level")) {
                     outParam.append(":").append(paramMap.get("level"));
+                    if (paramMap.containsKey("b_frames") && paramMap.get("b_frames") == "false") {
+                        outParam.append(":").append("bframes_no");
+                    }
                 }
             }
         }

@@ -18,6 +18,7 @@ import static org.junit.Assume.assumeNotNull;
 public abstract class AbstractStructuredMetadataTest extends MockableTest {
     private static final String METADATA_UPLOADER_TAG = SDK_TEST_TAG + "_uploader";
     private static final String PUBLIC_ID = "before_class_public_id" + SUFFIX;
+    private static final String PRIVATE_PUBLIC_ID = "before_class_private_public_id" + SUFFIX;
     protected Api api;
     public static final List<String> metadataFieldExternalIds = new ArrayList<String>();
 
@@ -29,6 +30,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         }
 
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("public_id", PUBLIC_ID));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("public_id", PRIVATE_PUBLIC_ID, "type", "private"));
     }
 
     @AfterClass
@@ -202,7 +204,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
             message = e.getMessage();
         }
 
-        assertTrue(message.contains("Value 12 is invalid for field") );
+        assertTrue(message.contains("is not valid for field") );
     }
 
     @Test
@@ -226,6 +228,10 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PUBLIC_ID}, null);
         assertNotNull(result);
         assertEquals(PUBLIC_ID, ((List) result.get("public_ids")).get(0).toString());
+        //test updateMetadata for private asset
+        Map result2 = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PRIVATE_PUBLIC_ID}, asMap("type","private"));
+        assertNotNull(result);
+        assertEquals(PRIVATE_PUBLIC_ID, ((List) result2.get("public_ids")).get(0).toString());
     }
 
     @Test

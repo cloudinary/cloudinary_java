@@ -1,3 +1,6 @@
+## Apple storage files
+*.DS_Store
+
 ## Android default ignore
 # Built application files
 *.apk
@@ -39,4 +42,8 @@ test-output/
 
 appengine-web.xml
 cloudinary-android/src/androidTest/AndroidManifest.xml
+
+##Tools
+/tools/cloudinary_url.txt
+/tools/History.md
 

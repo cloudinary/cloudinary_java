@@ -10,14 +10,14 @@ import java.util.Map;
 
 public class Search {
 
-    private Cloudinary cloudinary;
+    private final Api api;
     private ArrayList<HashMap<String, Object>> sortByParam;
     private ArrayList<String> aggregateParam;
     private ArrayList<String> withFieldParam;
     private HashMap<String, Object> params;
 
     Search(Cloudinary cloudinary) {
-        this.cloudinary = cloudinary;
+        this.api = cloudinary.api();
         this.params = new HashMap<String, Object>();
         this.sortByParam = new ArrayList<HashMap<String, Object>>();
         this.aggregateParam = new ArrayList<String>();
@@ -76,6 +76,6 @@ public class Search {
 
     public ApiResponse execute() throws Exception {
         Map<String, String> options = ObjectUtils.asMap("content_type", "json");
-        return this.cloudinary.api().callApi(Api.HttpMethod.POST, Arrays.asList("resources", "search"), this.toQuery(), options);
+        return this.api.callApi(Api.HttpMethod.POST, Arrays.asList("resources", "search"), this.toQuery(), options);
     }
 }

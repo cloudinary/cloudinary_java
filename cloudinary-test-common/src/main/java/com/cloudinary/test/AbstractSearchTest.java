@@ -1,14 +1,12 @@
 package com.cloudinary.test;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Search;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
@@ -69,14 +67,20 @@ abstract public class AbstractSearchTest extends MockableTest {
 
     @Test
     public void testSearchAggregate() throws Exception {
-        Map result = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").aggregate("format").execute();
+        Search searchRequest = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").aggregate("format");
+        Set<String> fieldsSet = new HashSet<>(searchRequest.getAggregateParam());
+        assertEquals(fieldsSet.size(), searchRequest.getAggregateParam().size());
+        Map result = searchRequest.execute();
         HashMap aggregations = (HashMap)result.get("aggregations");
         assertTrue(aggregations.size() > 0);
     }
 
     @Test
     public void testSearchWithField() throws Exception {
-        Map result = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").withField("tags").execute();
+        Search searchRequest = cloudinary.search().maxResults(1).expression(String.format("tags:%s", SEARCH_TAG)).sortBy("public_id", "asc").withField("tags").withField("tags");
+        Set<String> fieldsSet = new HashSet<>(searchRequest.getWithFieldParam());
+        assertEquals(fieldsSet.size(), searchRequest.getWithFieldParam().size());
+        Map result = searchRequest.execute();
         List<Map> resources = (List<Map>) result.get("resources");
         ArrayList<String> tags = (ArrayList<String>) resources.get(0).get("tags");
         assertTrue(tags.size() > 0);

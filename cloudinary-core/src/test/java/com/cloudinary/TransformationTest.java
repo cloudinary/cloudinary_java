@@ -4,9 +4,14 @@ import com.cloudinary.transformation.Condition;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.cloudinary.json.JSONArray;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
 
 import java.util.*;
 
@@ -18,6 +23,7 @@ import static org.junit.Assert.*;
  *
  */
 @SuppressWarnings("unchecked")
+@RunWith(JUnitParamsRunner.class)
 public class TransformationTest {
 
     @Before
@@ -299,5 +305,48 @@ public class TransformationTest {
                 .y("$ypos * h");
 
         assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
+    }
+    
+    @Parameters({"angle",
+            "aspect_ratio",
+            "dpr",
+            "effect",
+            "height",
+            "opacity",
+            "quality",
+            "width",
+            "x",
+            "y",
+            "zoom"})
+    @Test
+    public void testVerifyNormalizationShouldNormalize(String input) throws Exception {
+        String t = new Transformation().param(input, "width * 2").generate();
+        assertThat(t, CoreMatchers.containsString("w_mul_2"));
+    }
+
+    @Parameters({
+             "audio_codec",
+             "audio_frequency",
+             "border",
+             "bit_rate",
+             "color_space",
+             "default_image",
+             "delay",
+             "density",
+             "fetch_format",
+             "custom_function",
+             "fps",
+             "gravity",
+             "overlay",
+             "prefix",
+             "page",
+             "underlay",
+             "video_sampling",
+             "streaming_profile",
+             "keyframe_interval"})
+    @Test
+    public void testVerifyNormalizationShouldNotNormalize(String input) throws Exception {
+        String t = new Transformation().param(input, "width * 2").generate();
+        assertThat(t, CoreMatchers.not(CoreMatchers.containsString("w_mul_2")));
     }
 }

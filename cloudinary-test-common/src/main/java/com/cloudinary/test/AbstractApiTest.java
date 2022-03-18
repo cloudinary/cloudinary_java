@@ -608,7 +608,8 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testOcrUpdate() {
+    public void testOcrUpdate() throws Exception {
+        assumeAddonEnabled("ocr");
         Exception expected = null;
         // should support requesting ocr info
         try {

@@ -115,6 +115,12 @@ public class Api {
         return callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "context"), params, options);
     }
 
+    public ApiResponse resourceByAssetID(String assetId, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        Map params = ObjectUtils.only(options, "tags", "context", "moderations");
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", assetId), params, options);
+        return response;
+    }
     public ApiResponse resourcesByAssetIDs(Iterable<String> assetIds, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = ObjectUtils.only(options, "public_ids", "tags", "context", "moderations");

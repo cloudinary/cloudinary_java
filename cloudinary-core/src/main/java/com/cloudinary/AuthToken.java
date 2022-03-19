@@ -164,6 +164,11 @@ public class AuthToken {
      * @return a URL token
      */
     public String generate(String url) {
+
+        if (url == null && (acl == null || acl.size() == 0)) {
+            throw new IllegalArgumentException("Must provide acl or url");
+        }
+
         long expiration = this.expiration;
         if (expiration == 0) {
             if (duration > 0) {

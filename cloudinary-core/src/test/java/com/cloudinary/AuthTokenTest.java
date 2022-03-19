@@ -151,4 +151,14 @@ public class AuthTokenTest {
         String token = new AuthToken(options).generate();
         assertEquals("token=exp=100~acl=foo~hmac=88be250f3a912add862959076ee74f392fa0959a953fddd9128787d5c849efd9", token);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMissingAclAndUrlShouldThrow() {
+        String token = new AuthToken(KEY).duration(300).generate();
+    }
+
+    @Test
+    public void testMissingUrlNotMissingAclShouldNotThrow() {
+        String token = new AuthToken(KEY).duration(300).generate("http://res.cloudinary.com/test123");
+    }
 }

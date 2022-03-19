@@ -220,6 +220,35 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testRenameShouldReturnContext() throws Exception {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG), "context", asMap("foo", "boo")));
+
+        String publicId = result.get("public_id").toString();
+        String publicId2 = "folder/" + publicId + "2";
+        Map renameResult = cloudinary.uploader().rename(publicId, publicId2, asMap("context", true));
+        assertNotNull(renameResult.get("context"));
+        renameResult = cloudinary.uploader().rename(publicId2, publicId, ObjectUtils.emptyMap());
+        assertNull(renameResult.get("context"));
+    }
+
+    @Test
+    public void testRenameShouldReturnMetadata() throws Exception {
+        String label = "test" + SUFFIX;
+        StringMetadataField f = MetadataTestHelper.newFieldInstance(label);
+        Map fieldResult = MetadataTestHelper.addFieldToAccount(cloudinary.api(), f);
+        String fieldId = fieldResult.get("external_id").toString();
+        Map<String, Object> metadata = Collections.<String, Object>singletonMap(fieldId, "123456");
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG), "metadata", metadata));
+
+        String publicId = result.get("public_id").toString();
+        String publicId2 = "folder/" + publicId + "2";
+        Map renameResult = cloudinary.uploader().rename(publicId, publicId2, asMap("metadata", true));
+        assertNotNull(renameResult.get("metadata"));
+        renameResult = cloudinary.uploader().rename(publicId2, publicId, ObjectUtils.emptyMap());
+        assertNull(renameResult.get("metadata"));
+    }
+
+    @Test
     public void testUniqueFilename() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("use_filename", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
         assertTrue(((String) result.get("public_id")).matches("old_logo_[a-z0-9]{6}"));

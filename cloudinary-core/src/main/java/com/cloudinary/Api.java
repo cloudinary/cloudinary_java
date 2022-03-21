@@ -710,6 +710,29 @@ public class Api {
         return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), Collections.emptyMap());
     }
 
+    /**
+     * Reorders metadata fields.
+     *
+     * @param orderBy Criteria for the order (one of the fields 'label', 'external_id', 'created_at')
+     * @param direction Optional (gets either asc or desc)
+     * @param options Additional options
+     * @return List of metadata fields in their new order
+     * @throws Exception
+     */
+    public ApiResponse reorderMetadataFields(String orderBy, String direction, Map options) throws Exception {
+        if (orderBy == null) {
+            throw new IllegalArgumentException("Must supply orderBy");
+        }
+
+        List<String> uri = Arrays.asList("metadata_fields", "order");
+        Map<String, Object> map = ObjectUtils.asMap("order_by", orderBy);
+        if (direction != null) {
+            map.put("direction", direction);
+        }
+
+        return callApi(HttpMethod.PUT, uri, map, options);
+    }
+
     private Map<String, ?> extractParams(Map options, List<String> keys) {
         Map<String, Object> result = new HashMap<String, Object>();
         for (String key : keys) {

@@ -306,8 +306,10 @@ public class TransformationTest {
 
         assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
     }
-    
-    @Parameters({"angle",
+
+    @Parameters({
+            "initial_aspect_ratio",
+            "angle",
             "aspect_ratio",
             "dpr",
             "effect",

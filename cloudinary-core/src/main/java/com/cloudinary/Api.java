@@ -229,12 +229,15 @@ public class Api {
 
     public ApiResponse transformation(String transformation, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.GET, Arrays.asList("transformations", transformation), ObjectUtils.only(options, "next_cursor", "max_results"), options);
+        Map map = ObjectUtils.only(options, "next_cursor", "max_results");
+        map.put("transformation", transformation);
+        return callApi(HttpMethod.GET, Arrays.asList("transformations"), map, options);
     }
 
     public ApiResponse deleteTransformation(String transformation, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.DELETE, Arrays.asList("transformations", transformation), ObjectUtils.emptyMap(), options);
+        Map updates = ObjectUtils.asMap("transformation", transformation);
+        return callApi(HttpMethod.DELETE, Arrays.asList("transformations"), updates, options);
     }
 
     // updates - currently only supported update are:
@@ -242,11 +245,14 @@ public class Api {
     // "unsafe_update": transformation string
     public ApiResponse updateTransformation(String transformation, Map updates, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        return callApi(HttpMethod.PUT, Arrays.asList("transformations", transformation), updates, options);
+        updates.put("transformation", transformation);
+        return callApi(HttpMethod.PUT, Arrays.asList("transformations"), updates, options);
     }
 
     public ApiResponse createTransformation(String name, String definition, Map options) throws Exception {
-        return callApi(HttpMethod.POST, Arrays.asList("transformations", name), ObjectUtils.asMap("transformation", definition), options);
+        return callApi(HttpMethod.POST, 
+                Arrays.asList("transformations"), 
+                ObjectUtils.asMap("transformation", definition, "name", name), options);
     }
 
     public ApiResponse uploadPresets(Map options) throws Exception {

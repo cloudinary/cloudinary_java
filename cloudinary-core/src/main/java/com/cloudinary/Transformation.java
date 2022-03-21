@@ -628,6 +628,23 @@ public class Transformation<T extends Transformation> implements Serializable {
         return generate();
     }
 
+    protected String format;
+
+    public Transformation format(String format) {
+        this.format = format;
+        return this;
+    }
+
+    public String getFormat() {
+        return format;
+    }
+
+    protected void addFormat(List<String> components) {
+        if (format != null){
+            components.add(format);
+        }
+    }
+
     public String generate(Iterable<Map> optionsList) {
         List<String> components = new ArrayList<String>();
         for (Map options : optionsList) {
@@ -635,6 +652,7 @@ public class Transformation<T extends Transformation> implements Serializable {
                 components.add(generate(options));
             }
         }
+        addFormat(components);
         return StringUtils.join(components, "/");
     }
 

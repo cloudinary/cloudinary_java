@@ -300,4 +300,13 @@ public class TransformationTest {
 
         assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
     }
+
+    @Test
+    public void testFormatInTransformation() {
+        String t = new Transformation().width(100).format("jpeg").generate();
+        assertEquals("w_100/jpeg", t);
+
+        t = new Transformation().width(100).format("").generate();
+        assertEquals("w_100/", t);
+    }
 }

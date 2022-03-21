@@ -307,7 +307,7 @@ public class TransformationTest {
         assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
     }
     
-    @Parameters({"angle",
+    @Parameters({ "angle",
             "aspect_ratio",
             "dpr",
             "effect",
@@ -317,7 +317,9 @@ public class TransformationTest {
             "width",
             "x",
             "y",
-            "zoom"})
+            "end_offset",
+            "start_offset",
+            "zoom" })
     @Test
     public void testVerifyNormalizationShouldNormalize(String input) throws Exception {
         String t = new Transformation().param(input, "width * 2").generate();
@@ -345,8 +347,26 @@ public class TransformationTest {
              "streaming_profile",
              "keyframe_interval"})
     @Test
-    public void testVerifyNormalizationShouldNotNormalize(String input) throws Exception {
+    public void test1VerifyNormalizationShouldNotNormalize(String input) throws Exception {
         String t = new Transformation().param(input, "width * 2").generate();
         assertThat(t, CoreMatchers.not(CoreMatchers.containsString("w_mul_2")));
+    }
+
+    @Test
+    public void testSupportStartOffset() throws Exception {
+        String t = new Transformation().width(100).startOffset("idu - 5").generate();
+        assertThat(t, CoreMatchers.containsString("so_idu_sub_5"));
+
+        t = new Transformation().width(100).startOffset("$logotime").generate();
+        assertThat(t, CoreMatchers.containsString("so_$logotime"));
+    }
+
+    @Test
+    public void testSupportEndOffset() throws Exception {
+        String t = new Transformation().width(100).endOffset("idu - 5").generate();
+        assertThat(t, CoreMatchers.containsString("eo_idu_sub_5"));
+
+        t = new Transformation().width(100).endOffset("$logotime").generate();
+        assertThat(t, CoreMatchers.containsString("eo_$logotime"));
     }
 }

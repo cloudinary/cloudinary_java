@@ -281,6 +281,12 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testResourceByAssetId() throws Exception {
+        Map result = api.resourceByAssetID(assetId1, ObjectUtils.asMap("tags", true, "context", true));
+        assertEquals(API_TEST, result.get("public_id").toString());
+    }
+
+    @Test
     public void testResourcesByPublicIds() throws Exception {
         // should allow listing resources by public ids
         Map result = api.resourcesByIds(Arrays.asList(API_TEST, API_TEST_1, "bogus"), ObjectUtils.asMap("type", "upload", "tags", true, "context", true));

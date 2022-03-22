@@ -5,6 +5,8 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.metadata.*;
+
+import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -170,6 +172,38 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         api.deleteDatasourceEntries(fieldExternalId, Collections.singletonList("id1"));
         ApiResponse result = api.restoreDatasourceEntries(fieldExternalId, Collections.singletonList("id1"));
         assertNotNull(result);
+    }
+
+    @Test
+    public void testReorderMetadataFieldsByLabel() throws Exception {
+        AddStringField("some_value");
+        AddStringField("aaa");
+        AddStringField("zzz");
+        
+        ApiResponse result = api.reorderMetadataFields("label", null, Collections.EMPTY_MAP);
+        assertThat(getField(result, 0), Matchers.containsString("aaa"));
+
+        result = api.reorderMetadataFields("label", "desc", Collections.EMPTY_MAP);
+        assertThat(getField(result, 0), Matchers.containsString("zzz"));
+
+        result = api.reorderMetadataFields("label", "asc", Collections.EMPTY_MAP);
+        assertThat(getField(result, 0), Matchers.containsString("aaa"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testReorderMetadataFieldsOrderByIsRequired() throws Exception {
+        api.reorderMetadataFields(null, null, Collections.EMPTY_MAP);
+    }
+
+    private String getField(ApiResponse result, int index) {
+        String actual = ((Map)((ArrayList)result.get("metadata_fields")).get(index)).get("label").toString();
+        return actual;
+    }
+
+    private void AddStringField(String labelPrefix) throws Exception {
+        StringMetadataField field = newFieldInstance(labelPrefix);
+        ApiResponse fieldResult = addFieldToAccount(field);
+        String fieldId = fieldResult.get("external_id").toString();
     }
 
     @Test

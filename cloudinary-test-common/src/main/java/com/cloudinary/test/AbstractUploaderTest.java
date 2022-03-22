@@ -227,8 +227,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
         String publicId2 = "folder/" + publicId + "2";
         Map renameResult = cloudinary.uploader().rename(publicId, publicId2, asMap("context", true));
         assertNotNull(renameResult.get("context"));
-        renameResult = cloudinary.uploader().rename(publicId2, publicId, ObjectUtils.emptyMap());
-        assertNull(renameResult.get("context"));
     }
 
     @Test
@@ -244,8 +242,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
         String publicId2 = "folder/" + publicId + "2";
         Map renameResult = cloudinary.uploader().rename(publicId, publicId2, asMap("metadata", true));
         assertNotNull(renameResult.get("metadata"));
-        renameResult = cloudinary.uploader().rename(publicId2, publicId, ObjectUtils.emptyMap());
-        assertNull(renameResult.get("metadata"));
     }
 
     @Test

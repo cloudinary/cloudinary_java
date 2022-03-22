@@ -895,7 +895,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         Matcher matcher = RANGE_VALUE_RE.matcher(value);
 
         if (!matcher.matches()) {
-            return null;
+            return Expression.normalize(value);
         }
 
         String modifier = "";

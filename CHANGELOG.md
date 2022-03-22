@@ -1,4 +1,18 @@
 
+1.31.0 / 2022-03-21
+====================
+
+New functionality
+-----------------
+  * Get resources by asset id
+  * Add `enabled` parameter to `updateUser`, `replaceUser` and `createUser`
+  * Add tags as an array
+  * Add lowercase support for headers in API responses
+  * Allow to disable b-frames
+  * Support download backup version api
+  * Support `filename_override` upload parameter
+  * Add support for single character variable
+
 1.30.0 / 2022-02-02
 ===================
 

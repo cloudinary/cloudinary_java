@@ -4,7 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
+import static org.junit.Assume.assumeTrue;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -35,5 +39,23 @@ public class MockableTest {
         Map combinedOptions = ObjectUtils.asMap("transformation", "c_scale,w_100");
         combinedOptions.putAll(options);
         return cloudinary.uploader().upload("http://res.cloudinary.com/demo/image/upload/sample", combinedOptions);
+    }
+
+    private static final List<String> enabledAddons = getEnabledAddons();
+
+    protected void assumeAddonEnabled(String addon) throws Exception {
+        boolean enabled = enabledAddons.contains(addon.toLowerCase()) 
+            || (enabledAddons.size() == 1 && enabledAddons.get(0).equalsIgnoreCase("all"));
+
+        assumeTrue(String.format("Use CLD_TEST_ADDONS environment variable to enable tests for %s.", addon), enabled);
+    }
+
+    private static List<String> getEnabledAddons() {
+        String envAddons = System.getenv()
+            .getOrDefault("CLD_TEST_ADDONS", "")
+            .toLowerCase()
+            .replaceAll("\\s", "");
+
+        return Arrays.asList(envAddons.split(","));
     }
 }

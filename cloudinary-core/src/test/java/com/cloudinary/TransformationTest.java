@@ -306,7 +306,7 @@ public class TransformationTest {
 
         assertEquals("$xpos_ctx:!x_pos!_to_f,$ypos_ctx:!y_pos!_to_f,c_crop,x_$xpos_mul_w,y_$ypos_mul_h", t.generate());
     }
-    
+
     @Parameters({ "angle",
             "aspect_ratio",
             "dpr",
@@ -347,7 +347,7 @@ public class TransformationTest {
              "streaming_profile",
              "keyframe_interval"})
     @Test
-    public void test1VerifyNormalizationShouldNotNormalize(String input) throws Exception {
+    public void testVerifyNormalizationShouldNotNormalize(String input) throws Exception {
         String t = new Transformation().param(input, "width * 2").generate();
         assertThat(t, CoreMatchers.not(CoreMatchers.containsString("w_mul_2")));
     }

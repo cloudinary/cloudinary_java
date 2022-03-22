@@ -785,7 +785,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         }
         if (!components.isEmpty()) {
             final String joined = StringUtils.join(components, ",");
-            transformations.add(Expression.normalize(joined));
+            transformations.add(joined);
         }
 
         if (isResponsive) {
@@ -894,7 +894,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         Matcher matcher = RANGE_VALUE_RE.matcher(value);
 
         if (!matcher.matches()) {
-            return null;
+            return Expression.normalize(value);
         }
 
         String modifier = "";

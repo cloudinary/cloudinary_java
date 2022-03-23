@@ -4,6 +4,7 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -365,6 +366,47 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(resource);
         derived = ((List) resource.get("derived"));
         assertTrue(derived.size() == 0);
+    }
+
+    @Test
+    public void testGetResourcesWithMetadata() throws Exception {
+        String public_id = "api_,withMetadata" + SUFFIX;
+        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field" + SUFFIX)).get("external_id").toString();
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, 
+                ObjectUtils.asMap("public_id", public_id, 
+                    "tags", UPLOAD_TAGS, 
+                    "metadata", ObjectUtils.asMap(fieldId, "test"), 
+                    "moderation", "manual", 
+                    "context", ObjectUtils.asMap("name", "value")));
+        
+        Map result = api.resources(ObjectUtils.asMap("metadata", false));
+        assertNull(getMetadata(public_id, result));
+        
+        result = api.resources(ObjectUtils.asMap("metadata", true));
+        assertNotNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByTag(UPLOAD_TAGS[0], ObjectUtils.asMap("metadata", true));
+        assertNotNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByTag(UPLOAD_TAGS[0], ObjectUtils.asMap("metadata", false));
+        assertNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByModeration("manual", "pending", ObjectUtils.asMap("metadata", true));
+        assertNotNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByModeration("manual", "pending", ObjectUtils.asMap("metadata", false));
+        assertNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByContext("name", "value", ObjectUtils.asMap("metadata", true));
+        assertNotNull(getMetadata(public_id, result));
+        
+        result = api.resourcesByContext("name", "value", ObjectUtils.asMap("metadata", false));
+        assertNull(getMetadata(public_id, result));
+    }
+
+    private Object getMetadata(String public_id, Map result) {
+        Map resource = findByAttr((List<Map>) result.get("resources"), "public_id", public_id);
+        return resource.get("metadata");
     }
 
     @Test(expected = NotFound.class)

@@ -29,7 +29,7 @@ public class AuthToken {
     private long startTime;
     private long expiration;
     private String ip;
-    private String acl;
+    private List<String> acl = new ArrayList<>();
     private long duration;
     private boolean isNullToken = false;
     private static final Pattern UNSAFE_URL_CHARS_PATTERN = Pattern.compile("[ \"#%&'/:;<=>?@\\[\\\\\\]^`{|}~]");
@@ -53,7 +53,16 @@ public class AuthToken {
             this.startTime = ObjectUtils.asLong(options.get("startTime"), 0L);
             this.expiration = ObjectUtils.asLong(options.get("expiration"), 0L);
             this.ip = (String) options.get("ip");
-            this.acl = (String) options.get("acl");
+
+            Object acl = options.get("acl");
+            if (acl != null) {
+                if (acl instanceof String) {
+                    this.acl = Collections.singletonList(acl.toString());
+                } else if (Collection.class.isAssignableFrom(acl.getClass())) {
+                    this.acl = new ArrayList<String>((Collection<String>)acl);
+                }
+            }
+
             this.duration = ObjectUtils.asLong(options.get("duration"), 0L);
         }
     }
@@ -122,8 +131,8 @@ public class AuthToken {
      * @param acl
      * @return this
      */
-    public AuthToken acl(String acl) {
-        this.acl = acl;
+    public AuthToken acl(String... acl) {
+        this.acl = Arrays.asList(acl);
         return this;
     }
 
@@ -155,6 +164,11 @@ public class AuthToken {
      * @return a URL token
      */
     public String generate(String url) {
+
+        if (url == null && (acl == null || acl.size() == 0)) {
+            throw new IllegalArgumentException("Must provide acl or url");
+        }
+
         long expiration = this.expiration;
         if (expiration == 0) {
             if (duration > 0) {
@@ -172,11 +186,11 @@ public class AuthToken {
             tokenParts.add("st=" + startTime);
         }
         tokenParts.add("exp=" + expiration);
-        if (acl != null) {
-            tokenParts.add("acl=" + escapeToLower(acl));
+        if (acl != null && acl.size() > 0) {
+            tokenParts.add("acl=" + escapeToLower(String.join("!", acl)));
         }
         ArrayList<String> toSign = new ArrayList<String>(tokenParts);
-        if (url != null && acl == null) {
+        if (url != null && (acl == null || acl.size() == 0)) {
             toSign.add("url=" + escapeToLower(url));
         }
         String auth = digest(StringUtils.join(toSign, "~"));

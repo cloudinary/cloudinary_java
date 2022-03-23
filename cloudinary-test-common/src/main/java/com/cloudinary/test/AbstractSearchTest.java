@@ -6,6 +6,7 @@ import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -67,7 +68,37 @@ abstract public class AbstractSearchTest extends MockableTest {
 
     @Test
     public void testShouldNotDuplicateValues() throws Exception {
-        Search request = clourdinary.search().maxResults(1).sortBy("public_id", "asc");
+        Search request = cloudinary.search().maxResults(1).
+                sortBy("created_at", "asc")
+                .sortBy("created_at", "desc")
+                .sortBy("public_id", "asc")
+                .aggregate("format")
+                .aggregate("format")
+                .aggregate("resource_type")
+                .withField("context")
+                .withField("context")
+                .withField("tags");
+        Field[] fields = Search.class.getDeclaredFields();
+        for(Field field : fields) {
+            if(field.getName() == "aggregateParam") {
+                field.setAccessible(true);
+                ArrayList<String> aggregateList = (ArrayList<String>) field.get(request);
+                Set<String> testSet = new HashSet<String>(aggregateList);
+                assertTrue(aggregateList.size() == testSet.size());
+            }
+            if (field.getName() == "withFieldParam") {
+                field.setAccessible(true);
+                ArrayList<String> withFieldList = (ArrayList<String>) field.get(request);
+                Set<String> testSet = new HashSet<String>(withFieldList);
+                assertTrue(withFieldList.size() == testSet.size());
+            }
+            if (field.getName() == "sortByParam") {
+                field.setAccessible(true);
+                ArrayList<HashMap<String, Object>> sortByList = (ArrayList<HashMap<String, Object>>) field.get(request);
+                Set<HashMap<String, Object>> testSet = new HashSet<HashMap<String, Object>>(sortByList);
+                assertTrue(sortByList.size() == testSet.size());
+            }
+        }
     }
 
     @Test

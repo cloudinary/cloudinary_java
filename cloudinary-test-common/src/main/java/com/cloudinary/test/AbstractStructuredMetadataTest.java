@@ -302,17 +302,12 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     private StringMetadataField newFieldInstance(String labelPrefix) throws Exception {
-        StringMetadataField field = new StringMetadataField();
         String label = labelPrefix + "_" + SUFFIX;
-        field.setLabel(label);
-        field.setMandatory(true);
-        field.setValidation(new MetadataValidation.StringLength(3, 9));
-        field.setDefaultValue("val_test");
-        return field;
+        return MetadataTestHelper.newFieldInstance(label);
     }
 
     private ApiResponse addFieldToAccount(MetadataField field) throws Exception {
-        ApiResponse apiResponse = api.addMetadataField(field);
+        ApiResponse apiResponse = MetadataTestHelper.addFieldToAccount(api, field);
         metadataFieldExternalIds.add(apiResponse.get("external_id").toString());
         return apiResponse;
     }

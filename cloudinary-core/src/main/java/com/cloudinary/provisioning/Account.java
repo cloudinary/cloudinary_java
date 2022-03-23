@@ -324,15 +324,22 @@ public class Account {
      */
     public ApiResponse users(Boolean pending, List<String> userIds, String prefix, String subAccountId, Map<String, Object> options, Boolean lastLogin, Date from, Date to) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USERS);
-        return callAccountApi(Api.HttpMethod.GET, uri,
-                ObjectUtils.asMap("accountId", accountId,
-                        "pending", pending,
-                        "ids", userIds,
-                        "prefix", prefix,
-                        "sub_account_id", subAccountId,
-                        "last_login", lastLogin,
-                        "from", ObjectUtils.toISO8601(from),
-                        "to", ObjectUtils.toISO8601(to)), options);
+        Map map = ObjectUtils.asMap("accountId", accountId,
+		        "pending", pending,
+		        "ids", userIds,
+		        "prefix", prefix,
+		        "sub_account_id", subAccountId);
+        if (lastLogin != null){
+            map.put("last_login", lastLogin);
+        }
+        if (from != null){
+            map.put("from", ObjectUtils.toISO8601(from));
+        }
+        if (to != null){
+            map.put("to", ObjectUtils.toISO8601(to));
+        }
+		return callAccountApi(Api.HttpMethod.GET, uri,
+                map, options);
     }
 
     /**

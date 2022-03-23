@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.lang.reflect.ParameterizedType;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -1468,6 +1469,8 @@ public class CloudinaryTest {
             field.set(instance, rand.nextInt());
         } else if (fieldType.equals(long.class) || fieldType.equals(Long.class)) {
             field.set(instance, rand.nextLong());
+        } else if (field.get(instance) instanceof List) {
+            field.set(instance, Collections.singletonList(cloudinary.randomPublicId()));
         } else if (fieldType.equals(String.class)) {
             field.set(instance, cloudinary.randomPublicId());
         } else if (fieldType.equals(AuthToken.class)) {

@@ -766,6 +766,7 @@ public class Transformation<T extends Transformation> implements Serializable {
 
         params.put("a", Expression.normalize(angle));
         params.put("ar", Expression.normalize(options.get("aspect_ratio")));
+        params.put("iar", Expression.normalize(options.get("initial_aspect_ratio")));
         params.put("b", background);
         params.put("c", crop);
         params.put("co", color);
@@ -803,7 +804,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         }
         if (!components.isEmpty()) {
             final String joined = StringUtils.join(components, ",");
-            transformations.add(Expression.normalize(joined));
+            transformations.add(joined);
         }
 
         if (isResponsive) {
@@ -912,7 +913,7 @@ public class Transformation<T extends Transformation> implements Serializable {
         Matcher matcher = RANGE_VALUE_RE.matcher(value);
 
         if (!matcher.matches()) {
-            return null;
+            return Expression.normalize(value);
         }
 
         String modifier = "";

@@ -49,6 +49,8 @@ abstract public class AbstractApiTest extends MockableTest {
     public static final Set<String> createdFolders = new HashSet<String>();
     private static final String CUSTOM_USER_AGENT_PREFIX = "TEST_USER_AGENT";
     private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
+    private static String assetId1;
+    private static String assetId2;
 
 
     protected Api api;
@@ -66,10 +68,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
         Map options = ObjectUtils.asMap("public_id", API_TEST, "tags", uploadAndDirectionTag, "context", "key=value", "eager",
                 Collections.singletonList(EXPLICIT_TRANSFORMATION));
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        assetId1 = cloudinary.uploader().upload(SRC_TEST_IMAGE, options).get("asset_id").toString();
 
         options.put("public_id", API_TEST_1);
-        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        assetId2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, options).get("asset_id").toString();
         options.remove("public_id");
 
         options.put("eager", Collections.singletonList(UPDATE_TRANSFORMATION));
@@ -267,6 +269,21 @@ abstract public class AbstractApiTest extends MockableTest {
             next_cursor = (String) result.get("next_cursor");
         } while (next_cursor != null);
         assertThat(transformations, hasItem(allOf(hasEntry("name", "t_" + name))));
+    }
+
+    @Test
+    public void testResourcesByAssetIds() throws Exception {
+        Map result = api.resourcesByAssetIDs(Arrays.asList(assetId1, assetId2), ObjectUtils.asMap("tags", true, "context", true));
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertEquals(2, resources.size());
+        assertNotNull(findByAttr(resources, "public_id", API_TEST));
+        assertNotNull(findByAttr(resources, "public_id", API_TEST_1));
+    }
+
+    @Test
+    public void testResourceByAssetId() throws Exception {
+        Map result = api.resourceByAssetID(assetId1, ObjectUtils.asMap("tags", true, "context", true));
+        assertEquals(API_TEST, result.get("public_id").toString());
     }
 
     @Test
@@ -597,7 +614,8 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testOcrUpdate() {
+    public void testOcrUpdate() throws Exception {
+        assumeAddonEnabled("ocr");
         Exception expected = null;
         // should support requesting ocr info
         try {

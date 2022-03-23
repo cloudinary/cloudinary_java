@@ -1,7 +1,11 @@
 package com.cloudinary;
 
 import com.cloudinary.utils.Analytics;
+import com.cloudinary.utils.ObjectUtils;
+
+import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matchers;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,6 +13,8 @@ import org.junit.rules.TestName;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -126,5 +132,33 @@ public class AuthTokenTest {
         AuthToken aclToken = new AuthToken(KEY).duration(300).acl("/*/t_" + user).startTime(222222222);
         String cookieAclToken = aclToken.generate("http://res.cloudinary.com/test123/image/upload/v1486020273/sample.jpg");
         assertEquals(cookieToken, cookieAclToken);
+    }
+
+    @Test
+    public void testMultiplePatternsInAcl() {
+        AuthToken token = new AuthToken(KEY).duration(3600).acl("/image/authenticated/*", "/image2/authenticated/*", "/image3/authenticated/*").startTime(22222222);
+        String cookieToken = token.generate();
+        Assert.assertThat(cookieToken, CoreMatchers.containsString("~acl=%2fimage%2fauthenticated%2f*!%2fimage2%2fauthenticated%2f*!%2fimage3%2fauthenticated%2f*~"));
+    }
+
+    @Test
+    public void testPublicAclInitializationFromMap() {
+        Map options = ObjectUtils.asMap(
+                "acl", Collections.singleton("foo"),
+                "expiration", 100,
+                "key", KEY,
+                "tokenName", "token");
+        String token = new AuthToken(options).generate();
+        assertEquals("token=exp=100~acl=foo~hmac=88be250f3a912add862959076ee74f392fa0959a953fddd9128787d5c849efd9", token);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMissingAclAndUrlShouldThrow() {
+        String token = new AuthToken(KEY).duration(300).generate();
+    }
+
+    @Test
+    public void testMissingUrlNotMissingAclShouldNotThrow() {
+        String token = new AuthToken(KEY).duration(300).generate("http://res.cloudinary.com/test123");
     }
 }

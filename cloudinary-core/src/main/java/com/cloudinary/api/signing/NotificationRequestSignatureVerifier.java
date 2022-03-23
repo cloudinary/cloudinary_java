@@ -54,7 +54,7 @@ public class NotificationRequestSignatureVerifier {
      *
      * @param body            notification message body, represented as string
      * @param timestamp       value of X-Cld-Timestamp custom HTTP header of notification message, representing notification
-     *                        issue timestamp
+     *                        issue timestamp in seconds
      * @param signature       actual signature value, usually passed via X-Cld-Signature custom HTTP header of notification
      *                        message
      * @param secondsValidFor the amount of time, in seconds, the notification message is considered valid by client
@@ -69,7 +69,7 @@ public class NotificationRequestSignatureVerifier {
         }
 
         return verifySignature(body, timestamp, signature) &&
-                (System.currentTimeMillis() - parsedTimestamp <= secondsValidFor * 1000L);
+                (System.currentTimeMillis() / 1000L - parsedTimestamp <= secondsValidFor);
     }
 
 }

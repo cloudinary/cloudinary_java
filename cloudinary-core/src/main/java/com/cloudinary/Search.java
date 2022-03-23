@@ -24,14 +24,6 @@ public class Search {
         this.withFieldParam = new ArrayList<String>();
     }
 
-    public ArrayList<String> getAggregateParam() {
-        return aggregateParam;
-    }
-
-    public ArrayList<String> getWithFieldParam() {
-        return withFieldParam;
-    }
-
     public Search expression(String value) {
         this.params.put("expression", value);
         return this;

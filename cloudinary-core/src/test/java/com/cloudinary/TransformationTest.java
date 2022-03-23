@@ -309,10 +309,10 @@ public class TransformationTest {
 
     @Test
     public void testFormatInTransformation() {
-        String t = new Transformation().width(100).format("jpeg").generate();
+        String t = new EagerTransformation().width(100).format("jpeg").generate();
         assertEquals("w_100/jpeg", t);
 
-        t = new Transformation().width(100).format("").generate();
+        t = new EagerTransformation().width(100).format("").generate();
         assertEquals("w_100/", t);
     }
 

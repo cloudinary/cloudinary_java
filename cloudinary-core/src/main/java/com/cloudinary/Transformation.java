@@ -748,7 +748,6 @@ public class Transformation<T extends Transformation> implements Serializable {
 
         params.put("a", Expression.normalize(angle));
         params.put("ar", Expression.normalize(options.get("aspect_ratio")));
-        params.put("iar", Expression.normalize(options.get("initial_aspect_ratio")));
         params.put("b", background);
         params.put("c", crop);
         params.put("co", color);

@@ -6,6 +6,7 @@ import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
+import org.hamcrest.CoreMatchers;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -783,6 +784,32 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertNotNull(result.get("accessibility_analysis"));
         result = cloudinary.uploader().explicit(result.get("public_id").toString(), ObjectUtils.asMap("type", "upload", "resource_type", "image", "accessibility_analysis", true));
         assertNotNull(result.get("accessibility_analysis"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testOAuthInUploadOptions() throws Exception {
+        try {
+            cloudinary.config.oauthToken = "some_invalid_token";
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("accessibility_analysis", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG), "oauth_token", "foo"));
+        } catch(RuntimeException e) {
+            assertThat(e.getMessage(), CoreMatchers.containsString("Invalid token"));
+            throw e;
+        } finally {
+            cloudinary.config.oauthToken = null;
+        }
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testOAuthInUploadConfig() throws Exception {
+        try {
+            cloudinary.config.oauthToken = "some_invalid_token";
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("accessibility_analysis", true, "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+        } catch(RuntimeException e) {
+            assertThat(e.getMessage(), CoreMatchers.containsString("Invalid token"));
+            throw e;
+        } finally {
+            cloudinary.config.oauthToken = null;
+        }
     }
 
     private void addToDeleteList(String type, String id) {

@@ -9,6 +9,7 @@ plugins {
 task ciTest( type: Test )
 
 dependencies {
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.4'
     testImplementation "org.hamcrest:java-hamcrest:2.0.0.0"
     testImplementation group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
     testImplementation group: 'junit', name: 'junit', version: '4.12'

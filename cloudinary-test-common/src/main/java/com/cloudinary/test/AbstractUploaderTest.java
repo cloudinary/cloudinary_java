@@ -794,4 +794,17 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
         ids.add(id);
     }
+
+    @Test
+    public void testUploadFolderDecoupling() throws IOException {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap(
+                "use_filename_as_display_name", true,
+                "public_id_prefix", "test_id_prefix",
+                "asset_folder", "asset_folder_test",
+                "display_name", "display_name_test",
+                "asset_folder", "folder_test"));
+        assertNotNull(result.get("asset_folder"));
+        assertNotNull(result.get("display_name"));
+        assertNotNull(result.get("asset_folder"));
+    }
 }

@@ -161,4 +161,6 @@ public class AuthTokenTest {
     public void testMissingUrlNotMissingAclShouldNotThrow() {
         String token = new AuthToken(KEY).duration(300).generate("http://res.cloudinary.com/test123");
     }
+
+
 }

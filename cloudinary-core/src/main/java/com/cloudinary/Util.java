@@ -11,7 +11,7 @@ import java.util.*;
 public class Util {
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
             "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token", "async", "quality_analysis", "cinemagraph_analysis",
-            "accessibility_analysis"};
+            "accessibility_analysis", "use_filename_as_display_name"};
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildUploadParams(Map options) {
@@ -36,6 +36,9 @@ public class Util {
         params.put("moderation", options.get("moderation"));
         params.put("access_mode", (String) options.get("access_mode"));
         params.put("filename_override", (String) options.get("filename_override"));
+        params.put("public_id_prefix", (String) options.get("public_id_prefix"));
+        params.put("asset_folder", (String) options.get("asset_folder"));
+        params.put("display_name", (String) options.get("display_name"));
         
         Object responsive_breakpoints = options.get("responsive_breakpoints");
         if (responsive_breakpoints != null) {

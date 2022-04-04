@@ -36,7 +36,7 @@ public class EagerTransformation extends Transformation<EagerTransformation> {
             }
         }
 
-        if (StringUtils.isNotBlank(format)){
+        if (format != null){
             components.add(format);
         }
 
@@ -48,7 +48,7 @@ public class EagerTransformation extends Transformation<EagerTransformation> {
         List<String> eager = new ArrayList<String>();
         eager.add(super.generate(options));
 
-        if (StringUtils.isNotBlank(format)){
+        if (format != null){
             eager.add(format);
         }
 

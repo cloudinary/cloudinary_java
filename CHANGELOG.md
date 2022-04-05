@@ -1,4 +1,22 @@
 
+1.32.0 / 2022-04-05
+===================
+
+New functionality
+-----------------
+  * Add folder decoupling support
+  * Support multiple acls in cookies
+  * Support structured metadata in `resources` api call
+  * Rename API call returns `metadata` and `context` 
+  * Support start offset and end offset as expression
+  * Get the details of a single resource by asset_id
+  * Search by asset id
+  * Support metadata fields reordering
+Other changes
+-------------
+  * Fix `verifySignature` timestamp units
+  * Fix transformations API call
+
 1.31.0 / 2022-03-21
 ====================
 

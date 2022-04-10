@@ -58,6 +58,12 @@ public class LayerTest {
         assertEquals(DEFAULT_UPLOAD_PATH + "h_100,u_text:hello,w_100/test", result);
     }
 
+    @Test
+    public void testPublicIdWithDoubleUnderscoresInOverlay() {
+        Transformation transformation = new Transformation().width(300).height(200).crop("fill").overlay("my__lake");
+        String result = cloudinary.url().transformation(transformation).generate("sample.jpg");
+        assertEquals(DEFAULT_UPLOAD_PATH + "c_fill,h_200,l_my__lake,w_300/sample.jpg", result);
+    }
 
     @Test
     public void testLayerOptions() {

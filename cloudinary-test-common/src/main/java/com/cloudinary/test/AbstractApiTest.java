@@ -4,6 +4,7 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -135,6 +136,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule();
 
     @Before
     public void setUp() {
@@ -908,8 +912,10 @@ abstract public class AbstractApiTest extends MockableTest {
                         "tags", UPLOAD_TAGS
                 ));
         assertEquals(firstUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        Thread.sleep(5000);
         ApiResponse firstDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(firstDelete.containsKey("deleted"));
+        Thread.sleep(5000);
 
         Map secondUpload = uploader.upload(SRC_TEST_IMAGE,
                 ObjectUtils.asMap(
@@ -919,9 +925,10 @@ abstract public class AbstractApiTest extends MockableTest {
                         "tags", UPLOAD_TAGS
                 ));
         assertEquals(secondUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        Thread.sleep(5000);
         ApiResponse secondDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(secondDelete.containsKey("deleted"));
-
+        Thread.sleep(5000);
         assertNotEquals(firstUpload.get("bytes"), secondUpload.get("bytes"));
 
         ApiResponse getVersionsResp = api.resource(TEST_RESOURCE_PUBLIC_ID, ObjectUtils.asMap("versions", true));
@@ -937,7 +944,7 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse secondVerRestore = api.restore(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID),
                 ObjectUtils.asMap("versions", Collections.singletonList(secondAssetVersion)));
         assertEquals(((Map) secondVerRestore.get(TEST_RESOURCE_PUBLIC_ID)).get("bytes"), secondUpload.get("bytes"));
-
+        Thread.sleep(5000);
         ApiResponse finalDeleteResp = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(finalDeleteResp.containsKey("deleted"));
     }

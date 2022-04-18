@@ -3,6 +3,7 @@ package com.cloudinary.test;
 import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.metadata.StringMetadataField;
+import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.Rectangle;
 import org.cloudinary.json.JSONArray;
@@ -80,6 +81,9 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule();
 
     @Before
     public void setUp() {

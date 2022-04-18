@@ -7,6 +7,7 @@ import com.cloudinary.api.exceptions.NotFound;
 import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
+import com.sun.source.tree.AssertTree;
 import org.junit.*;
 import org.junit.rules.TestName;
 
@@ -927,6 +928,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
         ApiResponse getVersionsResp = api.resource(TEST_RESOURCE_PUBLIC_ID, ObjectUtils.asMap("versions", true));
         List<Map> versions = (List<Map>) getVersionsResp.get("versions");
+        Assert.assertTrue(versions.size() > 1);
         Object firstAssetVersion = versions.get(0).get("version_id");
         Object secondAssetVersion = versions.get(1).get("version_id");
 

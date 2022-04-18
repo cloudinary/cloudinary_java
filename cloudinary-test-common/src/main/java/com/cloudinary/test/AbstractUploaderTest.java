@@ -82,9 +82,6 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @Rule
     public TestName currentTest = new TestName();
 
-    @Rule
-    public RetryRule retryRule = new RetryRule();
-
     @Before
     public void setUp() {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());

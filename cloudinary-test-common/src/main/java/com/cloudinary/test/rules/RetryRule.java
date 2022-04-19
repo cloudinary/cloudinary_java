@@ -30,13 +30,13 @@ public class RetryRule implements TestRule {
             public void evaluate() throws Throwable {
                 Throwable caughtThrowable = null;
                 for (int i = 0; i < retryCount; i++) {
-                    Thread.sleep(delay * 1000);
                     try {
                         base.evaluate();
                         return;
                     } catch (Throwable t) {
                         caughtThrowable = t;
                         System.err.println(description.getDisplayName() + ": run " + (i + 1) + " failed.");
+                        Thread.sleep(delay * 1000);
                     }
                 }
                 System.err.println(description.getDisplayName() + ": Giving up after " + retryCount + " failures.");

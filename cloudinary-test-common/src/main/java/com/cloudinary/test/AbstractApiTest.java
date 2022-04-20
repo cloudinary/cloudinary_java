@@ -4,7 +4,7 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
-import com.cloudinary.metadata.StringMetadataField;
+import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -52,6 +52,8 @@ abstract public class AbstractApiTest extends MockableTest {
     private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
     private static String assetId1;
     private static String assetId2;
+
+    private static final int SLEEP_TIMEOUT = 5000;
 
 
     protected Api api;
@@ -136,6 +138,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Rule
     public TestName currentTest = new TestName();
+
+    @Rule
+    public RetryRule retryRule = new RetryRule();
 
     @Before
     public void setUp() {
@@ -909,8 +914,10 @@ abstract public class AbstractApiTest extends MockableTest {
                         "tags", UPLOAD_TAGS
                 ));
         assertEquals(firstUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        Thread.sleep(SLEEP_TIMEOUT);
         ApiResponse firstDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(firstDelete.containsKey("deleted"));
+        Thread.sleep(SLEEP_TIMEOUT);
 
         Map secondUpload = uploader.upload(SRC_TEST_IMAGE,
                 ObjectUtils.asMap(
@@ -920,13 +927,15 @@ abstract public class AbstractApiTest extends MockableTest {
                         "tags", UPLOAD_TAGS
                 ));
         assertEquals(secondUpload.get("public_id"), TEST_RESOURCE_PUBLIC_ID);
+        Thread.sleep(SLEEP_TIMEOUT);
         ApiResponse secondDelete = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(secondDelete.containsKey("deleted"));
-
+        Thread.sleep(SLEEP_TIMEOUT);
         assertNotEquals(firstUpload.get("bytes"), secondUpload.get("bytes"));
 
         ApiResponse getVersionsResp = api.resource(TEST_RESOURCE_PUBLIC_ID, ObjectUtils.asMap("versions", true));
         List<Map> versions = (List<Map>) getVersionsResp.get("versions");
+        Assert.assertTrue(versions.size() > 1);
         Object firstAssetVersion = versions.get(0).get("version_id");
         Object secondAssetVersion = versions.get(1).get("version_id");
 
@@ -937,7 +946,7 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse secondVerRestore = api.restore(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID),
                 ObjectUtils.asMap("versions", Collections.singletonList(secondAssetVersion)));
         assertEquals(((Map) secondVerRestore.get(TEST_RESOURCE_PUBLIC_ID)).get("bytes"), secondUpload.get("bytes"));
-
+        Thread.sleep(SLEEP_TIMEOUT);
         ApiResponse finalDeleteResp = api.deleteResources(Collections.singletonList(TEST_RESOURCE_PUBLIC_ID), ObjectUtils.emptyMap());
         assertTrue(finalDeleteResp.containsKey("deleted"));
     }
@@ -1157,7 +1166,7 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testDeleteFolder() throws Exception {
         String toDelete = "todelete_" + SUFFIX;
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", UPLOAD_TAGS, "folder", toDelete));
-        Thread.sleep(5000);
+        Thread.sleep(SLEEP_TIMEOUT);
         api.deleteResources(Collections.singletonList(uploadResult.get("public_id").toString()), emptyMap());
         ApiResponse result = api.deleteFolder(toDelete, emptyMap());
         assertTrue(((ArrayList) result.get("deleted")).contains(toDelete));

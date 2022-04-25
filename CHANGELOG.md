@@ -1,4 +1,17 @@
 
+1.32.1 / 2022-04-25
+===================
+
+  * Fix double underscore handling during normalization
+  * Update Spring framework version
+
+ / 2022-04-25
+=============
+
+  * Fix unstable tests
+  * Fix double underscore handling during normalization
+  * Update Spring framework version
+
 1.32.0 / 2022-04-05
 ===================
 

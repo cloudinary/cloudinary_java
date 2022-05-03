@@ -3,7 +3,6 @@ plugins {
     id 'signing'
     id 'maven-publish'
     id 'io.codearte.nexus-staging' version '0.21.1'
-    id "de.marcphilipp.nexus-publish" version "0.4.0"
 }
 
 apply from: "../java_shared.gradle"
@@ -95,15 +94,6 @@ if (hasProperty("ossrhPassword")) {
                         }
                         extension = 'jar.asc'
                     }
-                }
-            }
-        }
-
-        nexusPublishing {
-            repositories {
-                sonatype {
-                    username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
-                    password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
                 }
             }
         }

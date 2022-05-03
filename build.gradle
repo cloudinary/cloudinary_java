@@ -1,5 +1,9 @@
 import groovy.json.JsonSlurper
 
+plugins {
+    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+}
+
 allprojects {
 
     repositories {
@@ -7,6 +11,19 @@ allprojects {
     }
 
     project.ext.set("publishGroupId", group)
+}
+
+nexusPublishing {
+    transitionCheckOptions {
+        maxRetries.set(150)
+        delayBetween.set(Duration.ofSeconds(5))
+    }
+    repositories {
+        sonatype {
+            username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
+            password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
+        }
+    }
 }
 
 tasks.create('createTestSubAccount') {

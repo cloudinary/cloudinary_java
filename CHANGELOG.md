@@ -1,14 +1,12 @@
 
+1.32.2 / 2022-05-10
+===================
+
+  * Fix nexus publishing script
+
 1.32.1 / 2022-04-25
 ===================
 
-  * Fix double underscore handling during normalization
-  * Update Spring framework version
-
- / 2022-04-25
-=============
-
-  * Fix unstable tests
   * Fix double underscore handling during normalization
   * Update Spring framework version
 

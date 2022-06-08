@@ -8,7 +8,7 @@
     <name>photo_album_gae</name>
 
     <properties>
-        <spring.version>5.3.18</spring.version>
+        <spring.version>5.3.19</spring.version>
         <appengine.app.version>1</appengine.app.version>
         <appengine.target.version>1.9.37</appengine.target.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-jpa</artifactId>
-            <version>1.2.0.RELEASE</version>
+            <version>1.11.20.RELEASE</version>
         </dependency>
 
         <dependency>

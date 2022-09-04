@@ -131,7 +131,7 @@ public class Api {
 
     public ApiResponse resourcesByAssetFolder(String assetFolder, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        Map params = ObjectUtils.only(options, "tags", "context", "moderations");
+        Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations");
         params.put("asset_folder", assetFolder);
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources/by_asset_folder"), params, options);
         return response;

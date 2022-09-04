@@ -661,13 +661,6 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testUpdateAssetFolder() throws Exception {
-        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("asset_folder", "hello1", "unique_display_name", true));
-        Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("asset_folder", "test", "unique_display_name", false));
-        assertEquals("test", apiResult.get("asset_folder"));
-    }
-
-    @Test
     public void testOcrUpdate() throws Exception {
         assumeAddonEnabled("ocr");
         Exception expected = null;

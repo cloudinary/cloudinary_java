@@ -1,5 +1,8 @@
 package com.cloudinary.test;
 
+import com.cloudinary.AuthToken;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import org.apache.http.conn.ConnectTimeoutException;
@@ -29,6 +32,20 @@ public class UploaderTest extends AbstractUploaderTest {
                 "max_results", 500,
                 "timeout", 1);
         ApiResponse result = cloudinary.api().resources(options);
+    }
+
+    @Test
+    public void videoTagAuthTokenTest() {
+        String videoTag = cloudinary.url().transformation(new Transformation())
+                .type("upload")
+                .authToken(new AuthToken("123456").duration(300))
+                .signed(true)
+                .secure(true)
+                .videoTag("sample", Cloudinary.asMap(
+                        "controls", true,
+                        "loop", true)
+                );
+        System.out.println(videoTag);
     }
 
 }

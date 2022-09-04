@@ -160,6 +160,12 @@ public class Util {
         if (options.get("access_control") != null) {
             params.put("access_control", encodeAccessControl(options.get("access_control")));
         }
+        if (options.get("asset_folder") != null) {
+            params.put("asset_folder", options.get("asset_folder"));
+        }
+        if (options.get("unique_display_name") != null) {
+            params.put("unique_display_name", options.get("unique_display_name"));
+        }
         putObject("ocr", options, params);
         putObject("raw_convert", options, params);
         putObject("categorization", options, params);

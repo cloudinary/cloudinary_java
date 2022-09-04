@@ -1194,8 +1194,10 @@ abstract public class AbstractApiTest extends MockableTest {
         //TODO: Need to build a unit testing infrastructure
         Map params = new HashMap<String, Object>();
         Map options = asMap(
-                "asset_folder", "new_asset_folder");
+                "asset_folder", "new_asset_folder",
+                "unique_display_name", true);
         Util.processWriteParameters(options, params);
         assertEquals("new_asset_folder", params.get("asset_folder"));
+        assertEquals(true, params.get("unique_display_name"));
     }
 }

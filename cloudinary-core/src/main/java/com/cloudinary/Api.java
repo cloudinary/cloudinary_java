@@ -129,7 +129,7 @@ public class Api {
         return response;
     }
 
-    public ApiResponse resourceByAssetFolder(String assetFolder, Map options) throws Exception {
+    public ApiResponse resourcesByAssetFolder(String assetFolder, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         Map params = ObjectUtils.only(options, "tags", "context", "moderations");
         params.put("asset_folder", assetFolder);

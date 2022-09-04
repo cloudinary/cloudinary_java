@@ -801,6 +801,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
     @Test
     public void testUploadFolderDecoupling() {
+        //TODO: Need to build a unit testing infrastructure
         Map options = asMap(
                 "use_filename_as_display_name", true,
                 "public_id_prefix", "test_id_prefix",

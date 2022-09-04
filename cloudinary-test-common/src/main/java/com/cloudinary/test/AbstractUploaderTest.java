@@ -806,11 +806,14 @@ abstract public class AbstractUploaderTest extends MockableTest {
                 "use_filename_as_display_name", true,
                 "public_id_prefix", "test_id_prefix",
                 "asset_folder", "asset_folder_test",
-                "display_name", "display_name_test");
+                "display_name", "display_name_test",
+                "use_asset_folder_as_public_id_prefix", true);
+
         Map uploadParams = Util.buildUploadParams(options);
         Assert.assertEquals("test_id_prefix", uploadParams.get("public_id_prefix"));
         Assert.assertEquals(true, uploadParams.get("use_filename_as_display_name"));
         Assert.assertEquals("asset_folder_test", uploadParams.get("asset_folder"));
         Assert.assertEquals("display_name_test", uploadParams.get("display_name"));
+        Assert.assertEquals(true, uploadParams.get("use_asset_folder_as_public_id_prefix"));
     }
 }

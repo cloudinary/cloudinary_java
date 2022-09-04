@@ -52,7 +52,6 @@ abstract public class AbstractApiTest extends MockableTest {
     private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
     private static String assetId1;
     private static String assetId2;
-
     private static String assetId3;
 
     private static final int SLEEP_TIMEOUT = 5000;

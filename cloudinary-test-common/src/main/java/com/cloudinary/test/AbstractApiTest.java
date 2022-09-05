@@ -4,6 +4,7 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.test.helpers.Feature;
 import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
@@ -297,8 +298,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testResourceByAssetFolder() throws Exception {
-        Map result = api.resourcesByAssetFolder("test_asset_folder", ObjectUtils.asMap("tags", true, "context", true));
-        assertNotNull(findByAttr((List<Map>)result.get("resources"), "public_id", assetId3));
+        if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
+            Map result = api.resourcesByAssetFolder("test_asset_folder", ObjectUtils.asMap("tags", true, "context", true));
+            assertNotNull(findByAttr((List<Map>) result.get("resources"), "public_id", assetId3));
+        }
     }
 
     @Test

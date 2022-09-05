@@ -1188,4 +1188,16 @@ abstract public class AbstractApiTest extends MockableTest {
         ApiResponse res = api.resource(API_TEST, Collections.singletonMap("accessibility_analysis", true));
         assertNotNull(res.get("accessibility_analysis"));
     }
+
+    @Test
+    public void testFolderDecoupling() {
+        //TODO: Need to build a unit testing infrastructure
+        Map params = new HashMap<String, Object>();
+        Map options = asMap(
+                "asset_folder", "new_asset_folder",
+                "unique_display_name", true);
+        Util.processWriteParameters(options, params);
+        assertEquals("new_asset_folder", params.get("asset_folder"));
+        assertEquals(true, params.get("unique_display_name"));
+    }
 }

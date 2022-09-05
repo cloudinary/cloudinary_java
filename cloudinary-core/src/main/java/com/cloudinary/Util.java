@@ -11,7 +11,7 @@ import java.util.*;
 public class Util {
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
             "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token", "async", "quality_analysis", "cinemagraph_analysis",
-            "accessibility_analysis", "use_filename_as_display_name", "use_asset_folder_as_public_id_prefix"};
+            "accessibility_analysis", "use_filename_as_display_name", "use_asset_folder_as_public_id_prefix", "unique_display_name"};
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildUploadParams(Map options) {
@@ -159,6 +159,12 @@ public class Util {
             params.put("metadata", encodeContext(options.get("metadata")));
         if (options.get("access_control") != null) {
             params.put("access_control", encodeAccessControl(options.get("access_control")));
+        }
+        if (options.get("asset_folder") != null) {
+            params.put("asset_folder", options.get("asset_folder"));
+        }
+        if (options.get("unique_display_name") != null) {
+            params.put("unique_display_name", options.get("unique_display_name"));
         }
         putObject("ocr", options, params);
         putObject("raw_convert", options, params);

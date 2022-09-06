@@ -1,8 +1,5 @@
 package com.cloudinary.test;
 
-import com.cloudinary.AuthToken;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Transformation;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import org.apache.http.conn.ConnectTimeoutException;

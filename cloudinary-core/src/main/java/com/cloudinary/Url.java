@@ -77,6 +77,7 @@ public class Url {
         cloned.urlSuffix = this.urlSuffix;
         cloned.useRootPath = this.useRootPath;
         cloned.longUrlSignature = this.longUrlSignature;
+        cloned.authToken = this.authToken;
         return cloned;
     }
 

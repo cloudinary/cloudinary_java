@@ -33,19 +33,4 @@ public class UploaderTest extends AbstractUploaderTest {
                 "timeout", 1);
         ApiResponse result = cloudinary.api().resources(options);
     }
-
-    @Test
-    public void videoTagAuthTokenTest() {
-        String videoTag = cloudinary.url().transformation(new Transformation())
-                .type("upload")
-                .authToken(new AuthToken("123456").duration(300))
-                .signed(true)
-                .secure(true)
-                .videoTag("sample", Cloudinary.asMap(
-                        "controls", true,
-                        "loop", true)
-                );
-        System.out.println(videoTag);
-    }
-
 }

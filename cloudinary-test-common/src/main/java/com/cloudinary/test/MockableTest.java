@@ -14,6 +14,8 @@ import java.util.Random;
 
 public class MockableTest {
 
+    public static final String HEBREW_PDF = "../cloudinary-test-common/src/main/resources/אבג.docx";
+    public static final String ENGLISH_PDF = "../cloudinary-test-common/src/main/resources/abc.docx";
     public static final String SRC_TEST_IMAGE = "../cloudinary-test-common/src/main/resources/old_logo.png";
     public static final String SRC_TEST_VIDEO = "http://res.cloudinary.com/demo/video/upload/dog.mp4";
     public static final String SRC_TEST_RAW = "../cloudinary-test-common/src/main/resources/docx.docx";

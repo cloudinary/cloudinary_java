@@ -800,6 +800,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
     }
 
     @Test
+    public void testUploadLocalUnicodeFilename() throws Exception {
+        Map result = cloudinary.uploader().upload(HEBREW_PDF, asMap("resource_type", "raw"));
+        assertTrue(((String)result.get("public_id")).contains(".docx"));
+    }
+
+    @Test
     public void testUploadFolderDecoupling() {
         //TODO: Need to build a unit testing infrastructure
         Map options = asMap(

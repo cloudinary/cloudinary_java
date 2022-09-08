@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -71,7 +72,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         Charset utf8 = Charset.forName("UTF-8");
 
-        MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+        MultipartEntity multipart = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE, null, StandardCharsets.UTF_8);
         // Remove blank parameters
         for (Map.Entry<String, Object> param : params.entrySet()) {
             if (param.getValue() instanceof Collection) {

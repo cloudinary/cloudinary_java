@@ -22,6 +22,7 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -84,6 +85,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         MultipartEntityBuilder multipart = MultipartEntityBuilder.create();
         multipart.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+        multipart.setCharset(StandardCharsets.UTF_8);
         ContentType contentType = ContentType.MULTIPART_FORM_DATA.withCharset(MIME.UTF8_CHARSET);
         // Remove blank parameters
         for (Map.Entry<String, Object> param : params.entrySet()) {

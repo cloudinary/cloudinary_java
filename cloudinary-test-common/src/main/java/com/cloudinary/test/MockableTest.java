@@ -1,6 +1,7 @@
 package com.cloudinary.test;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.test.helpers.Feature;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 
@@ -57,5 +58,14 @@ public class MockableTest {
             .replaceAll("\\s", "");
 
         return Arrays.asList(envAddons.split(","));
+    }
+
+    protected static boolean shouldTestFeature(String feature) {
+        String sdkFeatures = System.getenv()
+                .getOrDefault("CLD_TEST_FEATURES", "")
+                .toLowerCase()
+                .replaceAll("\\s", "");
+        List<String> sdkFeaturesList = Arrays.asList(sdkFeatures.split(","));
+        return sdkFeatures.contains(feature.toLowerCase()) || (sdkFeaturesList.size() == 1 && sdkFeaturesList.get(0).equalsIgnoreCase(Feature.ALL));
     }
 }

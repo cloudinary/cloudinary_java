@@ -129,6 +129,14 @@ public class Api {
         return response;
     }
 
+    public ApiResponse resourcesByAssetFolder(String assetFolder, Map options) throws Exception {
+        if (options == null) options = ObjectUtils.emptyMap();
+        Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations");
+        params.put("asset_folder", assetFolder);
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources/by_asset_folder"), params, options);
+        return response;
+    }
+
     public ApiResponse resourcesByIds(Iterable<String> publicIds, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");

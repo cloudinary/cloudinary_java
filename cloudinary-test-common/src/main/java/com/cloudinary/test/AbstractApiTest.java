@@ -4,6 +4,7 @@ import com.cloudinary.*;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.api.exceptions.NotFound;
+import com.cloudinary.test.helpers.Feature;
 import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.transformation.TextLayer;
 import com.cloudinary.utils.ObjectUtils;
@@ -52,6 +53,7 @@ abstract public class AbstractApiTest extends MockableTest {
     private static final String CUSTOM_USER_AGENT_VERSION = "9.9.9";
     private static String assetId1;
     private static String assetId2;
+    private static String assetId3;
 
     private static final int SLEEP_TIMEOUT = 5000;
 
@@ -76,6 +78,8 @@ abstract public class AbstractApiTest extends MockableTest {
         options.put("public_id", API_TEST_1);
         assetId2 = cloudinary.uploader().upload(SRC_TEST_IMAGE, options).get("asset_id").toString();
         options.remove("public_id");
+
+        assetId3 = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("asset_folder", "test_asset_folder")).get("public_id").toString();
 
         options.put("eager", Collections.singletonList(UPDATE_TRANSFORMATION));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
@@ -290,6 +294,14 @@ abstract public class AbstractApiTest extends MockableTest {
     public void testResourceByAssetId() throws Exception {
         Map result = api.resourceByAssetID(assetId1, ObjectUtils.asMap("tags", true, "context", true));
         assertEquals(API_TEST, result.get("public_id").toString());
+    }
+
+    @Test
+    public void testResourceByAssetFolder() throws Exception {
+        if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
+            Map result = api.resourcesByAssetFolder("test_asset_folder", ObjectUtils.asMap("tags", true, "context", true));
+            assertNotNull(findByAttr((List<Map>) result.get("resources"), "public_id", assetId3));
+        }
     }
 
     @Test

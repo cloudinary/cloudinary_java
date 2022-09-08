@@ -1196,7 +1196,20 @@ public class CloudinaryTest {
                 .poster(false)
                 .videoTag("movie", emptyMap());
         assertEquals(expectedTag, actualTag);
+    }
 
+    @Test
+    public void videoTagWithAuthTokenTest() {
+        String actualTag = cloudinary.url().transformation(new Transformation())
+                .type("upload")
+                .authToken(new AuthToken("123456").duration(300))
+                .signed(true)
+                .secure(true)
+                .videoTag("sample", Cloudinary.asMap(
+                        "controls", true,
+                        "loop", true)
+                );
+        assert(actualTag.contains("cld_token"));
     }
 
     @Test

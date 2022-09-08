@@ -30,5 +30,4 @@ public class UploaderTest extends AbstractUploaderTest {
                 "timeout", 1);
         ApiResponse result = cloudinary.api().resources(options);
     }
-
 }

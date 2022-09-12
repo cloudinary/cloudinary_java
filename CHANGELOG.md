@@ -1,3 +1,11 @@
+1.33.0 / 2022-09-12
+==================
+
+* Add dynamic folders support
+* Fix VideoTag not appending auth token
+* Fix upload with Unicode character not appending a file extension
+* Bump springboard version
+
 
 1.32.2 / 2022-05-10
 ===================

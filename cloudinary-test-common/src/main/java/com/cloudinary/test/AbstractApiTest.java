@@ -726,6 +726,16 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testUpdateResourceClearInvalid() throws Exception {
+        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field" + SUFFIX)).get("external_id").toString();
+        String fieldId2 = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field2" + SUFFIX)).get("external_id").toString();
+        Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap("tags", UPLOAD_TAGS, "metadata", ObjectUtils.asMap(fieldId, "test")));
+        Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("clear_invalid", true, "metadata", ObjectUtils.asMap(fieldId2, "test2")));
+        assertNotNull(((Map)apiResult.get("metadata")).get(fieldId2));
+    }
+
+    @Test
     public void testUpdateCustomCoordinates() throws IOException, Exception {
         // should update custom coordinates
         Coordinates coordinates = new Coordinates("121,31,110,151");
@@ -756,6 +766,8 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals("2019-02-22T14:20:57Z", accessControlResult.get("start"));
         assertEquals("2019-03-21T22:00:00Z", accessControlResult.get("end"));
     }
+
+
 
     @Test
     public void testListUploadPresets() throws Exception {

@@ -767,8 +767,6 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals("2019-03-21T22:00:00Z", accessControlResult.get("end"));
     }
 
-
-
     @Test
     public void testListUploadPresets() throws Exception {
         // should allow creating and listing upload_presets

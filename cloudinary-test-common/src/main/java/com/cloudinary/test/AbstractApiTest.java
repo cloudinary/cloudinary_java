@@ -727,8 +727,8 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUpdateResourceClearInvalid() throws Exception {
-        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field" + SUFFIX)).get("external_id").toString();
-        String fieldId2 = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field2" + SUFFIX)).get("external_id").toString();
+        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field3" + SUFFIX)).get("external_id").toString();
+        String fieldId2 = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field4" + SUFFIX)).get("external_id").toString();
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE,
                 ObjectUtils.asMap("tags", UPLOAD_TAGS, "metadata", ObjectUtils.asMap(fieldId, "test")));
         Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("clear_invalid", true, "metadata", ObjectUtils.asMap(fieldId2, "test2")));

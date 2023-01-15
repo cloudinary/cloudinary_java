@@ -271,7 +271,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUploaderUpdateMetadataClearInvalid() throws Exception {
-        StringMetadataField field = newFieldInstance("testUploaderUpdateMetadata");
+        StringMetadataField field = newFieldInstance("testUploaderUpdateMetadata1");
         ApiResponse fieldResult = addFieldToAccount(field);
         String fieldId = fieldResult.get("external_id").toString();
         Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PUBLIC_ID}, ObjectUtils.asMap("clear_invalid", true));

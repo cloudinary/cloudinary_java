@@ -422,19 +422,19 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
-        String email = String.format("sdk+" + SDK_TEST_TAG + "@cloudinary.com");
+        String email = String.format("sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com");
         return createUser("TestName", email, role, subAccountsIds);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Map<String, Object> options) throws Exception {
-        String email = String.format("sdk+" + SDK_TEST_TAG + "@cloudinary.com");
+        String email = String.format("sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com");
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, options);
         createdUserIds.add(user.get("id").toString());
         return user;
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Boolean enabled) throws Exception {
-        String email = String.format("sdk+" + SDK_TEST_TAG + "@cloudinary.com");
+        String email = String.format("sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com");
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;

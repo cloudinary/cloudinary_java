@@ -60,6 +60,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
     private Boolean overwrite = null;
     private Boolean phash = null;
     protected boolean unsigned = false;
+    private Boolean mediaMetadata = null;
 
 	public void doTag() throws JspException, IOException {
         Cloudinary cloudinary = Singleton.getCloudinary();
@@ -92,6 +93,7 @@ public class CloudinaryUploadTag extends SimpleTagSupport {
         options.put("faces", faces);
         options.put("colors", colors);
         options.put("image_metadata", imageMetadata);
+        options.put("media_metadata", mediaMetadata);
         options.put("use_filename", useFilename);
         options.put("unique_filename", uniqueFilename);
         options.put("eager_async", eagerAsync);

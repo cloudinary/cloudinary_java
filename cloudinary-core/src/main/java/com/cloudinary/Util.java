@@ -172,8 +172,12 @@ public class Util {
         putObject("detection", options, params);
         putObject("similarity_search", options, params);
         putObject("background_removal", options, params);
-        if (options.get("auto_tagging") != null)
+        if (options.get("auto_tagging") != null) {
             params.put("auto_tagging", ObjectUtils.asFloat(options.get("auto_tagging")));
+        }
+        if (options.get("clear_invalid") != null) {
+            params.put("clear_invalid", options.get("clear_invalid"));
+        }
     }
 
     protected static String encodeAccessControl(Object accessControl) {

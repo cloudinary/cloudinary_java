@@ -47,7 +47,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
 
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG}, "public_id", UPLOADER_TEST_PUBLIC_ID, "transformation", "f_jpg"));
-        Map result = cloudinary.uploader().upload(SRC_TEST_VIDEO, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "public_id", "dog", "resource_type", "video"));
+        cloudinary.uploader().upload(SRC_TEST_VIDEO, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "public_id", "dog", "resource_type", "video"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG}, "resource_type", "raw"));
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
                 asMap("tags", new String[]{SDK_TEST_TAG, UPLOADER_TAG, ARCHIVE_TAG},

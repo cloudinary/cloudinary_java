@@ -163,7 +163,7 @@ public class Api {
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
                 ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
                         "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis",
-                        "accessibility_analysis", "versions"), options);
+                        "accessibility_analysis", "versions", "media_metadata"), options);
 
         return response;
     }

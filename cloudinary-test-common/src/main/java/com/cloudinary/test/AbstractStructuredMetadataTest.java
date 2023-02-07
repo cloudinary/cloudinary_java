@@ -6,6 +6,7 @@ import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.BadRequest;
 import com.cloudinary.metadata.*;
 
+import com.cloudinary.utils.ObjectUtils;
 import org.hamcrest.Matchers;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -266,6 +267,15 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         Map result2 = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PRIVATE_PUBLIC_ID}, asMap("type","private"));
         assertNotNull(result);
         assertEquals(PRIVATE_PUBLIC_ID, ((List) result2.get("public_ids")).get(0).toString());
+    }
+
+    @Test
+    public void testUploaderUpdateMetadataClearInvalid() throws Exception {
+        StringMetadataField field = newFieldInstance("testUploaderUpdateMetadata1");
+        ApiResponse fieldResult = addFieldToAccount(field);
+        String fieldId = fieldResult.get("external_id").toString();
+        Map result = cloudinary.uploader().updateMetadata(Collections.<String, Object>singletonMap(fieldId, "123456"), new String[]{PUBLIC_ID}, ObjectUtils.asMap("clear_invalid", true));
+        assertNotNull(result);
     }
 
     @Test

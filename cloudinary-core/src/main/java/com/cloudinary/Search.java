@@ -16,6 +16,8 @@ public class Search {
     private ArrayList<String> withFieldParam;
     private HashMap<String, Object> params;
 
+    private int ttl = 300;
+
     Search(Cloudinary cloudinary) {
         this.api = cloudinary.api();
         this.params = new HashMap<String, Object>();
@@ -77,5 +79,23 @@ public class Search {
     public ApiResponse execute() throws Exception {
         Map<String, String> options = ObjectUtils.asMap("content_type", "json");
         return this.api.callApi(Api.HttpMethod.POST, Arrays.asList("resources", "search"), this.toQuery(), options);
+    }
+
+    /***
+     Creates a signed Search URL that can be used on the client side.
+     ***/
+    public ApiResponse toUrl() throws Exception {
+        String apiSecret = (String) params.get("api_secret");
+        if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
+        if(params.get("ttl") == null) {
+            params.put("ttl", 300);
+        }
+        String nextCursor = (String) params.get("next_cursor");
+        if(nextCursor == null) {
+
+        }
+
+
+
     }
 }

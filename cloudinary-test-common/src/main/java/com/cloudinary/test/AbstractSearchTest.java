@@ -9,7 +9,6 @@ import org.junit.rules.TestName;
 import java.lang.reflect.Field;
 import java.util.*;
 
-import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 

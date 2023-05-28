@@ -9,6 +9,7 @@ import org.junit.rules.TestName;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
@@ -58,6 +59,14 @@ abstract public class AbstractSearchTest extends MockableTest {
         Map result = cloudinary.search().expression(String.format("tags:%s", SEARCH_TAG)).execute();
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(3, resources.size());
+    }
+
+    @Test
+    public void shouldFindFolders() throws Exception {
+        cloudinary.api().createFolder("testFolder", null);
+        Map result = cloudinary.searchFolders().expression(String.format("name:%s","testFolder")).execute();
+        final List<Map> folders = (List<Map>) result.get("folders");
+        assertEquals(1, folders.size());
     }
 
     @Test

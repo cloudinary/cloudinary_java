@@ -822,4 +822,10 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Assert.assertEquals("display_name_test", uploadParams.get("display_name"));
         Assert.assertEquals(true, uploadParams.get("use_asset_folder_as_public_id_prefix"));
     }
+
+//    @Test
+//    public void testUploadWithVisualSearch() throws IOException {
+//        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("visual_search", "true", "tags", Arrays.asList(SDK_TEST_TAG, UPLOADER_TAG)));
+//        assertNotNull(result.get("visual_search"));
+//    }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Search {
 
-    private final Api api;
+    protected final Api api;
     private ArrayList<HashMap<String, Object>> sortByParam;
     private ArrayList<String> aggregateParam;
     private ArrayList<String> withFieldParam;

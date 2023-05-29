@@ -9,6 +9,9 @@ import org.junit.rules.TestName;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 
@@ -19,6 +22,7 @@ abstract public class AbstractSearchTest extends MockableTest {
     private static final String SEARCH_TAG = "search_test_tag_" + SUFFIX;
     public static final String[] UPLOAD_TAGS = {SDK_TEST_TAG, SEARCH_TAG};
     private static final String SEARCH_TEST = "search_test_" + SUFFIX;
+    private static final String SEARCH_FOLDER = "search_folder_" + SUFFIX;
     private static final String SEARCH_TEST_1 = SEARCH_TEST + "_1";
     private static final String SEARCH_TEST_2 = SEARCH_TEST + "_2";
     private static String SEARCH_TEST_ASSET_ID_1;
@@ -44,6 +48,11 @@ abstract public class AbstractSearchTest extends MockableTest {
     public static void tearDownClass() throws Exception {
         Cloudinary cloudinary = new Cloudinary();
         cloudinary.api().deleteResourcesByTag(SEARCH_TAG, null);
+        try {
+            cloudinary.api().deleteFolder(SEARCH_FOLDER, null);
+        } catch (Exception e){
+            System.err.println(e.getMessage());
+        }
     }
 
     @Before
@@ -58,6 +67,14 @@ abstract public class AbstractSearchTest extends MockableTest {
         Map result = cloudinary.search().expression(String.format("tags:%s", SEARCH_TAG)).execute();
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(3, resources.size());
+    }
+
+    @Test
+    public void shouldFindFolders() throws Exception {
+        cloudinary.api().createFolder(SEARCH_FOLDER, null);
+        Map result = cloudinary.searchFolders().expression(String.format("name:%s", SEARCH_FOLDER)).execute();
+        final List<Map> folders = (List) result.get("folders");
+        assertThat(folders, hasItem(hasEntry("name", SEARCH_FOLDER)));
     }
 
     @Test

@@ -51,7 +51,7 @@ abstract public class AbstractSearchTest extends MockableTest {
         try {
             cloudinary.api().deleteFolder(SEARCH_FOLDER, null);
         } catch (Exception e){
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 

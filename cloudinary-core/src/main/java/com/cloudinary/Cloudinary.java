@@ -59,6 +59,10 @@ public class Cloudinary {
         return new Search(this);
     }
 
+    public SearchFolders searchFolders() {
+        return new SearchFolders(this);
+    }
+
     public static void registerUploaderStrategy(String className) {
         if (!UPLOAD_STRATEGIES.contains(className)) {
             UPLOAD_STRATEGIES.add(className);

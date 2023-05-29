@@ -1,5 +1,6 @@
 package com.cloudinary;
 
+import java.io.File;
 import java.util.*;
 
 import com.cloudinary.api.ApiResponse;
@@ -89,6 +90,17 @@ public class Api {
             uri.add(type);
 
         ApiResponse response = callApi(HttpMethod.GET, uri, ObjectUtils.only(options, "next_cursor", "direction", "max_results", "prefix", "tags", "context", "moderations", "start_at", "metadata"), options);
+        return response;
+    }
+
+    public ApiResponse resourcesByVisualSearch(Map options) throws Exception {
+        List<String> uri = new ArrayList<String>();
+        uri.add("resources/visual_search");
+        uri.add("image");
+        if (options.get("text") == null && options.get("image_asset_id") == null && options.get("image_url") == null && options.get("image_file") == null) {
+            throw new IllegalArgumentException("Must supply image file, image url, image asset id or text");
+        }
+        ApiResponse response = callApi(HttpMethod.GET, uri, options, options);
         return response;
     }
 

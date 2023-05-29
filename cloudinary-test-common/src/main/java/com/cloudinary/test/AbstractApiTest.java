@@ -349,6 +349,12 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testResourceByVisualSearch() throws Exception {
+        Map resources = api.resourcesByVisualSearch(ObjectUtils.asMap("text", "hello"));
+        assertEquals(0, resources.size());
+    }
+
+    @Test
     public void test08DeleteDerived() throws Exception {
         // should allow deleting derived resource
         cloudinary.uploader().upload(SRC_TEST_IMAGE,

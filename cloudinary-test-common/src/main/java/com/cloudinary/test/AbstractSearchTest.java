@@ -48,7 +48,11 @@ abstract public class AbstractSearchTest extends MockableTest {
     public static void tearDownClass() throws Exception {
         Cloudinary cloudinary = new Cloudinary();
         cloudinary.api().deleteResourcesByTag(SEARCH_TAG, null);
-        cloudinary.api().deleteFolder(SEARCH_FOLDER, null);
+        try {
+            cloudinary.api().deleteFolder(SEARCH_FOLDER, null);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
     }
 
     @Before

@@ -350,7 +350,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testResourceByVisualSearch() throws Exception {
-        Map resources = api.resourcesByVisualSearch(ObjectUtils.asMap("text", "hello"));
+        Map resources = api.resourcesByVisualSearch(ObjectUtils.asMap("text", VISUAL_SEARCH_TEXT));
         assertEquals(0, resources.size());
     }
 

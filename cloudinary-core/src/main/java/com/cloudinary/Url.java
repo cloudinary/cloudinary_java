@@ -339,7 +339,6 @@ public class Url {
     }
 
     public String generate(String source) {
-
         boolean useRootPath = this.config.useRootPath;
         if (this.useRootPath != null) {
             useRootPath = this.useRootPath;
@@ -405,8 +404,7 @@ public class Url {
         String resourceType = this.resourceType;
         if (resourceType == null) resourceType = "image";
         String finalResourceType = finalizeResourceType(resourceType, type, urlSuffix, useRootPath, config.shorten);
-        String prefix = unsignedDownloadUrlPrefix(source, config.cloudName, config.privateCdn, config.cdnSubdomain, config.secureCdnSubdomain, config.cname, config.secure, config.secureDistribution);
-
+        String prefix = unsignedDownloadUrlPrefix(source, config);
         String join = StringUtils.join(new String[]{prefix, finalResourceType, signature, transformationStr, version, source}, "/");
         String url = StringUtils.mergeSlashesInUrl(join);
 
@@ -507,49 +505,52 @@ public class Url {
         return result;
     }
 
-    public String unsignedDownloadUrlPrefix(String source, String cloudName, boolean privateCdn, boolean cdnSubdomain, Boolean secureCdnSubdomain, String cname, boolean secure, String secureDistribution) {
-        if (this.config.cloudName.startsWith("/")) {
-            return "/res" + this.config.cloudName;
+    public static String unsignedDownloadUrlPrefix(String source, Configuration config) {
+        if (config.cloudName.startsWith("/")) {
+            return "/res" + config.cloudName;
         }
-        boolean sharedDomain = !this.config.privateCdn;
+        boolean sharedDomain = !config.privateCdn;
 
         String prefix;
+        String cloudName;
+        String secureDistribution = config.secureDistribution;
+        Boolean secureCdnSubdomain = null;
 
-        if (this.config.secure) {
-            if (StringUtils.isEmpty(this.config.secureDistribution) || this.config.secureDistribution.equals(Cloudinary.OLD_AKAMAI_SHARED_CDN)) {
-                secureDistribution = this.config.privateCdn ? this.config.cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
+        if (config.secure) {
+            if (StringUtils.isEmpty(config.secureDistribution) || config.secureDistribution.equals(Cloudinary.OLD_AKAMAI_SHARED_CDN)) {
+                secureDistribution = config.privateCdn ? config.cloudName + "-res.cloudinary.com" : Cloudinary.SHARED_CDN;
             }
             if (!sharedDomain) {
                 sharedDomain = secureDistribution.equals(Cloudinary.SHARED_CDN);
             }
 
             if (secureCdnSubdomain == null && sharedDomain) {
-                secureCdnSubdomain = this.config.cdnSubdomain;
+                secureCdnSubdomain = config.cdnSubdomain;
             }
 
             if (secureCdnSubdomain != null && secureCdnSubdomain == true) {
-                secureDistribution = this.config.secureDistribution.replace("res.cloudinary.com", "res-" + shard(source) + ".cloudinary.com");
+                secureDistribution = config.secureDistribution.replace("res.cloudinary.com", "res-" + shard(source) + ".cloudinary.com");
             }
 
             prefix = "https://" + secureDistribution;
-        } else if (StringUtils.isNotBlank(this.config.cname)) {
-            String subdomain = this.config.cdnSubdomain ? "a" + shard(source) + "." : "";
-            prefix = "http://" + subdomain + this.config.cname;
+        } else if (StringUtils.isNotBlank(config.cname)) {
+            String subdomain = config.cdnSubdomain ? "a" + shard(source) + "." : "";
+            prefix = "http://" + subdomain + config.cname;
         } else {
             String protocol = "http://";
-            cloudName = this.config.privateCdn ? this.config.cloudName + "-" : "";
+            cloudName = config.privateCdn ? config.cloudName + "-" : "";
             String res = "res";
-            String subdomain = this.config.cdnSubdomain ? "-" + shard(source) : "";
+            String subdomain = config.cdnSubdomain ? "-" + shard(source) : "";
             String domain = ".cloudinary.com";
             prefix = StringUtils.join(new String[]{protocol, cloudName, res, subdomain, domain}, "");
         }
         if (sharedDomain) {
-            prefix += "/" + this.config.cloudName;
+            prefix += "/" + config.cloudName;
         }
         return prefix;
     }
 
-    private String shard(String input) {
+    private static String shard(String input) {
         CRC32 crc32 = new CRC32();
         crc32.update(Util.getUTF8Bytes(input));
         return String.valueOf((crc32.getValue() % 5 + 5) % 5 + 1);

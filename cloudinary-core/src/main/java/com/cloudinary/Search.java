@@ -1,8 +1,12 @@
 package com.cloudinary;
 
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+import org.cloudinary.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -70,9 +74,15 @@ public class Search {
 
     public HashMap<String, Object> toQuery() {
         HashMap<String, Object> queryParams = new HashMap<String, Object>(this.params);
-        queryParams.put("with_field", withFieldParam);
-        queryParams.put("sort_by", sortByParam);
-        queryParams.put("aggregate", aggregateParam);
+        if (withFieldParam.size() > 0) {
+            queryParams.put("with_field", withFieldParam);
+        }
+        if(sortByParam.size() > 0) {
+            queryParams.put("sort_by", sortByParam);
+        }
+        if(aggregateParam.size() > 0) {
+            queryParams.put("aggregate", aggregateParam);
+        }
         return queryParams;
     }
 
@@ -81,21 +91,29 @@ public class Search {
         return this.api.callApi(Api.HttpMethod.POST, Arrays.asList("resources", "search"), this.toQuery(), options);
     }
 
+
+    public String toUrl() throws Exception {
+        return toUrl(null);
+    }
     /***
      Creates a signed Search URL that can be used on the client side.
      ***/
-    public ApiResponse toUrl() throws Exception {
-        String apiSecret = (String) params.get("api_secret");
+    public String toUrl(Map options) throws Exception {
+        if(options == null) { options = ObjectUtils.asMap(); }
+        String apiSecret = options.get("api_secret") != null ? (String) options.get("api_secret") : api.cloudinary.config.apiSecret;
         if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
-        if(params.get("ttl") == null) {
-            params.put("ttl", 300);
+        if(options.get("ttl") == null) {
+            options.put("ttl", 300);
+        } else {
+            ttl = (int) options.get("ttl");
         }
-        String nextCursor = (String) params.get("next_cursor");
-        if(nextCursor == null) {
+        String nextCursor = (String) options.get("next_cursor");
+        JSONObject json = ObjectUtils.toJSON(toQuery());
+        String base64Query = Base64Coder.encodeURLSafeString(json.toString());
+        String signature = StringUtils.encodeHexString(Util.hash(String.format("%d%s%s", ttl, base64Query, apiSecret), SignatureAlgorithm.SHA256));
+        String source = options.get("source") != null ? (String) options.get("source") : "";
+        String prefix = Url.unsignedDownloadUrlPrefix(source,api.cloudinary.config);
 
-        }
-
-
-
+        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursor != null ? nextCursor : "");
     }
 }

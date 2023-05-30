@@ -1,6 +1,7 @@
 package com.cloudinary.test;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.Configuration;
 import com.cloudinary.Search;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
@@ -152,7 +153,22 @@ abstract public class AbstractSearchTest extends MockableTest {
         assertEquals(3, result.get("total_count"));
         assertEquals(SEARCH_TEST_2, resources.get(0).get("public_id"));
         assertNull(result.get("next_cursor"));
+    }
 
+    @Test
+    public void testShouldBuildSearchUrl() throws Exception {
+        String nextCursor = "db27cfb02b3f69cb39049969c23ca430c6d33d5a3a7c3ad1d870c54e1a54ee0faa5acdd9f6d288666986001711759d10";
+        Cloudinary cloudinaryToSearch = new Cloudinary("cloudinary://key:secret@test123");
+        cloudinaryToSearch.config.secure = true;
+        Search search = cloudinaryToSearch.search().expression("resource_type:image AND tags=kitten AND uploaded_at>1d AND bytes>1m").sortBy("public_id", "desc").maxResults(30);
+        String base64Query = "eyJleHByZXNzaW9uIjoicmVzb3VyY2VfdHlwZTppbWFnZSBBTkQgdGFncz1raXR0ZW4gQU5EIHVwbG9hZGVkX2F0PjFkIEFORCBieXRlcz4xbSIsIm1heF9yZXN1bHRzIjozMCwic29ydF9ieSI6W3sicHVibGljX2lkIjoiZGVzYyJ9XX0=";
+        String ttl300Signature = "431454b74cefa342e2f03e2d589b2e901babb8db6e6b149abf25bc0dd7ab20b7";
+        String ttl1000Signature = "25b91426a37d4f633a9b34383c63889ff8952e7ffecef29a17d600eeb3db0db7";
 
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl());
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query, nextCursor), search.toUrl(ObjectUtils.asMap("next_cursor", nextCursor)));
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s%s", cloudinaryToSearch.config.cloudName, ttl1000Signature, 1000, base64Query, nextCursor), search.toUrl(ObjectUtils.asMap("next_cursor", nextCursor, "ttl", 1000)));
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl(ObjectUtils.asMap( "ttl", 300, "private_cdn", "true")));
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl(ObjectUtils.asMap("next_cursor", "", "ttl", 300, "private_cdn", "true")));
     }
 }

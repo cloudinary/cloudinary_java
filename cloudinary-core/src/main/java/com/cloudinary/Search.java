@@ -30,6 +30,10 @@ public class Search {
         this.withFieldParam = new ArrayList<String>();
     }
 
+    public Search ttl(int ttl) {
+        this.ttl = ttl;
+        return this;
+    }
     public Search expression(String value) {
         this.params.put("expression", value);
         return this;
@@ -93,27 +97,32 @@ public class Search {
 
 
     public String toUrl() throws Exception {
-        return toUrl(null);
+        return toUrl(null, null);
+    }
+
+    public String toUrl(String nextCursor) throws Exception {
+        return toUrl(null, nextCursor);
     }
     /***
      Creates a signed Search URL that can be used on the client side.
      ***/
-    public String toUrl(Map options) throws Exception {
-        if(options == null) { options = ObjectUtils.asMap(); }
-        String apiSecret = options.get("api_secret") != null ? (String) options.get("api_secret") : api.cloudinary.config.apiSecret;
+    public String toUrl(Integer ttl, String nextCursor) throws Exception {
+        String nextCursorParam = nextCursor;
+        String apiSecret = api.cloudinary.config.apiSecret;
         if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
-        if(options.get("ttl") == null) {
-            options.put("ttl", 300);
-        } else {
-            ttl = (int) options.get("ttl");
+        if(ttl == null) {
+            ttl = this.ttl;
         }
-        String nextCursor = (String) options.get("next_cursor");
-        JSONObject json = ObjectUtils.toJSON(toQuery());
+        HashMap queryParams = toQuery();
+        if(nextCursorParam == null) {
+            nextCursorParam = (String) queryParams.get("next_cursor");
+        }
+        queryParams.remove("next_cursor");
+        JSONObject json = ObjectUtils.toJSON(queryParams);
         String base64Query = Base64Coder.encodeURLSafeString(json.toString());
         String signature = StringUtils.encodeHexString(Util.hash(String.format("%d%s%s", ttl, base64Query, apiSecret), SignatureAlgorithm.SHA256));
-        String source = options.get("source") != null ? (String) options.get("source") : "";
-        String prefix = Url.unsignedDownloadUrlPrefix(source,api.cloudinary.config);
+        String prefix = Url.unsignedDownloadUrlPrefix(null,api.cloudinary.config);
 
-        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursor != null ? nextCursor : "");
+        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursorParam != null ? nextCursorParam : "");
     }
 }

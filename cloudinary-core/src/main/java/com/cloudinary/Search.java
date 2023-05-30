@@ -123,6 +123,6 @@ public class Search {
         String signature = StringUtils.encodeHexString(Util.hash(String.format("%d%s%s", ttl, base64Query, apiSecret), SignatureAlgorithm.SHA256));
         String prefix = Url.unsignedDownloadUrlPrefix(null,api.cloudinary.config);
 
-        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursorParam != null ? nextCursorParam : "");
+        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursorParam != null && !nextCursorParam.isEmpty() ? "/"+nextCursorParam : "");
     }
 }

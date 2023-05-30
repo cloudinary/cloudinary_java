@@ -167,8 +167,8 @@ abstract public class AbstractSearchTest extends MockableTest {
         String ttl1000Signature = "25b91426a37d4f633a9b34383c63889ff8952e7ffecef29a17d600eeb3db0db7";
 
         assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl());
-        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query, nextCursor), search.toUrl(nextCursor));
-        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s%s", cloudinaryToSearch.config.cloudName, ttl1000Signature, 1000, base64Query, nextCursor), search.toUrl(1000, nextCursor));
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query, nextCursor), search.toUrl(nextCursor));
+        assertEquals(String.format("https://res.cloudinary.com/%s/search/%s/%d/%s/%s", cloudinaryToSearch.config.cloudName, ttl1000Signature, 1000, base64Query, nextCursor), search.toUrl(1000, nextCursor));
         cloudinaryToSearch.config.privateCdn = true;
         assertEquals(String.format("https://%s-res.cloudinary.com/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl(300, ""));
     }

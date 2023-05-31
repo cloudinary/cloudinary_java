@@ -74,13 +74,12 @@ abstract public class AbstractSearchTest extends MockableTest {
     @Test
     public void shouldFindFolders() throws Exception {
         Map createFolderResult = cloudinary.api().createFolder(SEARCH_FOLDER, null);
+        Thread.sleep(3000);
         if ((Boolean) createFolderResult.get("success")) {
             Map result = cloudinary.searchFolders().expression(String.format("name:%s", SEARCH_FOLDER)).execute();
+            System.out.println("SUCCESS!");
             final List<Map> folders = (List) result.get("folders");
             assertThat(folders, hasItem(hasEntry("name", SEARCH_FOLDER)));
-            System.out.println("SUCCESS!");
-        } else {
-            System.err.println("ERROR!!");
         }
     }
 

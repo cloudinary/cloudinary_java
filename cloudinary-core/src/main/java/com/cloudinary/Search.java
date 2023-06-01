@@ -1,8 +1,12 @@
 package com.cloudinary;
 
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+import org.cloudinary.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,6 +20,8 @@ public class Search {
     private ArrayList<String> withFieldParam;
     private HashMap<String, Object> params;
 
+    private int ttl = 300;
+
     Search(Cloudinary cloudinary) {
         this.api = cloudinary.api();
         this.params = new HashMap<String, Object>();
@@ -24,6 +30,10 @@ public class Search {
         this.withFieldParam = new ArrayList<String>();
     }
 
+    public Search ttl(int ttl) {
+        this.ttl = ttl;
+        return this;
+    }
     public Search expression(String value) {
         this.params.put("expression", value);
         return this;
@@ -68,14 +78,51 @@ public class Search {
 
     public HashMap<String, Object> toQuery() {
         HashMap<String, Object> queryParams = new HashMap<String, Object>(this.params);
-        queryParams.put("with_field", withFieldParam);
-        queryParams.put("sort_by", sortByParam);
-        queryParams.put("aggregate", aggregateParam);
+        if (withFieldParam.size() > 0) {
+            queryParams.put("with_field", withFieldParam);
+        }
+        if(sortByParam.size() > 0) {
+            queryParams.put("sort_by", sortByParam);
+        }
+        if(aggregateParam.size() > 0) {
+            queryParams.put("aggregate", aggregateParam);
+        }
         return queryParams;
     }
 
     public ApiResponse execute() throws Exception {
         Map<String, String> options = ObjectUtils.asMap("content_type", "json");
         return this.api.callApi(Api.HttpMethod.POST, Arrays.asList("resources", "search"), this.toQuery(), options);
+    }
+
+
+    public String toUrl() throws Exception {
+        return toUrl(null, null);
+    }
+
+    public String toUrl(String nextCursor) throws Exception {
+        return toUrl(null, nextCursor);
+    }
+    /***
+     Creates a signed Search URL that can be used on the client side.
+     ***/
+    public String toUrl(Integer ttl, String nextCursor) throws Exception {
+        String nextCursorParam = nextCursor;
+        String apiSecret = api.cloudinary.config.apiSecret;
+        if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
+        if(ttl == null) {
+            ttl = this.ttl;
+        }
+        HashMap queryParams = toQuery();
+        if(nextCursorParam == null) {
+            nextCursorParam = (String) queryParams.get("next_cursor");
+        }
+        queryParams.remove("next_cursor");
+        JSONObject json = ObjectUtils.toJSON(queryParams);
+        String base64Query = Base64Coder.encodeURLSafeString(json.toString());
+        String signature = StringUtils.encodeHexString(Util.hash(String.format("%d%s%s", ttl, base64Query, apiSecret), SignatureAlgorithm.SHA256));
+        String prefix = Url.unsignedDownloadUrlPrefix(null,api.cloudinary.config);
+
+        return String.format("%s/search/%s/%d/%s%s", prefix, signature, ttl, base64Query,nextCursorParam != null && !nextCursorParam.isEmpty() ? "/"+nextCursorParam : "");
     }
 }

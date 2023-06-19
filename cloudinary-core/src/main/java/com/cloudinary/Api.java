@@ -1,6 +1,5 @@
 package com.cloudinary;
 
-import java.io.File;
 import java.util.*;
 
 import com.cloudinary.api.ApiResponse;

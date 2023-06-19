@@ -349,12 +349,6 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testResourceByVisualSearch() throws Exception {
-        Map resources = api.resourcesByVisualSearch(ObjectUtils.asMap("text", VISUAL_SEARCH_TEXT));
-        assertEquals(0, resources.size());
-    }
-
-    @Test
     public void test08DeleteDerived() throws Exception {
         // should allow deleting derived resource
         cloudinary.uploader().upload(SRC_TEST_IMAGE,
@@ -1227,5 +1221,15 @@ abstract public class AbstractApiTest extends MockableTest {
         Util.processWriteParameters(options, params);
         assertEquals("new_asset_folder", params.get("asset_folder"));
         assertEquals(true, params.get("unique_display_name"));
+    }
+
+    @Test
+    public void testVisualSearch() {
+        //TODO: Need to build a unit testing infrastructure
+        Map params = new HashMap<String, Object>();
+        Map options = asMap(
+                "visual_search", true);
+        Util.processWriteParameters(options, params);
+        assertEquals(true, params.get("visual_search"));
     }
 }

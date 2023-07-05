@@ -1222,4 +1222,14 @@ abstract public class AbstractApiTest extends MockableTest {
         assertEquals("new_asset_folder", params.get("asset_folder"));
         assertEquals(true, params.get("unique_display_name"));
     }
+
+    @Test
+    public void testVisualSearch() {
+        //TODO: Need to build a unit testing infrastructure
+        Map params = new HashMap<String, Object>();
+        Map options = asMap(
+                "visual_search", true);
+        Util.processWriteParameters(options, params);
+        assertEquals(true, params.get("visual_search"));
+    }
 }

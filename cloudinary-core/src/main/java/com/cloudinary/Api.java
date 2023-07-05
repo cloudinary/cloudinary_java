@@ -92,6 +92,17 @@ public class Api {
         return response;
     }
 
+    public ApiResponse visualSearch(Map options) throws Exception {
+        List<String> uri = new ArrayList<String>();
+        uri.add("resources/visual_search");
+        uri.add("image");
+        if (options.get("text") == null && options.get("image_asset_id") == null && options.get("image_url") == null) {
+            throw new IllegalArgumentException("Must supply image file, image url, image asset id or text");
+        }
+        ApiResponse response = callApi(HttpMethod.GET, uri, options, options);
+        return response;
+    }
+
     public ApiResponse resourcesByTag(String tag, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");

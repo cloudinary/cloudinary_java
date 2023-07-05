@@ -92,7 +92,7 @@ public class Api {
         return response;
     }
 
-    public ApiResponse resourcesByVisualSearch(Map options) throws Exception {
+    public ApiResponse visulSearch(Map options) throws Exception {
         List<String> uri = new ArrayList<String>();
         uri.add("resources/visual_search");
         uri.add("image");

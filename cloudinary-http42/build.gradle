@@ -16,10 +16,9 @@ task ciTest( type: Test ) {
 test {
     if(!project.hasProperty("CLOUDINARY_ACCOUNT_URL")) {
         exclude '**/AccountApiTest.class'
+        exclude '**/AbstractAccountApiTest.class'
+        exclude '**/AbstractAccountApiTest.java'
         println "skipping provisioning tests!"
-    } else {
-        println "Cloudinary account url found"
-        printlin project.property("CLOUDINARY_ACCOUNT_URL")
     }
 }
 

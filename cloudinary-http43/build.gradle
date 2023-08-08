@@ -10,8 +10,9 @@ apply from: "../java_shared.gradle"
 task ciTest( type: Test ) {
     useJUnit {
         excludeCategories 'com.cloudinary.test.TimeoutTest'
+        excludeCategories 'com.cloudinary.test.AbstractAccountApiTest'
     }
-    excludeClassNamePatterns '.*AccountApiTest.*'
+    exclude '.*AccountApiTest.*'
     println "skipping provisioning tests!"
 }
 

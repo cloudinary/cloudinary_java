@@ -13,12 +13,6 @@ task ciTest( type: Test ) {
     }
 }
 
-test {
-    if(!project.hasProperty("CLOUDINARY_ACCOUNT_URL")) {
-        exclude '**/AccountApiTest.class'
-    }
-}
-
 dependencies {
     compile project(':cloudinary-core')
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'

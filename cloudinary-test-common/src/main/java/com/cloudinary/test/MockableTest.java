@@ -69,4 +69,10 @@ public class MockableTest {
         List<String> sdkFeaturesList = Arrays.asList(sdkFeatures.split(","));
         return sdkFeatures.contains(feature.toLowerCase()) || (sdkFeaturesList.size() == 1 && sdkFeaturesList.get(0).equalsIgnoreCase(Feature.ALL));
     }
+
+    static protected boolean assumeCloudinaryAccountURLExist() {
+        String cloudinaryAccountUrl = System.getProperty("CLOUDINARY_ACCOUNT_URL", System.getenv("CLOUDINARY_ACCOUNT_URL"));
+        assumeTrue(String.format("Use CLOUDINARY_ACCOUNT_URL environment variable to enable tests"), cloudinaryAccountUrl != null);
+        return cloudinaryAccountUrl != null;
+    }
 }

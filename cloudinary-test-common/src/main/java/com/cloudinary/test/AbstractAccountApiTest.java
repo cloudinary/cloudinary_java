@@ -24,8 +24,6 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     private static Set<String> createdUserIds = new HashSet<String>();
     private static Set<String> createdGroupIds = new HashSet<String>();
 
-    boolean shouldRunTests = false;
-
     @BeforeClass
     public static void setUpClass() {
 

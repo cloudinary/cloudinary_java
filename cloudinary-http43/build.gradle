@@ -10,6 +10,9 @@ apply from: "../java_shared.gradle"
 task ciTest( type: Test ) {
     useJUnit {
         excludeCategories 'com.cloudinary.test.TimeoutTest'
+        if (System.getProperty("CLOUDINARY_ACCOUNT_URL") == "") {
+            exclude '**/AccountApiTest.class'
+        }
     }
 }
 

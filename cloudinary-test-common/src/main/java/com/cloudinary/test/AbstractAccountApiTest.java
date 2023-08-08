@@ -15,6 +15,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 public abstract class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();
@@ -35,12 +36,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Before
     public void setUp() throws Exception {
+        assumeCloudinaryAccountURLExist();
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
         this.account = new Account(new Cloudinary());
     }
 
     @AfterClass
     public static void tearDownClass() {
+        assumeCloudinaryAccountURLExist();
         System.out.println("Start TearDownClass");
         Account account = new Account(new Cloudinary());
         for (String createdSubAccountId : createdSubAccountIds) {
@@ -71,6 +74,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testPassingCredentialsThroughOptions() throws Exception {
+        assumeCloudinaryAccountURLExist();
         int exceptions = 0;
 
         Map<String, Object> map = singletonMap("provisioning_api_secret", new Object()) ;
@@ -104,6 +108,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     // Sub accounts tests
     @Test
     public void testGetSubAccount() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse accountResponse = createSubAccount();
         ApiResponse account = this.account.subAccount(accountResponse.get("id").toString(), null);
         assertNotNull(account);
@@ -111,6 +116,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetSubAccounts() throws Exception {
+        assumeCloudinaryAccountURLExist();
         createSubAccount();
         ApiResponse accounts = account.subAccounts(null, null, null, null);
         assertNotNull(accounts);
@@ -119,6 +125,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testCreateSubAccount() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse result = createSubAccount();
         assertNotNull(result);
 
@@ -135,6 +142,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testUpdateSubAccount() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse subAccount = createSubAccount();
         String newCloudName = randomLetters();
         ApiResponse result = account.updateSubAccount(subAccount.get("id").toString(), null, newCloudName, Collections.<String, String>emptyMap(), null, null);
@@ -144,6 +152,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testDeleteSubAccount() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse createResult = createSubAccount();
         String id = createResult.get("id").toString();
         ApiResponse result = account.deleteSubAccount(id, null);
@@ -155,6 +164,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     // Users test
     @Test
     public void testGetUser() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser();
         String userId = user.get("id").toString();
         ApiResponse result = account.user(userId, null);
@@ -165,6 +175,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsers() throws Exception {
+        assumeCloudinaryAccountURLExist();
         String user1Id = createUser(Account.Role.MASTER_ADMIN).get("id").toString();
         String user2Id = createUser(Account.Role.MASTER_ADMIN).get("id").toString();
         ApiResponse result = account.users(null, Arrays.asList(user1Id, user2Id), null, null, null);
@@ -185,6 +196,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetPendingUsers() throws Exception {
+        assumeCloudinaryAccountURLExist();
         String id = createUser(Account.Role.BILLING).get("id").toString();
 
         ApiResponse pending = account.users(true, Collections.singletonList(id), null, null, null);
@@ -199,6 +211,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsersByPrefix() throws Exception {
+        assumeCloudinaryAccountURLExist();
         final long timeMillis = System.currentTimeMillis();
         final String userName = String.format("SDK TEST Get Users By Prefix %d", timeMillis);
         final String userEmail = String.format("sdk-test-get-users-by-prefix+%d@cloudinary.com", timeMillis);
@@ -217,6 +230,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsersBySubAccountIds() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse subAccount = createSubAccount();
         final String subAccountId = subAccount.get("id").toString();
 
@@ -235,6 +249,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetUsersThrowsWhenSubAccountIdDoesntExist() throws Exception {
+        assumeCloudinaryAccountURLExist();
         final String subAccountId = randomLetters();
         expectedException.expectMessage("Cannot find sub account with id " + subAccountId);
         account.users(true, null, null, subAccountId, null);
@@ -242,6 +257,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testCreateUser() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse createResult = createSubAccount();
         ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()));
         assertNotNull(result);
@@ -249,6 +265,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testCreateUserWithOptions() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse createResult = createSubAccount();
         ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), ObjectUtils.emptyMap());
         assertNotNull(result);
@@ -256,6 +273,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testCreateUserEnabled() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse createResult = createSubAccount();
         ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), true);
         assertTrue((Boolean) result.get("enabled"));
@@ -263,6 +281,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testCreateUserDisabled() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse createResult = createSubAccount();
         ApiResponse result = createUser(Collections.singletonList(createResult.get("id").toString()), false);
         assertFalse((Boolean) result.get("enabled"));
@@ -270,6 +289,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testUpdateUser() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser(Account.Role.ADMIN);
         String userId = user.get("id").toString();
         String newName = randomLetters();
@@ -282,6 +302,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testUpdateUserEnabled() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser(Account.Role.ADMIN);
         String userId = user.get("id").toString();
         String newName = randomLetters();
@@ -294,6 +315,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testUpdateUserDisabled() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser(Account.Role.ADMIN);
         String userId = user.get("id").toString();
         String newName = randomLetters();
@@ -306,6 +328,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testDeleteUser() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser(Collections.<String>emptyList());
         String id = user.get("id").toString();
         ApiResponse result = account.deleteUser(id, null);
@@ -316,12 +339,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     // groups
     @Test
     public void testCreateUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse group = createGroup();
         assertNotNull(group);
     }
 
     @Test
     public void testUpdateUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse group = createGroup();
         String newName = randomLetters();
         ApiResponse result = account.updateUserGroup(group.get("id").toString(), newName, null);
@@ -330,6 +355,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testDeleteUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse group = createGroup();
         String id = group.get("id").toString();
         ApiResponse result = account.deleteUserGroup(id, null);
@@ -340,6 +366,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testAddUserToUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser();
         ApiResponse group = createGroup();
         String userId = user.get("id").toString();
@@ -350,6 +377,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testRemoveUserFromUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = createUser(Account.Role.MEDIA_LIBRARY_ADMIN);
         ApiResponse group = createGroup();
         String groupId = group.get("id").toString();
@@ -362,6 +390,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testListUserGroups() throws Exception {
+        assumeCloudinaryAccountURLExist();
         createGroup();
         ApiResponse result = account.userGroups();
         assertNotNull(result);
@@ -370,6 +399,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testListUserGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse group = createGroup();
         ApiResponse result = account.userGroup(group.get("id").toString(), null);
         assertNotNull(result);
@@ -377,6 +407,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testListUsersInGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user1 = createUser();
         ApiResponse user2 = createUser();
         ApiResponse group = createGroup();
@@ -395,6 +426,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     // Helpers
     private ApiResponse createGroup() throws Exception {
+        assumeCloudinaryAccountURLExist();
         String name = randomLetters();
         ApiResponse userGroup = account.createUserGroup(name);
         createdGroupIds.add(userGroup.get("id").toString());
@@ -402,31 +434,38 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     private ApiResponse createUser() throws Exception {
+        assumeCloudinaryAccountURLExist();
         return createUser(Collections.<String>emptyList());
     }
 
     private ApiResponse createUser(Account.Role role) throws Exception {
+        assumeCloudinaryAccountURLExist();
         return createUser(Collections.<String>emptyList(), role);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds) throws Exception {
+        assumeCloudinaryAccountURLExist();
         return createUser(subAccountsIds, Account.Role.BILLING);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Map<String, Object> options) throws Exception {
+        assumeCloudinaryAccountURLExist();
         return createUser(subAccountsIds, Account.Role.BILLING, options);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Boolean enabled) throws Exception {
+        assumeCloudinaryAccountURLExist();
         return createUser(subAccountsIds, Account.Role.BILLING, enabled);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role) throws Exception {
+        assumeCloudinaryAccountURLExist();
         String email = "sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com";
         return createUser("TestName", email, role, subAccountsIds);
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Map<String, Object> options) throws Exception {
+        assumeCloudinaryAccountURLExist();
         String email = "sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com";
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, null, subAccountsIds, options);
         createdUserIds.add(user.get("id").toString());
@@ -434,6 +473,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     private ApiResponse createUser(List<String> subAccountsIds, Account.Role role, Boolean enabled) throws Exception {
+        assumeCloudinaryAccountURLExist();
         String email = "sdk+" + SDK_TEST_TAG + randomLetters() + "@cloudinary.com";
         ApiResponse user = account.createUser("TestUserJava"+new Date().toString(), email, role, enabled, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
@@ -441,12 +481,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     private ApiResponse createUser(final String name, String email, Account.Role role, List<String> subAccountsIds) throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse user = account.createUser(name, email, role, subAccountsIds, null);
         createdUserIds.add(user.get("id").toString());
         return user;
     }
 
     private void deleteUser(String userId){
+        assumeCloudinaryAccountURLExist();
         try {
             account.deleteUser(userId, null);
             createdUserIds.remove(userId);
@@ -457,12 +499,14 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
 
     private ApiResponse createSubAccount() throws Exception {
+        assumeCloudinaryAccountURLExist();
         ApiResponse subAccount = account.createSubAccount(randomLetters(), null, emptyMap(), true, null);
         createdSubAccountIds.add(subAccount.get("id").toString());
         return subAccount;
     }
 
     private static String randomLetters() {
+        assumeCloudinaryAccountURLExist();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 10; i++) {
             sb.append((char) ('a' + rand.nextInt('z' - 'a' + 1)));

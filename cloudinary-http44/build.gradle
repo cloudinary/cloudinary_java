@@ -11,14 +11,8 @@ task ciTest( type: Test ) {
     useJUnit {
         excludeCategories 'com.cloudinary.test.TimeoutTest'
     }
-    test {
-        if(!project.hasProperty("CLOUDINARY_ACCOUNT_URL")) {
-            exclude '**/AccountApiTest.class'
-            exclude '**/AbstractAccountApiTest.class'
-            exclude '**/AbstractAccountApiTest.java'
-            println "skipping provisioning tests!"
-        }
-    }
+    excludeClassNamePatterns '.*AccountApiTest.*'
+    println "skipping provisioning tests!"
 }
 
 test {
@@ -26,7 +20,7 @@ test {
         exclude '**/AccountApiTest.class'
         exclude '**/AbstractAccountApiTest.class'
         exclude '**/AbstractAccountApiTest.java'
-        println "skipping provisioning tests!"
+        println "skipping provisioning tests!1"
     }
 }
 

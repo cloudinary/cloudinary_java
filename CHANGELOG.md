@@ -1,3 +1,14 @@
+
+1.34.0 / 2023-08-08
+===================
+
+  * Add visual search support
+  * Add `toUrl() to Search API
+  * Add Search folders functionality
+  * Update Hyper SQL version
+  * Add support for `media_metadata` parameter
+  * Add support for `clear_invalid` parameter
+
 1.33.0 / 2022-09-12
 ==================
 

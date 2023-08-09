@@ -39,7 +39,7 @@ public class Util {
         params.put("public_id_prefix", (String) options.get("public_id_prefix"));
         params.put("asset_folder", (String) options.get("asset_folder"));
         params.put("display_name", (String) options.get("display_name"));
-        
+        params.put("on_success", (String) options.get("on_success"));
         Object responsive_breakpoints = options.get("responsive_breakpoints");
         if (responsive_breakpoints != null) {
             params.put("responsive_breakpoints", JSONObject.wrap(responsive_breakpoints));

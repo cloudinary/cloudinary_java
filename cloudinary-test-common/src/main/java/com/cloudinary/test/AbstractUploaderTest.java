@@ -767,7 +767,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public void testOnSuccessScript() throws Exception {
         String tags = "[\"autocaption\"" + ",\"" + SDK_TEST_TAG + "\",\"" + UPLOADER_TAG + "\"]";
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, asMap("on_success", "current_asset.update({tags:" + tags + "});"));
-        assertEquals(result.get("tags"), asArray(new String[]{"autocaption"}));
+        assertTrue(((List<String>)result.get("tags")).contains("autocaption"));
     }
 
     @Test

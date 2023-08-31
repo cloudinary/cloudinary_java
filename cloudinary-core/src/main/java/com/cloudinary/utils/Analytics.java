@@ -8,18 +8,23 @@ import java.util.List;
 public class Analytics {
     private String sdkTokenQueryKey = "_a"; //sdkTokenQueryKey
     private String sdkQueryDelimiter = "=";
-    public String algoVersion = "A";
+    public String algoVersion = "C";
+    public String prodcut = "A";
     public String SDKCode = ""; // Java = G, Android = F
     public String SDKSemver = ""; // Calculate the SDK version .
     public String techVersion = ""; // Calculate the Java version.
+    public String osType;
+    public String osVersion;
 
     public Analytics() {
-        this("G", Cloudinary.VERSION,System.getProperty("java.version"));
+        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "TODO::");
     }
-    public Analytics(String sdkCode, String sdkVersion, String techVersion) {
+    public Analytics(String sdkCode, String sdkVersion, String techVersion, String osType, String osVersion) {
         this.SDKCode = sdkCode;
         this.SDKSemver = sdkVersion;
         this.techVersion = techVersion;
+        this.osType = osType;
+        this.osVersion = osVersion;
     }
 
     public Analytics setSDKCode(String SDKCode) {
@@ -43,7 +48,7 @@ public class Analytics {
      */
     public String toQueryParam() {
         try {
-            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + getSDKType() + getSDKVersion() + getTechVersion() + getSDKFeatureCode();
+            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + prodcut + getSDKType() + getSDKVersion() + getTechVersion() + getOsType() + getOsVersion() + getSDKFeatureCode();
         } catch (Exception e) {
             return sdkTokenQueryKey + sdkQueryDelimiter + "E";
         }
@@ -52,10 +57,23 @@ public class Analytics {
     private String getTechVersion() throws Exception {
         String[] techVersionString = techVersion.split("_");
         String[] versions = techVersionString[0].split("\\.");
+        return versionArrayToString(versions);
+    }
+
+    private String versionArrayToString(String[] versions) throws Exception {
         if (versions.length > 2) {
             versions = Arrays.copyOf(versions, versions.length - 1);
         }
         return getPaddedString(StringUtils.join(versions, "."));
+    }
+
+    private String getOsType() {
+        return osType; //System.getProperty("os.name");
+    }
+
+    private String getOsVersion() throws Exception {
+        String version = versionArrayToString(System.getProperty("os.version").split("\\."));
+        return version;
     }
 
     private String getSDKType() {
@@ -63,7 +81,7 @@ public class Analytics {
     }
 
     private String getAlgorithmVersion() {
-        return "A";
+        return algoVersion;
     }
 
     private String getSDKFeatureCode() {

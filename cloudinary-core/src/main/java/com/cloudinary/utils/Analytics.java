@@ -17,7 +17,7 @@ public class Analytics {
     public String osVersion;
 
     public Analytics() {
-        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "TODO::");
+        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "0.0");
     }
     public Analytics(String sdkCode, String sdkVersion, String techVersion, String osType, String osVersion) {
         this.SDKCode = sdkCode;
@@ -68,12 +68,11 @@ public class Analytics {
     }
 
     private String getOsType() {
-        return osType; //System.getProperty("os.name");
+        return (osType != null) ? osType : "Z"; //System.getProperty("os.name");
     }
 
     private String getOsVersion() throws Exception {
-        String version = versionArrayToString(System.getProperty("os.version").split("\\."));
-        return version;
+        return (osVersion != null) ? versionArrayToString(osVersion.split("\\.")) : versionArrayToString(System.getProperty("os.version").split("\\."));
     }
 
     private String getSDKType() {

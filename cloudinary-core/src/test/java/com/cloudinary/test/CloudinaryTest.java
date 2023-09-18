@@ -1257,7 +1257,9 @@ public class CloudinaryTest {
                 new FetchLayer().url("https://test").resourceType("image"),
                 "fetch:aHR0cHM6Ly90ZXN0",
                 new FetchLayer().url("https://test"),
-                "fetch:aHR0cHM6Ly90ZXN0"};
+                "fetch:aHR0cHM6Ly90ZXN0",
+                new FetchLayer().url("https://test").resourceType("video"),
+                "video:fetch:aHR0cHM6Ly90ZXN0"};
 
         for (int i = 0; i < tests.length; i += 2) {
             Object layer = tests[i];

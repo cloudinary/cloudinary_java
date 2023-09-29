@@ -44,9 +44,9 @@ Alternatively, download cloudinary_java from [here](https://repo1.maven.org/mave
 and see [build.gradle](https://github.com/cloudinary/cloudinary_java/blob/master/cloudinary-http45/build.gradle) for library dependencies.
 
 Different variants of the cloudinary_java library based on previous versions of Apache HTTP library are available as well:
-* **cloudinary-http44** - Cloudinary Apache HTTP 4.4 Library
-* **cloudinary-http43** - Cloudinary Apache HTTP 4.3 Library
-* **cloudinary-http42** - Cloudinary Apache HTTP 4.2 Library
+* cloudinary-http44 - Cloudinary Apache HTTP 4.4 Library
+* cloudinary-http43 - Cloudinary Apache HTTP 4.3 Library
+* cloudinary-http42 - Cloudinary Apache HTTP 4.2 Library
 
 ## Usage
 ### Setup

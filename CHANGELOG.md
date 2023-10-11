@@ -1,3 +1,8 @@
+1.35.0 / 2023-10-11
+===================
+
+  * Update analytics token
+  * Add support for `on_success` upload parameter
 
 1.34.0 / 2023-08-08
 ===================

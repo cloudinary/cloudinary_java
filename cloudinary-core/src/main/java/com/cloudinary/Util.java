@@ -166,6 +166,9 @@ public class Util {
         if (options.get("unique_display_name") != null) {
             params.put("unique_display_name", options.get("unique_display_name"));
         }
+        if (options.get("display_name") != null) {
+            params.put("display_name", options.get("display_name"));
+        }
         putObject("ocr", options, params);
         putObject("raw_convert", options, params);
         putObject("categorization", options, params);

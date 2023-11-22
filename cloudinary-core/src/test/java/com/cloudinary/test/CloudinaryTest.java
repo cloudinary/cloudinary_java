@@ -493,6 +493,13 @@ public class CloudinaryTest {
     }
 
     @Test
+    public void testUseFetchFormat() {
+        // should support use fetch format, adds the format but not an extension
+        String result = cloudinary.url().format("jpg").useFetchFormat(true).generate("old_logo");
+        assertEquals("http://res.cloudinary.com/test123/image/upload/f_jpg/old_logo", result);
+    }
+
+    @Test
     public void testEffect() {
         // should support effect
         Transformation transformation = new Transformation().effect("sepia");

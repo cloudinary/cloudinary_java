@@ -35,6 +35,7 @@ public class Url {
     String source = null;
     private String urlSuffix;
     private Boolean useRootPath;
+    private Boolean useFetchFormat;
     Map<String, Transformation> sourceTransformation = null;
     String[] sourceTypes = null;
     String fallbackContent = null;
@@ -76,6 +77,7 @@ public class Url {
         cloned.sourceTypes = this.sourceTypes;
         cloned.urlSuffix = this.urlSuffix;
         cloned.useRootPath = this.useRootPath;
+        cloned.useFetchFormat = this.useFetchFormat;
         cloned.longUrlSignature = this.longUrlSignature;
         cloned.authToken = this.authToken;
         return cloned;
@@ -169,6 +171,11 @@ public class Url {
 
     public Url useRootPath(boolean useRootPath) {
         this.useRootPath = useRootPath;
+        return this;
+    }
+
+    public Url useFetchFormat(boolean useFetchFormat) {
+        this.useFetchFormat = useFetchFormat;
         return this;
     }
 
@@ -366,7 +373,7 @@ public class Url {
             }
         }
 
-        if (type != null && type.equals("fetch") && !StringUtils.isEmpty(format)) {
+        if ((type != null && type.equals("fetch") || (useFetchFormat != null && useFetchFormat)) && !StringUtils.isEmpty(format)) {
             transformation().fetchFormat(format);
             this.format = null;
         }

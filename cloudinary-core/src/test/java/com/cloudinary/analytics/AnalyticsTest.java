@@ -29,19 +29,19 @@ public class AnalyticsTest {
         analytics.setSDKSemver("1.24.0");
         analytics.setTechVersion("12.0.0");
         String result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAGAlhAMZAA0");
+        Assert.assertEquals(result, "_a=DAGAlhAMZAA0");
 
         analytics.setSDKSemver("12.0");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAGAMAMZAA0");
+        Assert.assertEquals(result, "_a=DAGAMAMZAA0");
 
         analytics.setSDKSemver("43.21.26");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAG///AMZAA0");
+        Assert.assertEquals(result, "_a=DAG///AMZAA0");
 
         analytics.setSDKSemver("0.0.0");
         result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAGAAAAMZAA0");
+        Assert.assertEquals(result, "_a=DAGAAAAMZAA0");
 
         analytics.setSDKSemver("43.21.27");
         result = analytics.toQueryParam();
@@ -53,7 +53,11 @@ public class AnalyticsTest {
     public void testToQueryParam() {
         Analytics analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0");
         String result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAFAACMhZ1J0");
+        Assert.assertEquals(result, "_a=DAFAACMhZBi0");
+
+        analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "16.3");
+        result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=DAFAACMhZQD0");
     }
 
     @Test
@@ -61,7 +65,7 @@ public class AnalyticsTest {
         cloudinary.config.analytics = true;
         cloudinary.setAnalytics(new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0"));
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=CAFAACMhZ1J0");
+        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=DAFAACMhZBi0");
     }
 
     @Test
@@ -89,7 +93,7 @@ public class AnalyticsTest {
         cloudinary.analytics.setSDKSemver("1.30.0");
         cloudinary.analytics.setTechVersion("12.0.0");
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=CAGAu5AMZAA0");
+        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=DAGAu5AMZAA0");
     }
 
     @Test
@@ -97,7 +101,7 @@ public class AnalyticsTest {
         cloudinary.config.analytics = true;
         Analytics analytics = new Analytics("Z", "1.24.0", "12.0.0", "Z", "1.34.0");
         String result = analytics.toQueryParam();
-        Assert.assertEquals(result, "_a=CAZAlhAMZ1J0");
+        Assert.assertEquals(result, "_a=DAZAlhAMZBi0");
     }
 
     @Test

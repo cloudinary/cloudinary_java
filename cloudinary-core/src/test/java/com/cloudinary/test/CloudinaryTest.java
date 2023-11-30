@@ -1266,7 +1266,10 @@ public class CloudinaryTest {
                 new FetchLayer().url("https://test"),
                 "fetch:aHR0cHM6Ly90ZXN0",
                 new FetchLayer().url("https://test").resourceType("video"),
-                "video:fetch:aHR0cHM6Ly90ZXN0"};
+                "video:fetch:aHR0cHM6Ly90ZXN0",
+                new FetchLayer().url("https://www.test.com/test/JE01118-YGP900_1_lar.jpg?version=432023"),
+                "fetch:aHR0cHM6Ly93d3cudGVzdC5jb20vdGVzdC9KRTAxMTE4LVlHUDkwMF8xX2xhci5qcGc_dmVyc2lvbj00MzIwMjM="
+        };
 
         for (int i = 0; i < tests.length; i += 2) {
             Object layer = tests[i];

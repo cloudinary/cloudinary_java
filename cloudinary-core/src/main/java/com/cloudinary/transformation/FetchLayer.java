@@ -9,7 +9,7 @@ public class FetchLayer extends AbstractLayer<FetchLayer> {
     }
 
     public FetchLayer url(String remoteUrl) {
-        this.publicId = Base64Coder.encodeString(remoteUrl);
+        this.publicId = Base64Coder.encodeURLSafeString(remoteUrl);;
         return this;
     }
 

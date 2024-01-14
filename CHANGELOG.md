@@ -1,3 +1,9 @@
+1.36.0 / 2023-12-04
+===================
+
+* Fix encode url for fetch layer
+* Add support to use fetch format
+
 1.35.0 / 2023-10-11
 ===================
 

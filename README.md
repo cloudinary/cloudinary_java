@@ -27,7 +27,7 @@ For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/
 ## Version Support
 | SDK Version    | Java 6+ |
 |----------------|---------|
-| 1.1.0 - 1.35.0 | V       |
+| 1.1.0 - 1.36.0 | V       |
 
 ## Installation
 The cloudinary_java library is available in [Maven Central](https://mvnrepository.com/artifact/com.cloudinary/cloudinary-core). To use it, add the following dependency to your pom.xml :
@@ -36,7 +36,7 @@ The cloudinary_java library is available in [Maven Central](https://mvnrepositor
 <dependency>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-http44</artifactId>
-    <version>1.35.0</version>
+    <version>1.36.0</version>
 </dependency>
 ```
 

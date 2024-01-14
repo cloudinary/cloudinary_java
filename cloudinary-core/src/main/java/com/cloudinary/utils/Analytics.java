@@ -8,7 +8,7 @@ import java.util.List;
 public class Analytics {
     private String sdkTokenQueryKey = "_a"; //sdkTokenQueryKey
     private String sdkQueryDelimiter = "=";
-    public String algoVersion = "C";
+    public String algoVersion = "D";
     public String prodcut = "A";
     public String SDKCode = ""; // Java = G, Android = F
     public String SDKSemver = ""; // Calculate the SDK version .
@@ -67,12 +67,19 @@ public class Analytics {
         return getPaddedString(StringUtils.join(versions, "."));
     }
 
+    private String versionArrayToOsString(String[] versions) throws  Exception {
+        if (versions.length > 2) {
+            versions = Arrays.copyOf(versions, versions.length - 1);
+        }
+        return getOsVersionString(StringUtils.join(versions, "."));
+    }
+
     private String getOsType() {
         return (osType != null) ? osType : "Z"; //System.getProperty("os.name");
     }
 
     private String getOsVersion() throws Exception {
-        return (osVersion != null) ? versionArrayToString(osVersion.split("\\.")) : versionArrayToString(System.getProperty("os.version").split("\\."));
+        return (osVersion != null) ? versionArrayToOsString(osVersion.split("\\.")) : versionArrayToString(System.getProperty("os.version").split("\\."));
     }
 
     private String getSDKType() {
@@ -89,6 +96,18 @@ public class Analytics {
 
     private String getSDKVersion() throws Exception {
         return getPaddedString(SDKSemver);
+    }
+
+    private String getOsVersionString(String string) throws Exception {
+        String[] parts = string.split("\\.");
+        String result = "";
+        for(int i = 0 ; i < parts.length ; i++) {
+            int num = Integer.parseInt(parts[i]);
+            String binaryString = Integer.toBinaryString(num);
+            binaryString = StringUtils.padStart(binaryString, 6, '0');
+            result = result + Base64Map.values.get(binaryString);
+        }
+        return result;
     }
 
     private String getPaddedString(String string) throws Exception {

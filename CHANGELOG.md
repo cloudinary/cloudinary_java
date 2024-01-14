@@ -1,3 +1,9 @@
+1.37.0 / 2024-01-14
+===================
+
+* Update analytics token
+* Add missing display name parameter
+
 1.36.0 / 2023-12-04
 ===================
 

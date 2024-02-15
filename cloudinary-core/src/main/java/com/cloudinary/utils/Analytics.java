@@ -16,15 +16,18 @@ public class Analytics {
     public String osType;
     public String osVersion;
 
+    public String featureFlag = "0";
+
     public Analytics() {
-        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "0.0");
+        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "0.0", "0");
     }
-    public Analytics(String sdkCode, String sdkVersion, String techVersion, String osType, String osVersion) {
+    public Analytics(String sdkCode, String sdkVersion, String techVersion, String osType, String osVersion, String featureFlag) {
         this.SDKCode = sdkCode;
         this.SDKSemver = sdkVersion;
         this.techVersion = techVersion;
         this.osType = osType;
         this.osVersion = osVersion;
+        this.featureFlag = featureFlag;
     }
 
     public Analytics setSDKCode(String SDKCode) {
@@ -42,13 +45,18 @@ public class Analytics {
         return this;
     }
 
+    public Analytics setFeatureFlag(String flag) {
+        this.featureFlag = flag;
+        return this;
+    }
+
     /**
      * Function turn analytics variables into viable query parameter.
      * @return query param with analytics values.
      */
     public String toQueryParam() {
         try {
-            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + prodcut + getSDKType() + getSDKVersion() + getTechVersion() + getOsType() + getOsVersion() + getSDKFeatureCode();
+            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + prodcut + getSDKType() + getSDKVersion() + getTechVersion() + getOsType() + getOsVersion() + getSDKFeatureFlag();
         } catch (Exception e) {
             return sdkTokenQueryKey + sdkQueryDelimiter + "E";
         }
@@ -90,8 +98,8 @@ public class Analytics {
         return algoVersion;
     }
 
-    private String getSDKFeatureCode() {
-        return "0";
+    private String getSDKFeatureFlag() {
+        return featureFlag;
     }
 
     private String getSDKVersion() throws Exception {

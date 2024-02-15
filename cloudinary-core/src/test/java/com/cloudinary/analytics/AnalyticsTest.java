@@ -51,11 +51,11 @@ public class AnalyticsTest {
 
     @Test
     public void testToQueryParam() {
-        Analytics analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0");
+        Analytics analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0", "0");
         String result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=DAFAACMhZBi0");
 
-        analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "16.3");
+        analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "16.3", "0");
         result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=DAFAACMhZQD0");
     }
@@ -63,7 +63,7 @@ public class AnalyticsTest {
     @Test
     public void testUrlWithAnalytics() {
         cloudinary.config.analytics = true;
-        cloudinary.setAnalytics(new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0"));
+        cloudinary.setAnalytics(new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0", "0"));
         String url = cloudinary.url().generate("test");
         Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=DAFAACMhZBi0");
     }
@@ -99,7 +99,7 @@ public class AnalyticsTest {
     @Test
     public void testMiscAnalyticsObject() {
         cloudinary.config.analytics = true;
-        Analytics analytics = new Analytics("Z", "1.24.0", "12.0.0", "Z", "1.34.0");
+        Analytics analytics = new Analytics("Z", "1.24.0", "12.0.0", "Z", "1.34.0", "0");
         String result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=DAZAlhAMZBi0");
     }
@@ -107,7 +107,7 @@ public class AnalyticsTest {
     @Test
     public void testErrorAnalytics() {
         cloudinary.config.analytics = true;
-        Analytics analytics = new Analytics("Z", "1.24.0", "0", "Z", "1.34.0");
+        Analytics analytics = new Analytics("Z", "1.24.0", "0", "Z", "1.34.0", "0");
         String result = analytics.toQueryParam();
         Assert.assertEquals(result, "_a=E");
     }
@@ -120,11 +120,19 @@ public class AnalyticsTest {
         cloudinary.config.cloudName = "test123";
 
         cloudinary.config.analytics = true;
-        cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version"), "Z", System.getProperty("os.version")));
+        cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version"), "Z", System.getProperty("os.version"), "0"));
         cloudinary.config.privateCdn = true;
         String url = cloudinary.url().signed(true).type("authenticated").generate("test");
         assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
         cloudinary.config.privateCdn = false;
+    }
+
+    @Test
+    public void testFeatureFlag() {
+        Analytics analytics = new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0", "0");
+        analytics.setFeatureFlag("F");
+        String result = analytics.toQueryParam();
+        Assert.assertEquals(result, "_a=DAFAACMhZBiF");
     }
 
     @After

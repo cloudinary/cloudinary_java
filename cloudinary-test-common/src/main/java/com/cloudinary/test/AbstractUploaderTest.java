@@ -831,4 +831,11 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Assert.assertEquals(true, uploadParams.get("use_asset_folder_as_public_id_prefix"));
         Assert.assertEquals(true, uploadParams.get("visual_search"));
     }
+
+    @Test
+    public void testNotificationUrl() {
+        Map options = asMap("notification_url", "https://www.test.com");
+        Map uploadParams = Util.buildUploadParams(options);
+        Assert.assertEquals("https://www.test.com", uploadParams.get("notification_url"));
+    }
 }

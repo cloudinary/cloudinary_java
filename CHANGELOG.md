@@ -1,3 +1,8 @@
+1.38.0 / 2024-02-18
+===================
+
+* Add `notification_url` support to rename and destroy
+
 1.37.0 / 2024-01-14
 ===================
 

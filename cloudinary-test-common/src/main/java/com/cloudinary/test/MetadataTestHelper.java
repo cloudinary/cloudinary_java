@@ -4,7 +4,13 @@ import com.cloudinary.Api;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.metadata.MetadataField;
 import com.cloudinary.metadata.MetadataValidation;
+import com.cloudinary.metadata.Restrictions;
 import com.cloudinary.metadata.StringMetadataField;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.cloudinary.utils.ObjectUtils.asMap;
 
 public class MetadataTestHelper {
     public static StringMetadataField newFieldInstance(String label) throws Exception {

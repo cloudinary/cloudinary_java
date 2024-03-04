@@ -66,10 +66,28 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertNotNull(result);
         assertEquals(stringField.getLabel(), result.get("label"));
 
+        Restrictions restrictions = new Restrictions();
+        restrictions.setReadOnlyUI();
+
         SetMetadataField setField = createSetField("testCreateMetadata_2");
+        setField.setRestrictions(restrictions);
         result = cloudinary.api().addMetadataField(setField);
         assertNotNull(result);
         assertEquals(setField.getLabel(), result.get("label"));
+        assertNotNull(result.get("restrictions"));
+    }
+
+    @Test
+    public void testFieldRestrictions() throws Exception {
+        StringMetadataField stringField = newFieldInstance("testCreateMetadata_3");
+        stringField.setRestrictions(new Restrictions().setReadOnlyUI());
+
+        ApiResponse result = api.addMetadataField(stringField);
+        assertNotNull(result);
+        Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
+        assertNotNull(restrictions);
+        assertTrue((Boolean) restrictions.get("readonly_ui"));
+
     }
 
     @Test
@@ -130,13 +148,17 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testUpdateField() throws Exception {
-        ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testUpdateField"));
+        StringMetadataField metadataField = newFieldInstance("testUpdateField");
+        ApiResponse fieldResult = addFieldToAccount(metadataField);
         assertNotEquals("new_def", fieldResult.get("default_value"));
-        StringMetadataField field = new StringMetadataField();
-        field.setDefaultValue("new_def");
-        ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), field);
+        metadataField.setDefaultValue("new_def");
+        metadataField.setRestrictions(new Restrictions().setReadOnlyUI());
+        ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), metadataField);
         assertNotNull(result);
         assertEquals("new_def", result.get("default_value"));
+        Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
+        assertNotNull(restrictions);
+        assertTrue((Boolean)restrictions.get("readonly_ui"));
     }
 
     @Test

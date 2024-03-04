@@ -3,6 +3,7 @@ package com.cloudinary.metadata;
 import org.cloudinary.json.JSONObject;
 
 import java.text.ParseException;
+import java.util.Map;
 
 /**
  * Represents a single metadata field. Use one of the derived classes in the metadata API calls.
@@ -16,6 +17,7 @@ public class MetadataField<T> extends JSONObject {
     public static final String MANDATORY = "mandatory";
     public static final String TYPE = "type";
     public static final String VALIDATION = "validation";
+    public static final String RESTRICTIONS = "restrictions";
 
     public MetadataField(MetadataFieldType type) {
         put(TYPE, type.toString());
@@ -129,5 +131,13 @@ public class MetadataField<T> extends JSONObject {
      */
     public void setDataSource(MetadataDataSource dataSource) {
         put("datasource", dataSource);
+    }
+
+    /**
+     * Set the restrictions rules of this field.
+     * @param restrictions The rules to set.
+     */
+    public void setRestrictions(Restrictions restrictions) {
+        put(RESTRICTIONS, restrictions.restrictions);
     }
 }

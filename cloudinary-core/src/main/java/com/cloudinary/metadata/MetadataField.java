@@ -3,7 +3,6 @@ package com.cloudinary.metadata;
 import org.cloudinary.json.JSONObject;
 
 import java.text.ParseException;
-import java.util.Map;
 
 /**
  * Represents a single metadata field. Use one of the derived classes in the metadata API calls.

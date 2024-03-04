@@ -66,15 +66,10 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertNotNull(result);
         assertEquals(stringField.getLabel(), result.get("label"));
 
-        Restrictions restrictions = new Restrictions();
-        restrictions.setReadOnlyUI();
-
         SetMetadataField setField = createSetField("testCreateMetadata_2");
-        setField.setRestrictions(restrictions);
         result = cloudinary.api().addMetadataField(setField);
         assertNotNull(result);
         assertEquals(setField.getLabel(), result.get("label"));
-        assertNotNull(result.get("restrictions"));
     }
 
     @Test

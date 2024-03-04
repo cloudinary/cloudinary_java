@@ -82,7 +82,6 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
         assertNotNull(restrictions);
         assertTrue((Boolean) restrictions.get("readonly_ui"));
-
     }
 
     @Test

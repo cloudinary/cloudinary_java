@@ -423,6 +423,24 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         deleteUser(user2Id);
     }
 
+    @Test
+    public void testGetAccessKeys() throws Exception {
+        ApiResponse result = account.getAccessKeys("a8345ea19d721ee063615a442e6037", ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void createNewAccessKey() throws Exception {
+        ApiResponse result = account.createAccessKey("a8345ea19d721ee063615a442e6037", "test", true, ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void updateAccessKey() throws Exception {
+        ApiResponse result = account.updateAccessKey("7b81a7d89f520870ea005c1c5eb0e6", "117682269726797", "test3", true, ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
 
     // Helpers
     private ApiResponse createGroup() throws Exception {

@@ -14,8 +14,10 @@ public class Account {
     private static final String CLOUDINARY_ACCOUNT_URL = "CLOUDINARY_ACCOUNT_URL";
     public static final String PROVISIONING = "provisioning";
     public static final String ACCOUNTS = "accounts";
+    public static final String SUB_ACCOUNTS = "sub_accounts";
     public static final String USERS = "users";
     public static final String USER_GROUPS = "user_groups";
+    public static final String ACCESS_KEYS = "access_keys";
 
     private final AccountConfiguration configuration;
     private final String accountId;
@@ -617,6 +619,21 @@ public class Account {
     public ApiResponse userGroupUsers(String groupId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, USER_GROUPS, groupId, USERS);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    public ApiResponse getAccessKeys(String subAccountId, Map<String, Object> options) throws Exception {
+        List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId);
+        return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    public ApiResponse createAccessKey(String subAccountId, String name, Boolean enabled, Map<String, Object> options)  throws Exception {
+        List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId, ACCESS_KEYS);
+        return callAccountApi(Api.HttpMethod.POST, uri, ObjectUtils.asMap("name", name, "enabled", enabled), options);
+    }
+
+    public ApiResponse updateAccessKey(String subAccountId, String accessKey, String name, Boolean enabled,Map<String, Object> options) throws Exception {
+        List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId, ACCESS_KEYS, accessKey);
+        return callAccountApi(Api.HttpMethod.PUT, uri, ObjectUtils.asMap("name", name, "enabled", enabled), options);
     }
 
     /**

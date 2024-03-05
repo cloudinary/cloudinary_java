@@ -7,7 +7,7 @@ import java.util.HashMap;
  */
 public class Restrictions {
 
-    HashMap restrictions = new HashMap();
+    private final HashMap restrictions = new HashMap();
 
     /**
      * Set the custom field into restrictions.
@@ -32,5 +32,9 @@ public class Restrictions {
      */
     public Restrictions setReadOnlyUI() {
         return this.setReadOnlyUI(true);
+    }
+
+    public HashMap toHash() {
+        return restrictions;
     }
 }

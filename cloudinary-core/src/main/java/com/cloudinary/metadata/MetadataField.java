@@ -137,6 +137,6 @@ public class MetadataField<T> extends JSONObject {
      * @param restrictions The rules to set.
      */
     public void setRestrictions(Restrictions restrictions) {
-        put(RESTRICTIONS, restrictions.restrictions);
+        put(RESTRICTIONS, restrictions.toHash());
     }
 }

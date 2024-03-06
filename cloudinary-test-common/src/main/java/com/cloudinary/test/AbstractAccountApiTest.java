@@ -423,6 +423,47 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         deleteUser(user2Id);
     }
 
+    @Test
+    public void testGetAccessKeys() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = account.getAccessKeys((String) createResult.get("id"), ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testCreateNewAccessKey() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, true, ObjectUtils.emptyMap());
+        assertNotNull(result);
+        assertTrue((Boolean) result.get("enabled"));
+    }
+
+    @Test
+    public void testUpdateAccessKey() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, false, ObjectUtils.emptyMap());
+        assertNotNull(result);
+
+        String updatedName = randomLetters();
+        result = account.updateAccessKey((String)createResult.get("id"), (String) result.get("api_key"), updatedName, true, ObjectUtils.emptyMap());
+        assertNotNull(result);
+        assertEquals(updatedName, result.get("name"));
+        assertTrue((Boolean) result.get("enabled"));
+    }
+
+    @Test
+    public void testDeleteAccessKey() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, false, ObjectUtils.emptyMap());
+        assertNotNull(result);
+
+        result = account.deleteAccessKey((String)createResult.get("id"), (String) result.get("api_key"), ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
 
     // Helpers
     private ApiResponse createGroup() throws Exception {

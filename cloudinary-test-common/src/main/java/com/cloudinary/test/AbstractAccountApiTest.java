@@ -431,7 +431,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
-    public void createNewAccessKey() throws Exception {
+    public void testCreateNewAccessKey() throws Exception {
         ApiResponse createResult = createSubAccount();
         String name = randomLetters();
         ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, true, ObjectUtils.emptyMap());
@@ -440,7 +440,7 @@ public abstract class AbstractAccountApiTest extends MockableTest {
     }
 
     @Test
-    public void updateAccessKey() throws Exception {
+    public void testUpdateAccessKey() throws Exception {
         ApiResponse createResult = createSubAccount();
         String name = randomLetters();
         ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, false, ObjectUtils.emptyMap());

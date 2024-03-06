@@ -425,20 +425,32 @@ public abstract class AbstractAccountApiTest extends MockableTest {
 
     @Test
     public void testGetAccessKeys() throws Exception {
-        ApiResponse result = account.getAccessKeys("a8345ea19d721ee063615a442e6037", ObjectUtils.emptyMap());
+        ApiResponse createResult = createSubAccount();
+        ApiResponse result = account.getAccessKeys((String) createResult.get("id"), ObjectUtils.emptyMap());
         assertNotNull(result);
     }
 
     @Test
     public void createNewAccessKey() throws Exception {
-        ApiResponse result = account.createAccessKey("a8345ea19d721ee063615a442e6037", "test", true, ObjectUtils.emptyMap());
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, true, ObjectUtils.emptyMap());
         assertNotNull(result);
+        assertTrue((Boolean) result.get("enabled"));
     }
 
     @Test
     public void updateAccessKey() throws Exception {
-        ApiResponse result = account.updateAccessKey("7b81a7d89f520870ea005c1c5eb0e6", "117682269726797", "test3", true, ObjectUtils.emptyMap());
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, false, ObjectUtils.emptyMap());
         assertNotNull(result);
+
+        String updatedName = randomLetters();
+        result = account.updateAccessKey((String)createResult.get("id"), (String) result.get("api_key"), updatedName, true, ObjectUtils.emptyMap());
+        assertNotNull(result);
+        assertEquals(updatedName, result.get("name"));
+        assertTrue((Boolean) result.get("enabled"));
     }
 
 

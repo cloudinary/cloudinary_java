@@ -621,17 +621,43 @@ public class Account {
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
     }
 
+    /**
+     * Lists the access keys belonging to this sub account id.
+     * @param subAccountId The id of the user group.
+     * @param options Generic advanced options map, see online documentation.
+     * @return The list of access keys in that sub account id.
+     * @throws Exception If the request fails.
+     */
     public ApiResponse getAccessKeys(String subAccountId, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId);
         return callAccountApi(Api.HttpMethod.GET, uri, Collections.<String, Object>emptyMap(), options);
     }
 
+    /**
+     * Creates a new access key for this sub account id.
+     * @param subAccountId The id of the user group.
+     * @param name The name for the access key.
+     * @param enabled Access key's status (enabled or disabled).
+     * @param options Generic advanced options map, see online documentation.
+     * @return The created access key.
+     * @throws Exception If the request fails.
+     */
     public ApiResponse createAccessKey(String subAccountId, String name, Boolean enabled, Map<String, Object> options)  throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId, ACCESS_KEYS);
         return callAccountApi(Api.HttpMethod.POST, uri, ObjectUtils.asMap("name", name, "enabled", enabled), options);
     }
 
-    public ApiResponse updateAccessKey(String subAccountId, String accessKey, String name, Boolean enabled,Map<String, Object> options) throws Exception {
+    /**
+     * Updates an existing access key for this sub account id.
+     * @param subAccountId The id of the user group.
+     * @param accessKey The key of the access key.
+     * @param name The name for the access key.
+     * @param enabled Access key's status (enabled or disabled).
+     * @param options Generic advanced options map, see online documentation.
+     * @return The updated access key.
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse updateAccessKey(String subAccountId, String accessKey, String name, Boolean enabled, Map<String, Object> options) throws Exception {
         List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId, ACCESS_KEYS, accessKey);
         return callAccountApi(Api.HttpMethod.PUT, uri, ObjectUtils.asMap("name", name, "enabled", enabled), options);
     }

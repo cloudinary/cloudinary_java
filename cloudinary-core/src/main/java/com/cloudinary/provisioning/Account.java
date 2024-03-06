@@ -663,6 +663,19 @@ public class Account {
     }
 
     /**
+     * Deletes an existing access key for this sub account id.
+     * @param subAccountId The id of the user group.
+     * @param accessKey The key of the access key.
+     * @param options Generic advanced options map, see online documentation.
+     * @return "message": "ok".
+     * @throws Exception If the request fails.
+     */
+    public ApiResponse deleteAccessKey(String subAccountId, String accessKey, Map<String, Object> options) throws Exception {
+        List<String> uri = Arrays.asList(PROVISIONING, ACCOUNTS, accountId, SUB_ACCOUNTS, subAccountId, ACCESS_KEYS, accessKey);
+        return callAccountApi(Api.HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);
+    }
+
+    /**
      * Private helper method for users api calls
      * @param method Http method
      * @param uri Uri to call

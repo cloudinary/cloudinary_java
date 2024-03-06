@@ -453,6 +453,17 @@ public abstract class AbstractAccountApiTest extends MockableTest {
         assertTrue((Boolean) result.get("enabled"));
     }
 
+    @Test
+    public void testDeleteAccessKey() throws Exception {
+        ApiResponse createResult = createSubAccount();
+        String name = randomLetters();
+        ApiResponse result = account.createAccessKey((String)createResult.get("id"), name, false, ObjectUtils.emptyMap());
+        assertNotNull(result);
+
+        result = account.deleteAccessKey((String)createResult.get("id"), (String) result.get("api_key"), ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
 
     // Helpers
     private ApiResponse createGroup() throws Exception {

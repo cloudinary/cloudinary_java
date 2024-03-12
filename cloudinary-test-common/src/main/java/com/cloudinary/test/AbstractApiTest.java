@@ -182,6 +182,19 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testSelectiveResponse() throws Exception {
+        Map options = new HashMap();
+        options.put("fields", "width");
+        Map result = api.resources(options);
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertNotNull(resources);
+        Map resource = resources.get(0);
+        assertNotNull(resource);
+        assertNotNull(resource.get("width"));
+        assertNull(resource.get("format"));
+    }
+
+    @Test
     public void test03ResourcesCursor() throws Exception {
         // should allow listing resources with cursor
         Map options = new HashMap();

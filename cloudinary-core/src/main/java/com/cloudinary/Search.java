@@ -19,6 +19,7 @@ public class Search {
     private ArrayList<String> aggregateParam;
     private ArrayList<String> withFieldParam;
     private HashMap<String, Object> params;
+    private ArrayList<String> fields;
 
     private int ttl = 300;
 
@@ -28,6 +29,7 @@ public class Search {
         this.sortByParam = new ArrayList<HashMap<String, Object>>();
         this.aggregateParam = new ArrayList<String>();
         this.withFieldParam = new ArrayList<String>();
+        this.fields = new ArrayList<String>();
     }
 
     public Search ttl(int ttl) {
@@ -76,6 +78,13 @@ public class Search {
         return this;
     }
 
+    public Search fields(String field) {
+        if (!fields.contains(field)) {
+            fields.add(field);
+        }
+        return this;
+    }
+
     public HashMap<String, Object> toQuery() {
         HashMap<String, Object> queryParams = new HashMap<String, Object>(this.params);
         if (withFieldParam.size() > 0) {
@@ -86,6 +95,9 @@ public class Search {
         }
         if(aggregateParam.size() > 0) {
             queryParams.put("aggregate", aggregateParam);
+        }
+        if(fields.size() > 0) {
+            queryParams.put("fields", fields);
         }
         return queryParams;
     }

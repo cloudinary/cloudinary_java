@@ -180,12 +180,13 @@ abstract public class AbstractSearchTest extends MockableTest {
 
     @Test
     public void testSearchWithSelectiveResponse() throws Exception {
-        Map result = cloudinary.search().expression(String.format("tags:%s", SEARCH_TAG)).fields("width").execute();
+        Map result = cloudinary.search().expression(String.format("tags:%s", SEARCH_TAG)).fields("width").fields("height").execute();
         List<Map> resources = (List<Map>) result.get("resources");
         assertEquals(3, resources.size());
         Map resource = resources.get(0);
         assertNotNull(resource);
         assertNotNull(resource.get("width"));
+        assertNotNull(resource.get("height"));
         assertNull(resource.get("format"));
     }
 }

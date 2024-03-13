@@ -182,7 +182,7 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
-    public void testSelectiveResponse() throws Exception {
+    public void testSingleSelectiveResponse() throws Exception {
         Map options = new HashMap();
         options.put("fields", "width");
         Map result = api.resources(options);
@@ -192,6 +192,20 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(resource);
         assertNotNull(resource.get("width"));
         assertNull(resource.get("format"));
+    }
+
+    @Test
+    public void testMultipleSelectiveResponse() throws Exception {
+        Map options = new HashMap();
+        options.put("fields", new String[]{"width", "format"});
+        Map result = api.resources(options);
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertNotNull(resources);
+        Map resource = resources.get(0);
+        assertNotNull(resource);
+        assertNotNull(resource.get("width"));
+        assertNotNull(resource.get("format"));
+        assertNull(resource.get("height"));
     }
 
     @Test

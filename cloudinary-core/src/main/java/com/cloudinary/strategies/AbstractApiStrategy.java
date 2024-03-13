@@ -17,9 +17,8 @@ public abstract class AbstractApiStrategy {
         this.api = api;
     }
 
-    protected String createApiUrl (Iterable<String> uri, String prefix, String cloudName){
-
-        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1", cloudName), "/");
+    protected String createApiUrl (Iterable<String> uri, String prefix, String cloudName, String version){
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, version, cloudName), "/");
         for (String component : uri) {
             component = SmartUrlEncoder.encode(component);
             apiUrl = apiUrl + "/" + component;

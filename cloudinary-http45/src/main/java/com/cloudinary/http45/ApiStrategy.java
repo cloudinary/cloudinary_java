@@ -86,8 +86,12 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
         validateAuthorization(apiKey, apiSecret, oauthToken);
 
+        String version = "v1_1";
+        if(options.get("api_version") != null) {
+            version = (String) options.get("api_version");
+        }
 
-        String apiUrl = createApiUrl(uri, prefix, cloudName);
+        String apiUrl = createApiUrl(uri, prefix, cloudName, version);
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
         request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));

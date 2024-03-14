@@ -1240,9 +1240,9 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testAnalyzeApi() throws Exception {
-        assumeAddonEnabled("captioning");
+//        assumeAddonEnabled("captioning");
         ApiResponse res = api.analyze("uri", "captioning", "https://res.cloudinary.com/demo/image/upload/dog", ObjectUtils.emptyMap());
-        assertNull(res);
+        assertNotNull(res);
     }
 
     @Test

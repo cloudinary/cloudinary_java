@@ -44,11 +44,7 @@ public class ApiStrategy extends AbstractApiStrategy {
         int timeout = ObjectUtils.asInteger(options.get("timeout"), this.api.cloudinary.config.timeout);
         validateAuthorization(apiKey, apiSecret, oauthToken);
 
-        String version = "v1_1";
-        if(options.get("api_version") != null) {
-            version = (String) options.get("api_version");
-        }
-
+        String version = (String) options.get("api_version");
         String apiUrl = createApiUrl(uri, prefix, cloudName, version);
 
         return getApiResponse(method, params, apiKey, apiSecret, oauthToken, contentType, timeout, apiUrl);

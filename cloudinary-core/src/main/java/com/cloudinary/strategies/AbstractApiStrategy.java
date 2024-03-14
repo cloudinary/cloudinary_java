@@ -5,6 +5,7 @@ import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.SmartUrlEncoder;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.Base64Coder;
+import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import java.util.Arrays;
 import java.util.Map;
@@ -17,11 +18,11 @@ public abstract class AbstractApiStrategy {
         this.api = api;
     }
 
-    protected String createApiUrl (Iterable<String> uri, String prefix, String cloudName, String v){
-        String version = "v1_1";
-        if(v != null) {
-            version = v;
-        }
+    protected String createApiUrl (Iterable<String> uri, Map options){
+        String version = ObjectUtils.asString(options.get("api_version"), "v1_1");
+        String prefix = ObjectUtils.asString(options.get("upload_prefix"), ObjectUtils.asString(this.api.cloudinary.config.uploadPrefix, "https://api.cloudinary.com"));
+        String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
+        if (cloudName == null) throw new IllegalArgumentException("Must supply cloud_name");
         String apiUrl = StringUtils.join(Arrays.asList(prefix, version, cloudName), "/");
         for (String component : uri) {
             component = SmartUrlEncoder.encode(component);

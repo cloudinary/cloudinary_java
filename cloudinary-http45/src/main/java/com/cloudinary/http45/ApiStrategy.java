@@ -77,17 +77,13 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
         if (options == null)
             options = ObjectUtils.emptyMap();
 
-        String prefix = ObjectUtils.asString(options.get("upload_prefix"), ObjectUtils.asString(this.api.cloudinary.config.uploadPrefix, "https://api.cloudinary.com"));
-        String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.api.cloudinary.config.cloudName);
-        if (cloudName == null) throw new IllegalArgumentException("Must supply cloud_name");
         String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
         String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
         String oauthToken = ObjectUtils.asString(options.get("oauth_token"), this.api.cloudinary.config.oauthToken);
 
         validateAuthorization(apiKey, apiSecret, oauthToken);
 
-
-        String apiUrl = createApiUrl(uri, prefix, cloudName);
+        String apiUrl = createApiUrl(uri, options);
         HttpUriRequest request = prepareRequest(method, apiUrl, params, options);
 
         request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));

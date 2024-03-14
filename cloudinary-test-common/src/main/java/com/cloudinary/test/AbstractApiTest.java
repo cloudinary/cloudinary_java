@@ -1239,6 +1239,14 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testAnalyzeApi() throws Exception {
+        assumeAddonEnabled("captioning");
+        ApiResponse res = api.analyze("uri", "captioning", "https://res.cloudinary.com/demo/image/upload/dog", ObjectUtils.emptyMap());
+        assertNotNull(res);
+        assertNotNull(res.get("request_id"));
+    }
+
+    @Test
     public void testFolderDecoupling() {
         //TODO: Need to build a unit testing infrastructure
         Map params = new HashMap<String, Object>();

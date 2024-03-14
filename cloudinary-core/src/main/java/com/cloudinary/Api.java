@@ -779,6 +779,17 @@ public class Api {
         return callApi(HttpMethod.PUT, uri, map, options);
     }
 
+    public ApiResponse analyze(String inputType, String analysisType, String uri, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        List<String> url = Arrays.asList("analysis", "analyze", inputType);
+        options.put("api_version", "v2");
+        options.put("content_type", "json");
+        final Map params = new HashMap();
+        params.put("analysis_type", analysisType);
+        params.put("uri", uri);
+        return callApi(HttpMethod.POST, url, params, options);
+    }
+
     private Map<String, ?> extractParams(Map options, List<String> keys) {
         Map<String, Object> result = new HashMap<String, Object>();
         for (String key : keys) {

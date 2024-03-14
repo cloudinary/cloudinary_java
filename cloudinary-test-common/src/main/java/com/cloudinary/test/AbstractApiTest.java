@@ -1243,6 +1243,7 @@ abstract public class AbstractApiTest extends MockableTest {
 //        assumeAddonEnabled("captioning");
         ApiResponse res = api.analyze("uri", "captioning", "https://res.cloudinary.com/demo/image/upload/dog", ObjectUtils.emptyMap());
         assertNotNull(res);
+        assertNotNull(res.get("request_id"));
     }
 
     @Test

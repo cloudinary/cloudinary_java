@@ -571,11 +571,12 @@ abstract public class AbstractUploaderTest extends MockableTest {
         assertEquals("raw", resource.get("resource_type"));
         assertTrue(resource.get("public_id").toString().startsWith("cldupload"));
 
-        resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), asMap("chunk_size", 5243000, "tags", tags));
+        resource = cloudinary.uploader().uploadLarge(new FileInputStream(temp), asMap("filename", "test123", "chunk_size", 5243000, "tags", tags));
         assertArrayEquals(tags, ((java.util.ArrayList) resource.get("tags")).toArray());
         assertEquals("image", resource.get("resource_type"));
         assertEquals(1400, resource.get("width"));
         assertEquals(1400, resource.get("height"));
+        assertEquals("test123", resource.get("original_filename"));
 
         resource = cloudinary.uploader().uploadLarge(temp, asMap("chunk_size", 5880138, "tags", tags));
         assertArrayEquals(tags, ((java.util.ArrayList) resource.get("tags")).toArray());

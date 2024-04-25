@@ -12,6 +12,9 @@ import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -1266,5 +1269,23 @@ abstract public class AbstractApiTest extends MockableTest {
                 "visual_search", true);
         Util.processWriteParameters(options, params);
         assertEquals(true, params.get("visual_search"));
+    }
+
+    @Test
+    public void testDeleteBackedupAsset() throws Exception {
+        Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("backup", true));
+
+        String publicId = (String) result.get("public_id");
+        String assetId = (String) result.get("asset_id");
+
+        ApiResponse getVersionsResp = api.resource(publicId, ObjectUtils.asMap("versions", true));
+        List<Map> versions = (List<Map>) getVersionsResp.get("versions");
+        String firstAssetVersion = (String)versions.get(0).get("version_id");
+        ApiResponse response = api.deleteBackedUpAssets(assetId, new  String[]{firstAssetVersion}, ObjectUtils.emptyMap());
+
+        assertNotNull(response);
+        assertEquals(response.get("asset_id"), assetId);
+        List<String> deletedVersionIds = (List<String>) response.get("deleted_version_ids");
+        assertEquals(deletedVersionIds.get(0), firstAssetVersion);
     }
 }

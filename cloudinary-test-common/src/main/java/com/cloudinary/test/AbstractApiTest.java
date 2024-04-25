@@ -1267,4 +1267,16 @@ abstract public class AbstractApiTest extends MockableTest {
         Util.processWriteParameters(options, params);
         assertEquals(true, params.get("visual_search"));
     }
+
+    @Test
+    public void testRenameFolder() throws Exception {
+        Map result = api.createFolder("apTestCreateFolder", null);
+        assertNotNull(result);
+
+        String folderName = (String) result.get("path");
+        Map response = api.renameFolder(folderName, "newFolderName", ObjectUtils.emptyMap());
+        assertNotNull(response);
+
+
+    }
 }

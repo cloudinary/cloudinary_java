@@ -790,6 +790,18 @@ public class Api {
         return callApi(HttpMethod.POST, url, params, options);
     }
 
+    public ApiResponse renameFolder(String path, String toPath, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        List<String> url = Arrays.asList("folder_operations", "rename");
+
+        final Map params = new HashMap();
+        params.put("path", path);
+        params.put("to_path", toPath);
+
+        return callApi(HttpMethod.PUT, url, params, options);
+
+    }
+
     private Map<String, ?> extractParams(Map options, List<String> keys) {
         Map<String, Object> result = new HashMap<String, Object>();
         for (String key : keys) {

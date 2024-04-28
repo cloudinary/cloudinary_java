@@ -1269,6 +1269,7 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    @Ignore("Skip test till FD is enabled for test accounts")
     public void testRenameFolder() throws Exception {
         Map result = api.createFolder("apTestCreateFolder", null);
         assertNotNull(result);
@@ -1276,7 +1277,5 @@ abstract public class AbstractApiTest extends MockableTest {
         String folderName = (String) result.get("path");
         Map response = api.renameFolder(folderName, "newFolderName", ObjectUtils.emptyMap());
         assertNotNull(response);
-
-
     }
 }

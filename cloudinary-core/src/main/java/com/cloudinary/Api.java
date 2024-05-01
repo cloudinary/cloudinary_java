@@ -1,6 +1,5 @@
 package com.cloudinary;
 
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import com.cloudinary.api.ApiResponse;

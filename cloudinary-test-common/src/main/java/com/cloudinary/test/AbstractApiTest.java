@@ -12,9 +12,6 @@ import org.junit.*;
 import org.junit.rules.TestName;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -1284,7 +1281,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testDeleteBackedupAsset() throws Exception {
-//        if (MockableTest.shouldTestFeature(Feature.BACKEDUP_ASSETS)) {
+        if (MockableTest.shouldTestFeature(Feature.BACKEDUP_ASSETS)) {
             Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("backup", true));
 
             String publicId = (String) result.get("public_id");
@@ -1299,6 +1296,6 @@ abstract public class AbstractApiTest extends MockableTest {
             assertEquals(response.get("asset_id"), assetId);
             List<String> deletedVersionIds = (List<String>) response.get("deleted_version_ids");
             assertEquals(deletedVersionIds.get(0), firstAssetVersion);
-//        }
+        }
     }
 }

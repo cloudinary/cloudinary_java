@@ -1272,6 +1272,17 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    @Ignore("Skip test till FD is enabled for test accounts")
+    public void testRenameFolder() throws Exception {
+        Map result = api.createFolder("apTestCreateFolder", null);
+        assertNotNull(result);
+
+        String folderName = (String) result.get("path");
+        Map response = api.renameFolder(folderName, "newFolderName", ObjectUtils.emptyMap());
+        assertNotNull(response);
+    }
+
+    @Test
     public void testDeleteBackedupAsset() throws Exception {
         Map result = cloudinary.uploader().upload(SRC_TEST_IMAGE,  ObjectUtils.asMap("backup", true));
 

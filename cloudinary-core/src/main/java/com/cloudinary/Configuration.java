@@ -40,6 +40,7 @@ public class Configuration {
     public Map<String, Object> properties = new HashMap<String, Object>();
     public Boolean secureCdnSubdomain;
     public boolean useRootPath;
+    public boolean useFetchFormat;
     public int timeout;
     public boolean loadStrategies = true;
     public boolean clientHints = false;
@@ -68,6 +69,7 @@ public class Configuration {
             int proxyPort,
             Boolean secureCdnSubdomain,
             boolean useRootPath,
+            boolean useFetchFormat,
             int timeout,
             boolean loadStrategies,
             boolean forceVersion,
@@ -90,6 +92,7 @@ public class Configuration {
         this.proxyPort = proxyPort;
         this.secureCdnSubdomain = secureCdnSubdomain;
         this.useRootPath = useRootPath;
+        this.useFetchFormat = useFetchFormat;
         this.timeout = timeout;
         this.loadStrategies = loadStrategies;
         this.forceVersion = forceVersion;
@@ -121,6 +124,7 @@ public class Configuration {
         this.proxyPort = ObjectUtils.asInteger(config.get("proxy_port"), 0);
         this.secureCdnSubdomain = ObjectUtils.asBoolean(config.get("secure_cdn_subdomain"), null);
         this.useRootPath = ObjectUtils.asBoolean(config.get("use_root_path"), false);
+        this.useFetchFormat = ObjectUtils.asBoolean(config.get("use_fetch_format"), false);
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
@@ -158,6 +162,7 @@ public class Configuration {
         map.put("proxy_port", proxyPort);
         map.put("secure_cdn_subdomain", secureCdnSubdomain);
         map.put("use_root_path", useRootPath);
+        map.put("use_fetch_format", useFetchFormat);
         map.put("load_strategies", loadStrategies);
         map.put("timeout", timeout);
         map.put("client_hints", clientHints);
@@ -190,6 +195,7 @@ public class Configuration {
         this.proxyPort = other.proxyPort;
         this.secureCdnSubdomain = other.secureCdnSubdomain;
         this.useRootPath = other.useRootPath;
+        this.useFetchFormat = other.useFetchFormat;
         this.timeout = other.timeout;
         this.clientHints = other.clientHints;
         if (other.authToken != null) {
@@ -306,6 +312,7 @@ public class Configuration {
         private int proxyPort;
         private Boolean secureCdnSubdomain;
         private boolean useRootPath;
+        private boolean useFetchFormat;
         private boolean loadStrategies = true;
         private int timeout;
         private boolean clientHints = false;
@@ -347,6 +354,7 @@ public class Configuration {
                             proxyPort,
                             secureCdnSubdomain,
                             useRootPath,
+                            useFetchFormat,
                             timeout,
                             loadStrategies,
                             forceVersion,
@@ -453,6 +461,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setUseFetchFormat(boolean useFetchFormat) {
+            this.useFetchFormat = useFetchFormat;
+            return this;
+        }
+
         public Builder setLoadStrategies(boolean loadStrategies) {
             this.loadStrategies = loadStrategies;
             return this;
@@ -514,6 +527,7 @@ public class Configuration {
             this.proxyPort = other.proxyPort;
             this.secureCdnSubdomain = other.secureCdnSubdomain;
             this.useRootPath = other.useRootPath;
+            this.useFetchFormat = other.useFetchFormat;
             this.loadStrategies = other.loadStrategies;
             this.timeout = other.timeout;
             this.clientHints = other.clientHints;

@@ -27,7 +27,7 @@ For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/
 ## Version Support
 | SDK Version    | Java 6+ |
 |----------------|---------|
-| 1.1.0 - 1.34.0 | V       |
+| 1.1.0 - 1.38.0 | V       |
 
 ## Installation
 The cloudinary_java library is available in [Maven Central](https://mvnrepository.com/artifact/com.cloudinary/cloudinary-core). To use it, add the following dependency to your pom.xml :
@@ -36,11 +36,11 @@ The cloudinary_java library is available in [Maven Central](https://mvnrepositor
 <dependency>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-http45</artifactId>
-    <version>1.34.0</version>
+    <version>1.38.0</version>
 </dependency>
 ```
 
-Alternatively, download cloudinary_java from [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-core/1.30.0/cloudinary-core-1.30.0.jar) and [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-http45/1.30.0/cloudinary-http45-1.30.0.jar)
+Alternatively, download cloudinary_java from [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-core/1.38.0/cloudinary-core-1.38.0.jar) and [here](https://repo1.maven.org/maven2/com/cloudinary/cloudinary-http45/1.38.0/cloudinary-http45-1.38.0.jar)
 and see [build.gradle](https://github.com/cloudinary/cloudinary_java/blob/master/cloudinary-http45/build.gradle) for library dependencies.
 
 Different variants of the cloudinary_java library based on previous versions of Apache HTTP library are available as well:

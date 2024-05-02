@@ -1,3 +1,25 @@
+1.38.0 / 2024-02-18
+===================
+
+* Add `notification_url` support to rename and destroy
+
+1.37.0 / 2024-01-14
+===================
+
+* Update analytics token
+* Add missing display name parameter
+
+1.36.0 / 2023-12-04
+===================
+
+* Fix encode url for fetch layer
+* Add support to use fetch format
+
+1.35.0 / 2023-10-11
+===================
+
+  * Update analytics token
+  * Add support for `on_success` upload parameter
 
 1.34.0 / 2023-08-08
 ===================

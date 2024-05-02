@@ -8,18 +8,26 @@ import java.util.List;
 public class Analytics {
     private String sdkTokenQueryKey = "_a"; //sdkTokenQueryKey
     private String sdkQueryDelimiter = "=";
-    public String algoVersion = "A";
+    public String algoVersion = "D";
+    public String prodcut = "A";
     public String SDKCode = ""; // Java = G, Android = F
     public String SDKSemver = ""; // Calculate the SDK version .
     public String techVersion = ""; // Calculate the Java version.
+    public String osType;
+    public String osVersion;
+
+    public String featureFlag = "0";
 
     public Analytics() {
-        this("G", Cloudinary.VERSION,System.getProperty("java.version"));
+        this("G", Cloudinary.VERSION,System.getProperty("java.version"), "Z", "0.0", "0");
     }
-    public Analytics(String sdkCode, String sdkVersion, String techVersion) {
+    public Analytics(String sdkCode, String sdkVersion, String techVersion, String osType, String osVersion, String featureFlag) {
         this.SDKCode = sdkCode;
         this.SDKSemver = sdkVersion;
         this.techVersion = techVersion;
+        this.osType = osType;
+        this.osVersion = osVersion;
+        this.featureFlag = featureFlag;
     }
 
     public Analytics setSDKCode(String SDKCode) {
@@ -37,13 +45,18 @@ public class Analytics {
         return this;
     }
 
+    public Analytics setFeatureFlag(String flag) {
+        this.featureFlag = flag;
+        return this;
+    }
+
     /**
      * Function turn analytics variables into viable query parameter.
      * @return query param with analytics values.
      */
     public String toQueryParam() {
         try {
-            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + getSDKType() + getSDKVersion() + getTechVersion() + getSDKFeatureCode();
+            return sdkTokenQueryKey + sdkQueryDelimiter + getAlgorithmVersion() + prodcut + getSDKType() + getSDKVersion() + getTechVersion() + getOsType() + getOsVersion() + getSDKFeatureFlag();
         } catch (Exception e) {
             return sdkTokenQueryKey + sdkQueryDelimiter + "E";
         }
@@ -52,10 +65,29 @@ public class Analytics {
     private String getTechVersion() throws Exception {
         String[] techVersionString = techVersion.split("_");
         String[] versions = techVersionString[0].split("\\.");
+        return versionArrayToString(versions);
+    }
+
+    private String versionArrayToString(String[] versions) throws Exception {
         if (versions.length > 2) {
             versions = Arrays.copyOf(versions, versions.length - 1);
         }
         return getPaddedString(StringUtils.join(versions, "."));
+    }
+
+    private String versionArrayToOsString(String[] versions) throws  Exception {
+        if (versions.length > 2) {
+            versions = Arrays.copyOf(versions, versions.length - 1);
+        }
+        return getOsVersionString(StringUtils.join(versions, "."));
+    }
+
+    private String getOsType() {
+        return (osType != null) ? osType : "Z"; //System.getProperty("os.name");
+    }
+
+    private String getOsVersion() throws Exception {
+        return (osVersion != null) ? versionArrayToOsString(osVersion.split("\\.")) : versionArrayToString(System.getProperty("os.version").split("\\."));
     }
 
     private String getSDKType() {
@@ -63,15 +95,27 @@ public class Analytics {
     }
 
     private String getAlgorithmVersion() {
-        return "A";
+        return algoVersion;
     }
 
-    private String getSDKFeatureCode() {
-        return "0";
+    private String getSDKFeatureFlag() {
+        return featureFlag;
     }
 
     private String getSDKVersion() throws Exception {
         return getPaddedString(SDKSemver);
+    }
+
+    private String getOsVersionString(String string) throws Exception {
+        String[] parts = string.split("\\.");
+        String result = "";
+        for(int i = 0 ; i < parts.length ; i++) {
+            int num = Integer.parseInt(parts[i]);
+            String binaryString = Integer.toBinaryString(num);
+            binaryString = StringUtils.padStart(binaryString, 6, '0');
+            result = result + Base64Map.values.get(binaryString);
+        }
+        return result;
     }
 
     private String getPaddedString(String string) throws Exception {

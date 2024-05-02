@@ -182,6 +182,33 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testSingleSelectiveResponse() throws Exception {
+        Map options = new HashMap();
+        options.put("fields", "width");
+        Map result = api.resources(options);
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertNotNull(resources);
+        Map resource = resources.get(0);
+        assertNotNull(resource);
+        assertNotNull(resource.get("width"));
+        assertNull(resource.get("format"));
+    }
+
+    @Test
+    public void testMultipleSelectiveResponse() throws Exception {
+        Map options = new HashMap();
+        options.put("fields", new String[]{"width", "format"});
+        Map result = api.resources(options);
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertNotNull(resources);
+        Map resource = resources.get(0);
+        assertNotNull(resource);
+        assertNotNull(resource.get("width"));
+        assertNotNull(resource.get("format"));
+        assertNull(resource.get("height"));
+    }
+
+    @Test
     public void test03ResourcesCursor() throws Exception {
         // should allow listing resources with cursor
         Map options = new HashMap();
@@ -1212,6 +1239,14 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testAnalyzeApi() throws Exception {
+        assumeAddonEnabled("captioning");
+        ApiResponse res = api.analyze("uri", "captioning", "https://res.cloudinary.com/demo/image/upload/dog", ObjectUtils.emptyMap());
+        assertNotNull(res);
+        assertNotNull(res.get("request_id"));
+    }
+
+    @Test
     public void testFolderDecoupling() {
         //TODO: Need to build a unit testing infrastructure
         Map params = new HashMap<String, Object>();
@@ -1231,5 +1266,16 @@ abstract public class AbstractApiTest extends MockableTest {
                 "visual_search", true);
         Util.processWriteParameters(options, params);
         assertEquals(true, params.get("visual_search"));
+    }
+
+    @Test
+    @Ignore("Skip test till FD is enabled for test accounts")
+    public void testRenameFolder() throws Exception {
+        Map result = api.createFolder("apTestCreateFolder", null);
+        assertNotNull(result);
+
+        String folderName = (String) result.get("path");
+        Map response = api.renameFolder(folderName, "newFolderName", ObjectUtils.emptyMap());
+        assertNotNull(response);
     }
 }

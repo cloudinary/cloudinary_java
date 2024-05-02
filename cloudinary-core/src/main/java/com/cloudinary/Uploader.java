@@ -234,6 +234,7 @@ public class Uploader {
         params.put("type", (String) options.get("type"));
         params.put("public_id", publicId);
         params.put("invalidate", ObjectUtils.asBoolean(options.get("invalidate"), false).toString());
+        params.put("notification_url", (String) options.get("notification_url"));
         return callApi("destroy", params, options, null);
     }
 
@@ -249,6 +250,7 @@ public class Uploader {
         params.put("to_type", options.get("to_type"));
         params.put("context", ObjectUtils.asBoolean(options.get("context"), false).toString());
         params.put("metadata", ObjectUtils.asBoolean(options.get("metadata"), false).toString());
+        params.put("notification_url", (String) options.get("notification_url"));
         return callApi("rename", params, options, null);
     }
 

@@ -177,4 +177,16 @@ abstract public class AbstractSearchTest extends MockableTest {
         cloudinaryToSearch.config.privateCdn = true;
         assertEquals(String.format("https://%s-res.cloudinary.com/search/%s/%d/%s", cloudinaryToSearch.config.cloudName, ttl300Signature, 300, base64Query), search.toUrl(300, ""));
     }
+
+    @Test
+    public void testSearchWithSelectiveResponse() throws Exception {
+        Map result = cloudinary.search().expression(String.format("tags:%s", SEARCH_TAG)).fields("width").fields("height").execute();
+        List<Map> resources = (List<Map>) result.get("resources");
+        assertEquals(3, resources.size());
+        Map resource = resources.get(0);
+        assertNotNull(resource);
+        assertNotNull(resource.get("width"));
+        assertNotNull(resource.get("height"));
+        assertNull(resource.get("format"));
+    }
 }

@@ -802,6 +802,25 @@ public class Api {
 
     }
 
+    public ApiResponse deleteBackedUpAssets(String assetId, String[] versionIds, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        if (StringUtils.isEmpty(assetId)) {
+            throw new IllegalArgumentException("AssetId parameter is required");
+        }
+
+        if (versionIds == null || versionIds.length == 0) {
+            throw new IllegalArgumentException("VersionIds parameter is required");
+        }
+
+        List<String> url = Arrays.asList("resources", "backup", assetId);
+
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("version_ids[]", StringUtils.join(versionIds, "&"));
+
+        return callApi(HttpMethod.DELETE, url, params, options);
+
+    }
+
     private Map<String, ?> extractParams(Map options, List<String> keys) {
         Map<String, Object> result = new HashMap<String, Object>();
         for (String key : keys) {

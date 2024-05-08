@@ -792,11 +792,10 @@ public class Api {
 
     public ApiResponse renameFolder(String path, String toPath, Map options) throws Exception {
         if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
-        List<String> url = Arrays.asList("folder_operations", "rename");
+        List<String> url = Arrays.asList("folders", path);
 
         final Map params = new HashMap();
-        params.put("path", path);
-        params.put("to_path", toPath);
+        params.put("to_folder", toPath);
 
         return callApi(HttpMethod.PUT, url, params, options);
 

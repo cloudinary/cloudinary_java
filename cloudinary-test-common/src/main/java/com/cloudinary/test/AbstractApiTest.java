@@ -1271,11 +1271,11 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     @Ignore("Skip test till FD is enabled for test accounts")
     public void testRenameFolder() throws Exception {
-        Map result = api.createFolder("apiTestCreateFolder", null);
+        Map result = api.createFolder("apiTestCreateFolder" + SUFFIX, null);
         assertNotNull(result);
 
         String folderName = (String) result.get("path");
-        Map response = api.renameFolder(folderName, "newFolderName", ObjectUtils.emptyMap());
+        Map response = api.renameFolder(folderName, "newFolderName" + SUFFIX, ObjectUtils.emptyMap());
         assertNotNull(response);
     }
 

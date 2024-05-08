@@ -72,6 +72,16 @@ public class Api {
         return callApi(HttpMethod.GET, uri, ObjectUtils.emptyMap(), options);
     }
 
+    public ApiResponse configuration(Map options) throws  Exception {
+        if(options == null) options = ObjectUtils.emptyMap();
+
+        final List<String> uri = new ArrayList<String>();
+        uri.add("config");
+
+        Map params = ObjectUtils.only(options, "settings");
+
+        return callApi(HttpMethod.GET, uri, params, options);
+    }
 
     public ApiResponse resourceTypes(Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();

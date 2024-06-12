@@ -3,10 +3,13 @@ package com.cloudinary.strategies;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.ProgressCallback;
 import com.cloudinary.Uploader;
+import com.cloudinary.Util;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
+
+import org.apache.http.client.methods.HttpPost;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -98,5 +101,22 @@ public abstract class AbstractUploaderStrategy {
         boolean deleteByToken = "delete_by_token".equals(action);
 
         return !unsigned && !deleteByToken;
+    }
+
+    protected HttpPost createPostMethod(String action, Map<String, Object> params, Map options) {
+        String oauthToken = ObjectUtils.asString(options.get("oauth_token"), cloudinary().config.oauthToken);
+        if (requiresSigning(action, options) && oauthToken == null) {
+            uploader.signRequestParams(params, options);
+        } else {
+            Util.clearEmpty(params);
+        }
+
+        String apiUrl = buildUploadUrl(action, options);
+
+        HttpPost postMethod = new HttpPost(apiUrl);
+        if (oauthToken != null) {
+            postMethod.setHeader("Authorization", "Bearer " + oauthToken);
+        }
+        return postMethod;
     }
 }

@@ -309,6 +309,56 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertNotNull(result);
         assertEquals(PUBLIC_ID, ((List) result.get("public_ids")).get(0).toString());
     }
+
+    @Test
+    @Ignore("Skip test, need to enable conditional metadata rules")
+    public void testListMetadataRules() throws Exception {
+        ApiResponse result = cloudinary.api().listMetadataRules(null);
+        assertNotNull(result);
+    }
+
+    @Test
+    @Ignore("Skip test, need to enable conditional metadata rules")
+    public void testAddMetadataRule() throws Exception {
+        SetMetadataField field = createSetField("test123");
+        ApiResponse response = addFieldToAccount(field);
+        assertNotNull(response);
+
+        String externalId = (String) response.get("external_id");
+        MetadataRule rule = new MetadataRule(externalId, "category-employee", new MetadataRuleCondition("category", false, null, "employee"), new MetadataRuleResult(true, "all", null, null));
+        ApiResponse result = cloudinary.api().addMetadataRule(rule, ObjectUtils.asMap());
+        assertNotNull(result);
+
+        String name = (String) result.get("name");
+        assertEquals(name, "category-employee");
+
+    }
+
+    @Test
+    @Ignore("Skip test, need to enable conditional metadata rules")
+    public void testUpdateMetadataRule() throws Exception {
+        ApiResponse response = cloudinary.api().listMetadataRules(null);
+        List metadataRules = (List)response.get("metadata_rules");
+        assertNotNull(metadataRules);
+        String externalId = (String) ((Map) metadataRules.get(0)).get("external_id");
+
+        MetadataRule rule = new MetadataRule(null, "test_name", null, null);
+        ApiResponse result = cloudinary.api().updateMetadataRule(externalId, rule, ObjectUtils.asMap());
+        assertNotNull(result);
+    }
+
+    @Test
+    @Ignore("Skip test, need to enable conditional metadata rules")
+    public void testDeleteMetadataRule() throws Exception {
+        ApiResponse response = cloudinary.api().listMetadataRules(null);
+        List metadataRules = (List)response.get("metadata_rules");
+        assertNotNull(metadataRules);
+        String externalId = (String) ((Map) metadataRules.get(0)).get("external_id");
+
+        ApiResponse result = cloudinary.api().deleteMetadataRule(externalId, ObjectUtils.emptyMap());
+        assertNotNull(result);
+    }
+
     // Metadata test helpers
     private SetMetadataField createSetField(String labelPrefix) {
         SetMetadataField setField = new SetMetadataField();

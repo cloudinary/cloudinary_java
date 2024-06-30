@@ -7,6 +7,7 @@ import com.cloudinary.api.AuthorizationRequired;
 import com.cloudinary.api.exceptions.*;
 import com.cloudinary.metadata.MetadataField;
 import com.cloudinary.metadata.MetadataDataSource;
+import com.cloudinary.metadata.MetadataRule;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -787,6 +788,47 @@ public class Api {
         }
 
         return callApi(HttpMethod.PUT, uri, map, options);
+    }
+
+    public ApiResponse listMetadataRules(Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        final Map params = new HashMap();
+        List<String> uri = Arrays.asList("metadata_rules");
+        return callApi(HttpMethod.GET, uri, params, options);
+    }
+
+    public ApiResponse addMetadataRule(MetadataRule rule, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        options.put("content_type", "json");
+        final Map params = new HashMap();
+        params.put("metadata_field_id", rule.getMetadataFieldId());
+        params.put("name", rule.getName());
+        params.put("condition", ObjectUtils.toJSON(rule.getCondition().asMap()));
+        params.put("result", ObjectUtils.toJSON(rule.getResult().asMap()));
+        List<String> uri = Arrays.asList("metadata_rules");
+        return callApi(HttpMethod.POST, uri, params, options);
+    }
+
+    public ApiResponse updateMetadataRule(String externalId, MetadataRule rule, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        options.put("content_type", "json");
+        final Map params = new HashMap();
+        params.put("metadata_field_id", rule.getMetadataFieldId());
+        params.put("name", rule.getName());
+        if(rule.getCondition() != null) {
+            params.put("condition", ObjectUtils.toJSON(rule.getCondition().asMap()));
+        }
+        if(rule.getResult() != null) {
+            params.put("result", ObjectUtils.toJSON(rule.getResult().asMap()));
+        }
+        List<String> uri = Arrays.asList("metadata_rules", externalId);
+        return callApi(HttpMethod.PUT, uri, params, options);
+    }
+
+    public ApiResponse deleteMetadataRule(String externalId, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
+        List<String> uri = Arrays.asList("metadata_rules", externalId);
+        return callApi(HttpMethod.DELETE, uri, ObjectUtils.emptyMap(), options);
     }
 
     public ApiResponse analyze(String inputType, String analysisType, String uri, Map options) throws Exception {

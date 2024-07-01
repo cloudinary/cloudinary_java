@@ -55,8 +55,12 @@ public class MetadataRule {
         Map map = new HashMap();
         map.put("metadata_field_id", getMetadataFieldId());
         map.put("name", getName());
-        map.put("condition", ObjectUtils.toJSON(getCondition().asMap()));
-        map.put("result", ObjectUtils.toJSON(getResult().asMap()));
+        if (getCondition() != null) {
+            map.put("condition", ObjectUtils.toJSON(getCondition().asMap()));
+        }
+        if(getResult() != null) {
+            map.put("result", ObjectUtils.toJSON(getResult().asMap()));
+        }
         return map;
     }
 }

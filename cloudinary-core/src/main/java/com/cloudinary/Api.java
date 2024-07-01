@@ -800,8 +800,7 @@ public class Api {
     public ApiResponse addMetadataRule(MetadataRule rule, Map options) throws Exception {
         if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
         options.put("content_type", "json");
-        final Map params = new HashMap();
-        params.putAll(rule.asMap());
+        final Map params = rule.asMap();
         List<String> uri = Arrays.asList("metadata_rules");
         return callApi(HttpMethod.POST, uri, params, options);
     }
@@ -809,15 +808,7 @@ public class Api {
     public ApiResponse updateMetadataRule(String externalId, MetadataRule rule, Map options) throws Exception {
         if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
         options.put("content_type", "json");
-        final Map params = new HashMap();
-        params.put("metadata_field_id", rule.getMetadataFieldId());
-        params.put("name", rule.getName());
-        if(rule.getCondition() != null) {
-            params.put("condition", ObjectUtils.toJSON(rule.getCondition().asMap()));
-        }
-        if(rule.getResult() != null) {
-            params.put("result", ObjectUtils.toJSON(rule.getResult().asMap()));
-        }
+        final Map params = rule.asMap();
         List<String> uri = Arrays.asList("metadata_rules", externalId);
         return callApi(HttpMethod.PUT, uri, params, options);
     }

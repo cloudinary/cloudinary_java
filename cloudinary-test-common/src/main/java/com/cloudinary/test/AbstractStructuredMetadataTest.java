@@ -334,7 +334,6 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
             String name = (String) result.get("name");
             assertEquals(name, "category-employee");
         }
-
     }
 
     @Test

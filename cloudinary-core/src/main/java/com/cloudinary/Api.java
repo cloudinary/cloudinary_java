@@ -801,10 +801,7 @@ public class Api {
         if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
         options.put("content_type", "json");
         final Map params = new HashMap();
-        params.put("metadata_field_id", rule.getMetadataFieldId());
-        params.put("name", rule.getName());
-        params.put("condition", ObjectUtils.toJSON(rule.getCondition().asMap()));
-        params.put("result", ObjectUtils.toJSON(rule.getResult().asMap()));
+        params.putAll(rule.asMap());
         List<String> uri = Arrays.asList("metadata_rules");
         return callApi(HttpMethod.POST, uri, params, options);
     }

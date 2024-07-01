@@ -1,6 +1,10 @@
 package com.cloudinary.metadata;
 
+import com.cloudinary.utils.ObjectUtils;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MetadataRule {
     String metadataFieldId;
@@ -45,5 +49,14 @@ public class MetadataRule {
 
     public void setResult(MetadataRuleResult result) {
         this.result = result;
+    }
+
+    public Map asMap() {
+        Map map = new HashMap();
+        map.put("metadata_field_id", getMetadataFieldId());
+        map.put("name", getName());
+        map.put("condition", ObjectUtils.toJSON(getCondition().asMap()));
+        map.put("result", ObjectUtils.toJSON(getResult().asMap()));
+        return map;
     }
 }

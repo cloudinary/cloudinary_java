@@ -152,6 +152,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), metadataField);
         assertNotNull(result);
         assertEquals("new_def", result.get("default_value"));
+        assertEquals(false, result.get("default_disabled"));
         Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
         assertNotNull(restrictions);
         assertTrue((Boolean)restrictions.get("readonly_ui"));

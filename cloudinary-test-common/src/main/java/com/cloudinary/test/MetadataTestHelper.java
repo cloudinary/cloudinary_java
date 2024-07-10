@@ -7,10 +7,10 @@ import com.cloudinary.metadata.MetadataValidation;
 import com.cloudinary.metadata.StringMetadataField;
 
 public class MetadataTestHelper {
-    public static StringMetadataField newFieldInstance(String label) throws Exception {
+    public static StringMetadataField newFieldInstance(String label, Boolean mandatory) throws Exception {
         StringMetadataField field = new StringMetadataField();
         field.setLabel(label);
-        field.setMandatory(true);
+        field.setMandatory(mandatory);
         field.setValidation(new MetadataValidation.StringLength(3, 9));
         field.setDefaultValue("val_test");
         return field;

@@ -142,7 +142,7 @@ public class MetadataField<T> extends JSONObject {
     }
 
     /**
-     * Set should the field disable default.
+     * Set the value indicating whether the field should be disabled by default
      * @param disabled The value to set.
      */
     public void setDefaultDisabled(Boolean disabled) {

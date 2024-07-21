@@ -211,7 +211,6 @@ public class CloudinaryTest {
     @Test
     public void testCname() {
         // should support external cname
-        // TODO: Create a default cloudinary object without secure
         String result = cloudinary.url().cname("hello.com").secure(false).generate("test");
         assertEquals("http://hello.com/test123/image/upload/test", result);
     }
@@ -219,7 +218,6 @@ public class CloudinaryTest {
     @Test
     public void testCnameSubdomain() {
         // should support external cname with cdn_subdomain on
-        // TODO: Create a default cloudinary object without secure
         String result = cloudinary.url().cname("hello.com").cdnSubdomain(true).secure(false).generate("test");
         assertEquals("http://a2.hello.com/test123/image/upload/test", result);
     }

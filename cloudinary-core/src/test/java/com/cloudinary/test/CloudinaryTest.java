@@ -1212,8 +1212,10 @@ public class CloudinaryTest {
                 .authToken(new AuthToken("123456").duration(300))
                 .signed(true)
                 .secure(true)
-                .videoTag("sample", Cloudinary.asMap(
-                        "controls", true,
+//                .videoTag("sample", Cloudinary.asMap(
+//                                "controls", true,
+//                                "loop", true)
+                .videoTag("sample", asMap("controls", true,
                         "loop", true)
                 );
         assert(actualTag.contains("cld_token"));
@@ -1282,25 +1284,25 @@ public class CloudinaryTest {
     @SuppressWarnings("deprecation")
     public void testBackwardCampatibleOverlayOptions() {
         Object tests[] = {
-                new LayerBuilder().publicId("logo"),
+                new Layer().publicId("logo"),
                 "logo",
-                new LayerBuilder().publicId("folder/logo"),
+                new Layer().publicId("folder/logo"),
                 "folder:logo",
-                new LayerBuilder().publicId("logo").type("private"),
+                new Layer().publicId("logo").type("private"),
                 "private:logo",
-                new LayerBuilder().publicId("logo").format("png"),
+                new Layer().publicId("logo").format("png"),
                 "logo.png",
-                new LayerBuilder().resourceType("video").publicId("cat"),
+                new Layer().resourceType("video").publicId("cat"),
                 "video:cat",
-                new TextLayerBuilder().text("Hello/World").fontFamily("Arial").fontSize(18),
+                new TextLayer().text("Hello/World").fontFamily("Arial").fontSize(18),
                 "text:Arial_18:Hello%252FWorld",
-                new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
+                new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18),
                 "text:Arial_18:Hello%20World%252C%20Nice%20to%20meet%20you%3F",
-                new TextLayerBuilder().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
+                new TextLayer().text("Hello World, Nice to meet you?").fontFamily("Arial").fontSize(18)
                         .fontWeight("bold").fontStyle("italic").letterSpacing("4"),
                 "text:Arial_18_bold_italic_letter_spacing_4:Hello%20World%252C%20Nice%20to%20meet%20you%3F",
-                new SubtitlesLayerBuilder().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
-                new SubtitlesLayerBuilder().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
+                new SubtitlesLayer().publicId("sample_sub_en.srt"), "subtitles:sample_sub_en.srt",
+                new SubtitlesLayer().publicId("sample_sub_he.srt").fontFamily("Arial").fontSize(40),
                 "subtitles:Arial_40:sample_sub_he.srt"};
 
         for (int i = 0; i < tests.length; i += 2) {

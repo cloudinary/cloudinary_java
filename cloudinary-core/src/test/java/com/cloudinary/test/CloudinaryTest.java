@@ -46,7 +46,7 @@ public class CloudinaryTest {
     @Before
     public void setUp() {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
+        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false&analytics=false");
     }
 
     @Test

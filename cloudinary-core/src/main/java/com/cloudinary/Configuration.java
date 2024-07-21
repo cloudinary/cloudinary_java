@@ -128,7 +128,7 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
-        this.analytics = ObjectUtils.asBoolean(config.get("analytics"), null);
+        this.analytics = ObjectUtils.asBoolean(config.get("analytics"), true);
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);

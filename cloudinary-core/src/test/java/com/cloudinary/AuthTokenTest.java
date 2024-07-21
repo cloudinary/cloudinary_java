@@ -74,28 +74,28 @@ public class AuthTokenTest {
 
         String message = "should add token if authToken is globally set and signed = true";
         String url = cloudinary.url().signed(true).resourceType("image").type("authenticated").version("1486020273").generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=8db0d753ee7bbb9e2eaf8698ca3797436ba4c20e31f44527e43b6a6e995cfdb3", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=8db0d753ee7bbb9e2eaf8698ca3797436ba4c20e31f44527e43b6a6e995cfdb3", url);
 
         message = "should add token for 'public' resource";
         url = cloudinary.url().signed(true).resourceType("image").type("public").version("1486020273").generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/public/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=c2b77d9f81be6d89b5d0ebc67b671557e88a40bcf03dd4a6997ff4b994ceb80e", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/public/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=c2b77d9f81be6d89b5d0ebc67b671557e88a40bcf03dd4a6997ff4b994ceb80e", url);
 
         message = "should not add token if signed is false";
         url = cloudinary.url().resourceType("image").type("authenticated").version("1486020273").generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg", url);
 
         message = "should not add token if authToken is globally set but null auth token is explicitly set and signed = true";
         url = cloudinary.url().authToken(AuthToken.NULL_AUTH_TOKEN).signed(true).resourceType("image").type("authenticated").version("1486020273").generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/s--v2fTPYTu--/v1486020273/sample.jpg", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/authenticated/s--v2fTPYTu--/v1486020273/sample.jpg", url);
 
         message = "explicit authToken should override global setting";
         url = cloudinary.url().signed(true).authToken(new AuthToken(ALT_KEY).startTime(222222222).duration(100)).resourceType("image").type("authenticated").transformation(new Transformation().crop("scale").width(300)).generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/c_scale,w_300/sample.jpg?__cld_token__=st=222222222~exp=222222322~hmac=55cfe516530461213fe3b3606014533b1eca8ff60aeab79d1bb84c9322eebc1f", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/authenticated/c_scale,w_300/sample.jpg?__cld_token__=st=222222222~exp=222222322~hmac=55cfe516530461213fe3b3606014533b1eca8ff60aeab79d1bb84c9322eebc1f", url);
 
         message = "should compute expiration as start time + duration";
         url = cloudinary.url().signed(true).authToken(new AuthToken().startTime(11111111).duration(300))
                 .type("authenticated").version("1486020273").generate("sample.jpg");
-        assertEquals(message,"http://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=8db0d753ee7bbb9e2eaf8698ca3797436ba4c20e31f44527e43b6a6e995cfdb3", url);
+        assertEquals(message,"https://test123-res.cloudinary.com/image/authenticated/v1486020273/sample.jpg?__cld_token__=st=11111111~exp=11111411~hmac=8db0d753ee7bbb9e2eaf8698ca3797436ba4c20e31f44527e43b6a6e995cfdb3", url);
 
     }
 
@@ -120,7 +120,7 @@ public class AuthTokenTest {
     public void testUrlInTag() {
         String message = "should add token to an image tag url";
         String url = cloudinary.url().signed(true).resourceType("image").type("authenticated").version("1486020273").imageTag("sample.jpg");
-        assertThat(url, Matchers.matchesPattern("<img.*src='http://res.cloudinary.com/test123/image/authenticated/v1486020273/sample.jpg\\?__cld_token__=st=11111111~exp=11111411~hmac=9bd6f41e2a5893da8343dc8eb648de8bf73771993a6d1457d49851250caf3b80.*>"));
+        assertThat(url, Matchers.matchesPattern("<img.*src='https://res.cloudinary.com/test123/image/authenticated/v1486020273/sample.jpg\\?__cld_token__=st=11111111~exp=11111411~hmac=9bd6f41e2a5893da8343dc8eb648de8bf73771993a6d1457d49851250caf3b80.*>"));
 
     }
 

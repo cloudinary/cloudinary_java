@@ -114,7 +114,7 @@ public class Configuration {
         this.apiSecret = (String) config.get("api_secret");
         this.secureDistribution = (String) config.get("secure_distribution");
         this.cname = (String) config.get("cname");
-        this.secure = ObjectUtils.asBoolean(config.get("secure"), false);
+        this.secure = ObjectUtils.asBoolean(config.get("secure"), true);
         this.privateCdn = ObjectUtils.asBoolean(config.get("private_cdn"), false);
         this.cdnSubdomain = ObjectUtils.asBoolean(config.get("cdn_subdomain"), false);
         this.shorten = ObjectUtils.asBoolean(config.get("shorten"), false);

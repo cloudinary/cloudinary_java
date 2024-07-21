@@ -401,9 +401,4 @@ public class Cloudinary {
         }
         return urlBuilder.toString();
     }
-
-    @Deprecated
-    public static Map asMap(Object... values) {
-        return ObjectUtils.asMap(values);
-    }
 }

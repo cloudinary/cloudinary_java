@@ -65,25 +65,8 @@ public class Condition extends BaseExpression<Condition> {
         return predicate("idu", operator, value);
     }
 
-
-    /**
-     * @deprecated Use {@link #faceCount(String, Object)} instead
-     */
-    @Deprecated
-    public Condition faces(String operator, Object value) {
-        return faceCount(operator, value);
-    }
-
     public Condition faceCount(String operator, Object value) {
         return predicate("fc", operator, value);
-    }
-
-    /**
-     * @deprecated Use {@link #pageCount(String, Object)} instead
-     */
-    @Deprecated
-    public Condition pages(String operator, Object value) {
-        return pageCount(operator, value);
     }
 
     public Condition pageCount(String operator, Object value) {

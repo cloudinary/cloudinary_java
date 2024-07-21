@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Created by amir on 03/11/2015.
  */
 public class LayerTest {
-    private static final String DEFAULT_ROOT_PATH = "http://res.cloudinary.com/test123/";
+    private static final String DEFAULT_ROOT_PATH = "https://res.cloudinary.com/test123/";
     private static final String DEFAULT_UPLOAD_PATH = DEFAULT_ROOT_PATH + "image/upload/";
     private static final String VIDEO_UPLOAD_PATH = DEFAULT_ROOT_PATH + "video/upload/";
     private Cloudinary cloudinary;

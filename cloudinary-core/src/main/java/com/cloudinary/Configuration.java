@@ -114,7 +114,7 @@ public class Configuration {
         this.apiSecret = (String) config.get("api_secret");
         this.secureDistribution = (String) config.get("secure_distribution");
         this.cname = (String) config.get("cname");
-        this.secure = ObjectUtils.asBoolean(config.get("secure"), false);
+        this.secure = ObjectUtils.asBoolean(config.get("secure"), true);
         this.privateCdn = ObjectUtils.asBoolean(config.get("private_cdn"), false);
         this.cdnSubdomain = ObjectUtils.asBoolean(config.get("cdn_subdomain"), false);
         this.shorten = ObjectUtils.asBoolean(config.get("shorten"), false);
@@ -128,7 +128,7 @@ public class Configuration {
         this.loadStrategies = ObjectUtils.asBoolean(config.get("load_strategies"), true);
         this.timeout = ObjectUtils.asInteger(config.get("timeout"), 0);
         this.clientHints = ObjectUtils.asBoolean(config.get("client_hints"), false);
-        this.analytics = ObjectUtils.asBoolean(config.get("analytics"), null);
+        this.analytics = ObjectUtils.asBoolean(config.get("analytics"), true);
         Map tokenMap = (Map) config.get("auth_token");
         if (tokenMap != null) {
             this.authToken = new AuthToken(tokenMap);

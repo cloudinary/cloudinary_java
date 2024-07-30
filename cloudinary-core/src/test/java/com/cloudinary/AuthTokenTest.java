@@ -32,7 +32,7 @@ public class AuthTokenTest {
     @Before
     public void setUp() {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
-        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
+        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false&analytics=false");
         final AuthToken authToken = new AuthToken(KEY).duration(300);
         authToken.startTime(11111111); // start time is set for test purposes
         cloudinary.config.authToken = authToken;

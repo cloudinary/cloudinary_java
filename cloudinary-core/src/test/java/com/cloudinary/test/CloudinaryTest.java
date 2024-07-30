@@ -146,6 +146,7 @@ public class CloudinaryTest {
     public void testSecureAkamai() {
         // should default to akamai if secure is given with private_cdn and no
         // secure_distribution
+        cloudinary.config.secure = true;
         cloudinary.config.privateCdn = true;
         String result = cloudinary.url().generate("test");
         assertEquals("https://test123-res.cloudinary.com/image/upload/test", result);
@@ -155,6 +156,7 @@ public class CloudinaryTest {
     public void testSecureNonAkamai() {
         // should not add cloud_name if private_cdn and secure non akamai
         // secure_distribution
+        cloudinary.config.secure = true;
         cloudinary.config.privateCdn = true;
         cloudinary.config.secureDistribution = "something.cloudfront.net";
         String result = cloudinary.url().generate("test");
@@ -1209,10 +1211,9 @@ public class CloudinaryTest {
                 .type("upload")
                 .authToken(new AuthToken("123456").duration(300))
                 .signed(true)
-//                .videoTag("sample", Cloudinary.asMap(
-//                                "controls", true,
-//                                "loop", true)
-                .videoTag("sample", asMap("controls", true,
+                .secure(true)
+                .videoTag("sample", ObjectUtils.asMap(
+                        "controls", true,
                         "loop", true)
                 );
         assert(actualTag.contains("cld_token"));

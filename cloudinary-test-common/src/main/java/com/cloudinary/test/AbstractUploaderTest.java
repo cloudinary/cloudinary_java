@@ -41,6 +41,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     @BeforeClass
     public static void setUpClass() throws IOException {
         Cloudinary cloudinary = new Cloudinary();
+        cloudinary.config.analytics = false;
         if (cloudinary.config.apiSecret == null) {
             System.err.println("Please setup environment for Upload test to run");
         }
@@ -89,6 +90,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
     public void setUp() {
         System.out.println("Running " + this.getClass().getName() + "." + currentTest.getMethodName());
         this.cloudinary = new Cloudinary();
+        this.cloudinary.config.analytics = false;
         assumeNotNull(cloudinary.config.apiSecret);
     }
 

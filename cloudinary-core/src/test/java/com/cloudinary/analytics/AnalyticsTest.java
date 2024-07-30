@@ -65,26 +65,28 @@ public class AnalyticsTest {
         cloudinary.config.analytics = true;
         cloudinary.setAnalytics(new Analytics("F", "2.0.0", "1.8.0", "Z", "1.34.0", "0"));
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=DAFAACMhZBi0");
+        Assert.assertEquals(url, "https://res.cloudinary.com/test123/image/upload/test?_a=DAFAACMhZBi0");
     }
 
     @Test
     public void testUrlWithNoAnalytics() {
-        String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
+        cloudinary.config.analytics = false;
+        String url = cloudinary.url().secure(true).generate("test");
+        Assert.assertEquals(url, "https://res.cloudinary.com/test123/image/upload/test");
     }
 
     @Test
     public void testUrlWithNoAnalyticsDefined() {
         cloudinary.config.analytics = false;
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
+        Assert.assertEquals(url, "https://res.cloudinary.com/test123/image/upload/test");
     }
 
     @Test
     public void testUrlWithNoAnalyticsNull() {
+        cloudinary.config.analytics = false;
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test");
+        Assert.assertEquals(url, "https://res.cloudinary.com/test123/image/upload/test");
     }
 
     @Test
@@ -93,7 +95,7 @@ public class AnalyticsTest {
         cloudinary.analytics.setSDKSemver("1.30.0");
         cloudinary.analytics.setTechVersion("12.0.0");
         String url = cloudinary.url().generate("test");
-        Assert.assertEquals(url, "http://res.cloudinary.com/test123/image/upload/test?_a=DAGAu5AMZAA0");
+        Assert.assertEquals(url, "https://res.cloudinary.com/test123/image/upload/test?_a=DAGAu5AMZAA0");
     }
 
     @Test
@@ -123,7 +125,7 @@ public class AnalyticsTest {
         cloudinary.setAnalytics(new Analytics("F", "2.0.0", System.getProperty("java.version"), "Z", System.getProperty("os.version"), "0"));
         cloudinary.config.privateCdn = true;
         String url = cloudinary.url().signed(true).type("authenticated").generate("test");
-        assertEquals(url,"http://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
+        assertEquals(url,"https://test123-res.cloudinary.com/image/authenticated/test?__cld_token__=st=11111111~exp=11111411~hmac=735a49389a72ac0b90d1a84ac5d43facd1a9047f153b39e914747ef6ed195e53");
         cloudinary.config.privateCdn = false;
     }
 

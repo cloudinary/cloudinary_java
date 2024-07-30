@@ -263,11 +263,6 @@ public class Uploader {
         return callApi("explicit", params, options, null);
     }
 
-    @Deprecated
-    public Map generate_sprite(String tag, Map options) throws IOException {
-        return generateSprite(tag, options);
-    }
-
     public Map generateSprite(String tag, Map options) throws IOException {
         if (options == null)
             options = Collections.singletonMap("tag", tag);

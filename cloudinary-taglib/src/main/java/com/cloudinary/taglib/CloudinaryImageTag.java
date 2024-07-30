@@ -72,15 +72,4 @@ public class CloudinaryImageTag extends CloudinaryUrl {
     public void setExtraClasses(String extraClasses) {
         this.extraClasses = extraClasses;
     }
-
-    @Deprecated
-    public void setPublicId(String src) {
-        this.src = src;
-    }
-
-    @Deprecated
-    public String getPublicId() {
-        return src;
-    }
-
 }

@@ -1305,4 +1305,23 @@ abstract public class AbstractApiTest extends MockableTest {
             assertEquals(deletedVersionIds.get(0), firstAssetVersion);
         }
     }
+
+    @Test
+    public void testAllowDerivedNextCursor() throws Exception {
+        String publicId = "allowderivednextcursor_" + SUFFIX;
+        Map options = ObjectUtils.asMap("public_id", publicId, "eager", Arrays.asList(
+                new Transformation().width(100),
+                new Transformation().width(101),
+                new Transformation().width(102)
+        ));
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+        ApiResponse res = api.resource(publicId, Collections.singletonMap("max_results", 1));
+        String derivedNextCursor = res.get("derived_next_cursor").toString();
+        assertNotNull(derivedNextCursor);
+        ApiResponse res2 = api.resource(publicId, ObjectUtils.asMap("derived_next_cursor", derivedNextCursor, "max_results", 1));
+        String derivedNextCursor2 = res2.get("derived_next_cursor").toString();
+        assertNotNull(derivedNextCursor2);
+
+        assertNotEquals(derivedNextCursor, derivedNextCursor2);
+    }
 }

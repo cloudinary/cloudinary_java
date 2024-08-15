@@ -1323,5 +1323,7 @@ abstract public class AbstractApiTest extends MockableTest {
         assertNotNull(derivedNextCursor2);
 
         assertNotEquals(derivedNextCursor, derivedNextCursor2);
+
+        cloudinary.uploader().destroy(publicId, Collections.singletonMap("invalidate", true));
     }
 }

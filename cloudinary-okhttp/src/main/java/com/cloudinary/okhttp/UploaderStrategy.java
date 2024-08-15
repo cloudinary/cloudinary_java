@@ -1,4 +1,4 @@
-package com.cloudinary.http42;
+package com.cloudinary.http-client;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.ProgressCallback;

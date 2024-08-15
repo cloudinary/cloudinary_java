@@ -1,4 +1,4 @@
-package com.cloudinary.http42.api;
+package com.cloudinary.okhttp.api;
 
 import java.text.DateFormat;
 import java.text.ParseException;

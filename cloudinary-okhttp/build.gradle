@@ -19,9 +19,7 @@ task ciTest( type: Test ) {
 dependencies {
     compile project(':cloudinary-core')
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.2.1'
-    compile group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.2.1'
-    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.2.1'
+    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.9.3' // OkHttp dependency
     testCompile project(':cloudinary-test-common')
     testCompile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
     testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'
@@ -47,10 +45,10 @@ if (hasProperty("ossrhPassword")) {
                 artifact sourcesJar
                 artifact javadocJar
                 pom {
-                    name = 'Cloudinary Apache HTTP 4.2 Library'
+                    name = 'Cloudinary OkHttp Library'
                     packaging = 'jar'
                     groupId = publishGroupId
-                    artifactId = 'cloudinary-http42'
+                    artifactId = 'cloudinary-okhttp'
                     description = publishDescription
                     url = githubUrl
                     licenses {

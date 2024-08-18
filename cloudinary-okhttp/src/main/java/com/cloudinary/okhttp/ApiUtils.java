@@ -1,50 +1,65 @@
 package com.cloudinary.okhttp;
 
 import com.cloudinary.utils.ObjectUtils;
-import okhttp3.FormBody;
-import okhttp3.HttpUrl;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.FormBody;
+import org.cloudinary.json.JSONObject;
 
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class ApiUtils {
 
-    public static void setTimeouts(Request.Builder requestBuilder, Map<String, ?> options) {
-        // OkHttp timeout settings are done at the client level, not per request
-        // If you need custom timeouts per request, you would need to create a new client instance per request.
+    public static void setTimeouts(Request.Builder requestBuilder, Map options) {
+        // No direct equivalent in OkHttp, but timeouts are handled in OkHttpClient itself
     }
 
-    static HttpUrl.Builder prepareParams(String url, Map<String, ?> params) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+    static List<Param> prepareParams(Map<String, ?> params) {
+        List<Param> requestParams = new ArrayList<>();
+
         for (Map.Entry<String, ?> param : params.entrySet()) {
-            if (param.getValue() instanceof Iterable) {
-                for (Object single : (Iterable<?>) param.getValue()) {
-                    urlBuilder.addQueryParameter(param.getKey() + "[]", ObjectUtils.asString(single));
+            String key = param.getKey();
+            Object value = param.getValue();
+
+            if (value instanceof Iterable) {
+                // If the value is an Iterable, handle each item individually
+                for (Object single : (Iterable<?>) value) {
+                    requestParams.add(new Param(key + "[]", ObjectUtils.asString(single)));
                 }
+            } else if (value instanceof Map) {
+                // Convert Map to JSON string manually to avoid empty object issues
+                JSONObject jsonObject = new JSONObject();
+                for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                    jsonObject.put(entry.getKey().toString(), entry.getValue());
+                }
+                requestParams.add(new Param(key, jsonObject.toString()));
             } else {
-                urlBuilder.addQueryParameter(param.getKey(), ObjectUtils.asString(param.getValue()));
+                // Handle simple key-value pairs
+                requestParams.add(new Param(key, ObjectUtils.asString(value)));
             }
         }
-        return urlBuilder;
+
+        return requestParams;
     }
 
-    static RequestBody prepareRequestBody(Map<String, ?> params, String contentType) {
-        if ("json".equals(contentType)) {
-            String jsonString = ObjectUtils.toJSON(params).toString();
-            return RequestBody.create(jsonString, okhttp3.MediaType.parse("application/json"));
-        } else {
-            FormBody.Builder formBuilder = new FormBody.Builder();
-            for (Map.Entry<String, ?> param : params.entrySet()) {
-                if (param.getValue() instanceof Iterable) {
-                    for (Object single : (Iterable<?>) param.getValue()) {
-                        formBuilder.add(param.getKey() + "[]", ObjectUtils.asString(single));
-                    }
-                } else {
-                    formBuilder.add(param.getKey(), ObjectUtils.asString(param.getValue()));
-                }
-            }
-            return formBuilder.build();
+    // Helper class to store parameters as key-value pairs
+    static class Param {
+        String name;
+        String value;
+
+        Param(String name, String value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        String getKey() {
+            return name;
+        }
+
+        String getValue() {
+            return value;
         }
     }
+
 }

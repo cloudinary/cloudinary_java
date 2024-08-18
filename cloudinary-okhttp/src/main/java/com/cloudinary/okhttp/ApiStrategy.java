@@ -2,9 +2,11 @@ package com.cloudinary.okhttp;
 
 import com.cloudinary.Api;
 import com.cloudinary.Api.HttpMethod;
+import com.cloudinary.Cloudinary;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.strategies.AbstractApiStrategy;
+import com.cloudinary.okhttp.api.ApiResponseWrapper;
+import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import okhttp3.*;
@@ -12,14 +14,13 @@ import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.util.*;
 
 import static com.cloudinary.okhttp.ApiUtils.prepareParams;
 import static com.cloudinary.okhttp.ApiUtils.setTimeouts;
 
-public class ApiStrategy extends AbstractApiStrategy {
+public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
 
     private OkHttpClient client;
 
@@ -29,21 +30,12 @@ public class ApiStrategy extends AbstractApiStrategy {
 
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
 
-        // Set timeouts if specified in the config
-        if (api.cloudinary.config.timeout > 0) {
+        int timeout = this.api.cloudinary.config.timeout;
+        if (timeout > 0) {
             clientBuilder
-                    .connectTimeout(api.cloudinary.config.timeout, java.util.concurrent.TimeUnit.SECONDS)
-                    .readTimeout(api.cloudinary.config.timeout, java.util.concurrent.TimeUnit.SECONDS)
-                    .writeTimeout(api.cloudinary.config.timeout, java.util.concurrent.TimeUnit.SECONDS);
-        }
-
-        // If the configuration specifies a proxy, apply it to the client
-        if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {
-            java.net.Proxy proxy = new java.net.Proxy(
-                    java.net.Proxy.Type.HTTP,
-                    new java.net.InetSocketAddress(api.cloudinary.config.proxyHost, api.cloudinary.config.proxyPort)
-            );
-            clientBuilder.proxy(proxy);
+                    .connectTimeout(timeout, java.util.concurrent.TimeUnit.SECONDS)
+                    .readTimeout(timeout, java.util.concurrent.TimeUnit.SECONDS)
+                    .writeTimeout(timeout, java.util.concurrent.TimeUnit.SECONDS);
         }
 
         this.client = clientBuilder.build();
@@ -51,9 +43,8 @@ public class ApiStrategy extends AbstractApiStrategy {
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
-        if (options == null) {
+        if (options == null)
             options = ObjectUtils.emptyMap();
-        }
 
         String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
         String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
@@ -62,40 +53,63 @@ public class ApiStrategy extends AbstractApiStrategy {
         validateAuthorization(apiKey, apiSecret, oauthToken);
 
         String apiUrl = createApiUrl(uri, options);
-        Request request = prepareRequest(method, apiUrl, params, options, apiKey, apiSecret, oauthToken);
+        Request request = prepareRequest(method, apiUrl, params, options);
+
+        request = request.newBuilder().header("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken)).build();
 
         return getApiResponse(request);
     }
 
     private ApiResponse getApiResponse(Request request) throws Exception {
-        try (Response response = client.newCall(request).execute()) {
-            int code = response.code();
-            String responseData = response.body().string();
+        String responseData = null;
+        int code = 0;
+        okhttp3.Response response = null;
 
-            Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
-            if (code != 200 && exceptionClass == null) {
-                throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
+        try {
+            response = client.newCall(request).execute();
+            code = response.code();
+            if (response.body() != null) {
+                responseData = response.body().string();
             }
+        } catch (IOException e) {
+            throw new GeneralError("Error executing request: " + e.getMessage());
+        }
 
+        if (code != 200) {
             Map<String, Object> result;
             try {
                 JSONObject responseJSON = new JSONObject(responseData);
                 result = ObjectUtils.toMap(responseJSON);
             } catch (JSONException e) {
-                throw new RuntimeException("Invalid JSON response from server: " + e.getMessage());
+                throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
             }
 
-            if (code == 200) {
-                return new ApiResponse(code, result, null);
+            // Extract the error message from the result map
+            String message = (String) ((Map<String, Object>) result.get("error")).get("message");
+
+            // Get the appropriate exception class based on status code
+            Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
+            if (exceptionClass != null) {
+                Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
+                throw exceptionConstructor.newInstance(message);
             } else {
-                String message = (String) ((Map) result.get("error")).get("message");
-                throw exceptionClass.getConstructor(String.class).newInstance(message);
+                throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
             }
         }
+
+        Map<String, Object> result;
+        try {
+            JSONObject responseJSON = new JSONObject(responseData);
+            result = ObjectUtils.toMap(responseJSON);
+        } catch (JSONException e) {
+            throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
+        }
+
+        return new ApiResponseWrapper(response, result);
     }
 
     @Override
-    public ApiResponse callAccountApi(HttpMethod method, List<String> uri, Map<String, ?> params, Map options) throws Exception {
+    public ApiResponse callAccountApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
         if (options == null) {
             options = ObjectUtils.emptyMap();
         }
@@ -106,50 +120,70 @@ public class ApiStrategy extends AbstractApiStrategy {
         String apiSecret = ObjectUtils.asString(options.get("provisioning_api_secret"));
         if (apiSecret == null) throw new IllegalArgumentException("Must supply provisioning_api_secret");
 
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1"), "/");
+        for (String component : uri) {
+            apiUrl = apiUrl + "/" + component;
+        }
 
-        String apiUrl = StringUtils.join(uri, "/");
-        Request request = prepareRequest(method, apiUrl, params, options, apiKey, apiSecret, null);
+        // Prepare the request
+        Request request = prepareRequest(method, apiUrl, params, options);
 
+        // Add authorization header
+        String authorizationHeaderValue = getAuthorizationHeaderValue(apiKey, apiSecret, null);
+        request = request.newBuilder()
+                .addHeader("Authorization", authorizationHeaderValue)
+                .build();
+
+        // Execute the request and return the response
         return getApiResponse(request);
     }
 
-    private Request prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params, Map options, String apiKey, String apiSecret, String oauthToken) throws IOException {
-        Request.Builder requestBuilder = new Request.Builder()
-                .url(apiUrl)
-                .header("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));
 
-        RequestBody body = null;
+
+    private Request prepareRequest(HttpMethod method, String apiUrl, Map<String, ?> params, Map<String, ?> options) {
+        Request.Builder requestBuilder = new Request.Builder().url(apiUrl);
+        RequestBody requestBody = null;
+
+        String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");
+
         if (method == HttpMethod.GET) {
-            apiUrl = prepareUrlWithParams(apiUrl, params);
-            requestBuilder.url(apiUrl).get();
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(apiUrl).newBuilder();
+            for (ApiUtils.Param param : prepareParams(params)) {
+                urlBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+            requestBuilder.url(urlBuilder.build());
         } else {
-            if (options != null && "json".equals(options.get("content_type"))) {
-                String jsonString = ObjectUtils.toJSON(params).toString();
-                body = RequestBody.create(jsonString, MediaType.parse("application/json"));
+            if (contentType.equals("json")) {
+                JSONObject json = new JSONObject();
+                for (ApiUtils.Param param : prepareParams(params)) {
+                    json.put(param.getKey(), param.getValue());
+                }
+                requestBody = RequestBody.create(MediaType.get("application/json; charset=utf-8"), json.toString());
             } else {
                 FormBody.Builder formBuilder = new FormBody.Builder();
-                List<Map.Entry<String, String>> urlEncodedParams = prepareParams(params);
-                for (Map.Entry<String, String> entry : urlEncodedParams) {
-                    formBuilder.add(entry.getKey(), entry.getValue());
+                for (ApiUtils.Param param : prepareParams(params)) {
+                    if(param.getValue() != null) {
+                        formBuilder.add(param.getKey(), param.getValue());
+                    }
                 }
-                body = formBuilder.build();
+                requestBody = formBuilder.build();
             }
-            if (method == HttpMethod.POST) {
-                requestBuilder.post(body);
-            } else if (method == HttpMethod.PUT) {
-                requestBuilder.put(body);
-            } else if (method == HttpMethod.DELETE) {
-                requestBuilder.delete(body);
+            switch (method) {
+                case PUT:
+                    requestBuilder.put(requestBody);
+                    break;
+                case DELETE:
+                    requestBuilder.delete(requestBody);
+                    break;
+                case POST:
+                    requestBuilder.post(requestBody);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown HTTP method");
             }
         }
-        return requestBuilder.build();
-    }
 
-    private String prepareUrlWithParams(String url, Map<String, ?> params) {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
-        for (Map.Entry<String, ?> entry : params.entrySet()) {
-            urlBuilder.addQueryParameter(entry.getKey(), entry.getValue().toString());
-        }
-        return urlBuilder.build().toString();
+        setTimeouts(requestBuilder, options);
+        return requestBuilder.build();
     }
 }

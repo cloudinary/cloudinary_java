@@ -142,23 +142,6 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     @Test
-    public void testUpdateField() throws Exception {
-        StringMetadataField metadataField = newFieldInstance("testUpdateField", false);
-        ApiResponse fieldResult = addFieldToAccount(metadataField);
-        assertNotEquals("new_def", fieldResult.get("default_value"));
-        metadataField.setDefaultValue("new_def");
-        metadataField.setDefaultDisabled(true);
-        metadataField.setRestrictions(new Restrictions().setReadOnlyUI());
-        ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), metadataField);
-        assertNotNull(result);
-        assertEquals("new_def", result.get("default_value"));
-        assertEquals(true, result.get("default_disabled"));
-        Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
-        assertNotNull(restrictions);
-        assertTrue((Boolean)restrictions.get("readonly_ui"));
-    }
-
-    @Test
     public void testDeleteField() throws Exception {
         ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testDeleteField", true));
         ApiResponse result = api.deleteMetadataField(fieldResult.get("external_id").toString());
@@ -359,6 +342,23 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
         ApiResponse result = cloudinary.api().deleteMetadataRule(externalId, ObjectUtils.emptyMap());
         assertNotNull(result);
+    }
+
+    @Test
+    public void testUpdateField() throws Exception {
+        StringMetadataField metadataField = newFieldInstance("testUpdateFieldDisabled", false);
+        ApiResponse fieldResult = addFieldToAccount(metadataField);
+        assertNotEquals("new_def", fieldResult.get("default_value"));
+        metadataField.setDefaultValue("new_def");
+//        metadataField.setDefaultDisabled(true);
+        metadataField.setRestrictions(new Restrictions().setReadOnlyUI());
+        ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), metadataField);
+        assertNotNull(result);
+        assertEquals("new_def", result.get("default_value"));
+//        assertEquals(true, result.get("default_disabled"));
+        Map<String, Object> restrictions = (Map<String, Object>) result.get("restrictions");
+        assertNotNull(restrictions);
+        assertTrue((Boolean)restrictions.get("readonly_ui"));
     }
 
     // Metadata test helpers

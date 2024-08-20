@@ -154,10 +154,7 @@ public class ApiStrategy extends com.cloudinary.strategies.AbstractApiStrategy {
             requestBuilder.url(urlBuilder.build());
         } else {
             if (contentType.equals("json")) {
-                JSONObject json = new JSONObject();
-                for (ApiUtils.Param param : prepareParams(params)) {
-                    json.put(param.getKey(), param.getValue());
-                }
+                JSONObject json = ObjectUtils.toJSON(params);
                 requestBody = RequestBody.create(MediaType.get("application/json; charset=utf-8"), json.toString());
             } else {
                 FormBody.Builder formBuilder = new FormBody.Builder();

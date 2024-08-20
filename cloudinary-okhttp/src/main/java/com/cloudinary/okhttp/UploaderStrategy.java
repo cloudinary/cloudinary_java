@@ -14,6 +14,10 @@ import java.net.Proxy;
 import okhttp3.*;
 import okhttp3.RequestBody;
 import okhttp3.MultipartBody;
+import okio.BufferedSink;
+import okio.Okio;
+import okio.Source;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -107,13 +111,25 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         // Add file part
         addFilePart(multipartBuilder, file, options);
 
-        // Build the request
+        // Build the request body
         RequestBody requestBody = multipartBuilder.build();
-        return new Request.Builder()
+
+        // Prepare the request builder
+        Request.Builder requestBuilder = new Request.Builder()
                 .url(apiUrl)
-                .post(requestBody)
-                .build();
+                .post(requestBody);
+
+        // Add extra headers if provided
+        Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");
+        if (extraHeaders != null) {
+            for (Map.Entry<String, String> header : extraHeaders.entrySet()) {
+                requestBuilder.addHeader(header.getKey(), header.getValue());
+            }
+        }
+
+        return requestBuilder.build();
     }
+
 
     private void addFilePart(MultipartBody.Builder multipartBuilder, Object file, Map<String, ?> options) throws IOException {
         String filename = (String) options.get("filename");
@@ -128,16 +144,56 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         if (file instanceof File) {
             if (filename == null) filename = ((File) file).getName();
-            multipartBuilder.addFormDataPart("file", filename, RequestBody.create((File) file, MediaType.parse("application/octet-stream")));
+            multipartBuilder.addFormDataPart("file", filename, createFileRequestBody((File) file));
         } else if (file instanceof String) {
             multipartBuilder.addFormDataPart("file", (String) file);
         } else if (file instanceof byte[]) {
             if (filename == null) filename = "file";
-            multipartBuilder.addFormDataPart("file", filename, RequestBody.create((byte[]) file, MediaType.parse("application/octet-stream")));
+            multipartBuilder.addFormDataPart("file", filename, createByteArrayRequestBody((byte[]) file));
         } else if (file == null) {
             // No file to add
         } else {
             throw new IOException("Unrecognized file parameter " + file);
         }
+    }
+
+    private RequestBody createFileRequestBody(File file) {
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return MediaType.parse("application/octet-stream");
+            }
+
+            @Override
+            public long contentLength() throws IOException {
+                return file.length();
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                try (Source source = Okio.source(file)) {
+                    sink.writeAll(source);
+                }
+            }
+        };
+    }
+
+    private RequestBody createByteArrayRequestBody(byte[] data) {
+        return new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return MediaType.parse("application/octet-stream");
+            }
+
+            @Override
+            public long contentLength() {
+                return data.length;
+            }
+
+            @Override
+            public void writeTo(BufferedSink sink) throws IOException {
+                sink.write(data);
+            }
+        };
     }
 }

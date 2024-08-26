@@ -18,10 +18,10 @@ jdk:
 
 env:
   - MODULE=core
-  - MODULE=http42
   - MODULE=http43
   - MODULE=http44
   - MODULE=http45
+  - MODULE=okhttp
 
 branches:
   except:

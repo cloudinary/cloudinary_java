@@ -17,6 +17,7 @@ public class MetadataField<T> extends JSONObject {
     public static final String TYPE = "type";
     public static final String VALIDATION = "validation";
     public static final String RESTRICTIONS = "restrictions";
+    public static final String DEFAULT_DISABLED = "default_disabled";
 
     public MetadataField(MetadataFieldType type) {
         put(TYPE, type.toString());
@@ -138,5 +139,13 @@ public class MetadataField<T> extends JSONObject {
      */
     public void setRestrictions(Restrictions restrictions) {
         put(RESTRICTIONS, restrictions.toHash());
+    }
+
+    /**
+     * Set the value indicating whether the field should be disabled by default
+     * @param disabled The value to set.
+     */
+    public void setDefaultDisabled(Boolean disabled) {
+        put(DEFAULT_DISABLED, disabled);
     }
 }

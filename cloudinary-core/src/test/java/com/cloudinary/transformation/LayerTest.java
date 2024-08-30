@@ -12,14 +12,14 @@ import static org.junit.Assert.*;
  * Created by amir on 03/11/2015.
  */
 public class LayerTest {
-    private static final String DEFAULT_ROOT_PATH = "http://res.cloudinary.com/test123/";
+    private static final String DEFAULT_ROOT_PATH = "https://res.cloudinary.com/test123/";
     private static final String DEFAULT_UPLOAD_PATH = DEFAULT_ROOT_PATH + "image/upload/";
     private static final String VIDEO_UPLOAD_PATH = DEFAULT_ROOT_PATH + "video/upload/";
     private Cloudinary cloudinary;
 
     @Before
     public void setUp() {
-        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false");
+        this.cloudinary = new Cloudinary("cloudinary://a:b@test123?load_strategies=false&analytics=false");
     }
 
     @After
@@ -46,7 +46,7 @@ public class LayerTest {
     }
 
     @Test
-    public void testUnderlay() {
+        public void testUnderlay() {
         Transformation transformation = new Transformation().underlay("text:hello");
         String result = cloudinary.url().transformation(transformation).generate("test");
         assertEquals(DEFAULT_UPLOAD_PATH + "u_text:hello/test", result);

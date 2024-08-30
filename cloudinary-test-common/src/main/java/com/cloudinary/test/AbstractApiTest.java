@@ -415,7 +415,7 @@ abstract public class AbstractApiTest extends MockableTest {
     @Test
     public void testGetResourcesWithMetadata() throws Exception {
         String public_id = "api_,withMetadata" + SUFFIX;
-        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field" + SUFFIX)).get("external_id").toString();
+        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field" + SUFFIX, true)).get("external_id").toString();
         cloudinary.uploader().upload(SRC_TEST_IMAGE, 
                 ObjectUtils.asMap("public_id", public_id, 
                     "tags", UPLOAD_TAGS, 
@@ -761,8 +761,8 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testUpdateResourceClearInvalid() throws Exception {
-        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field3" + SUFFIX)).get("external_id").toString();
-        String fieldId2 = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field4" + SUFFIX)).get("external_id").toString();
+        String fieldId = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field3" + SUFFIX, true)).get("external_id").toString();
+        String fieldId2 = MetadataTestHelper.addFieldToAccount(api, MetadataTestHelper.newFieldInstance("some_field4" + SUFFIX, true)).get("external_id").toString();
         Map uploadResult = cloudinary.uploader().upload(SRC_TEST_IMAGE,
                 ObjectUtils.asMap("tags", UPLOAD_TAGS, "metadata", ObjectUtils.asMap(fieldId, "test")));
         Map apiResult = api.update((String) uploadResult.get("public_id"), ObjectUtils.asMap("clear_invalid", true, "metadata", ObjectUtils.asMap(fieldId2, "test2")));
@@ -1303,6 +1303,31 @@ abstract public class AbstractApiTest extends MockableTest {
             assertEquals(response.get("asset_id"), assetId);
             List<String> deletedVersionIds = (List<String>) response.get("deleted_version_ids");
             assertEquals(deletedVersionIds.get(0), firstAssetVersion);
+        }
+    }
+
+    @Test
+    public void testAllowDerivedNextCursor() throws Exception {
+        String publicId = "allowderivednextcursor_" + SUFFIX;
+        Map options = ObjectUtils.asMap("public_id", publicId, "eager", Arrays.asList(
+                new Transformation().width(100),
+                new Transformation().width(101),
+                new Transformation().width(102)
+        ));
+
+        try {
+            cloudinary.uploader().upload(SRC_TEST_IMAGE, options);
+            ApiResponse res = api.resource(publicId, Collections.singletonMap("max_results", 1));
+            String derivedNextCursor = res.get("derived_next_cursor").toString();
+            assertNotNull(derivedNextCursor);
+
+            ApiResponse res2 = api.resource(publicId, ObjectUtils.asMap("derived_next_cursor", derivedNextCursor, "max_results", 1));
+            String derivedNextCursor2 = res2.get("derived_next_cursor").toString();
+            assertNotNull(derivedNextCursor2);
+
+            assertNotEquals(derivedNextCursor, derivedNextCursor2);
+        } finally {
+            cloudinary.uploader().destroy(publicId, Collections.singletonMap("invalidate", true));
         }
     }
 }

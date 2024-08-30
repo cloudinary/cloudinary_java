@@ -38,7 +38,7 @@ public class Cloudinary {
     public final static String AKAMAI_SHARED_CDN = "res.cloudinary.com";
     public final static String SHARED_CDN = AKAMAI_SHARED_CDN;
 
-    public final static String VERSION = "1.38.0";
+    public final static String VERSION = "1.39.0";
     static String USER_AGENT_PREFIX = "CloudinaryJava";
     public final static String USER_AGENT_JAVA_VERSION = "(Java " + System.getProperty("java.version") + ")";
 
@@ -400,10 +400,5 @@ public class Cloudinary {
             first = false;
         }
         return urlBuilder.toString();
-    }
-
-    @Deprecated
-    public static Map asMap(Object... values) {
-        return ObjectUtils.asMap(values);
     }
 }

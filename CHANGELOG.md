@@ -1,3 +1,16 @@
+1.39.0 / 2024-07-14
+===================
+
+* Add conditional metadata rules api
+* Fix rename folder endpoint
+* Add config api call
+* Add delete backup asset version support
+* Add rename folder api support
+* Add analyze api
+* Add selective response support
+* Add access key management
+* Add restrictions field to metadata 
+
 1.38.0 / 2024-02-18
 ===================
 

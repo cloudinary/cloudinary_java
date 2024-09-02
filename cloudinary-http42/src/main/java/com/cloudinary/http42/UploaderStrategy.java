@@ -43,14 +43,6 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-        if (requiresSigning(action, options)) {
-            uploader.signRequestParams(params, options);
-        } else {
-            Util.clearEmpty(params);
-        }
-
-        String apiUrl = buildUploadUrl(action, options);
-
         ClientConnectionManager connectionManager = (ClientConnectionManager) this.uploader.cloudinary().config.properties.get("connectionManager");
         HttpClient client = new DefaultHttpClient(connectionManager);
 
@@ -60,7 +52,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
             client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
         }
 
-        HttpPost postMethod = new HttpPost(apiUrl);
+        HttpPost postMethod = createPostMethod(action, params, options);
         postMethod.setHeader("User-Agent", this.cloudinary().getUserAgent() + " ApacheHTTPComponents/4.2");
 
         Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");

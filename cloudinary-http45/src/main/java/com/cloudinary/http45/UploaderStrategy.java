@@ -65,15 +65,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
 
         boolean returnError = ObjectUtils.asBoolean(options.get("return_error"), false);
 
-        if (requiresSigning(action, options)) {
-            uploader.signRequestParams(params, options);
-        } else {
-            Util.clearEmpty(params);
-        }
-
-        String apiUrl = buildUploadUrl(action, options);
-
-        HttpPost postMethod = new HttpPost(apiUrl);
+        HttpPost postMethod = createPostMethod(action, params, options);
         ApiUtils.setTimeouts(postMethod, options);
 
         Map<String, String> extraHeaders = (Map<String, String>) options.get("extra_headers");

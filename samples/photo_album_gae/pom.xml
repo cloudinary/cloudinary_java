@@ -42,7 +42,7 @@
         </dependency>
         <dependency>
             <groupId>com.cloudinary</groupId>
-            <artifactId>cloudinary-http42</artifactId>
+            <artifactId>cloudinary-http52</artifactId>
             <version>1.4.1</version>
         </dependency>
         <dependency>

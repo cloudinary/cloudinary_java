@@ -1,8 +1,8 @@
 rootProject.name = 'cloudinary-parent'
 include ':cloudinary-core'
 include ':cloudinary-taglib'
+include ':cloudinary-http52'
+include ':cloudinary-http53'
+include ':cloudinary-http-common'
 include ':cloudinary-test-common'
-include ':cloudinary-http42'
-include ':cloudinary-http43'
-include ':cloudinary-http44'
-include ':cloudinary-http45'
+

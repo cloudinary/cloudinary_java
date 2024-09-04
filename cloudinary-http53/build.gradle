@@ -21,7 +21,7 @@ dependencies {
     compile project(':cloudinary-http-common')
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.1'
     api group: 'org.apache.httpcomponents.client5', name: 'httpclient5', version: '5.3.1'
-    api group: 'org.apache.httpcomponents.core5', name: 'httpcore5', version: '5.3.1'
+    api group: 'org.apache.httpcomponents.core5', name: 'httpcore5', version: '5.2.5'
     testCompile project(':cloudinary-test-common')
     testCompile group: 'org.hamcrest', name: 'java-hamcrest', version: '2.0.0.0'
     testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.0.5'

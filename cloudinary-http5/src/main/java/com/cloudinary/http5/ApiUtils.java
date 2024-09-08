@@ -1,4 +1,4 @@
-package com.cloudinary.http.common;
+package com.cloudinary.http5;
 
 import com.cloudinary.utils.ObjectUtils;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;

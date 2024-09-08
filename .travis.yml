@@ -18,8 +18,7 @@ jdk:
 
 env:
   - MODULE=core
-  - MODULE=http52
-  - MODULE=http53
+  - MODULE=http5
 
 branches:
   except:

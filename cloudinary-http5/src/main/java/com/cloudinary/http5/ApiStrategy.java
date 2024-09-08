@@ -1,10 +1,10 @@
-package com.cloudinary.http.common;
+package com.cloudinary.http5;
+
 
 import com.cloudinary.Api;
-import com.cloudinary.Api.HttpMethod;
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.exceptions.GeneralError;
-import com.cloudinary.http.common.api.Response;
+import com.cloudinary.http5.api.Response;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
@@ -25,13 +25,14 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
-import static com.cloudinary.http.common.ApiUtils.prepareParams;
-import static com.cloudinary.http.common.ApiUtils.setTimeouts;
+import static com.cloudinary.http5.ApiUtils.prepareParams;
+import static com.cloudinary.http5.ApiUtils.setTimeouts;
 
-
-public class BaseApiStrategy extends AbstractApiStrategy {
+public class ApiStrategy extends AbstractApiStrategy {
 
     private CloseableHttpClient client;
 
@@ -45,7 +46,7 @@ public class BaseApiStrategy extends AbstractApiStrategy {
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+    public ApiResponse callApi(Api.HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
         if (options == null)
             options = ObjectUtils.emptyMap();
 
@@ -112,7 +113,7 @@ public class BaseApiStrategy extends AbstractApiStrategy {
     }
 
     @Override
-    public ApiResponse callAccountApi(HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
+    public ApiResponse callAccountApi(Api.HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
         if (options == null) {
             options = ObjectUtils.emptyMap();
         }
@@ -139,7 +140,7 @@ public class BaseApiStrategy extends AbstractApiStrategy {
         return getApiResponse(request);
     }
 
-    private HttpUriRequestBase prepareRequest(HttpMethod method, String apiUrl, Map<String, ? extends Object> params, Map<String, ?> options) throws URISyntaxException {
+    private HttpUriRequestBase prepareRequest(Api.HttpMethod method, String apiUrl, Map<String, ? extends Object> params, Map<String, ?> options) throws URISyntaxException {
         HttpUriRequestBase request;
 
         String contentType = ObjectUtils.asString(options.get("content_type"), "urlencoded");

@@ -1,4 +1,4 @@
-package com.cloudinary.http.common.api;
+package com.cloudinary.http5.api;
 
 import com.cloudinary.api.ApiResponse;
 import com.cloudinary.api.RateLimit;

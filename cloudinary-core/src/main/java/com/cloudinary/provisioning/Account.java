@@ -4,7 +4,10 @@ import com.cloudinary.Api;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.Util;
 import com.cloudinary.api.ApiResponse;
+import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.utils.StringUtils;
+
 import java.util.*;
 
 /**
@@ -76,7 +79,25 @@ public class Account {
         }
 
         Util.clearEmpty(params);
-        return api.getStrategy().callAccountApi(method, uri, params, options);
+
+        if (options == null) {
+            options = ObjectUtils.emptyMap();
+        }
+
+        String prefix = ObjectUtils.asString(options.get("upload_prefix"), "https://api.cloudinary.com");
+        String apiKey = ObjectUtils.asString(options.get("provisioning_api_key"));
+        if (apiKey == null) throw new IllegalArgumentException("Must supply provisioning_api_key");
+        String apiSecret = ObjectUtils.asString(options.get("provisioning_api_secret"));
+        if (apiSecret == null) throw new IllegalArgumentException("Must supply provisioning_api_secret");
+
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1"), "/");
+        for (String component : uri) {
+            apiUrl = apiUrl + "/" + component;
+        }
+
+        String authorizationHeader = getAuthorizationHeaderValue(apiKey, apiSecret, null);
+
+        return api.getStrategy().callAccountApi(method, apiUrl, params, options, authorizationHeader);
     }
 
     /**
@@ -706,5 +727,13 @@ public class Account {
         }
 
         return options;
+    }
+
+    protected String getAuthorizationHeaderValue(String apiKey, String apiSecret, String oauthToken) {
+        if (oauthToken != null){
+            return "Bearer " + oauthToken;
+        } else {
+            return "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret);
+        }
     }
 }

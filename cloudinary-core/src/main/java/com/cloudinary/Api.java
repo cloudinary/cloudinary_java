@@ -9,6 +9,7 @@ import com.cloudinary.metadata.MetadataField;
 import com.cloudinary.metadata.MetadataDataSource;
 import com.cloudinary.metadata.MetadataRule;
 import com.cloudinary.strategies.AbstractApiStrategy;
+import com.cloudinary.utils.Base64Coder;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.cloudinary.json.JSONArray;
@@ -40,7 +41,19 @@ public class Api {
     private AbstractApiStrategy strategy;
 
     protected ApiResponse callApi(HttpMethod method, Iterable<String> uri, Map<String, ? extends Object> params, Map options) throws Exception {
-        return this.strategy.callApi(method, uri, params, options);
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+
+        String apiKey = ObjectUtils.asString(options.get("api_key"), this.cloudinary.config.apiKey);
+        String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.cloudinary.config.apiSecret);
+        String oauthToken = ObjectUtils.asString(options.get("oauth_token"), this.cloudinary.config.oauthToken);
+
+        validateAuthorization(apiKey, apiSecret, oauthToken);
+
+
+        String authorizationHeader = getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken);
+        String apiUrl = createApiUrl(uri, options);
+        return this.strategy.callApi(method, apiUrl, params, options, authorizationHeader);
     }
 
     public Api(Cloudinary cloudinary, AbstractApiStrategy strategy) {
@@ -870,5 +883,34 @@ public class Api {
             }
         }
         return result;
+    }
+
+    protected void validateAuthorization(String apiKey, String apiSecret, String oauthToken) {
+        if (oauthToken == null) {
+            if (apiKey == null) throw new IllegalArgumentException("Must supply api_key");
+            if (apiSecret == null) throw new IllegalArgumentException("Must supply api_secret");
+        }
+    }
+
+    protected String getAuthorizationHeaderValue(String apiKey, String apiSecret, String oauthToken) {
+        if (oauthToken != null){
+            return "Bearer " + oauthToken;
+        } else {
+            return "Basic " + Base64Coder.encodeString(apiKey + ":" + apiSecret);
+        }
+    }
+
+    protected String createApiUrl (Iterable<String> uri, Map options){
+        String version = ObjectUtils.asString(options.get("api_version"), "v1_1");
+        String prefix = ObjectUtils.asString(options.get("upload_prefix"), ObjectUtils.asString(this.cloudinary.config.uploadPrefix, "https://api.cloudinary.com"));
+        String cloudName = ObjectUtils.asString(options.get("cloud_name"), this.cloudinary.config.cloudName);
+        if (cloudName == null) throw new IllegalArgumentException("Must supply cloud_name");
+        String apiUrl = StringUtils.join(Arrays.asList(prefix, version, cloudName), "/");
+        for (String component : uri) {
+            component = SmartUrlEncoder.encode(component);
+            apiUrl = apiUrl + "/" + component;
+
+        }
+        return apiUrl;
     }
 }

@@ -34,6 +34,8 @@ import static com.cloudinary.http5.ApiUtils.setTimeouts;
 
 public class ApiStrategy extends AbstractApiStrategy {
 
+    private static final String APACHE_HTTP_CLIENT_VERSION = System.getProperty("apache.http.client.version", "5.3.1");
+
     private CloseableHttpClient client;
 
     @Override
@@ -41,25 +43,15 @@ public class ApiStrategy extends AbstractApiStrategy {
         super.init(api);
 
         this.client = HttpClients.custom()
-                .setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHttpClient/5.2.1")
+                .setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION)
                 .build();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public ApiResponse callApi(Api.HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
-        if (options == null)
-            options = ObjectUtils.emptyMap();
-
-        String apiKey = ObjectUtils.asString(options.get("api_key"), this.api.cloudinary.config.apiKey);
-        String apiSecret = ObjectUtils.asString(options.get("api_secret"), this.api.cloudinary.config.apiSecret);
-        String oauthToken = ObjectUtils.asString(options.get("oauth_token"), this.api.cloudinary.config.oauthToken);
-
-        validateAuthorization(apiKey, apiSecret, oauthToken);
-
-        String apiUrl = createApiUrl(uri, options);
+    public ApiResponse callApi(Api.HttpMethod method, String apiUrl, Map<String, ?> params, Map options, String autorizationHeader) throws Exception {
         HttpUriRequestBase request = prepareRequest(method, apiUrl, params, options);
 
-        request.setHeader("Authorization", getAuthorizationHeaderValue(apiKey, apiSecret, oauthToken));
+        request.setHeader("Authorization", autorizationHeader);
 
         return getApiResponse(request);
     }
@@ -113,28 +105,13 @@ public class ApiStrategy extends AbstractApiStrategy {
     }
 
     @Override
-    public ApiResponse callAccountApi(Api.HttpMethod method, Iterable<String> uri, Map<String, ?> params, Map options) throws Exception {
-        if (options == null) {
-            options = ObjectUtils.emptyMap();
-        }
-
-        String prefix = ObjectUtils.asString(options.get("upload_prefix"), "https://api.cloudinary.com");
-        String apiKey = ObjectUtils.asString(options.get("provisioning_api_key"));
-        if (apiKey == null) throw new IllegalArgumentException("Must supply provisioning_api_key");
-        String apiSecret = ObjectUtils.asString(options.get("provisioning_api_secret"));
-        if (apiSecret == null) throw new IllegalArgumentException("Must supply provisioning_api_secret");
-
-        String apiUrl = StringUtils.join(Arrays.asList(prefix, "v1_1"), "/");
-        for (String component : uri) {
-            apiUrl = apiUrl + "/" + component;
-        }
-
+    public ApiResponse callAccountApi(Api.HttpMethod method, String apiUrl, Map<String, ?> params, Map options, String authorizationHeader) throws Exception {
         // Prepare the request
         HttpUriRequestBase request = prepareRequest(method, apiUrl, params, options);
 
         // Add authorization header
-        String authorizationHeaderValue = getAuthorizationHeaderValue(apiKey, apiSecret, null);
-        request.setHeader("Authorization", authorizationHeaderValue);
+
+        request.setHeader("Authorization", authorizationHeader);
 
         // Execute the request and return the response
         return getApiResponse(request);

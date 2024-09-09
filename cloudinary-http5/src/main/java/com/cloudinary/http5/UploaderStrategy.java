@@ -27,6 +27,8 @@ import java.util.Map;
 
 public class UploaderStrategy extends AbstractUploaderStrategy {
 
+    private static final String APACHE_HTTP_CLIENT_VERSION = System.getProperty("apache.http.client.version", "5.3.1");
+
     private CloseableHttpClient client;
 
     @Override
@@ -34,7 +36,7 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
         super.init(uploader);
 
         this.client = HttpClients.custom()
-                .setUserAgent(cloudinary().getUserAgent() + " ApacheHttpClient/5.2.1")
+                .setUserAgent(cloudinary().getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION)
                 .build();
     }
 

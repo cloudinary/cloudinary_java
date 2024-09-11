@@ -841,4 +841,20 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map uploadParams = Util.buildUploadParams(options);
         Assert.assertEquals("https://www.test.com", uploadParams.get("notification_url"));
     }
+
+    @Test
+    public void testAutoChaptering() throws Exception {
+        Map result = cloudinary.uploader().upload(SRC_TEST_VIDEO,  asMap(
+                "resource_type", "video", "auto_chaptering", true));
+        assert(result != null);
+        assertNotNull(result.get("playback_url"));
+    }
+
+    @Test
+    public void testAutoTranscription() throws Exception {
+        Map result = cloudinary.uploader().upload(SRC_TEST_VIDEO,  asMap(
+                "resource_type", "video", "auto_transcription", true));
+        assert(result != null);
+        assertNotNull(result.get("playback_url"));
+    }
 }

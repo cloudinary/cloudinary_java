@@ -11,7 +11,8 @@ import java.util.*;
 public class Util {
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
             "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token", "async", "quality_analysis", "cinemagraph_analysis",
-            "accessibility_analysis", "use_filename_as_display_name", "use_asset_folder_as_public_id_prefix", "unique_display_name", "media_metadata", "visual_search"};
+            "accessibility_analysis", "use_filename_as_display_name", "use_asset_folder_as_public_id_prefix", "unique_display_name", "media_metadata", "visual_search",
+    "auto_chaptering", "auto_transcription"};
 
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static final Map<String, Object> buildUploadParams(Map options) {
@@ -183,6 +184,12 @@ public class Util {
         }
         if(options.get("visual_search") != null) {
             params.put("visual_search", options.get("visual_search"));
+        }
+        if(options.get("auto_chaptering") != null) {
+            params.put("auto_chaptering", options.get("auto_chaptering"));
+        }
+        if(options.get("auto_transcription") != null) {
+            params.put("auto_transcription", options.get("auto_transcription"));
         }
     }
 

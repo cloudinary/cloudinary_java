@@ -20,8 +20,8 @@ nexusPublishing {
     }
     repositories {
         sonatype {
-            username = project.hasProperty("ossrhUsername") ? project.ext["ossrhUsername"] : ""
-            password = project.hasProperty("ossrhPassword") ? project.ext["ossrhPassword"] : ""
+            username = project.hasProperty("ossrhToken") ? project.ext["ossrhToken"] : ""
+            password = project.hasProperty("ossrhTokenPassword") ? project.ext["ossrhTokenPassword"] : ""
         }
     }
 }

@@ -1,3 +1,12 @@
+2.0.0 / 2024-09-29
+==================
+
+* Bump minimum Java version to 8
+* Secure true by default
+* Add `auto_chaptering` and `auto_transcription` to upload API
+* New Http client
+* Add support for update metadata field set default disabled
+
 1.39.0 / 2024-07-14
 ===================
 

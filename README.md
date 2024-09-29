@@ -25,9 +25,12 @@ For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/
 - [Upload assets to cloud](https://cloudinary.com/documentation/java_image_and_video_upload)
 
 ## Version Support
-| SDK Version    | Java 6+ |
-|----------------|---------|
-| 1.1.0 - 1.39.0 | V       |
+| SDK Version    | Java 6+ | Java 8 |
+|----------------|---------|--------|
+| 1.1.0 - 1.39.0 | V       |        |
+| 2.0.0          |         | V      |
+
+  
 
 ## Installation
 The cloudinary_java library is available in [Maven Central](https://mvnrepository.com/artifact/com.cloudinary/cloudinary-core). To use it, add the following dependency to your pom.xml :
@@ -36,7 +39,7 @@ The cloudinary_java library is available in [Maven Central](https://mvnrepositor
 <dependency>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-http45</artifactId>
-    <version>1.39.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 

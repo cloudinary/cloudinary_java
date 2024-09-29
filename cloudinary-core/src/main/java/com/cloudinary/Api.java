@@ -135,7 +135,7 @@ public class Api {
         if(options.get("fields") != null) {
             options.put("fields", StringUtils.join(ObjectUtils.asArray(options.get("fields")), ","));
         }
-        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations", "metadata", "fields"), options);
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, "tags", tag), ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations", "metadata", "fields", "direction"), options);
         return response;
     }
 
@@ -162,13 +162,13 @@ public class Api {
         if(options.get("fields") != null) {
             options.put("fields", StringUtils.join(ObjectUtils.asArray(options.get("fields")), ","));
         }
-        Map params = ObjectUtils.only(options, "tags", "context", "moderations", "fields");
+        Map params = ObjectUtils.only(options, "colors", "faces", "quality_analysis", "accessibility_analysis","phash", "coordinates", "versions", "max_results", "derived_next_cursor" );
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", assetId), params, options);
         return response;
     }
     public ApiResponse resourcesByAssetIDs(Iterable<String> assetIds, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        Map params = ObjectUtils.only(options, "public_ids", "tags", "context", "moderations");
+        Map params = ObjectUtils.only(options, "public_ids", "tags", "context", "moderations", "max_results", "next_cursor", "direction", "fields", "metadata");
         params.put("asset_ids", assetIds);
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", "by_asset_ids"), params, options);
         return response;
@@ -179,7 +179,7 @@ public class Api {
         if(options.get("fields") != null) {
             options.put("fields", StringUtils.join(ObjectUtils.asArray(options.get("fields")), ","));
         }
-        Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations", "fields");
+        Map params = ObjectUtils.only(options, "next_cursor", "direction", "max_results", "tags", "context", "moderations", "fields", "metadata");
         params.put("asset_folder", assetFolder);
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources/by_asset_folder"), params, options);
         return response;
@@ -213,7 +213,7 @@ public class Api {
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
                 ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
                         "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis",
-                        "accessibility_analysis", "versions", "media_metadata", "derived_next_cursor"), options);
+                        "accessibility_analysis", "versions", "media_metadata", "related", "related_next_cursor", "derived_next_cursor"), options);
 
         return response;
     }

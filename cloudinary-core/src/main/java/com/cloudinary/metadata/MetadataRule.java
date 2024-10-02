@@ -2,7 +2,6 @@ package com.cloudinary.metadata;
 
 import com.cloudinary.utils.ObjectUtils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 

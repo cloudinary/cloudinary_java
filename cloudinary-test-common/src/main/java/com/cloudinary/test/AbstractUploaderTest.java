@@ -1,7 +1,6 @@
 package com.cloudinary.test;
 
 import com.cloudinary.*;
-import com.cloudinary.api.ApiResponse;
 import com.cloudinary.metadata.StringMetadataField;
 import com.cloudinary.test.rules.RetryRule;
 import com.cloudinary.utils.ObjectUtils;
@@ -13,7 +12,6 @@ import org.junit.rules.TestName;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;

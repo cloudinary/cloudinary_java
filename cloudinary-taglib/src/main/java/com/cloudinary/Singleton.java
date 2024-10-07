@@ -10,7 +10,8 @@ package com.cloudinary;
  *
  * @author jpollak
  */
-public class Singleton {
+public final class Singleton {
+    private Singleton() {}
 
     private static Cloudinary cloudinary;
 

@@ -3,7 +3,9 @@ package com.cloudinary.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Base64Map {
+public final class Base64Map {
+    private Base64Map() {}
+
     public static Map<String, String> values;
 
     static {

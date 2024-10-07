@@ -10,7 +10,8 @@ import org.cloudinary.json.JSONObject;
 
 import java.util.*;
 
-public class ApiUtils {
+public final class ApiUtils {
+    private ApiUtils() {}
 
     public static void setTimeouts(HttpUriRequestBase request, Map<String, ? extends Object> options) {
         RequestConfig config = request.getConfig();

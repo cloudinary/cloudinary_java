@@ -11,7 +11,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 
-public class ObjectUtils {
+public final class ObjectUtils {
+    private ObjectUtils() {}
+
     /**
      * Formats a Date as an ISO-8601 string representation.
      * @param date Date to format

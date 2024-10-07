@@ -8,7 +8,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtils {
+public final class StringUtils {
+    private StringUtils() {}
+
     public static final String EMPTY = "";
 
     /**

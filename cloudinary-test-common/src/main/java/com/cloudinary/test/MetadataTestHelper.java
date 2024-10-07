@@ -6,7 +6,9 @@ import com.cloudinary.metadata.MetadataField;
 import com.cloudinary.metadata.MetadataValidation;
 import com.cloudinary.metadata.StringMetadataField;
 
-public class MetadataTestHelper {
+public final class MetadataTestHelper {
+    private MetadataTestHelper() {}
+
     public static StringMetadataField newFieldInstance(String label, Boolean mandatory) throws Exception {
         StringMetadataField field = new StringMetadataField();
         field.setLabel(label);

@@ -1,15 +1,9 @@
 package cloudinary.lib;
 
 import cloudinary.models.PhotoUpload;
-import com.cloudinary.Cloudinary;
-import com.cloudinary.Singleton;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class PhotoUploadValidator implements Validator {
     public boolean supports(Class clazz) {

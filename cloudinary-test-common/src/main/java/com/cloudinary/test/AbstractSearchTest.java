@@ -1,9 +1,7 @@
 package com.cloudinary.test;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.Configuration;
 import com.cloudinary.Search;
-import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import org.junit.*;
 import org.junit.rules.TestName;
@@ -13,7 +11,6 @@ import java.util.*;
 
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 

@@ -8,7 +8,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
-public class Util {
+public final class Util {
+    private Util() {}
+
     static final String[] BOOLEAN_UPLOAD_OPTIONS = new String[]{"backup", "exif", "faces", "colors", "image_metadata", "use_filename", "unique_filename",
             "eager_async", "invalidate", "discard_original_filename", "overwrite", "phash", "return_delete_token", "async", "quality_analysis", "cinemagraph_analysis",
             "accessibility_analysis", "use_filename_as_display_name", "use_asset_folder_as_public_id_prefix", "unique_display_name", "media_metadata", "visual_search",

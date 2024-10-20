@@ -670,7 +670,7 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testConfiguration() throws Exception {
-        ApiResponse result = cloudinary.api().configuration(new ObjectUtils().asMap("settings", true));
+        ApiResponse result = cloudinary.api().configuration(ObjectUtils.asMap("settings", true));
         Map settings = (Map) result.get("settings");
         Assert.assertNotNull(settings.get("folder_mode"));
     }

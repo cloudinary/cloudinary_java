@@ -7,7 +7,6 @@ import com.cloudinary.api.exceptions.GeneralError;
 import com.cloudinary.http5.api.Response;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
-import com.cloudinary.utils.StringUtils;
 import org.apache.hc.client5.http.classic.methods.*;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 

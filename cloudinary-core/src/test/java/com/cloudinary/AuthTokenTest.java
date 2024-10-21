@@ -1,6 +1,5 @@
 package com.cloudinary;
 
-import com.cloudinary.utils.Analytics;
 import com.cloudinary.utils.ObjectUtils;
 
 import org.hamcrest.CoreMatchers;
@@ -11,7 +10,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Map;

@@ -2,7 +2,6 @@ package cloudinary.controllers;
 
 import cloudinary.lib.PhotoUploadValidator;
 import cloudinary.models.PhotoUpload;
-import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.Singleton;
 import org.springframework.stereotype.Controller;

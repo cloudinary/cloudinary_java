@@ -15,7 +15,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public abstract class AbstractAccountApiTest extends MockableTest {
     private static Random rand = new Random();

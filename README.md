@@ -38,7 +38,7 @@ The cloudinary_java library is available in [Maven Central](https://mvnrepositor
 ```xml
 <dependency>
     <groupId>com.cloudinary</groupId>
-    <artifactId>cloudinary-http45</artifactId>
+    <artifactId>cloudinary-http5</artifactId>
     <version>2.0.0</version>
 </dependency>
 ```

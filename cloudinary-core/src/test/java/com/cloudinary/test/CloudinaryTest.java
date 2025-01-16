@@ -1464,6 +1464,20 @@ public class CloudinaryTest {
         assertNotNull(params.get("timestamp"));
     }
 
+    @Test
+    public void testRegisterUploaderStrategy() {
+        String className = "myUploadStrategy";
+        Cloudinary.registerUploaderStrategy(className);
+        assertEquals(className, Cloudinary.UPLOAD_STRATEGIES.get(0));
+    }
+
+    @Test
+    public void testRegisterApiStrategy() {
+        String className = "myApiStrategy";
+        Cloudinary.registerAPIStrategy(className);
+        assertEquals(className, Cloudinary.API_STRATEGIES.get(0));
+    }
+
     private void assertFieldsEqual(Object a, Object b) throws IllegalAccessException {
         assertEquals("Two objects must be the same class", a.getClass(), b.getClass());
         Field[] fields = a.getClass().getFields();

@@ -20,7 +20,7 @@ import static com.cloudinary.Util.buildMultiParams;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Cloudinary {
 
-    private static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
+    public static List<String> UPLOAD_STRATEGIES = new ArrayList<String>(Arrays.asList(
             "com.cloudinary.android.UploaderStrategy",
             "com.cloudinary.http5.UploaderStrategy"));
     public static List<String> API_STRATEGIES = new ArrayList<String>(Arrays.asList(
@@ -59,14 +59,14 @@ public class Cloudinary {
 
     public static void registerUploaderStrategy(String className) {
         if (!UPLOAD_STRATEGIES.contains(className)) {
-            UPLOAD_STRATEGIES.add(className);
+            UPLOAD_STRATEGIES.add(0, className);
         }
 
     }
 
     public static void registerAPIStrategy(String className) {
         if (!API_STRATEGIES.contains(className)) {
-            API_STRATEGIES.add(className);
+            API_STRATEGIES.add(0, className);
         }
     }
 

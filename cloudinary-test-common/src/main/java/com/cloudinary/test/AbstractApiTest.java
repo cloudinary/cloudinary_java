@@ -825,14 +825,13 @@ abstract public class AbstractApiTest extends MockableTest {
         String[] tags = {"a", "b", "c"};
         Map context = ObjectUtils.asMap("a", "b", "c", "d");
         Map result = api.createUploadPreset(ObjectUtils.asMap("unsigned", true, "folder", "folder", "transformation", EXPLICIT_TRANSFORMATION, "tags", tags, "context",
-                context, "live", true, "use_asset_folder_as_public_id_prefix", true));
+                context, "use_asset_folder_as_public_id_prefix", true));
         String name = result.get("name").toString();
         Map preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(preset.get("name"), name);
         assertEquals(Boolean.TRUE, preset.get("unsigned"));
         Map settings = (Map) preset.get("settings");
         assertEquals(settings.get("folder"), "folder");
-//        assertEquals(settings.get("live"), Boolean.TRUE);
         assertEquals(settings.get("use_asset_folder_as_public_id_prefix"), true);
         Map outTransformation = (Map) ((java.util.ArrayList) settings.get("transformation")).get(0);
         assertEquals(outTransformation.get("width"), 100);
@@ -872,7 +871,6 @@ abstract public class AbstractApiTest extends MockableTest {
         preset = api.uploadPreset(name, ObjectUtils.emptyMap());
         assertEquals(name, preset.get("name"));
         assertEquals(Boolean.TRUE, preset.get("unsigned"));
-//        assertEquals(settings.get("live"), Boolean.TRUE);
         assertEquals(settings, preset.get("settings"));
 
         api.deleteUploadPreset(name, ObjectUtils.emptyMap());

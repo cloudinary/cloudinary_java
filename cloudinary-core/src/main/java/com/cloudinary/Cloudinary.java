@@ -85,22 +85,21 @@ public class Cloudinary {
     }
 
     public Cloudinary(Map config) {
-        this.config = new Configuration(config);
-        loadStrategies();
+        this(new Configuration(config));
     }
 
     public Cloudinary(String cloudinaryUrl) {
-        this.config = Configuration.from(cloudinaryUrl);
-        loadStrategies();
+        this(Configuration.from(cloudinaryUrl));
     }
 
     public Cloudinary() {
-        String cloudinaryUrl = System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL"));
-        if (cloudinaryUrl != null) {
-            this.config = Configuration.from(cloudinaryUrl);
-        } else {
-            this.config = new Configuration();
-        }
+        this(System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL")) != null
+                ? Configuration.from(System.getProperty("CLOUDINARY_URL", System.getenv("CLOUDINARY_URL")))
+                : new Configuration());
+    }
+
+    public Cloudinary(Configuration config) {
+        this.config = config;
         loadStrategies();
     }
 

@@ -1,3 +1,11 @@
+2.1.0 / 2025-01-20
+==================
+
+* Fix Http client proxy
+* Fix Http client system properties support
+* Add Cloudinary constructor for `Configuration`
+* Fix Register strategy functions
+
 2.0.0 / 2024-09-29
 ==================
 

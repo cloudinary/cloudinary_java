@@ -28,7 +28,7 @@ For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/
 | SDK Version    | Java 6+ | Java 8 |
 |----------------|---------|--------|
 | 1.1.0 - 1.39.0 | V       |        |
-| 2.0.0          |         | V      |
+| 2.0.0+         |         | V      |
 
   
 
@@ -39,7 +39,7 @@ The cloudinary_java library is available in [Maven Central](https://mvnrepositor
 <dependency>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-http45</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 

@@ -8,15 +8,20 @@ import com.cloudinary.http5.api.Response;
 import com.cloudinary.strategies.AbstractApiStrategy;
 import com.cloudinary.utils.ObjectUtils;
 import org.apache.hc.client5.http.classic.methods.*;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.net.URIBuilder;
+import org.apache.hc.core5.util.Timeout;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
 
@@ -36,13 +41,40 @@ public class ApiStrategy extends AbstractApiStrategy {
 
     private CloseableHttpClient client;
 
-    @Override
     public void init(Api api) {
         super.init(api);
 
-        this.client = HttpClients.custom()
-                .setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION)
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        clientBuilder.useSystemProperties().setUserAgent(this.api.cloudinary.getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION);
+
+        HttpClientConnectionManager connectionManager = (HttpClientConnectionManager) api.cloudinary.config.properties.get("connectionManager");
+        if (connectionManager != null) {
+            clientBuilder.setConnectionManager(connectionManager);
+        }
+
+        RequestConfig requestConfig = buildRequestConfig();
+
+        client = clientBuilder
+                .setDefaultRequestConfig(requestConfig)
                 .build();
+    }
+
+    public RequestConfig buildRequestConfig() {
+        RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+
+        if (api.cloudinary.config.proxyHost != null && api.cloudinary.config.proxyPort != 0) {
+            HttpHost proxy = new HttpHost(api.cloudinary.config.proxyHost, api.cloudinary.config.proxyPort);
+            requestConfigBuilder.setProxy(proxy);
+        }
+
+        int timeout = this.api.cloudinary.config.timeout;
+        if (timeout > 0) {
+            requestConfigBuilder.setResponseTimeout(Timeout.ofSeconds(timeout))
+                    .setConnectionRequestTimeout(Timeout.ofSeconds(timeout))
+                    .setConnectTimeout(Timeout.ofSeconds(timeout));
+        }
+
+        return requestConfigBuilder.build();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

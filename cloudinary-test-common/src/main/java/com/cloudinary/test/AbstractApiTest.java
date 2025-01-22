@@ -471,7 +471,7 @@ abstract public class AbstractApiTest extends MockableTest {
         Map resource = api.resource(public_id, ObjectUtils.emptyMap());
         assertNotNull(resource);
         String assetId = (String)resource.get("asset_id");
-        ApiResponse response = api.deleteResourcesByAssetIds(Arrays.asList(assetId), ObjectUtils.emptyMap());
+        api.deleteResourcesByAssetIds(Arrays.asList(assetId), ObjectUtils.emptyMap());
         api.resource(public_id, ObjectUtils.emptyMap());
     }
 

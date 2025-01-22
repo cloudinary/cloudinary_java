@@ -242,11 +242,9 @@ public class Api {
 
     public ApiResponse deleteResourcesByAssetIds(Iterable<String> assetIds, Map options) throws Exception {
         if (options == null) options = ObjectUtils.emptyMap();
-        String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
-        String type = ObjectUtils.asString(options.get("type"), "upload");
         Map params = ObjectUtils.only(options, "keep_original", "invalidate", "next_cursor", "transformations");
         params.put("asset_ids", assetIds);
-        return callApi(HttpMethod.DELETE, Arrays.asList("resources", resourceType, type), params, options);
+        return callApi(HttpMethod.DELETE, Arrays.asList("resources"), params, options);
     }
 
     public ApiResponse deleteDerivedByTransformation(Iterable<String> publicIds, List<Transformation> transformations, Map options) throws Exception {

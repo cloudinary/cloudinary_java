@@ -465,6 +465,17 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test(expected = NotFound.class)
+    public void test10DeleteResourcesByAssetsIds() throws Exception {
+        String public_id = "api_,test4" + SUFFIX;
+        cloudinary.uploader().upload(SRC_TEST_IMAGE, ObjectUtils.asMap("public_id", public_id, "tags", UPLOAD_TAGS));
+        Map resource = api.resource(public_id, ObjectUtils.emptyMap());
+        assertNotNull(resource);
+        String assetId = (String)resource.get("asset_id");
+        ApiResponse response = api.deleteResourcesByAssetIds(Arrays.asList(assetId), ObjectUtils.emptyMap());
+        api.resource(public_id, ObjectUtils.emptyMap());
+    }
+
+    @Test(expected = NotFound.class)
     public void test09aDeleteResourcesByPrefix() throws Exception {
         // should allow deleting resources
         String public_id = SUFFIX + "_api_test_by_prefix";

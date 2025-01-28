@@ -158,6 +158,17 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         assertTrue((Boolean)restrictions.get("readonly_ui"));
     }
 
+//    @Test
+//    public void testUpdateFieldWithAllowDynamicValues() throws Exception {
+//        StringMetadataField metadataField = newFieldInstance("testUpdateField", false);
+//        ApiResponse fieldResult = addFieldToAccount(metadataField);
+//        assertNotEquals("new_def", fieldResult.get("default_value"));
+//        metadataField.setDefaultValue("new_def");
+//        metadataField.setAllowDynamicListValues(true);
+//        ApiResponse result = api.updateMetadataField(fieldResult.get("external_id").toString(), metadataField);
+//        assertNotNull(result);
+//    }
+
     @Test
     public void testDeleteField() throws Exception {
         ApiResponse fieldResult = addFieldToAccount(newFieldInstance("testDeleteField", true));

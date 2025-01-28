@@ -74,6 +74,15 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
     }
 
     @Test
+    public void testCreateSetMetadataWithAllowDynamicListValues() throws Exception {
+        SetMetadataField setField = createSetField("testCreateMetadata_2");
+        ApiResponse result = cloudinary.api().addMetadataField(setField);
+        assertNotNull(result);
+        assertEquals(setField.getLabel(), result.get("label"));
+        assertEquals(true, result.get("allow_dynamic_list_values"));
+    }
+
+    @Test
     public void testFieldRestrictions() throws Exception {
         StringMetadataField stringField = newFieldInstance("testCreateMetadata_3", true);
         stringField.setRestrictions(new Restrictions().setReadOnlyUI());
@@ -367,6 +376,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
         String label = labelPrefix + "_" + SUFFIX;
         setField.setLabel(label);
         setField.setMandatory(false);
+        setField.setAllowDynamicListValues(true);
         setField.setValidation(new MetadataValidation.StringLength(3, 99));
         setField.setDefaultValue(Arrays.asList("id2", "id3"));
         setField.setValidation(null);

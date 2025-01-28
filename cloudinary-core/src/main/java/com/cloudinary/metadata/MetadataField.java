@@ -18,6 +18,7 @@ public class MetadataField<T> extends JSONObject {
     public static final String VALIDATION = "validation";
     public static final String RESTRICTIONS = "restrictions";
     public static final String DEFAULT_DISABLED = "default_disabled";
+    public static final String ALLOW_DYNAMIC_LIST_VALUES = "allow_dynamic_list_values";
 
     public MetadataField(MetadataFieldType type) {
         put(TYPE, type.toString());
@@ -148,4 +149,10 @@ public class MetadataField<T> extends JSONObject {
     public void setDefaultDisabled(Boolean disabled) {
         put(DEFAULT_DISABLED, disabled);
     }
+
+    /**
+     * Set the value indicating whether the dynamic list values should allow
+     * @param allowDynamicListValues The value to set.
+     */
+    public void setAllowDynamicListValues(Boolean allowDynamicListValues) {put(ALLOW_DYNAMIC_LIST_VALUES, allowDynamicListValues);}
 }

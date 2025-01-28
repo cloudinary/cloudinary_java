@@ -1,6 +1,5 @@
 package com.cloudinary.metadata;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.cloudinary.json.JSONObject;
 
 import java.text.ParseException;

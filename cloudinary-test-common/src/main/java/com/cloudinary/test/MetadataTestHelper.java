@@ -13,7 +13,6 @@ public final class MetadataTestHelper {
         StringMetadataField field = new StringMetadataField();
         field.setLabel(label);
         field.setMandatory(mandatory);
-        field.setAllowDynamicListValues(true);
         field.setValidation(new MetadataValidation.StringLength(3, 9));
         field.setDefaultValue("val_test");
         return field;

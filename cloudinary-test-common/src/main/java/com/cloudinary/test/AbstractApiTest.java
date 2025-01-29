@@ -972,6 +972,32 @@ abstract public class AbstractApiTest extends MockableTest {
     }
 
     @Test
+    public void testRestoreByAssetIds() throws Exception {
+
+        // Upload
+        cloudinary.uploader().upload(SRC_TEST_IMAGE,
+                ObjectUtils.asMap("public_id", API_TEST_RESTORE, "backup", true, "tags", UPLOAD_TAGS));
+        Map resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
+        assertEquals(resource.get("bytes"), 3381);
+
+        //Delete
+        api.deleteResources(Collections.singletonList(API_TEST_RESTORE), ObjectUtils.emptyMap());
+        resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
+        String assetId = (String) resource.get("asset_id");
+        assertEquals(resource.get("bytes"), 0);
+        assertNotNull(assetId);
+        assertTrue((Boolean) resource.get("placeholder"));
+
+        //Restore
+        Map response = api.restoreByAssetIds(Collections.singletonList(assetId), ObjectUtils.emptyMap());
+        Map info = (Map) response.get(assetId);
+        assertNotNull(info);
+        assertEquals(info.get("bytes"), 3381);
+        resource = api.resource(API_TEST_RESTORE, ObjectUtils.emptyMap());
+        assertEquals(resource.get("bytes"), 3381);
+    }
+
+    @Test
     public void testRestoreDifferentVersionsOfDeletedAsset() throws Exception {
         final String TEST_RESOURCE_PUBLIC_ID = "api_test_restore_different_versions_single_asset" + SUFFIX;
         final Uploader uploader = cloudinary.uploader();

@@ -393,6 +393,14 @@ public class Api {
         return response;
     }
 
+    public ApiResponse restoreByAssetIds(Iterable<String> assetIds, Map options) throws Exception {
+        if (options == null)
+            options = ObjectUtils.emptyMap();
+        Map params = new HashMap<String, Object>();
+        params.put("asset_ids", assetIds);
+        return callApi(HttpMethod.POST, Arrays.asList("resources", "restore"), params, options);
+    }
+
     public ApiResponse uploadMappings(Map options) throws Exception {
         if (options == null)
             options = ObjectUtils.emptyMap();

@@ -75,7 +75,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testCreateSetMetadataWithAllowDynamicListValues() throws Exception {
-        SetMetadataField setField = createSetField("testCreateMetadata_2");
+        SetMetadataField setField = createSetField("testCreateMetadata_4");
         ApiResponse result = cloudinary.api().addMetadataField(setField);
         assertNotNull(result);
         assertEquals(setField.getLabel(), result.get("label"));

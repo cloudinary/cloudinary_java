@@ -8,16 +8,21 @@ import com.cloudinary.utils.ObjectUtils;
 import com.cloudinary.utils.StringUtils;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.client5.http.config.RequestConfig;
 import org.apache.hc.client5.http.entity.mime.ByteArrayBody;
 import org.apache.hc.client5.http.entity.mime.FileBody;
 import org.apache.hc.client5.http.entity.mime.HttpMultipartMode;
 import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.io.HttpClientConnectionManager;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.util.Timeout;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +40,37 @@ public class UploaderStrategy extends AbstractUploaderStrategy {
     public void init(Uploader uploader) {
         super.init(uploader);
 
-        this.client = HttpClients.custom()
-                .setUserAgent(cloudinary().getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION)
+        HttpClientBuilder clientBuilder = HttpClients.custom();
+        clientBuilder.useSystemProperties().setUserAgent(cloudinary().getUserAgent() + " ApacheHttpClient/" + APACHE_HTTP_CLIENT_VERSION);
+
+        HttpClientConnectionManager connectionManager = (HttpClientConnectionManager) cloudinary().config.properties.get("connectionManager");
+        if (connectionManager != null) {
+            clientBuilder.setConnectionManager(connectionManager);
+        }
+
+        RequestConfig requestConfig = buildRequestConfig();
+
+        client = clientBuilder
+                .setDefaultRequestConfig(requestConfig)
                 .build();
+    }
+
+    public RequestConfig buildRequestConfig() {
+        RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
+
+        if (cloudinary().config.proxyHost != null && cloudinary().config.proxyPort != 0) {
+            HttpHost proxy = new HttpHost(cloudinary().config.proxyHost, cloudinary().config.proxyPort);
+            requestConfigBuilder.setProxy(proxy);
+        }
+
+        int timeout = cloudinary().config.timeout;
+        if (timeout > 0) {
+            requestConfigBuilder.setResponseTimeout(Timeout.ofSeconds(timeout))
+                    .setConnectionRequestTimeout(Timeout.ofSeconds(timeout))
+                    .setConnectTimeout(Timeout.ofSeconds(timeout));
+        }
+
+        return requestConfigBuilder.build();
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

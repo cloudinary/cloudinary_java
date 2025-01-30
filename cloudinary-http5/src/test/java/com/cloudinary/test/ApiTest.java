@@ -11,6 +11,9 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.util.Map;
+import java.util.UUID;
+
+import static com.cloudinary.utils.ObjectUtils.asMap;
 
 
 public class ApiTest extends AbstractApiTest {
@@ -48,7 +51,7 @@ public class ApiTest extends AbstractApiTest {
     @Category(TimeoutTest.class)
     @Test(expected = Exception.class)
     public void testConnectTimeoutParameter() throws Exception {
-        Map<String, Object> options = ObjectUtils.asMap(
+        Map<String, Object> options = asMap(
                 "max_results", 500,
                 "connect_timeout", 0.2);
 
@@ -65,7 +68,7 @@ public class ApiTest extends AbstractApiTest {
     @Test(expected = Exception.class)
     public void testTimeoutParameter() throws Exception {
         // Set a very short request timeout to trigger a timeout exception
-        Map<String, Object> options = ObjectUtils.asMap(
+        Map<String, Object> options = asMap(
                 "max_results", 500,
                 "timeout", Timeout.ofMilliseconds(1000)); // Set the timeout to 1 second
 
@@ -76,4 +79,24 @@ public class ApiTest extends AbstractApiTest {
             throw new Exception("Socket timeout");
         }
     }
+
+    @Category(TimeoutTest.class)
+    @Test(expected = Exception.class)
+    public void testUploaderTimeoutParameter() throws Exception {
+        Cloudinary cloudinary = new Cloudinary("cloudinary://test:test@test.com");
+        cloudinary.config.uploadPrefix = "https://10.255.255.1";
+        String publicId = UUID.randomUUID().toString();
+        // Set a very short request timeout to trigger a timeout exception
+        Map<String, Object> options = asMap(
+                "max_results", 500,
+                "timeout", Timeout.ofMilliseconds(10)); // Set the timeout to 1 second
+
+        try {
+           Map result = cloudinary.uploader().addContext(asMap("caption", "new caption"), new String[]{publicId, "no-such-id"}, options);
+        } catch (Exception e) {
+            // Convert IOException to SocketTimeoutException if appropriate
+            throw new Exception("Socket timeout");
+        }
+    }
+
 }

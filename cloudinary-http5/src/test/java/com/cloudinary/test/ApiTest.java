@@ -84,11 +84,12 @@ public class ApiTest extends AbstractApiTest {
     @Test(expected = Exception.class)
     public void testUploaderTimeoutParameter() throws Exception {
         Cloudinary cloudinary = new Cloudinary("cloudinary://test:test@test.com");
+        cloudinary.config.uploadPrefix = "https://10.255.255.1";
         String publicId = UUID.randomUUID().toString();
         // Set a very short request timeout to trigger a timeout exception
         Map<String, Object> options = asMap(
                 "max_results", 500,
-                "timeout", Timeout.ofMilliseconds(1000)); // Set the timeout to 1 second
+                "timeout", Timeout.ofMilliseconds(10)); // Set the timeout to 1 second
 
         try {
            Map result = cloudinary.uploader().addContext(asMap("caption", "new caption"), new String[]{publicId, "no-such-id"}, options);

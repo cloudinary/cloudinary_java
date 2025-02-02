@@ -1,3 +1,11 @@
+2.2.0 / 2025-02-02
+==================
+
+* Fix Uploader strategy
+* Add restore assets by asset ids
+* Add allow dynamic list parameter
+* Add delete resources by asset ids
+
 2.1.0 / 2025-01-20
 ==================
 

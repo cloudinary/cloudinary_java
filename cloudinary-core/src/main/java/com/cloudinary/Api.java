@@ -660,8 +660,10 @@ public class Api {
      * @throws Exception When the folder isn't empty or doesn't exist.
      */
     public ApiResponse deleteFolder(String folder, Map options) throws Exception {
+        if (options == null || options.isEmpty()) options = ObjectUtils.asMap();
         List<String> uri = Arrays.asList("folders", folder);
-        return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);
+        Map params = ObjectUtils.only(options, "skip_backup");
+        return callApi(HttpMethod.DELETE, uri, params, options);
     }
 
     /**

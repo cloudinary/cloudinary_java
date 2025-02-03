@@ -85,4 +85,17 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
         ApiResponse result = api.deleteFolder(rootFolderName, null);
         assertTrue(((List) result.get("deleted")).contains(rootFolderName));
     }
+
+    @Test
+    public void testDeleteFolderWithSkipBackup() throws Exception {
+        //Create
+        String rootFolderName = "deleteFolderWithSkipBackup" + SUFFIX;
+        assertTrue((Boolean) api.createFolder(rootFolderName, null).get("success"));
+
+        //Delete
+        ApiResponse result = api.deleteFolder(rootFolderName, ObjectUtils.asMap("skip_backup", "true"));
+        assertTrue(((List) result.get("deleted")).contains(rootFolderName));
+
+
+    }
 }

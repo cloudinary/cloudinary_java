@@ -661,7 +661,8 @@ public class Api {
      */
     public ApiResponse deleteFolder(String folder, Map options) throws Exception {
         List<String> uri = Arrays.asList("folders", folder);
-        return callApi(HttpMethod.DELETE, uri, Collections.<String, Object>emptyMap(), options);
+        Map params = ObjectUtils.only(options, "skip_backup");
+        return callApi(HttpMethod.DELETE, uri, params, options);
     }
 
     /**

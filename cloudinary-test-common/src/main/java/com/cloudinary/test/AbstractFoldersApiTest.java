@@ -89,7 +89,7 @@ abstract public class AbstractFoldersApiTest extends MockableTest {
     @Test
     public void testDeleteFolderWithSkipBackup() throws Exception {
         //Create
-        String rootFolderName = "subfolderWithParamsTest" + SUFFIX;
+        String rootFolderName = "deleteFolderWithSkipBackup" + SUFFIX;
         assertTrue((Boolean) api.createFolder(rootFolderName, null).get("success"));
 
         //Delete

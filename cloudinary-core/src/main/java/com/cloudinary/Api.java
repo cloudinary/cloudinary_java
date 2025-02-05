@@ -162,7 +162,7 @@ public class Api {
         if(options.get("fields") != null) {
             options.put("fields", StringUtils.join(ObjectUtils.asArray(options.get("fields")), ","));
         }
-        Map params = ObjectUtils.only(options, "tags", "context", "moderations", "fields");
+        Map params = buildResourceDetailParams(options);
         ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", assetId), params, options);
         return response;
     }
@@ -209,13 +209,17 @@ public class Api {
         if (options == null) options = ObjectUtils.emptyMap();
         String resourceType = ObjectUtils.asString(options.get("resource_type"), "image");
         String type = ObjectUtils.asString(options.get("type"), "upload");
+        Map params = buildResourceDetailParams(options);
 
-        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id),
-                ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
-                        "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis",
-                        "accessibility_analysis", "versions", "media_metadata", "derived_next_cursor"), options);
+        ApiResponse response = callApi(HttpMethod.GET, Arrays.asList("resources", resourceType, type, public_id), params, options);
 
         return response;
+    }
+
+    private Map buildResourceDetailParams(Map options) {
+        return ObjectUtils.only(options, "exif", "colors", "faces", "coordinates",
+                        "image_metadata", "pages", "phash", "max_results", "quality_analysis", "cinemagraph_analysis",
+                        "accessibility_analysis", "versions", "media_metadata", "derived_next_cursor");
     }
 
     public ApiResponse update(String public_id, Map options) throws Exception {

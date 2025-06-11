@@ -385,11 +385,22 @@ public final class Util {
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
     public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        Object publicId = paramsToSign.get("public_id");
-        if (publicId instanceof String) {
-            String id = (String) publicId;
-            if (id.contains("&")) { //|| id.contains("=") || id.contains("?") || id.contains("%")) {
+        for (Map.Entry<String, Object> entry : paramsToSign.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof String && ((String) value).contains("&")) {
                 return null;
+            } else if (value instanceof Collection) {
+                for (Object item : (Collection<?>) value) {
+                    if (item instanceof String && ((String) item).contains("&")) {
+                        return null;
+                    }
+                }
+            } else if (value instanceof Object[]) {
+                for (Object item : (Object[]) value) {
+                    if (item instanceof String && ((String) item).contains("&")) {
+                        return null;
+                    }
+                }
             }
         }
 

@@ -325,10 +325,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testResourceByAssetFolder() throws Exception {
-//         if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
+         if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
             Map result = api.resourcesByAssetFolder("test_asset_folder", ObjectUtils.asMap("tags", true, "context", true));
             assertNotNull(findByAttr((List<Map>) result.get("resources"), "public_id", assetId3));
-//        }
+        }
     }
 
     @Test

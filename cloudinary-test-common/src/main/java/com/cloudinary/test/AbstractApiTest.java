@@ -1375,5 +1375,9 @@ abstract public class AbstractApiTest extends MockableTest {
         to_sign.put("public_id", "publicid&tags=blabla");
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
         assertNull(expected_signature);
+
+        to_sign.put("public_id", "publicid#tags=blabla");
+        expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        assertNull(expected_signature);
     }
 }

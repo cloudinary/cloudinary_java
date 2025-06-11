@@ -385,37 +385,26 @@ public final class Util {
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
     public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        for (Map.Entry<String, Object> entry : paramsToSign.entrySet()) {
-            Object value = entry.getValue();
-            if (value instanceof String && ((String) value).contains("&")) {
+        Object publicIdValue = paramsToSign.get("public_id");
+        if (publicIdValue instanceof String) {
+            String publicId = (String) publicIdValue;
+            if (publicId.matches(".*[&=%+#].*")) {
                 return null;
-            } else if (value instanceof Collection) {
-                for (Object item : (Collection<?>) value) {
-                    if (item instanceof String && ((String) item).contains("&")) {
-                        return null;
-                    }
-                }
-            } else if (value instanceof Object[]) {
-                for (Object item : (Object[]) value) {
-                    if (item instanceof String && ((String) item).contains("&")) {
-                        return null;
-                    }
-                }
             }
         }
 
-        Collection<String> params = new ArrayList<String>();
-        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
-            } else if (param.getValue() instanceof Object[]) {
-                params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
-            } else {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    params.add(param.getKey() + "=" + param.getValue().toString());
-                }
+        Collection<String> params = new ArrayList<>();
+        for (Map.Entry<String, Object> param : new TreeMap<>(paramsToSign).entrySet()) {
+            Object value = param.getValue();
+            if (value instanceof Collection) {
+                params.add(param.getKey() + "=" + StringUtils.join((Collection) value, ","));
+            } else if (value instanceof Object[]) {
+                params.add(param.getKey() + "=" + StringUtils.join((Object[]) value, ","));
+            } else if (StringUtils.isNotBlank(value)) {
+                params.add(param.getKey() + "=" + value.toString());
             }
         }
+
         String to_sign = StringUtils.join(params, "&");
         byte[] hash = Util.hash(to_sign + apiSecret, signatureAlgorithm);
         return StringUtils.encodeHexString(hash);

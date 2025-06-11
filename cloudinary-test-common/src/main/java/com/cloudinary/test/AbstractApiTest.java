@@ -25,7 +25,7 @@ import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
 abstract public class AbstractApiTest extends MockableTest {
-    private static final String API_TEST = "api_test_" + SUFFIX;
+    private static final String API_TEST = "api_test_+" + SUFFIX;
     private static final String API_TEST_1 = API_TEST + "_1";
     private static final String API_TEST_2 = API_TEST + "_2";
     private static final String API_TEST_3 = API_TEST + "_3";
@@ -325,10 +325,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testResourceByAssetFolder() throws Exception {
-        if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
+//         if (MockableTest.shouldTestFeature(Feature.DYNAMIC_FOLDERS)) {
             Map result = api.resourcesByAssetFolder("test_asset_folder", ObjectUtils.asMap("tags", true, "context", true));
             assertNotNull(findByAttr((List<Map>) result.get("resources"), "public_id", assetId3));
-        }
+//        }
     }
 
     @Test
@@ -1367,5 +1367,13 @@ abstract public class AbstractApiTest extends MockableTest {
         } finally {
             cloudinary.uploader().destroy(publicId, Collections.singletonMap("invalidate", true));
         }
+    }
+
+    @Test
+    public void testSignatureWithEscapingCharacters() {
+        Map<String, Object> to_sign = new HashMap<String, Object>();
+        to_sign.put("public_id", "publicid&tags=blabla");
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        assertNull(expected_signature);
     }
 }

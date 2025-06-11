@@ -385,6 +385,14 @@ public final class Util {
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
     public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
+        Object publicId = paramsToSign.get("public_id");
+        if (publicId instanceof String) {
+            String id = (String) publicId;
+            if (id.contains("&")) { //|| id.contains("=") || id.contains("?") || id.contains("%")) {
+                return null;
+            }
+        }
+
         Collection<String> params = new ArrayList<String>();
         for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
             if (param.getValue() instanceof Collection) {

@@ -25,7 +25,7 @@ import static org.junit.Assume.assumeNotNull;
 
 @SuppressWarnings({"rawtypes", "unchecked", "JavaDoc"})
 abstract public class AbstractApiTest extends MockableTest {
-    private static final String API_TEST = "api_test_+" + SUFFIX;
+    private static final String API_TEST = "api_test_" + SUFFIX;
     private static final String API_TEST_1 = API_TEST + "_1";
     private static final String API_TEST_2 = API_TEST + "_2";
     private static final String API_TEST_3 = API_TEST + "_3";

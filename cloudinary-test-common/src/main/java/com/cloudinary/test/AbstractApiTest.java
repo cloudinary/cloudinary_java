@@ -1371,9 +1371,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testSignatureWithEscapingCharacters() {
+        String signatureWithEscapingCharacters = "579369d56eea031dd7a8d3573551f9e68f05b005";
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", "publicid&tags=blabla");
         String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
-        assertNull(expected_signature);
+        assertNotEquals(expected_signature, signatureWithEscapingCharacters);
     }
 }

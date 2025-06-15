@@ -385,30 +385,31 @@ public final class Util {
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
     public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        Object publicId = paramsToSign.get("public_id");
-        if (publicId instanceof String) {
-            String id = (String) publicId;
-            if (id.contains("&")) { //|| id.contains("=") || id.contains("?") || id.contains("%")) {
-                return null;
-            }
-        }
+        Collection<String> params = new ArrayList<>();
 
-        Collection<String> params = new ArrayList<String>();
-        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
-            } else if (param.getValue() instanceof Object[]) {
-                params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
+        for (Map.Entry<String, Object> param : new TreeMap<>(paramsToSign).entrySet()) {
+            String key = param.getKey();
+            Object value = param.getValue();
+
+            if (value instanceof Collection) {
+                String joined = StringUtils.join((Collection) value, ",").replace("&", "%26");
+                params.add(key + "=" + joined);
+            } else if (value instanceof Object[]) {
+                String joined = StringUtils.join((Object[]) value, ",").replace("&", "%26");
+                params.add(key + "=" + joined);
             } else {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    params.add(param.getKey() + "=" + param.getValue().toString());
+                if (value != null && StringUtils.isNotBlank(value.toString())) {
+                    String sanitized = value.toString().replace("&", "%26");
+                    params.add(key + "=" + sanitized);
                 }
             }
         }
+
         String to_sign = StringUtils.join(params, "&");
         byte[] hash = Util.hash(to_sign + apiSecret, signatureAlgorithm);
         return StringUtils.encodeHexString(hash);
     }
+
 
     /**
      * Computes hash from input string using specified algorithm.

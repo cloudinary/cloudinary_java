@@ -385,31 +385,38 @@ public final class Util {
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
     public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        Collection<String> params = new ArrayList<>();
-
-        for (Map.Entry<String, Object> param : new TreeMap<>(paramsToSign).entrySet()) {
-            String key = param.getKey();
-            Object value = param.getValue();
-
-            if (value instanceof Collection) {
-                String joined = StringUtils.join((Collection) value, ",").replace("&", "%26");
-                params.add(key + "=" + joined);
-            } else if (value instanceof Object[]) {
-                String joined = StringUtils.join((Object[]) value, ",").replace("&", "%26");
-                params.add(key + "=" + joined);
-            } else {
-                if (value != null && StringUtils.isNotBlank(value.toString())) {
-                    String sanitized = value.toString().replace("&", "%26");
-                    params.add(key + "=" + sanitized);
-                }
-            }
-        }
-
-        String to_sign = StringUtils.join(params, "&");
-        byte[] hash = Util.hash(to_sign + apiSecret, signatureAlgorithm);
+        Collection<String> flattenedParams = flattenAndSanitizeParams(paramsToSign);
+        String toSign = StringUtils.join(flattenedParams, "&") + apiSecret;
+        byte[] hash = Util.hash(toSign, signatureAlgorithm);
         return StringUtils.encodeHexString(hash);
     }
 
+    private static Collection<String> flattenAndSanitizeParams(Map<String, Object> paramsToSign) {
+        Collection<String> params = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : new TreeMap<>(paramsToSign).entrySet()) {
+            Object value = entry.getValue();
+            String rawValue = null;
+
+            if (value instanceof Collection) {
+                rawValue = StringUtils.join((Collection) value, ",");
+            } else if (value instanceof Object[]) {
+                rawValue = StringUtils.join((Object[]) value, ",");
+            } else if (value != null && StringUtils.isNotBlank(value.toString())) {
+                rawValue = value.toString();
+            }
+
+            if (rawValue != null) {
+                params.add(entry.getKey() + "=" + escapeAmpersand(rawValue));
+            }
+        }
+
+        return params;
+    }
+
+    private static String escapeAmpersand(String input) {
+        return input.replace("&", "%26");
+    }
 
     /**
      * Computes hash from input string using specified algorithm.

@@ -1371,10 +1371,31 @@ abstract public class AbstractApiTest extends MockableTest {
 
     @Test
     public void testSignatureWithEscapingCharacters() {
-        String signatureWithEscapingCharacters = "579369d56eea031dd7a8d3573551f9e68f05b005";
-        Map<String, Object> to_sign = new HashMap<String, Object>();
-        to_sign.put("public_id", "publicid&tags=blabla");
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
-        assertNotEquals(expected_signature, signatureWithEscapingCharacters);
+        String API_SIGN_REQUEST_CLOUD_NAME = "dn6ot3ged";
+        String API_SIGN_REQUEST_TEST_SECRET = "hdcixPpR2iKERPwqvH6sHdK9cyac";
+
+        Map<String, Object> paramsWithAmpersand = new HashMap<>();
+        paramsWithAmpersand.put("cloud_name", API_SIGN_REQUEST_CLOUD_NAME);
+        paramsWithAmpersand.put("timestamp", 1568810420);
+        paramsWithAmpersand.put("notification_url", "https://fake.com/callback?a=1&tags=hello,world");
+
+        String signatureWithAmpersand = Util.produceSignature(paramsWithAmpersand, API_SIGN_REQUEST_TEST_SECRET);
+
+        Map<String, Object> paramsSmuggled = new HashMap<>();
+        paramsSmuggled.put("cloud_name", API_SIGN_REQUEST_CLOUD_NAME);
+        paramsSmuggled.put("timestamp", 1568810420);
+        paramsSmuggled.put("notification_url", "https://fake.com/callback?a=1");
+        paramsSmuggled.put("tags", "hello,world");
+
+        String signatureSmuggled = Util.produceSignature(paramsSmuggled, API_SIGN_REQUEST_TEST_SECRET);
+
+        assertNotEquals(signatureWithAmpersand, signatureSmuggled,
+                "Signatures should be different to prevent parameter smuggling");
+
+        String expectedSignature = "4fdf465dd89451cc1ed8ec5b3e314e8a51695704";
+        assertEquals(expectedSignature, signatureWithAmpersand);
+
+        String expectedSmuggledSignature = "7b4e3a539ff1fa6e6700c41b3a2ee77586a025f9";
+        assertEquals(expectedSmuggledSignature, signatureSmuggled);
     }
 }

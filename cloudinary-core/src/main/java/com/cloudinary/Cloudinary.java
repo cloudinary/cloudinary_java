@@ -195,7 +195,7 @@ public class Cloudinary {
      * @return whether response signature is valid or not
      */
     public boolean verifyApiResponseSignature(String publicId, String version, String signature) {
-        return new ApiResponseSignatureVerifier(config.apiSecret, config.signatureAlgorithm).verifySignature(publicId, version, signature, config.signatureVersion);
+        return new ApiResponseSignatureVerifier(config.apiSecret, config.signatureAlgorithm).verifySignature(publicId, version, signature);
     }
 
     public void signRequest(Map<String, Object> params, Map<String, Object> options) {

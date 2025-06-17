@@ -21,6 +21,7 @@ public class Configuration {
     public final static String USER_AGENT = "cld-android-" + VERSION;
     public static final boolean DEFAULT_IS_LONG_SIGNATURE = false;
     public static final SignatureAlgorithm DEFAULT_SIGNATURE_ALGORITHM = SignatureAlgorithm.SHA1;
+    public static final int DEFAULT_SIGNATURE_VERSION = 2;
 
     private static final String CONFIG_PROP_SIGNATURE_ALGORITHM = "signature_algorithm";
 
@@ -48,6 +49,7 @@ public class Configuration {
     public boolean forceVersion = true;
     public boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
     public SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+    public int signatureVersion = DEFAULT_SIGNATURE_VERSION;
     public String oauthToken = null;
     public Boolean analytics;
     public Configuration() {
@@ -75,6 +77,7 @@ public class Configuration {
             boolean forceVersion,
             boolean longUrlSignature,
             SignatureAlgorithm signatureAlgorithm,
+            int signatureVersion,
             String oauthToken,
             boolean analytics) {
         this.cloudName = cloudName;
@@ -98,6 +101,7 @@ public class Configuration {
         this.forceVersion = forceVersion;
         this.longUrlSignature = longUrlSignature;
         this.signatureAlgorithm = signatureAlgorithm;
+        this.signatureVersion = signatureVersion;
         this.oauthToken = oauthToken;
         this.analytics = analytics;
     }
@@ -140,6 +144,7 @@ public class Configuration {
         }
         this.longUrlSignature = ObjectUtils.asBoolean(config.get("long_url_signature"), DEFAULT_IS_LONG_SIGNATURE);
         this.signatureAlgorithm = SignatureAlgorithm.valueOf(ObjectUtils.asString(config.get(CONFIG_PROP_SIGNATURE_ALGORITHM), DEFAULT_SIGNATURE_ALGORITHM.name()));
+        this.signatureVersion = ObjectUtils.asInteger(config.get("signature_version"), DEFAULT_SIGNATURE_VERSION);
         this.oauthToken = (String) config.get("oauth_token");
 
     }
@@ -173,6 +178,7 @@ public class Configuration {
         map.put("properties", new HashMap<String,Object>(properties));
         map.put("long_url_signature", longUrlSignature);
         map.put(CONFIG_PROP_SIGNATURE_ALGORITHM, signatureAlgorithm.toString());
+        map.put("signature_version", signatureVersion);
         map.put("oauth_token", oauthToken);
         map.put("analytics", analytics);
         return map;
@@ -206,6 +212,7 @@ public class Configuration {
         this.properties.putAll(other.properties);
         this.longUrlSignature = other.longUrlSignature;
         this.signatureAlgorithm = other.signatureAlgorithm;
+        this.signatureVersion = other.signatureVersion;
         this.oauthToken = other.oauthToken;
         this.analytics = other.analytics;
     }
@@ -320,6 +327,7 @@ public class Configuration {
         private boolean forceVersion = true;
         private boolean longUrlSignature = DEFAULT_IS_LONG_SIGNATURE;
         private SignatureAlgorithm signatureAlgorithm = DEFAULT_SIGNATURE_ALGORITHM;
+        private int signatureVersion = DEFAULT_SIGNATURE_VERSION;
         private String oauthToken = null;
         private boolean analytics;
 
@@ -360,6 +368,7 @@ public class Configuration {
                             forceVersion,
                             longUrlSignature,
                             signatureAlgorithm,
+                            signatureVersion,
                             oauthToken,
                             analytics);
             configuration.clientHints = clientHints;
@@ -500,6 +509,11 @@ public class Configuration {
             return this;
         }
 
+        public Builder setSignatureVersion(int signatureVersion) {
+            this.signatureVersion = signatureVersion;
+            return this;
+        }
+
         public Builder setOAuthToken(String oauthToken) {
             this.oauthToken = oauthToken;
             return this;
@@ -535,6 +549,7 @@ public class Configuration {
             this.forceVersion = other.forceVersion;
             this.longUrlSignature = other.longUrlSignature;
             this.signatureAlgorithm = other.signatureAlgorithm;
+            this.signatureVersion = other.signatureVersion;
             this.oauthToken = other.oauthToken;
             this.analytics = other.analytics;
             return this;

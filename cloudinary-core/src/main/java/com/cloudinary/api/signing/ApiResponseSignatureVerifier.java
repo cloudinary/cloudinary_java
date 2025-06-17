@@ -57,9 +57,9 @@ public class ApiResponseSignatureVerifier {
      *
      * @return true if response signature passed verification procedure
      */
-    public boolean verifySignature(String publicId, String version, String signature) {
+    public boolean verifySignature(String publicId, String version, String signature, int signatureVersion) {
         return Util.produceSignature(ObjectUtils.asMap(
                 "public_id", emptyIfNull(publicId),
-                "version", emptyIfNull(version)), secretKey, signatureAlgorithm).equals(signature);
+                "version", emptyIfNull(version)), secretKey, signatureAlgorithm, signatureVersion).equals(signature);
     }
 }

@@ -366,8 +366,8 @@ public final class Util {
      * @param apiSecret     secret value
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
-        return produceSignature(paramsToSign, apiSecret, SignatureAlgorithm.SHA1);
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, int signatureVersion) {
+        return produceSignature(paramsToSign, apiSecret, SignatureAlgorithm.SHA1, signatureVersion);
     }
 
     /**
@@ -384,14 +384,14 @@ public final class Util {
      * @param signatureAlgorithm type of hashing algorithm to use for calculation of HMAC
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        Collection<String> flattenedParams = flattenAndSanitizeParams(paramsToSign);
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm, int signatureVersion) {
+        Collection<String> flattenedParams = flattenAndSanitizeParams(paramsToSign, signatureVersion);
         String toSign = StringUtils.join(flattenedParams, "&") + apiSecret;
         byte[] hash = Util.hash(toSign, signatureAlgorithm);
         return StringUtils.encodeHexString(hash);
     }
 
-    private static Collection<String> flattenAndSanitizeParams(Map<String, Object> paramsToSign) {
+    private static Collection<String> flattenAndSanitizeParams(Map<String, Object> paramsToSign, int signatureVersion) {
         Collection<String> params = new ArrayList<>();
 
         for (Map.Entry<String, Object> entry : new TreeMap<>(paramsToSign).entrySet()) {
@@ -407,7 +407,11 @@ public final class Util {
             }
 
             if (rawValue != null) {
-                params.add(entry.getKey() + "=" + escapeAmpersand(rawValue));
+                String sanitizedValue = (signatureVersion == 2)
+                        ? escapeAmpersand(rawValue)
+                        : rawValue;
+
+                params.add(entry.getKey() + "=" + sanitizedValue);
             }
         }
 

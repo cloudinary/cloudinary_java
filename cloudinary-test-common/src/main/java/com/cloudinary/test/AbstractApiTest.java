@@ -1379,7 +1379,7 @@ abstract public class AbstractApiTest extends MockableTest {
         paramsWithAmpersand.put("timestamp", 1568810420);
         paramsWithAmpersand.put("notification_url", "https://fake.com/callback?a=1&tags=hello,world");
 
-        String signatureWithAmpersand = Util.produceSignature(paramsWithAmpersand, API_SIGN_REQUEST_TEST_SECRET);
+        String signatureWithAmpersand = Util.produceSignature(paramsWithAmpersand, API_SIGN_REQUEST_TEST_SECRET, cloudinary.config.signatureVersion);
 
         Map<String, Object> paramsSmuggled = new HashMap<>();
         paramsSmuggled.put("cloud_name", API_SIGN_REQUEST_CLOUD_NAME);
@@ -1387,7 +1387,7 @@ abstract public class AbstractApiTest extends MockableTest {
         paramsSmuggled.put("notification_url", "https://fake.com/callback?a=1");
         paramsSmuggled.put("tags", "hello,world");
 
-        String signatureSmuggled = Util.produceSignature(paramsSmuggled, API_SIGN_REQUEST_TEST_SECRET);
+        String signatureSmuggled = Util.produceSignature(paramsSmuggled, API_SIGN_REQUEST_TEST_SECRET, cloudinary.config.signatureVersion);
 
         assertNotEquals(signatureWithAmpersand, signatureSmuggled,
                 "Signatures should be different to prevent parameter smuggling");
@@ -1397,5 +1397,10 @@ abstract public class AbstractApiTest extends MockableTest {
 
         String expectedSmuggledSignature = "7b4e3a539ff1fa6e6700c41b3a2ee77586a025f9";
         assertEquals(expectedSmuggledSignature, signatureSmuggled);
+
+        String versionOneSignature = Util.produceSignature(paramsSmuggled, API_SIGN_REQUEST_TEST_SECRET, 1);
+
+        assertEquals(expectedSmuggledSignature, versionOneSignature);
+
     }
 }

@@ -104,7 +104,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret, cloudinary.config.signatureVersion);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -131,7 +131,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret, cloudinary.config.signatureVersion);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -167,7 +167,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret, cloudinary.config.signatureVersion);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -179,7 +179,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret, cloudinary.config.signatureVersion);
         assertEquals(result.get("signature"), expected_signature);
     }
 
@@ -191,7 +191,7 @@ abstract public class AbstractUploaderTest extends MockableTest {
         Map<String, Object> to_sign = new HashMap<String, Object>();
         to_sign.put("public_id", result.get("public_id"));
         to_sign.put("version", ObjectUtils.asString(result.get("version")));
-        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret);
+        String expected_signature = cloudinary.apiSignRequest(to_sign, cloudinary.config.apiSecret, cloudinary.config.signatureVersion);
         assertEquals(result.get("signature"), expected_signature);
     }
 

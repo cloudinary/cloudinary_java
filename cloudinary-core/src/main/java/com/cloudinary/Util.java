@@ -366,8 +366,8 @@ public final class Util {
      * @param apiSecret     secret value
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret) {
-        return produceSignature(paramsToSign, apiSecret, SignatureAlgorithm.SHA1);
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, int signatureVersion) {
+        return produceSignature(paramsToSign, apiSecret, SignatureAlgorithm.SHA1, signatureVersion);
     }
 
     /**
@@ -384,22 +384,42 @@ public final class Util {
      * @param signatureAlgorithm type of hashing algorithm to use for calculation of HMAC
      * @return hex-string representation of signature calculated based on provided parameters map and secret
      */
-    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm) {
-        Collection<String> params = new ArrayList<String>();
-        for (Map.Entry<String, Object> param : new TreeMap<String, Object>(paramsToSign).entrySet()) {
-            if (param.getValue() instanceof Collection) {
-                params.add(param.getKey() + "=" + StringUtils.join((Collection) param.getValue(), ","));
-            } else if (param.getValue() instanceof Object[]) {
-                params.add(param.getKey() + "=" + StringUtils.join((Object[]) param.getValue(), ","));
-            } else {
-                if (StringUtils.isNotBlank(param.getValue())) {
-                    params.add(param.getKey() + "=" + param.getValue().toString());
-                }
+    public static String produceSignature(Map<String, Object> paramsToSign, String apiSecret, SignatureAlgorithm signatureAlgorithm, int signatureVersion) {
+        Collection<String> flattenedParams = flattenAndSanitizeParams(paramsToSign, signatureVersion);
+        String toSign = StringUtils.join(flattenedParams, "&") + apiSecret;
+        byte[] hash = Util.hash(toSign, signatureAlgorithm);
+        return StringUtils.encodeHexString(hash);
+    }
+
+    private static Collection<String> flattenAndSanitizeParams(Map<String, Object> paramsToSign, int signatureVersion) {
+        Collection<String> params = new ArrayList<>();
+
+        for (Map.Entry<String, Object> entry : new TreeMap<>(paramsToSign).entrySet()) {
+            Object value = entry.getValue();
+            String rawValue = null;
+
+            if (value instanceof Collection) {
+                rawValue = StringUtils.join((Collection) value, ",");
+            } else if (value instanceof Object[]) {
+                rawValue = StringUtils.join((Object[]) value, ",");
+            } else if (value != null && StringUtils.isNotBlank(value.toString())) {
+                rawValue = value.toString();
+            }
+
+            if (rawValue != null) {
+                String sanitizedValue = (signatureVersion == 2)
+                        ? escapeAmpersand(rawValue)
+                        : rawValue;
+
+                params.add(entry.getKey() + "=" + sanitizedValue);
             }
         }
-        String to_sign = StringUtils.join(params, "&");
-        byte[] hash = Util.hash(to_sign + apiSecret, signatureAlgorithm);
-        return StringUtils.encodeHexString(hash);
+
+        return params;
+    }
+
+    private static String escapeAmpersand(String input) {
+        return input.replace("&", "%26");
     }
 
     /**

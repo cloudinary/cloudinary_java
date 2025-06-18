@@ -1438,14 +1438,14 @@ public class CloudinaryTest {
     @Test
     public void testApiSignRequestSHA1() {
         cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA1;
-        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
+        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac", cloudinary.config.signatureVersion);
         assertEquals("14c00ba6d0dfdedbc86b316847d95b9e6cd46d94", signature);
     }
 
     @Test
     public void testApiSignRequestSHA256() {
         cloudinary.config.signatureAlgorithm = SignatureAlgorithm.SHA256;
-        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac");
+        String signature = cloudinary.apiSignRequest(ObjectUtils.asMap("cloud_name", "dn6ot3ged", "timestamp", 1568810420, "username", "user@cloudinary.com"), "hdcixPpR2iKERPwqvH6sHdK9cyac", cloudinary.config.signatureVersion);
         assertEquals("45ddaa4fa01f0c2826f32f669d2e4514faf275fe6df053f1a150e7beae58a3bd", signature);
     }
 

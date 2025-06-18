@@ -60,6 +60,6 @@ public class ApiResponseSignatureVerifier {
     public boolean verifySignature(String publicId, String version, String signature) {
         return Util.produceSignature(ObjectUtils.asMap(
                 "public_id", emptyIfNull(publicId),
-                "version", emptyIfNull(version)), secretKey, signatureAlgorithm).equals(signature);
+                "version", emptyIfNull(version)), secretKey, signatureAlgorithm, 1).equals(signature);
     }
 }

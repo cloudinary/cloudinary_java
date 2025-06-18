@@ -130,8 +130,8 @@ public class Cloudinary {
                 + (result.containsKey("format") ? "." + result.get("format") : "") + "#" + result.get("signature");
     }
 
-    public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret) {
-        return Util.produceSignature(paramsToSign, apiSecret, config.signatureAlgorithm);
+    public String apiSignRequest(Map<String, Object> paramsToSign, String apiSecret, int signatureVersion) {
+        return Util.produceSignature(paramsToSign, apiSecret, config.signatureAlgorithm, signatureVersion);
     }
 
     /**
@@ -206,7 +206,7 @@ public class Cloudinary {
         if (apiSecret == null)
             throw new IllegalArgumentException("Must supply api_secret");
         Util.clearEmpty(params);
-        params.put("signature", this.apiSignRequest(params, apiSecret));
+        params.put("signature", this.apiSignRequest(params, apiSecret, this.config.signatureVersion));
         params.put("api_key", apiKey);
     }
 

@@ -1,3 +1,9 @@
+2.3.0 / 2025-06-18
+==================
+* Fix API parameters signature
+* Fix build single resource params
+* Add skip backup parameter to delete folder api
+
 2.2.0 / 2025-02-02
 ==================
 

@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Test ${{ matrix.module }} on JDK ${{ matrix.java }}
-    runs-on: ubuntu-20.04  # or ubuntu-latest
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:

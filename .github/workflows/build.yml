@@ -48,16 +48,3 @@ jobs:
         run: |
           source tools/cloudinary_url.txt
           ./gradlew -DCLOUDINARY_URL=$CLOUDINARY_URL ciTest -p cloudinary-${{ matrix.module }} -i
-
-      - name: Notify by email on failure (optional)
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.example.com     # 🔧 Replace with actual SMTP server
-          server_port: 465
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: "Build Failed: Java SDK CI"
-          body: "CI build failed for module '${{ matrix.module }}' on JDK '${{ matrix.java }}'"
-          to: sdk_developers@cloudinary.com
-          from: GitHub Actions <ci@example.com>

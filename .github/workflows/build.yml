@@ -1,0 +1,63 @@
+name: Java SDK Matrix CI
+
+on:
+  push:
+    branches-ignore:
+      - staging-test
+  pull_request:
+
+jobs:
+  build:
+    name: Test ${{ matrix.module }} on JDK ${{ matrix.java }}
+    runs-on: ubuntu-20.04  # or ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [ '8', '9', '10', '11' ]
+        module: [ 'core', 'http5' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'adopt'
+          java-version: ${{ matrix.java }}
+
+      - name: Clean Gradle plugin cache
+        run: |
+          rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+          rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ matrix.java }}-${{ matrix.module }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Create test subaccount
+        run: ./gradlew createTestSubAccount -PmoduleName=${{ matrix.module }}
+
+      - name: Load CLOUDINARY_URL and run ciTest
+        run: |
+          source tools/cloudinary_url.txt
+          ./gradlew -DCLOUDINARY_URL=$CLOUDINARY_URL ciTest -p cloudinary-${{ matrix.module }} -i
+
+      - name: Notify by email on failure (optional)
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.example.com     # 🔧 Replace with actual SMTP server
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "Build Failed: Java SDK CI"
+          body: "CI build failed for module '${{ matrix.module }}' on JDK '${{ matrix.java }}'"
+          to: sdk_developers@cloudinary.com
+          from: GitHub Actions <ci@example.com>

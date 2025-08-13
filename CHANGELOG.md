@@ -1,3 +1,8 @@
+2.3.1 / 2025-08-13
+==================
+
+* Bump dependencies version
+
 2.3.0 / 2025-06-18
 ==================
 * Fix API parameters signature

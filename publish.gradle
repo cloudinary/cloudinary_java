@@ -1,0 +1,73 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+// Simple module-level publishing for manual upload to Central Portal
+if (hasProperty("ossrhTokenPassword") || hasProperty("centralPassword")) {
+    
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                // Set coordinates from gradle.properties
+                groupId = project.ext.publishGroupId
+                artifactId = project.name
+                version = project.version
+                
+                // Include JAR artifacts and components for Java
+                from components.java
+                artifact sourcesJar
+                artifact javadocJar
+                
+                pom {
+                    name = getModuleName(project.name)
+                    packaging = 'jar'
+                    description = publishDescription
+                    url = githubUrl
+                    
+                    licenses {
+                        license {
+                            name = licenseName
+                            url = licenseUrl
+                        }
+                    }
+                    
+                    developers {
+                        developer {
+                            id = developerId
+                            name = developerName
+                            email = developerEmail
+                        }
+                    }
+                    
+                    scm {
+                        connection = scmConnection
+                        developerConnection = scmDeveloperConnection
+                        url = scmUrl
+                    }
+                }
+            }
+        }
+    }
+    
+    // Signing temporarily disabled - we'll add GPG signatures manually using command line
+    // signing {
+    //     required { project.hasProperty("centralPassword") }
+    //     useGpgCmd()
+    //     sign publishing.publications.mavenJava
+    // }
+}
+
+// Helper function to get proper module names
+def getModuleName(artifactId) {
+    switch(artifactId) {
+        case 'cloudinary-core':
+            return 'Cloudinary Core Library'
+        case 'cloudinary-http5':
+            return 'Cloudinary Apache HTTP 5 Library'
+        case 'cloudinary-taglib':
+            return 'Cloudinary Taglib Library'
+        case 'cloudinary-test-common':
+            return 'Cloudinary Test Common Library'
+        default:
+            return 'Cloudinary Java Library'
+    }
+}

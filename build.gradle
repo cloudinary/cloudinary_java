@@ -1,30 +1,18 @@
 import groovy.json.JsonSlurper
 
 plugins {
-    id 'io.github.gradle-nexus.publish-plugin' version '1.0.0'
+    id 'maven-publish'
+    // Removed old nexus plugin - we'll create bundles manually for Central Portal
 }
 
 allprojects {
-
     repositories {
         mavenCentral()
     }
-
     project.ext.set("publishGroupId", group)
 }
 
-nexusPublishing {
-    transitionCheckOptions {
-        maxRetries.set(150)
-        delayBetween.set(Duration.ofSeconds(5))
-    }
-    repositories {
-        sonatype {
-            username = project.hasProperty("ossrhToken") ? project.ext["ossrhToken"] : ""
-            password = project.hasProperty("ossrhTokenPassword") ? project.ext["ossrhTokenPassword"] : ""
-        }
-    }
-}
+// Removed nexusPublishing block - we'll create bundles manually for Central Portal upload
 
 tasks.create('createTestSubAccount') {
     doFirst {

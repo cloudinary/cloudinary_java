@@ -1,11 +1,9 @@
 plugins {
     id 'java-library'
-    id 'signing'
-    id 'maven-publish'
-    id 'io.codearte.nexus-staging' version '0.21.1'
 }
 
 apply from: "../java_shared.gradle"
+apply from: "../publish.gradle"
 
 task ciTest( type: Test ) {
     useJUnit {
@@ -27,87 +25,4 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-if (hasProperty("ossrhPassword")) {
-
-    signing {
-        sign configurations.archives
-    }
-
-    nexusStaging {
-        packageGroup = group
-        username = project.hasProperty("ossrhToken") ? project.ext["ossrhToken"] : ""
-        password = project.hasProperty("ossrhTokenPassword") ? project.ext["ossrhTokenPassword"] : ""
-    }
-
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                from components.java
-                artifact sourcesJar
-                artifact javadocJar
-                pom {
-                    name = 'Cloudinary Apache HTTP 5 Library'
-                    packaging = 'jar'
-                    groupId = publishGroupId
-                    artifactId = 'cloudinary-http5'
-                    description = publishDescription
-                    url = githubUrl
-                    licenses {
-                        license {
-                            name = licenseName
-                            url = licenseUrl
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = developerId
-                            name = developerName
-                            email = developerEmail
-                        }
-                    }
-                    scm {
-                        connection = scmConnection
-                        developerConnection = scmDeveloperConnection
-                        url = scmUrl
-                    }
-                }
-
-                pom.withXml {
-                    def pomFile = file("${project.buildDir}/generated-pom.xml")
-                    writeTo(pomFile)
-                    def pomAscFile = signing.sign(pomFile).signatureFiles[0]
-                    artifact(pomAscFile) {
-                        classifier = null
-                        extension = 'pom.asc'
-                    }
-                }
-
-                // create the signed artifacts
-                project.tasks.signArchives.signatureFiles.each {
-                    artifact(it) {
-                        def matcher = it.file =~ /-(sources|javadoc)\.jar\.asc$/
-                        if (matcher.find()) {
-                            classifier = matcher.group(1)
-                        } else {
-                            classifier = null
-                        }
-                        extension = 'jar.asc'
-                    }
-                }
-            }
-        }
-
-        model {
-            tasks.generatePomFileForMavenJavaPublication {
-                destination = file("$buildDir/generated-pom.xml")
-            }
-            tasks.publishMavenJavaPublicationToMavenLocal {
-                dependsOn project.tasks.signArchives
-            }
-            tasks.publishMavenJavaPublicationToSonatypeRepository {
-                dependsOn project.tasks.signArchives
-            }
-        }
-    }
-}
+// Publishing configuration moved to ../publish.gradle

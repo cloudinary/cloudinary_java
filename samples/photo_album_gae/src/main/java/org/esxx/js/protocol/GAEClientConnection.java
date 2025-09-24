@@ -195,7 +195,7 @@ class GAEClientConnection
 	response = urlFS.fetch(request);
 	request = null;
       }catch (IOException ex) {
-	ex.printStackTrace();
+	ex.printStackTrace(); //Remove ex.printStackTrace
 	throw ex;
       }
     }

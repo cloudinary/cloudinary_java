@@ -84,7 +84,7 @@ public abstract class AbstractStructuredMetadataTest extends MockableTest {
 
     @Test
     public void testFieldRestrictions() throws Exception {
-        StringMetadataField stringField = newFieldInstance("testCreateMetadata_3", true);
+        StringMetadataField stringField = newFieldInstance("testCreateMetadata_3", false);
         stringField.setRestrictions(new Restrictions().setReadOnlyUI());
 
         ApiResponse result = api.addMetadataField(stringField);

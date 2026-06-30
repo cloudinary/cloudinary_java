@@ -159,4 +159,21 @@ public class UtilTest {
         assertEquals("bcde", StringUtils.removeStartingChars("aaaaaabcde", 'a'));
         assertEquals("bcdeaa", StringUtils.removeStartingChars("aaaaaabcdeaa", 'a'));
     }
+
+    @Test
+    public void testBuildUploadParamsForwardsMetadataWhenSigned() {
+        String signatureKey = "signature";
+        String timestampKey = "timestamp";
+        String metadataKey = "metadata";
+
+        Map<String, Object> params = Util.buildUploadParams(
+            ObjectUtils.asMap(
+                signatureKey, "abc-signature",
+                timestampKey, "1782744652",
+                metadataKey, "delete_date=2026-07-06"
+            )
+        );
+
+        assertEquals("delete_date=2026-07-06", params.get(metadataKey));
+    }
 }

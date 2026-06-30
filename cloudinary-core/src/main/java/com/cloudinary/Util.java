@@ -75,6 +75,7 @@ public final class Util {
             params.put("similarity_search", (String) options.get("similarity_search"));
             params.put("auto_tagging", (String) options.get("auto_tagging"));
             params.put("access_control", (String) options.get("access_control"));
+            params.put("metadata", (String) options.get("metadata"));
         }
         return params;
     }

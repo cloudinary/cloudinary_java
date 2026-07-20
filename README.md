@@ -1,148 +1,135 @@
-[![Build Status](https://travis-ci.org/cloudinary/cloudinary_java.svg?branch=master)](https://travis-ci.org/cloudinary/cloudinary_java)
+# Cloudinary Java SDK
 
-Cloudinary
-==========
+[![Maven Central](https://img.shields.io/maven-central/v/com.cloudinary/cloudinary-http5.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/com.cloudinary/cloudinary-http5)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
+[![Build](https://github.com/cloudinary/cloudinary_java/actions/workflows/build.yml/badge.svg)](https://github.com/cloudinary/cloudinary_java/actions/workflows/build.yml)
 
-## About
-The Cloudinary Java SDK allows you to quickly and easily integrate your application with Cloudinary.
-Effortlessly optimize and transform your cloud's assets.
-
-### Additional documentation
-This Readme provides basic installation and usage information.
-For the complete documentation, see the [Java SDK Guide](https://cloudinary.com/documentation/java_integration).
-
-## Table of Contents
-- [Key Features](#key-features)
-- [Version Support](#Version-Support)
-- [Installation](#installation)
-- [Usage](#usage)
-    - [Setup](#Setup)
-    - [Transform and Optimize Assets](#Transform-and-Optimize-Assets)
-    - [File upload](#File-upload)
-
-## Key Features
-- [Transform](https://cloudinary.com/documentation/java_video_manipulation) and [optimize](https://cloudinary.com/documentation/java_image_manipulation#image_optimizations) assets (links to docs).
-- [Upload assets to cloud](https://cloudinary.com/documentation/java_image_and_video_upload)
-
-## Version Support
-| SDK Version    | Java 6+ | Java 8 |
-|----------------|---------|--------|
-| 1.1.0 - 1.39.0 | V       |        |
-| 2.0.0+         |         | V      |
-
-  
+The server-side Cloudinary SDK for the JVM. Use it from a Java server or build step to upload assets, build transformation and delivery URLs, and call the Admin API. The published artifact is `cloudinary-http5` (group `com.cloudinary`), built on Apache HttpClient 5. The current release line (2.x) requires Java 8 or later.
 
 ## Installation
-The cloudinary_java library is available in [Maven Central](https://mvnrepository.com/artifact/com.cloudinary/cloudinary-core). To use it, add the following dependency to your pom.xml :
+
+This is a multi-module library. Depend on `cloudinary-http5`, which pulls in `cloudinary-core` transitively. The latest version on Maven Central is `2.4.0`. On the 1.x line the artifact was `cloudinary-http45` (Apache HttpClient 4.5); there is no `cloudinary-http45` 2.x release, so change the coordinate to `cloudinary-http5` when upgrading.
+
+Maven — add to `pom.xml`:
 
 ```xml
 <dependency>
     <groupId>com.cloudinary</groupId>
-    <artifactId>cloudinary-http45</artifactId>
-    <version>2.3.1</version>
+    <artifactId>cloudinary-http5</artifactId>
+    <version>2.4.0</version>
 </dependency>
 ```
 
-## Usage
-### Setup
+Gradle — add to `build.gradle`:
 
-Each request for building a URL of a remote cloud resource must have the `cloud_name` parameter set.
-Each request to our secure APIs (e.g., image uploads, eager sprite generation) must have the `api_key` and `api_secret` parameters set.
-See [API, URLs and access identifiers](https://cloudinary.com/documentation/solution_overview#account_and_api_setup) for more details.
+```groovy
+implementation 'com.cloudinary:cloudinary-http5:2.4.0'
+```
 
-Setting the `cloud_name`, `api_key` and `api_secret` parameters can be done either directly in each call to a Cloudinary method,
-by when initializing the Cloudinary object, or by using the CLOUDINARY_URL environment variable / system property.
+## Configuration
 
-The entry point of the library is the Cloudinary object.
+The entry point is the `Cloudinary` object. The no-arg constructor reads credentials from the `CLOUDINARY_URL` environment variable (or a system property of the same name):
+
+```bash
+export CLOUDINARY_URL=cloudinary://<API_KEY>:<API_SECRET>@<CLOUD_NAME>
+```
+
 ```java
+import com.cloudinary.Cloudinary;
+
+// Reads CLOUDINARY_URL from the environment / system properties.
 Cloudinary cloudinary = new Cloudinary();
 ```
 
-Here's an example of setting the configuration parameters programatically:
+To set the credentials in code instead, pass a config map:
 
 ```java
-Map config = new HashMap();
-config.put("cloud_name", "n07t21i7");
-config.put("api_key", "123456789012345");
-config.put("api_secret", "abcdeghijklmnopqrstuvwxyz12");
-Cloudinary cloudinary = new Cloudinary(config);
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+
+Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
+    "cloud_name", "my_cloud_name",
+    "api_key",    "my_key",
+    "api_secret", "my_secret",
+    "secure",     true
+));
 ```
 
-Another example of setting the configuration parameters by providing the CLOUDINARY_URL value to the constructor:
+Keep the API secret on the server. Don't put it in client-side code or commit it to version control. Building a delivery URL needs only `cloud_name`; anything that signs a request (uploads, the Admin API) also needs `api_key` and `api_secret`.
 
-    Cloudinary cloudinary = new Cloudinary("cloudinary://123456789012345:abcdeghijklmnopqrstuvwxyz12@n07t21i7");
+## Quick examples
 
-### Transform and Optimize Assets
-- [See full documentation](https://cloudinary.com/documentation/java_image_manipulation)
-Any image uploaded to Cloudinary can be transformed and embedded using powerful view helper methods:
+### Upload a file
 
-The following example generates the url for accessing an uploaded `sample` image while transforming it to fill a 100x150 rectangle:
+`uploader().upload(file, options)` takes the file as its first argument — a local path `String`, a remote URL `String`, a `File`, or a `byte[]` — and a required options `Map`. Pass `ObjectUtils.emptyMap()` when you have no options. It returns a `Map` whose fields include `public_id` and `secure_url`:
 
 ```java
-cloudinary.url().transformation(new Transformation().width(100).height(150).crop("fill")).generate("sample.jpg");
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import java.util.Map;
+
+Cloudinary cloudinary = new Cloudinary(); // reads CLOUDINARY_URL
+
+Map result = cloudinary.uploader().upload("my_picture.jpg", ObjectUtils.asMap(
+    "public_id", "cms/hero" // optional: where the asset lives in your media library
+));
+System.out.println(result.get("public_id") + " " + result.get("secure_url"));
 ```
 
-Another example, emedding a smaller version of an uploaded image while generating a 90x90 face detection based thumbnail:
+### Build and optimize a delivery URL
+
+`cloudinary.url()` returns a `Url` builder; `.generate(source)` is synchronous and returns a `String` — no network call. This one resizes to a 100x150 fill crop and lets Cloudinary pick the format and quality for the requesting browser (`f_auto`, `q_auto`):
 
 ```java
-cloudinary.url().transformation(new Transformation().width(90).height(90).crop("thumb").gravity("face")).generate("woman.jpg");
+import com.cloudinary.Cloudinary;
+import com.cloudinary.Transformation;
+
+Cloudinary cloudinary = new Cloudinary("cloudinary://<API_KEY>:<API_SECRET>@demo");
+
+String url = cloudinary.url()
+    .transformation(new Transformation()
+        .width(100).height(150).crop("fill")
+        .fetchFormat("auto").quality("auto"))
+    .generate("sample.jpg");
+// https://res.cloudinary.com/demo/image/upload/c_fill,f_auto,h_150,q_auto,w_100/sample.jpg
 ```
 
-You can provide either a Facebook name or a numeric ID of a Facebook profile or a fan page.
+### Retrieve asset details
 
-Embedding a Facebook profile to match your graphic design is very simple:
+`api().resource(publicId, options)` takes a public ID and a required options `Map`, and returns the asset's metadata, including its `format`, `width`, `height`, and `secure_url`:
 
 ```java
-cloudinary.url().type("facebook").transformation(new Transformation().width(130).height(130).crop("fill").gravity("north_west")).generate("billclinton.jpg");
+import com.cloudinary.Cloudinary;
+import com.cloudinary.api.ApiResponse;
+import com.cloudinary.utils.ObjectUtils;
+
+Cloudinary cloudinary = new Cloudinary(); // reads CLOUDINARY_URL
+
+ApiResponse asset = cloudinary.api().resource("sample", ObjectUtils.emptyMap());
+System.out.println(asset.get("format") + " " + asset.get("width") + "x" + asset.get("height"));
+System.out.println(asset.get("secure_url"));
 ```
 
-### File upload
-Assuming you have your Cloudinary configuration parameters defined (`cloud_name`, `api_key`, `api_secret`), uploading to Cloudinary is very simple.
+## For AI agents
 
-The following example uploads a local JPG to the cloud:
+`cloudinary-http5` (group `com.cloudinary`) is the Java/JVM server-side SDK. Choose it for backend upload, asset administration, and signed URL or tag generation, where the API secret stays private. For other targets, choose a different package:
 
-```java
-cloudinary.uploader().upload("my_picture.jpg", ObjectUtils.emptyMap());
-```
+| Target | Package |
+|---|---|
+| Android app (secret not on-device) | [`cloudinary_android`](https://github.com/cloudinary/cloudinary_android) |
+| Idiomatic, coroutine-friendly Kotlin client | [`cloudinary_kotlin`](https://github.com/cloudinary/cloudinary_kotlin) |
+| Autonomous agent / no-code path | [Cloudinary MCP servers](https://github.com/cloudinary/mcp-servers) |
 
-The uploaded image is assigned a randomly generated public ID. The image is immediately available for download through a CDN:
+The 2.x artifact is `cloudinary-http5`. The legacy `cloudinary-http45` coordinate belongs to the 1.x line only and has no 2.x release.
 
-```java
-cloudinary.url().generate("abcfrmo8zul1mafopawefg.jpg");
+## Links
 
-# http://res.cloudinary.com/demo/image/upload/abcfrmo8zul1mafopawefg.jpg
-```
+- [Java SDK guide](https://cloudinary.com/documentation/java_integration)
+- [Upload](https://cloudinary.com/documentation/java_image_and_video_upload)
+- [Asset administration (Admin API)](https://cloudinary.com/documentation/java_asset_administration)
+- [Image manipulation](https://cloudinary.com/documentation/java_image_manipulation)
+- [Transformation and API references](https://cloudinary.com/documentation/cloudinary_references)
+- [Documentation llms.txt index](https://cloudinary.com/documentation/llms.txt)
+- [Artifact on Maven Central](https://central.sonatype.com/artifact/com.cloudinary/cloudinary-http5)
 
-You can also specify your own public ID:
-
-```java
-cloudinary.uploader().upload("http://www.example.com/image.jpg", ObjectUtils.asMap("public_id", "sample_remote"));
-
-cloudinary.url().generate("sample_remote.jpg");
-
-# http://res.cloudinary.com/demo/image/upload/sample_remote.jpg
-```
-
-## Contributions
-See [contributing guidelines](/CONTRIBUTING.md).
-
-## Get Help
-- [Open a Github issue](https://github.com/CloudinaryLtd/cloudinary_java/issues) (for issues related to the SDK)
-- [Open a support ticket](https://cloudinary.com/contact) (for issues related to your account)
-
-## About Cloudinary
-Cloudinary is a powerful media API for websites and mobile apps alike, Cloudinary enables developers to efficiently manage, transform, optimize, and deliver images and videos through multiple CDNs. Ultimately, viewers enjoy responsive and personalized visual-media experiences—irrespective of the viewing device.
-
-## Additional Resources
-- [Cloudinary Transformation and REST API References](https://cloudinary.com/documentation/cloudinary_references): Comprehensive references, including syntax and examples for all SDKs.
-- [MediaJams.dev](https://mediajams.dev/): Bite-size use-case tutorials written by and for Cloudinary Developers
-- [DevJams](https://www.youtube.com/playlist?list=PL8dVGjLA2oMr09amgERARsZyrOz_sPvqw): Cloudinary developer podcasts on YouTube.
-- [Cloudinary Academy](https://training.cloudinary.com/): Free self-paced courses, instructor-led virtual courses, and on-site courses.
-- [Code Explorers and Feature Demos](https://cloudinary.com/documentation/code_explorers_demos_index): A one-stop shop for all code explorers, Postman collections, and feature demos found in the docs.
-- [Cloudinary Roadmap](https://cloudinary.com/roadmap): Your chance to follow, vote, or suggest what Cloudinary should develop next.
-- [Cloudinary Facebook Community](https://www.facebook.com/groups/CloudinaryCommunity): Learn from and offer help to other Cloudinary developers.
-- [Cloudinary Account Registration](https://cloudinary.com/users/register/free): Free Cloudinary account registration.
-- [Cloudinary Website](https://cloudinary.com)
-
-## Licence
 Released under the MIT license.

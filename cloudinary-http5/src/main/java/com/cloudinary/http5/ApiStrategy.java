@@ -37,7 +37,7 @@ import static com.cloudinary.http5.ApiUtils.setTimeouts;
 
 public class ApiStrategy extends AbstractApiStrategy {
 
-    private static final String APACHE_HTTP_CLIENT_VERSION = System.getProperty("apache.http.client.version", "5.3.1");
+    private static final String APACHE_HTTP_CLIENT_VERSION = System.getProperty("apache.http.client.version", "5.6.4");
 
     private CloseableHttpClient client;
 

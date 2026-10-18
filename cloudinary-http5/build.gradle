@@ -27,3 +27,11 @@ dependencies {
 }
 
 // Publishing configuration moved to ../publish.gradle
+
+// Offline OOM regression test: large datasource response under a constrained heap.
+task memoryTest( type: Test ) {
+    include '**/DatasourceLargeResponseTest.class'
+    maxHeapSize = '256m'
+    maxParallelForks = 1
+    systemProperty 'datasource.test.entries', System.getProperty('datasource.test.entries', '300000')
+}

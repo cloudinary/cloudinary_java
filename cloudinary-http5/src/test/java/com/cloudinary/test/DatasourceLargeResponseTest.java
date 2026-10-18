@@ -28,7 +28,8 @@ import static org.junit.Assert.fail;
 
 /**
  * Offline tests (local HTTP server) for handling of very large datasource responses.
- * Run with a constrained heap via the {@code memoryTest} gradle task to act as an OOM regression test.
+ * Run with a constrained heap (e.g. an IDE run configuration with {@code -Xmx256m}) to act as an OOM regression test:
+ * with 300k entries (override with {@code -Ddatasource.test.entries}) the pre-fix response handling runs out of memory.
  */
 public class DatasourceLargeResponseTest {
     private static final int LARGE_ENTRIES = Integer.getInteger("datasource.test.entries", 300_000);

@@ -81,21 +81,21 @@ public class DatasourceLargeResponseTest {
                 // promise more bytes than we send, then drop the connection mid-body
                 exchange.sendResponseHeaders(200, 1_000_000);
                 OutputStream os = exchange.getResponseBody();
-                os.write("{\"external_id\":\"upc\",\"datasource\":{\"values\":[{\"external_id\":\"a".getBytes(StandardCharsets.UTF_8));
+                os.write("{\"values\":[{\"external_id\":\"a".getBytes(StandardCharsets.UTF_8));
                 os.flush();
                 exchange.close();
                 return;
             }
             exchange.sendResponseHeaders(200, 0); // chunked, generated on the fly
             try (OutputStream os = exchange.getResponseBody()) {
-                os.write("{\"external_id\":\"upc\",\"datasource\":{\"values\":[".getBytes(StandardCharsets.UTF_8));
+                os.write("{\"values\":[".getBytes(StandardCharsets.UTF_8));
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < responseEntries; i++) {
                     sb.append(i == 0 ? "" : ",").append("{\"external_id\":\"id").append(i)
                             .append("\",\"value\":\"vé中").append(i).append("\"}");
                     if (sb.length() > 8192) { os.write(sb.toString().getBytes(StandardCharsets.UTF_8)); sb.setLength(0); }
                 }
-                os.write(sb.append("]}}").toString().getBytes(StandardCharsets.UTF_8));
+                os.write(sb.append("]}").toString().getBytes(StandardCharsets.UTF_8));
             }
         });
         server.start();
@@ -119,8 +119,7 @@ public class DatasourceLargeResponseTest {
     @Test
     public void testSmallResponseParsedWithUtf8() throws Exception {
         ApiResponse res = cloudinary.api().updateMetadataFieldDatasource("upc", entries(2));
-        assertEquals("upc", res.get("external_id"));
-        List<?> values = (List<?>) ((Map<?, ?>) ((Map<?, ?>) res.get("datasource"))).get("values");
+        List<?> values = (List<?>) res.get("values");
         assertEquals(3, values.size());
         assertEquals("vé中1", ((Map<?, ?>) values.get(1)).get("value"));
         assertEquals(2, receivedEntries.get());
@@ -137,6 +136,21 @@ public class DatasourceLargeResponseTest {
     }
 
     @Test
+    public void testDeleteEntriesSkipResponseBodyReturnsEmptyResponse() throws Exception {
+        responseEntries = LARGE_ENTRIES;
+        ApiResponse res = cloudinary.api().deleteDatasourceEntries("upc", java.util.Arrays.asList("a", "b"),
+                ObjectUtils.asMap("skip_response_body", true));
+        assertTrue(res.isEmpty());
+        assertEquals(499L, res.apiRateLimit().getRemaining());
+    }
+
+    @Test
+    public void testDeleteEntriesResponseParsed() throws Exception {
+        ApiResponse res = cloudinary.api().deleteDatasourceEntries("upc", java.util.Arrays.asList("a"));
+        assertEquals(3, ((List<?>) res.get("values")).size());
+    }
+
+    @Test
     public void testLargeRequestSentIntact() throws Exception {
         cloudinary.api().updateMetadataFieldDatasource("upc", entries(LARGE_ENTRIES),
                 ObjectUtils.asMap("skip_response_body", true));
@@ -147,7 +161,7 @@ public class DatasourceLargeResponseTest {
     public void testLargeResponseParsed() throws Exception {
         responseEntries = LARGE_ENTRIES;
         ApiResponse res = cloudinary.api().updateMetadataFieldDatasource("upc", entries(1));
-        List<?> values = (List<?>) ((Map<?, ?>) res.get("datasource")).get("values");
+        List<?> values = (List<?>) res.get("values");
         assertEquals(LARGE_ENTRIES, values.size());
     }
 

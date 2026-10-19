@@ -135,9 +135,12 @@ public class ApiStrategy extends AbstractApiStrategy {
     @SuppressWarnings("unchecked")
     private Exception buildError(int code, String responseData) throws Exception {
         Map<String, Object> result;
+        if (responseData == null) {
+            throw new RuntimeException("Invalid JSON response from server null");
+        }
         try {
             result = ObjectUtils.toMap(new JSONObject(responseData));
-        } catch (JSONException | NullPointerException e) {
+        } catch (JSONException e) {
             throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
         }
 

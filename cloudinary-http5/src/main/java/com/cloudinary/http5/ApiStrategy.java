@@ -24,11 +24,15 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Timeout;
 import org.cloudinary.json.JSONException;
 import org.cloudinary.json.JSONObject;
+import org.cloudinary.json.JSONTokener;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -83,55 +87,72 @@ public class ApiStrategy extends AbstractApiStrategy {
 
         request.setHeader("Authorization", autorizationHeader);
 
-        return getApiResponse(request);
+        return getApiResponse(request, options);
     }
 
-    private ApiResponse getApiResponse(HttpUriRequestBase request) throws Exception {
-        String responseData = null;
-        int code = 0;
-        CloseableHttpResponse response;
-        try  {
-            response = client.execute(request);
-            code = response.getCode();
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private ApiResponse getApiResponse(HttpUriRequestBase request, Map options) throws Exception {
+        boolean skipResponseBody = options != null && ObjectUtils.asBoolean(options.get("skip_response_body"), false);
+
+        try (CloseableHttpResponse response = client.execute(request)) {
+            int code = response.getCode();
             HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                responseData = EntityUtils.toString(entity, StandardCharsets.UTF_8);
+
+            if (code != 200) {
+                String responseData = entity != null ? EntityUtils.toString(entity, StandardCharsets.UTF_8) : null;
+                throw buildError(code, responseData);
             }
+
+            if (skipResponseBody) {
+                EntityUtils.consumeQuietly(entity);
+                return new Response(response, Collections.<String, Object>emptyMap());
+            }
+
+            if (entity == null) {
+                throw new RuntimeException("Invalid JSON response from server: empty response body");
+            }
+
+            // Parse straight from the stream (explicit UTF-8) to avoid buffering the whole body as a String.
+            Map<String, Object> result;
+            try (InputStream content = entity.getContent()) {
+                JSONObject responseJSON = new JSONObject(new JSONTokener(new InputStreamReader(content, StandardCharsets.UTF_8)));
+                result = ObjectUtils.toMap(responseJSON);
+            } catch (JSONException e) {
+                if (e.getCause() instanceof IOException) {
+                    // network failure while reading the body: same error type as before streaming the parse
+                    throw new GeneralError("Error executing request: " + e.getMessage());
+                }
+                throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
+            }
+            EntityUtils.consumeQuietly(entity);
+
+            return new Response(response, result);
         } catch (IOException e) {
             throw new GeneralError("Error executing request: " + e.getMessage());
         }
+    }
 
-        if (code != 200) {
-            Map<String, Object> result;
-            try {
-                JSONObject responseJSON = new JSONObject(responseData);
-                result = ObjectUtils.toMap(responseJSON);
-            } catch (JSONException e) {
-                throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
-            }
-
-            // Extract the error message from the result map
-            String message = (String) ((Map<String, Object>) result.get("error")).get("message");
-
-            // Get the appropriate exception class based on status code
-            Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
-            if (exceptionClass != null) {
-                Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
-                throw exceptionConstructor.newInstance(message);
-            } else {
-                throw new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
-            }
-        }
-
+    @SuppressWarnings("unchecked")
+    private Exception buildError(int code, String responseData) throws Exception {
         Map<String, Object> result;
+        if (responseData == null) {
+            throw new RuntimeException("Invalid JSON response from server null");
+        }
         try {
-            JSONObject responseJSON = new JSONObject(responseData);
-            result = ObjectUtils.toMap(responseJSON);
+            result = ObjectUtils.toMap(new JSONObject(responseData));
         } catch (JSONException e) {
             throw new RuntimeException("Invalid JSON response from server " + e.getMessage());
         }
 
-        return new Response(response, result);
+        Object error = result.get("error");
+        String message = error instanceof Map ? (String) ((Map<String, Object>) error).get("message") : null;
+
+        Class<? extends Exception> exceptionClass = Api.CLOUDINARY_API_ERROR_CLASSES.get(code);
+        if (exceptionClass != null) {
+            Constructor<? extends Exception> exceptionConstructor = exceptionClass.getConstructor(String.class);
+            return exceptionConstructor.newInstance(message);
+        }
+        return new GeneralError("Server returned unexpected status code - " + code + " - " + responseData);
     }
 
     @Override
@@ -144,7 +165,7 @@ public class ApiStrategy extends AbstractApiStrategy {
         request.setHeader("Authorization", authorizationHeader);
 
         // Execute the request and return the response
-        return getApiResponse(request);
+        return getApiResponse(request, options);
     }
 
     private HttpUriRequestBase prepareRequest(Api.HttpMethod method, String apiUrl, Map<String, ? extends Object> params, Map<String, ?> options) throws URISyntaxException {

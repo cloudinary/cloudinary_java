@@ -54,7 +54,7 @@ Note:
 
 - Pass the public ID without an extension. `videoTag` appends `.webm`, `.mp4`, and `.ogv`
   itself, and derives the `.jpg` poster from the same ID.
-- The poster is a generated thumbnail of the first frame.
+- The poster is a generated thumbnail of the middle frame.
 - Default source formats are WebM, MP4, and OGV.
 
 For attribute values that come from user input, use `generate()` and let your template engine

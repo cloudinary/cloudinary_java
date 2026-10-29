@@ -85,7 +85,8 @@ public Cloudinary cloudinary(@Value("${cloudinary.url}") String cloudinaryUrl) {
 
 `Uploader.upload` accepts `File`, `String`, `byte[]`, or `null`. An `InputStream` is not an accepted
 type; `upload(multipartFile.getInputStream(), ...)` throws
-`IOException: Unrecognized file parameter`.
+`IOException: Unrecognized file parameter`. `uploadLarge` does accept an `InputStream`; see
+[Large files without buffering in memory](#large-files-without-buffering-in-memory).
 
 Pass the bytes:
 
@@ -114,7 +115,7 @@ public class ImageUploadController {
     @PostMapping
     public ResponseEntity<?> upload(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "No file supplied"));
+            return ResponseEntity.badRequest().body(ObjectUtils.asMap("error", "No file supplied"));
         }
         try {
             Map result = cloudinary.uploader().upload(
@@ -125,16 +126,16 @@ public class ImageUploadController {
                             "resource_type",   "auto",
                             "allowed_formats", "jpg,png,webp,mp4"));
 
-            return ResponseEntity.ok(Map.of(
+            return ResponseEntity.ok(ObjectUtils.asMap(
                     "assetId",   result.get("asset_id"),
                     "publicId",  result.get("public_id"),
                     "secureUrl", result.get("secure_url")));
 
         } catch (IOException e) {
-            return ResponseEntity.status(500).body(Map.of("error", "Could not read upload"));
+            return ResponseEntity.status(500).body(ObjectUtils.asMap("error", "Could not read upload"));
         } catch (RuntimeException e) {
             // Upload failures are reported as RuntimeException carrying a message; log it server-side.
-            return ResponseEntity.status(502).body(Map.of("error", "Upload failed"));
+            return ResponseEntity.status(502).body(ObjectUtils.asMap("error", "Upload failed"));
         }
     }
 }
@@ -164,24 +165,20 @@ spring:
 
 ### Large files without buffering in memory
 
-For big uploads, write to a temp file and use `uploadLarge`, which uploads in chunks:
+For big uploads, pass the multipart stream to `uploadLarge`, which reads it in chunks, so the
+application holds neither the whole payload in memory nor a temp copy of it:
 
 ```java
-java.io.File temp = java.io.File.createTempFile("upload-", null);
-try {
-    file.transferTo(temp);
-    Map result = cloudinary.uploader().uploadLarge(temp, ObjectUtils.asMap(
+try (java.io.InputStream in = file.getInputStream()) {
+    Map result = cloudinary.uploader().uploadLarge(in, ObjectUtils.asMap(
             "resource_type", "video",       // required for video; defaults to image
-            "folder",        "videos"));
-} finally {
-    if (!temp.delete()) {
-        // log; do not fail the request over a temp file
-    }
+            "folder",        "videos",
+            "filename",      file.getOriginalFilename()));
 }
 ```
 
-Delete the temp file in a `finally`. `uploadLarge` requires `resource_type` for anything other than
-an image — see [upload-large-video.md](upload-large-video.md).
+`uploadLarge` requires `resource_type` for anything other than an image — see
+[upload-large-video.md](upload-large-video.md).
 
 ## Delivering URLs from a controller or template
 

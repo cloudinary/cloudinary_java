@@ -10,12 +10,11 @@
 Store `asset_id` as your durable reference. Store `public_id` only if you need to reconstruct a
 URL, and re-read it when you need it.
 
-Six `Api` methods accept an `asset_id`:
+Five `Api` methods accept an `asset_id`:
 
 ```
 Api.resourceByAssetID(String, Map)
 Api.resourcesByAssetIDs(Iterable, Map)
-Api.resourcesByAssetFolder(String, Map)
 Api.deleteResourcesByAssetIds(Iterable, Map)
 Api.restoreByAssetIds(Iterable, Map)
 Api.deleteBackedUpAssets(String, String[], Map)

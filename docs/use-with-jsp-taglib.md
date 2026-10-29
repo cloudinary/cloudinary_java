@@ -51,8 +51,7 @@ import javax.annotation.PreDestroy;
 @Configuration
 public class CloudinaryConfig {
 
-    private final Cloudinary cloudinary =
-            new Cloudinary(System.getenv("CLOUDINARY_URL"));
+    private final Cloudinary cloudinary = new Cloudinary();   // reads CLOUDINARY_URL
 
     @Bean
     public Cloudinary cloudinary() {
@@ -75,8 +74,9 @@ Call `deregisterCloudinary()` on shutdown. The singleton is a static field, so i
 redeploys applications without restarting the JVM, an instance left registered outlives its
 deployment, and the redeployed application would read the previous deployment's configuration.
 
-`SingletonManager` is an alternative that watches for configuration and registers automatically;
-the explicit form above keeps the registration visible in your code.
+`SingletonManager` wraps the same two calls in a bean: `setCloudinary(...)` supplies the instance,
+`init()` registers it, and `destroy()` deregisters it. Nothing calls `init()` or `destroy()` for
+you; declare them as the bean's init and destroy methods.
 
 ## Declaring the taglib
 
@@ -93,7 +93,7 @@ The URI must be exactly that string.
 | `<cl:image>` | Emit an `<img>` for a Cloudinary asset |
 | `<cl:video>` | Emit a `<video>` element |
 | `<cl:url>` | Emit just the URL string |
-| `<cl:transformation>` | Nested inside the above, to describe a transformation |
+| `<cl:transformation>` | Emit a transformation string such as `c_fill,w_300` |
 | `<cl:upload>` | Signed upload form field |
 | `<cl:unsignedUpload>` | Unsigned upload form field, needs a preset |
 | `<cl:jsconfig>` | Emit JS configuration for Cloudinary's browser libraries |
@@ -101,36 +101,27 @@ The URI must be exactly that string.
 
 ### Attributes: `src` and dynamic transformation attributes
 
-- The asset is named by `src`. `<cl:image>`, `<cl:video>`, and `<cl:url>` inherit `src` from
-  `CloudinaryUrl`; there is no `publicId` attribute on these tags.
-- Transformation parameters are *dynamic* attributes. `<cl:transformation>` declares no attributes
-  in the TLD; it implements `DynamicAttributes`, so `width`, `height`, `crop`, `gravity`, and the
-  rest are accepted as arbitrary attributes and passed through. They therefore do not appear in the
-  TLD, and a misspelled parameter name is passed through without an error.
+- The asset is named by `src`. The TLD also declares a deprecated `publicId` attribute on
+  `<cl:image>` and `<cl:video>`, but the tag classes have no setter for it, so a page that uses it
+  fails with `JasperException: Unable to find setter method for attribute: [publicId]`.
+- Transformation parameters are *dynamic* attributes on `<cl:image>`, `<cl:video>`, and
+  `<cl:url>`: they are not declared in the TLD and are passed to the transformation as given.
+  Use the SDK's snake_case parameter names (`width`, `crop`, `fetch_format`). An unrecognised
+  name, such as `fetchFormat`, is dropped without an error.
+- The body of `<cl:image>`, `<cl:video>`, and `<cl:url>` is not evaluated, so a nested
+  `<cl:transformation>` has no effect on the parent tag.
 
 ### Images
 
 ```jsp
-<cl:image src="docs_sample" format="jpg">
-    <cl:transformation width="300" height="200" crop="fill" gravity="auto"/>
-</cl:image>
+<cl:image src="docs_sample" format="jpg" width="300" height="200" crop="fill" gravity="auto"/>
 ```
 
-Transformation parameters may also be set directly on the tag, since it takes dynamic attributes
-too:
+For chained transformations, use the `transformation` attribute with a raw transformation string.
+Whitespace separates the chained components:
 
 ```jsp
-<cl:image src="docs_sample" width="300" height="200" crop="fill"/>
-```
-
-Chained transformations are successive `<cl:transformation>` elements:
-
-```jsp
-<cl:image src="docs_sample">
-    <cl:transformation width="400" height="400" crop="fill" gravity="auto"/>
-    <cl:transformation effect="sharpen"/>
-    <cl:transformation fetchFormat="auto" quality="auto"/>
-</cl:image>
+<cl:image src="docs_sample" transformation="c_fill,g_auto,h_400,w_400 e_sharpen f_auto,q_auto"/>
 ```
 
 ### URL only
@@ -140,7 +131,7 @@ Emitting the URL alone lets the JSP escape the surrounding attributes itself. `<
 into a variable:
 
 ```jsp
-<img src="<cl:url src='docs_sample' width='600' crop='fill' fetchFormat='auto' quality='auto'/>"
+<img src="<cl:url src='docs_sample' width='600' crop='fill' fetch_format='auto' quality='auto'/>"
      alt="<c:out value='${product.name}'/>"/>
 ```
 
@@ -151,9 +142,7 @@ expose it as a model attribute. This is the more flexible path for anything non-
 ### Video
 
 ```jsp
-<cl:video src="docs_video">
-    <cl:transformation width="640" crop="scale" quality="auto"/>
-</cl:video>
+<cl:video src="docs_video" width="640" crop="scale" quality="auto"/>
 ```
 
 `<cl:video>` also accepts `sourceTypes`, `poster`, `autoplay`, `controls`, `loop`, `muted`, and
@@ -180,9 +169,9 @@ singleton's API secret:
 </form>
 ```
 
-The signature covers the attributes you set, so set every one you want to constrain; a parameter
-that is not signed can be chosen by the client. See
-[sign-browser-upload.md](sign-browser-upload.md) for the reasoning, which applies identically here.
+The tag signs every upload parameter it emits. Cloudinary rejects an upload whose parameters
+differ from the signed set, so the client cannot add or change parameters. See
+[sign-browser-upload.md](sign-browser-upload.md).
 
 `<cl:unsignedUpload>` requires an upload preset and involves no secret, so anyone who can read the
 page can upload. Constrain the preset accordingly.

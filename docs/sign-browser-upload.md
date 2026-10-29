@@ -43,12 +43,13 @@ does not compile.
 Return that map to the client as JSON. It contains the API key and a signature but not the API
 secret.
 
-### What you sign is what you constrain
+### The signed map is the full parameter set
 
-The signature covers exactly the parameters you put in the map. Parameters you do not sign are set
-by the client.
+The upload must send exactly the parameters in the signed map, with the same values. Cloudinary
+rejects the upload with `Invalid Signature` if the client adds a parameter, omits one, or changes a
+value. Only `file`, `cloud_name`, `resource_type`, and `api_key` are outside the signature.
 
-Sign every parameter you want to fix:
+Put every parameter the upload needs into the map on the server:
 
 ```java
 params.put("timestamp", System.currentTimeMillis() / 1000L);

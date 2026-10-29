@@ -12,7 +12,8 @@ String url = cloudinary.url().generate("docs_sample.jpg");
 
 Two properties of that output:
 
-- It is `https`. `secure` defaults to `true`.
+- It is `https`. `secure` defaults to `true` when configuration comes from a `Map` or
+  `CLOUDINARY_URL`; with `new Configuration()` or `Configuration.Builder`, set it explicitly.
 - The `?_a=` parameter is SDK analytics. See
   [configure-cloudinary.md](configure-cloudinary.md) to disable it.
 

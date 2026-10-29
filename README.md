@@ -9,18 +9,16 @@ Upload, transform, optimize, and manage images and videos with Cloudinary from J
 
 ## Install
 
-Use the version shown on the Maven Central badge above.
-
 ```xml
 <dependency>
     <groupId>com.cloudinary</groupId>
     <artifactId>cloudinary-http5</artifactId>
-    <version>X.Y.Z</version>
+    <version>2.6.0</version>
 </dependency>
 ```
 
 ```groovy
-implementation 'com.cloudinary:cloudinary-http5:X.Y.Z'
+implementation 'com.cloudinary:cloudinary-http5:2.6.0'
 ```
 
 For JSP tags, also add `cloudinary-taglib`.

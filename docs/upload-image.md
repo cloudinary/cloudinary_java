@@ -23,21 +23,17 @@ System.out.println(result.get("asset_id"));
 | `byte[]` | Uploads the bytes directly. |
 | `null` | No file part is sent. |
 
-`InputStream` is not supported; passing one throws
-`java.io.IOException: Unrecognized file parameter java.io.ByteArrayInputStream@...`. Read the
-stream into a `byte[]` first:
+`upload()` does not accept an `InputStream`; passing one throws
+`java.io.IOException: Unrecognized file parameter java.io.ByteArrayInputStream@...`. Pass the
+stream to `uploadLarge` instead, which reads it in chunks rather than holding the whole file in
+memory:
 
 ```java
-ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-byte[] chunk = new byte[8192];
-for (int n; (n = inputStream.read(chunk)) != -1; ) {
-    buffer.write(chunk, 0, n);
-}
-byte[] bytes = buffer.toByteArray();
-cloudinary.uploader().upload(bytes, ObjectUtils.asMap("filename", "upload.jpg"));
+cloudinary.uploader().uploadLarge(inputStream, ObjectUtils.asMap("filename", "upload.jpg"));
 ```
 
-Pass `filename` alongside `byte[]`; without it the upload is named `file` with no extension.
+Pass `filename` alongside an `InputStream` or `byte[]`; without it the upload is named `file` with
+no extension.
 
 Uploading from a remote URL means Cloudinary fetches the file, so the bytes never pass through your
 application:
@@ -153,8 +149,11 @@ Map<String, Object> built = Util.buildUploadParams(ObjectUtils.asMap(
         "totally_bogus_param", "v"));
 
 built.containsKey("totally_bogus_param");   // false: not forwarded
-built.containsKey("public_id");             // true
+built.get("public_id");                     // "x"
 ```
+
+The built map contains every recognised key, set to `null` when the option was not supplied, so
+check the value rather than `containsKey`.
 
 `upload()` sends the map `buildUploadParams` returns, plus `timestamp`, `signature`, and `api_key`,
 which the SDK adds when signing. That map covers named fields such as `public_id`, `folder`, and

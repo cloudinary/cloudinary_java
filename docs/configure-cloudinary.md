@@ -53,10 +53,13 @@ Configuration configuration = new Configuration();
 configuration.cloudName = "my-cloud";
 configuration.apiKey = "123456789012345";
 configuration.apiSecret = "abcdeghijklmnopqrstuvwxyz12";
+configuration.secure = true;
 Cloudinary cloudinary = new Cloudinary(configuration);
 ```
 
-`Configuration` fields are public and mutable. A `Configuration.Builder` is also available.
+`Configuration` fields are public and mutable. A `Configuration.Builder` is also available. Both
+start with `secure` set to `false` and analytics off, so set `secure` explicitly; without it,
+`url().generate(...)` returns `http://` URLs.
 
 ## Cloud names containing an underscore
 
@@ -74,7 +77,14 @@ Configuration.from("cloudinary://key:secret@my_cloud").cloudName;  // null
 Configuration.from("cloudinary://key:secret@my_cloud").apiKey;     // null
 ```
 
-The exception appears on the first call that needs credentials:
+The exception appears on the first call that needs configuration. Signed uploads and Admin API
+calls check credentials first:
+
+```
+java.lang.IllegalArgumentException: Must supply api_key
+```
+
+URL generation and unsigned uploads check the cloud name:
 
 ```
 java.lang.IllegalArgumentException: Must supply cloud_name in tag or in configuration
@@ -106,16 +116,16 @@ A `null` check here at startup distinguishes "credentials absent or unparseable"
 
 | Field / key | Default | Meaning |
 |---|---|---|
-| `secure` | `true` | Generate `https://` delivery URLs. Set `false` only when there is a specific reason to. |
+| `secure` | `true` from a `Map` or `CLOUDINARY_URL`; `false` from `new Configuration()` or `Configuration.Builder` | Generate `https://` delivery URLs. |
 | `cname` | unset | Custom delivery domain. |
 | `private_cdn` | `false` | Use a private CDN distribution. |
 | `upload_prefix` | `https://api.cloudinary.com` | API base. Change only for testing against a different endpoint. |
-| `timeout` | `0` (no explicit timeout) | Request timeout in seconds. |
+| `timeout` | `0` (the SDK sets none; HttpClient's default 3-minute read timeout applies) | Request timeout in seconds. |
 | `force_version` | `true` | Include the version segment in delivery URLs. |
-| `analytics` | enabled | Appends a `_a=` query parameter to generated URLs. See below. |
+| `analytics` | enabled from a `Map` or `CLOUDINARY_URL`; off from `new Configuration()` or `Configuration.Builder` | Appends a `_a=` query parameter to generated URLs. See below. |
 
-`secure` defaults to `true`, so `url().generate(...)` returns an `https://` URL unless configured
-otherwise. The upload response contains both `url` (http) and `secure_url` (https); read
+With configuration from a `Map` or `CLOUDINARY_URL`, `secure` defaults to `true`, so
+`url().generate(...)` returns an `https://` URL unless configured otherwise. The upload response contains both `url` (http) and `secure_url` (https); read
 `secure_url`.
 
 ### The `_a=` query parameter
@@ -127,9 +137,11 @@ https://res.cloudinary.com/my-cloud/image/upload/sample.jpg?_a=DAGCg+ALZAA0
 ```
 
 This parameter encodes the SDK and language version; it is not a cache-buster. It appears on URLs
-built by `url().generate()` and is not present in the `secure_url` field of an upload response.
+built by `url().generate()` and is not present in the `secure_url` field of an upload response. It
+is not added to a URL that already has a query string, such as one carrying an auth token.
 
-To turn it off, supply your own `Analytics` instance or disable it in configuration:
+`cloudinary.setAnalytics(...)` changes the value of `_a=`. To turn it off, disable it in
+configuration:
 
 ```java
 Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(

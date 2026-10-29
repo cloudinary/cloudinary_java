@@ -108,8 +108,10 @@ try {
 }
 ```
 
-Only `ApiException` subclasses are thrown in practice, but the `throws Exception` declaration means
-the compiler requires the broader catch. Catch `ApiException` first, then `Exception`.
+Besides `ApiException` subclasses, an Admin API call throws `RuntimeException: Invalid JSON response
+from server ...` when the response body is not JSON, such as an HTML 502 page from a proxy, and
+`IllegalArgumentException: Must supply api_key` when credentials are missing. The `Exception`
+branch catches both. Catch `ApiException` first, then `Exception`.
 
 Neither block catches `UnknownError`; see the next section.
 

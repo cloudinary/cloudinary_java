@@ -80,9 +80,9 @@ cloudinary.uploader().uploadLarge(new File("feature.mp4"),
 // -> java.lang.IllegalArgumentException: Progress callback is not supported
 ```
 
-To report progress on the server, track it yourself — for example by driving the chunk loop with
-the `uploadLarge(file, options, bufferSize, offset, uniqueUploadId, callback)` overload and passing
-`null` for the callback, or by reporting per-file rather than per-chunk.
+On the server, report progress per file. The
+`uploadLarge(file, options, bufferSize, offset, uniqueUploadId, callback)` overload uploads every
+chunk from `offset` to the end of the file in one call, so it offers no per-chunk hook either.
 
 ## `uploadLargeRaw` for non-media files
 
@@ -124,8 +124,10 @@ boolean valid = cloudinary.verifyNotificationSignature(
         7200L);                                   // validity window in seconds
 ```
 
-Consider raising `timeout` in configuration for large synchronous uploads — it defaults to `0`,
-meaning no explicit timeout is set by the SDK.
+Consider raising `timeout` in configuration for large synchronous uploads. It defaults to `0`,
+meaning the SDK sets no timeout and HttpClient's default 3-minute read timeout applies; an upload
+whose response takes longer fails with `java.net.SocketTimeoutException: Read timed out`. A
+positive value replaces that limit.
 
 ## Related
 

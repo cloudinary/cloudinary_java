@@ -4,9 +4,8 @@
  *
  * Prerequisites
  *   - CLOUDINARY_URL set in the environment, or just a cloud name. Only cloud_name is used.
- *   - cloudinary-core on the classpath is sufficient for this one; no HTTP adapter is needed
- *     because nothing is sent. Note the Cloudinary constructor still requires an adapter,
- *     so in practice run it with cloudinary-http5 present.
+ *   - cloudinary-http5 on the classpath. Nothing is sent, but the Cloudinary constructor
+ *     requires an HTTP adapter and throws java.lang.UnknownError without one.
  *
  * Run
  *   javac -cp "<classpath>" -d out examples/TransformAndDeliver.java

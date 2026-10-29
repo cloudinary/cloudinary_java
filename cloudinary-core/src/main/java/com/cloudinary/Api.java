@@ -755,12 +755,28 @@ public class Api {
      * @param fieldExternalId The id of the field to update
      * @param entries         A list of datasource entries. Existing entries (according to entry id) will be updated,
      *                        new entries will be added.
-     * @return The updated field definition.
+     * @return The datasource entries (a map with a {@code values} key).
      * @throws Exception
      */
     public ApiResponse updateMetadataFieldDatasource(String fieldExternalId, List<MetadataDataSource.Entry> entries) throws Exception {
+        return updateMetadataFieldDatasource(fieldExternalId, entries, null);
+    }
+
+    /**
+     * Update a data source's entries (see {@link #updateMetadataFieldDatasource(String, List)}), with extra options.
+     *
+     * @param fieldExternalId The id of the field to update
+     * @param entries         A list of datasource entries. Existing entries (according to entry id) will be updated,
+     *                        new entries will be added.
+     * @param options         Extra options. Set {@code skip_response_body} to {@code true} to skip parsing the response
+     *                        (which echoes the whole datasource) and return an empty response; recommended for very large
+     *                        datasources to avoid excessive memory usage.
+     * @return The datasource entries (a map with a {@code values} key), or an empty response if {@code skip_response_body} is set.
+     * @throws Exception
+     */
+    public ApiResponse updateMetadataFieldDatasource(String fieldExternalId, List<MetadataDataSource.Entry> entries, Map options) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
-        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("values", entries), Collections.singletonMap("content_type", "json"));
+        return callApi(HttpMethod.PUT, uri, Collections.singletonMap("values", entries), withJsonContentType(options));
     }
 
     /**
@@ -772,8 +788,23 @@ public class Api {
      * @throws Exception
      */
     public ApiResponse deleteDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
+        return deleteDatasourceEntries(fieldExternalId, entriesExternalId, null);
+    }
+
+    /**
+     * Delete data source entries for a given field, with extra options.
+     *
+     * @param fieldExternalId   The id of the field to update
+     * @param entriesExternalId The ids of all the entries to delete from the data source
+     * @param options           Extra options. Set {@code skip_response_body} to {@code true} to skip parsing the response
+     *                          (which echoes the whole datasource) and return an empty response; recommended for very large
+     *                          datasources to avoid excessive memory usage.
+     * @return The remaining datasource entries, or an empty response if {@code skip_response_body} is set.
+     * @throws Exception
+     */
+    public ApiResponse deleteDatasourceEntries(String fieldExternalId, List<String> entriesExternalId, Map options) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource");
-        return callApi(HttpMethod.DELETE, uri, Collections.singletonMap("external_ids", entriesExternalId), Collections.emptyMap());
+        return callApi(HttpMethod.DELETE, uri, Collections.singletonMap("external_ids", entriesExternalId), withJsonContentType(options));
     }
 
     /**
@@ -785,8 +816,31 @@ public class Api {
      * @throws Exception
      */
     public ApiResponse restoreDatasourceEntries(String fieldExternalId, List<String> entriesExternalId) throws Exception {
+        return restoreDatasourceEntries(fieldExternalId, entriesExternalId, null);
+    }
+
+    /**
+     * Restore deleted data source entries for a given field, with extra options.
+     *
+     * @param fieldExternalId   The id of the field to operate
+     * @param entriesExternalId The ids of all the entries to restore from the data source
+     * @param options           Extra options. Set {@code skip_response_body} to {@code true} to skip parsing the response.
+     * @return The datasource entries state after restore, or an empty response if {@code skip_response_body} is set.
+     * @throws Exception
+     */
+    public ApiResponse restoreDatasourceEntries(String fieldExternalId, List<String> entriesExternalId, Map options) throws Exception {
         List<String> uri = Arrays.asList("metadata_fields", fieldExternalId, "datasource_restore");
-        return callApi(HttpMethod.POST, uri, Collections.singletonMap("external_ids", entriesExternalId), Collections.singletonMap("content_type", "json"));
+        return callApi(HttpMethod.POST, uri, Collections.singletonMap("external_ids", entriesExternalId), withJsonContentType(options));
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static Map withJsonContentType(Map options) {
+        Map merged = new java.util.HashMap();
+        if (options != null) {
+            merged.putAll(options);
+        }
+        merged.put("content_type", "json");
+        return merged;
     }
 
     /**

@@ -1,3 +1,8 @@
+2.6.0 / 2026-10-28
+==================
+
+* Fix OOM when updating very large metadata datasources
+
 2.5.0 / 2026-09-28
 ==================
 

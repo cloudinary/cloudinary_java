@@ -47,3 +47,7 @@ cloudinary-android/src/androidTest/AndroidManifest.xml
 /tools/cloudinary_url.txt
 /tools/History.md
 
+## Artifacts left behind by running examples/
+/example-video.mp4
+/out/
+

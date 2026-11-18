@@ -183,7 +183,7 @@ public class Uploader {
 
             if (atEnd || fullBuffer) {
                 totalBytes += currentBufferSize;
-                long currentLoc = offset + bufferSize * partNumber;
+                long currentLoc = offset + (long) bufferSize * partNumber;
                 if (!atEnd) {
                     //verify not on end - try read another byte
                     bytesRead = input.read(nibbleBuffer, 0, 1);
